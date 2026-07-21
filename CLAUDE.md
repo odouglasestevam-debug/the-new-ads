@@ -1,14 +1,53 @@
-# Claude Code OS — Kit Ratos de IA
+# The New Ads — Claude Code OS
 
-Este repositório é o kit de boas-vindas do curso Claude Code OS.
+## O que é esse workspace
 
-Se você acabou de clonar esse repositório:
-1. Rode `/setup` pra configurar o sistema pro seu negócio (uns 5 minutos)
-2. Depois rode `/mapear` pra criar skills personalizadas pro que você faz no dia a dia
+Workspace de operação da The New Ads, agência de marketing de performance de Douglas Estevam. Aqui ficam clientes, briefings, propostas, conteúdo, dados e a identidade de marca usada em qualquer entrega visual.
+
+**Estrutura de pastas:**
+- `_contexto/` — memória do sistema (não apagar)
+- `marca/` — brand book, logos e design-guide da The New Ads
+- `clientes/` — um subdiretório por cliente (usar `_modelo-cliente/` como base pra clientes novos)
+- `briefings/` — briefings recebidos
+- `propostas/` — propostas em andamento e enviadas
+- `conteudo/` — produção de conteúdo (copy, posts, roteiros)
+- `dados/` — relatórios, exports de campanha, CSVs pra análise
+- `tarefas.md` — lista de tarefas corrente
+- `templates/skills/` — templates de skills prontos pra personalizar com `/mapear`
+- `templates/ferramentas/catalogo.md` — APIs e ferramentas disponíveis pra usar em skills
+
+## Sobre o negócio
+
+Agência de marketing digital de performance. Serviços: Google Ads, Meta Ads, tracking avançado (GTM/GA4/CAPI), landing pages, automações (n8n, Evolution API, Chatwoot), dashboards (Looker Studio) e copywriting. Atende clientes locais em segmentos como advocacia, clínicas, imobiliárias, construção civil, estética e e-commerce.
+
+## O que mais fazemos aqui
+
+- Gestão e análise de campanhas (Google Ads / Meta Ads)
+- Copy e apresentações
+- Relatórios de performance
+- Propostas comerciais
+- Conteúdo e posts (incluindo publicação no Instagram)
+- Automações operacionais (n8n)
+
+## Clientes e contexto
+
+Atende clientes externos, múltiplos segmentos locais. Cada cliente novo ganha uma pasta em `clientes/[nome-cliente]/`, com base no modelo em `clientes/_modelo-cliente/`.
+
+## Tom de voz
+
+Objetivo, técnico, direto, sem enrolação, em português do Brasil. Nunca usar travessão (—). Sem clichês de IA. Ver `_contexto/preferencias.md` para detalhes completos.
+
+## Ferramentas conectadas
+
+- [ ] N8N (MCP disponível — `claude mcp add n8n -- npx -y n8n-mcp`)
+- [ ] Google Calendar (agendar reuniões)
+- [ ] Gmail (comunicação com clientes)
+- [ ] Google Drive (briefings, decks)
+- [ ] Skills `/ads-ratos`, `/meta-ads-ratos`, `/google-ads-ratos`, `/ga4-ratos` (gestão e relatório de campanhas)
+
+*(Marcar conforme for instalando os MCPs — ver `tarefas.md` pra pendências)*
 
 ---
-
-<!-- Este arquivo será atualizado pelo /setup com o contexto do seu negócio. -->
 
 ## Contexto do negócio
 
@@ -20,7 +59,7 @@ No início de toda conversa, ler os seguintes arquivos (se existirem e estiverem
 
 Usar essas informações como base pra qualquer resposta ou decisão. Ao sugerir prioridades, formatos ou abordagens, considerar o foco atual descrito em `estrategia.md`.
 
-Para qualquer tarefa visual (carrossel, proposta, slide, landing page), consultar `marca/design-guide.md` como referência de estilo.
+Para qualquer tarefa visual (carrossel, proposta, slide, landing page), consultar `marca/design-guide.md` como referência de estilo — seguir os padrões do brand book (`marca/brand-book.html`) à risca.
 
 Não é necessário listar o que foi lido nem confirmar a leitura. Apenas usar o contexto naturalmente.
 
