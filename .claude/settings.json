@@ -1,4 +1,10 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(node -e ' *)",
+      "Bash(curl -s https://trafegocomdouglas.com/the-new-ads/ -o \"/c/Users/odoug/AppData/Local/Temp/claude/c--Users-odoug-OneDrive-Documentos-the-new-ads/de139a8e-71f9-422c-93ff-abd695c3b006/scratchpad/check3.html\")"
+    ]
+  },
   "hooks": {
     "Stop": [
       {
