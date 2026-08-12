@@ -121,7 +121,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bash -c 'git rev-parse --git-dir >/dev/null 2>&1 || exit 0; git remote get-url origin >/dev/null 2>&1 || exit 0; git add -A >/dev/null 2>&1; git diff --staged --quiet && exit 0; git commit -m \"auto-sync: $(date +\"%Y-%m-%d %H:%M\")\" >/dev/null 2>&1; git push --quiet >/dev/null 2>&1; true'"
+            "command": "bash -c 'git rev-parse --git-dir >/dev/null 2>&1 || exit 0; git remote get-url origin >/dev/null 2>&1 || exit 0; LOG=\"$(git rev-parse --show-toplevel)/.claude/auto-sync.log\"; git add -A >/dev/null 2>&1; git diff --staged --quiet && exit 0; COMMIT_OUT=$(git commit -m \"auto-sync: $(date +\"%Y-%m-%d %H:%M\")\" 2>&1); if [ $? -ne 0 ]; then echo \"[$(date -Iseconds)] COMMIT FALHOU: $COMMIT_OUT\" >> \"$LOG\"; exit 0; fi; PUSH_OUT=$(git push 2>&1); if [ $? -ne 0 ]; then echo \"[$(date -Iseconds)] PUSH FALHOU: $PUSH_OUT\" >> \"$LOG\"; fi; true'"
           }
         ]
       }

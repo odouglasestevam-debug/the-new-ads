@@ -37,6 +37,10 @@ automacoes-dm.md
 prioridades.md
 contas.yaml
 
+# Config local do Claude Code (permissoes/hooks pessoais, nunca deve ir pro repo)
+.claude/settings.local.json
+.claude/auto-sync.log
+
 # Sistema
 .DS_Store
 node_modules/
