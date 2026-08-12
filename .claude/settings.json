@@ -107,7 +107,8 @@
       "Read(//c/Users/odoug/AppData/Local/Temp/claude/**)",
       "Bash(rm -rf /tmp/deploy-vetpet)",
       "Bash(mkdir -p __TRACKED_VAR__/deploy-vetpet)",
-      "Bash(cat ~/.claude/skills/meta-ads-ratos/contas.yaml 2>/dev/null | grep -i -A 5 \"arcan\")"
+      "Bash(cat ~/.claude/skills/meta-ads-ratos/contas.yaml 2>/dev/null | grep -i -A 5 \"arcan\")",
+      "Bash(awk -F/ '{print $1}')"
     ],
     "additionalDirectories": [
       "C:\\Users\\odoug\\AppData\\Local\\Packages\\Claude_pzs8sxrjxfjjc\\LocalCache\\Roaming\\Claude\\local-agent-mode-sessions\\76fca591-79a1-4205-8b39-983a6c06e1a4\\aa24127f-27fd-46b8-b525-0d32a6e05a21\\local_386be040-ccfc-4557-99ff-496088a4afdc\\outputs",
