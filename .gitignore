@@ -31,6 +31,14 @@ anotacoes/
 curriculo/
 tarefas.md
 
+# Contratos gerados (dados reais de cliente — nunca commitar)
+contratos/
+
+# Caches de ferramentas (Wrangler, impeccable, Supabase CLI)
+.wrangler/
+.impeccable/
+supabase/.temp/
+
 
 # Arquivos gerados pelo uso/registro das skills (conteúdo pessoal, nunca no kit)
 automacoes-dm.md
