@@ -1,0 +1,17 @@
+# Tokens e credenciais
+.env
+*.env
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Relatórios gerados
+reports/*.html
+
+# Logs
+*.log

@@ -1,0 +1,400 @@
+<title>Vet&Pet — Origem de Leads e ROI 27/05 a 30/07</title>
+<style>
+  :root {
+    --bg: #F5F4F1;
+    --surface: #FFFFFF;
+    --surface-2: #EDEBE6;
+    --border: rgba(10,10,10,.10);
+    --text: #121110;
+    --muted: #6B6763;
+    --accent: #E85D00;
+    --accent-glow: rgba(232,93,0,.14);
+    --accent-line: #FF6A00;
+    --good: #1E8E5A;
+    --bad: #D0402B;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0A0A0A;
+      --surface: #171717;
+      --surface-2: #212121;
+      --border: rgba(255,255,255,.09);
+      --text: #FAFAFA;
+      --muted: #8A8A8A;
+      --accent: #FF6A00;
+      --accent-glow: rgba(255,106,0,.16);
+      --accent-line: #FF6A00;
+      --good: #3DDC84;
+      --bad: #FF6B5B;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0A0A0A;
+    --surface: #171717;
+    --surface-2: #212121;
+    --border: rgba(255,255,255,.09);
+    --text: #FAFAFA;
+    --muted: #8A8A8A;
+    --accent: #FF6A00;
+    --accent-glow: rgba(255,106,0,.16);
+    --accent-line: #FF6A00;
+    --good: #3DDC84;
+    --bad: #FF6B5B;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding: 56px 24px 80px;
+    line-height: 1.5;
+  }
+  .page { max-width: 900px; margin: 0 auto; }
+
+  .mono {
+    font-family: ui-monospace, "Cascadia Code", "SF Mono", Consolas, monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    padding-bottom: 28px;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand svg { height: 18px; width: auto; display: block; }
+  .brand span {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .meta { text-align: right; }
+  .eyebrow {
+    font-size: 11px;
+    letter-spacing: .14em;
+    text-transform: uppercase;
+    color: var(--accent);
+    font-weight: 700;
+    margin: 0 0 6px;
+  }
+  .period {
+    font-size: 13px;
+    color: var(--muted);
+    margin: 0;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    text-wrap: balance;
+    margin: 0 0 36px;
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+    margin-bottom: 40px;
+  }
+  .hero-card { background: var(--surface); padding: 28px 24px 22px; }
+  .hero-label {
+    font-size: 12px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 12px;
+  }
+  .hero-value {
+    font-size: clamp(32px, 4.4vw, 44px);
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1;
+    margin: 0 0 10px;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+  }
+  .hero-value .unit { font-size: 18px; font-weight: 600; color: var(--muted); }
+  .hero-note { font-size: 12.5px; color: var(--muted); margin: 0; }
+  .hero-note b { color: var(--text); font-weight: 600; }
+
+  .section { margin-bottom: 44px; }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+  .section-head h2 {
+    font-size: 13px;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 0;
+  }
+  .section-head .hint { font-size: 12.5px; color: var(--muted); }
+
+  .metric-groups { display: flex; flex-direction: column; gap: 22px; }
+  .metric-subhead {
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin: 0 0 8px;
+  }
+  .metric-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: var(--border);
+    border: 1px solid var(--border);
+  }
+  .metric { background: var(--surface); padding: 14px 18px; }
+  .metric-label { font-size: 11.5px; color: var(--muted); margin: 0 0 6px; }
+  .metric-value { font-size: 20px; font-weight: 700; letter-spacing: -0.01em; margin: 0; }
+
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 640px; }
+  thead th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    color: var(--muted);
+    font-weight: 600;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface-2);
+  }
+  tbody td { padding: 13px 16px; border-bottom: 1px solid var(--border); background: var(--surface); }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.zero td { color: var(--muted); }
+  tbody tr.channel-total td { font-weight: 700; background: var(--surface-2); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    font-weight: 700;
+    padding: 2px 7px;
+  }
+  .pill::before { content: ""; width: 5px; height: 5px; border-radius: 50%; background: var(--muted); display: inline-block; }
+  .pill.on { color: var(--good); }
+  .pill.on::before { background: var(--good); }
+  .pill.off { color: var(--muted); }
+
+  .note-block {
+    border: 1px solid var(--border);
+    background: var(--surface);
+    padding: 14px 18px;
+    font-size: 12.5px;
+    color: var(--muted);
+    line-height: 1.6;
+  }
+  .note-block b { color: var(--text); }
+  .note-block.warn { border-color: var(--accent); background: var(--accent-glow); color: var(--text); }
+
+  footer {
+    margin-top: 56px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  @media (max-width: 640px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .metric-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+
+<div class="page">
+
+  <header>
+    <div class="brand">
+      <svg viewBox="0 0 520 110" xmlns="http://www.w3.org/2000/svg">
+        <g transform="translate(4.25,4) scale(1)"><path d="M24 78 L48 26 L48 58 L78 24" fill="none" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round" style="stroke:var(--text)"/></g>
+        <g transform="translate(110.5,78) scale(0.6571)"><path d="M26.09 -0.00 Q21.30 -0.00 18.44 -2.84 Q15.59 -5.70 15.59 -10.59 L15.59 -39.91 L2.70 -39.91 L2.70 -49.41 L15.59 -49.41 L15.59 -65.30 L27.09 -65.30 L27.09 -49.41 L41.30 -49.41 L41.30 -39.91 L27.09 -39.91 L27.09 -12.50 Q27.09 -9.50 29.91 -9.50 L39.80 -9.50 L39.80 -0.00 L26.09 -0.00 Z M53.00 -0.00 L53.00 -70.00 L64.50 -70.00 L64.50 -42.91 L66.20 -42.91 Q67.00 -44.59 68.79 -46.30 Q70.61 -48.00 73.54 -49.09 Q76.50 -50.20 81.00 -50.20 Q86.70 -50.20 91.09 -47.64 Q95.50 -45.09 97.95 -40.50 Q100.40 -35.91 100.40 -29.59 L100.40 -0.00 L88.90 -0.00 L88.90 -28.70 Q88.90 -34.70 85.95 -37.64 Q83.00 -40.59 77.61 -40.59 Q71.50 -40.59 68.00 -36.55 Q64.50 -32.50 64.50 -25.00 L64.50 -0.00 L53.00 -0.00 Z M137.11 1.41 Q129.70 1.41 124.04 -1.75 Q118.40 -4.91 115.25 -10.66 Q112.11 -16.41 112.11 -24.09 L112.11 -25.30 Q112.11 -33.09 115.20 -38.80 Q118.29 -44.50 123.89 -47.64 Q129.50 -50.80 136.79 -50.80 Q144.00 -50.80 149.39 -47.64 Q154.79 -44.50 157.79 -38.80 Q160.79 -33.09 160.79 -25.50 L160.79 -21.41 L123.70 -21.41 Q123.90 -15.59 127.79 -12.09 Q131.70 -8.59 137.40 -8.59 Q143.00 -8.59 145.70 -11.05 Q148.40 -13.50 149.79 -16.59 L159.29 -11.70 Q157.90 -9.00 155.25 -5.95 Q152.61 -2.91 148.20 -0.75 Q143.79 1.41 137.11 1.41 Z M123.79 -30.09 L149.11 -30.09 Q148.70 -35.00 145.34 -37.89 Q142.00 -40.80 136.70 -40.80 Q131.20 -40.80 127.90 -37.89 Q124.61 -35.00 123.79 -30.09 Z M198.10 -0.00 L198.10 -49.41 L209.39 -49.41 L209.39 -42.50 L211.10 -42.50 Q212.39 -45.30 215.80 -47.80 Q219.21 -50.30 226.10 -50.30 Q231.80 -50.30 236.19 -47.69 Q240.60 -45.09 243.05 -40.50 Q245.50 -35.91 245.50 -29.59 L245.50 -0.00 L234.00 -0.00 L234.00 -28.70 Q234.00 -34.70 231.05 -37.64 Q228.10 -40.59 222.71 -40.59 Q216.60 -40.59 213.10 -36.55 Q209.60 -32.50 209.60 -25.00 L209.60 -0.00 L198.10 -0.00 Z M282.21 1.41 Q274.80 1.41 269.14 -1.75 Q263.50 -4.91 260.35 -10.66 Q257.21 -16.41 257.21 -24.09 L257.21 -25.30 Q257.21 -33.09 260.30 -38.80 Q263.39 -44.50 268.99 -47.64 Q274.60 -50.80 281.89 -50.80 Q289.10 -50.80 294.49 -47.64 Q299.89 -44.50 302.89 -38.80 Q305.89 -33.09 305.89 -25.50 L305.89 -21.41 L268.80 -21.41 Q269.00 -15.59 272.89 -12.09 Q276.80 -8.59 282.50 -8.59 Q288.10 -8.59 290.80 -11.05 Q293.50 -13.50 294.89 -16.59 L304.39 -11.70 Q303.00 -9.00 300.35 -5.95 Q297.71 -2.91 293.30 -0.75 Q288.89 1.41 282.21 1.41 Z M268.89 -30.09 L294.21 -30.09 Q293.80 -35.00 290.44 -37.89 Q287.10 -40.80 281.80 -40.80 Q276.30 -40.80 273.00 -37.89 Q269.71 -35.00 268.89 -30.09 Z M322.40 -0.00 L314.70 -49.41 L326.10 -49.41 L331.40 -7.70 L333.10 -7.70 L340.60 -49.41 L358.99 -49.41 L366.49 -7.70 L368.20 -7.70 L373.49 -49.41 L384.90 -49.41 L377.20 -0.00 L358.10 -0.00 L350.70 -41.70 L348.99 -41.70 L341.49 -0.00 L322.40 -0.00 Z M437.29 1.41 Q432.11 1.41 427.90 -0.44 Q423.70 -2.30 421.25 -5.80 Q418.79 -9.30 418.79 -14.41 Q418.79 -19.41 421.25 -22.80 Q423.70 -26.20 428.00 -27.95 Q432.29 -29.70 437.79 -29.70 L452.11 -29.70 L452.11 -32.70 Q452.11 -36.59 449.70 -39.05 Q447.29 -41.50 442.20 -41.50 Q437.20 -41.50 434.65 -39.14 Q432.11 -36.80 431.29 -33.09 L420.70 -36.59 Q421.90 -40.50 424.54 -43.70 Q427.20 -46.91 431.59 -48.84 Q436.00 -50.80 442.40 -50.80 Q452.11 -50.80 457.65 -45.94 Q463.20 -41.09 463.20 -31.91 L463.20 -12.50 Q463.20 -9.50 466.00 -9.50 L470.20 -9.50 L470.20 -0.00 L462.11 -0.00 Q458.50 -0.00 456.20 -1.80 Q453.90 -3.59 453.90 -6.70 L453.90 -6.91 L452.20 -6.91 Q451.61 -5.50 450.11 -3.50 Q448.61 -1.50 445.54 -0.05 Q442.50 1.41 437.29 1.41 Z M439.20 -8.00 Q444.90 -8.00 448.50 -11.25 Q452.11 -14.50 452.11 -20.00 L452.11 -21.00 L438.50 -21.00 Q434.79 -21.00 432.50 -19.39 Q430.20 -17.80 430.20 -14.70 Q430.20 -11.70 432.59 -9.84 Q435.00 -8.00 439.20 -8.00 Z M499.90 1.41 Q493.90 1.41 488.70 -1.55 Q483.49 -4.50 480.40 -10.20 Q477.31 -15.91 477.31 -23.91 L477.31 -25.50 Q477.31 -33.50 480.40 -39.20 Q483.49 -44.91 488.65 -47.84 Q493.81 -50.80 499.90 -50.80 Q504.49 -50.80 507.70 -49.69 Q510.90 -48.59 512.85 -46.89 Q514.81 -45.20 515.90 -43.20 L517.60 -43.20 L517.60 -70.00 L528.99 -70.00 L528.99 -0.00 L517.81 -0.00 L517.81 -6.50 L516.10 -6.50 Q514.31 -3.50 510.60 -1.05 Q506.90 1.41 499.90 1.41 Z M503.31 -8.59 Q509.49 -8.59 513.59 -12.64 Q517.70 -16.70 517.70 -24.20 L517.70 -25.20 Q517.70 -32.80 513.65 -36.80 Q509.60 -40.80 503.31 -40.80 Q497.10 -40.80 492.95 -36.80 Q488.81 -32.80 488.81 -25.20 L488.81 -24.20 Q488.81 -16.70 492.95 -12.64 Q497.10 -8.59 503.31 -8.59 Z M564.00 1.41 Q554.39 1.41 548.19 -2.80 Q542.00 -7.00 540.71 -15.09 L551.30 -17.80 Q552.00 -14.00 553.80 -11.80 Q555.60 -9.59 558.24 -8.69 Q560.89 -7.80 564.00 -7.80 Q568.71 -7.80 571.05 -9.50 Q573.39 -11.20 573.39 -13.80 Q573.39 -16.50 571.14 -17.80 Q568.89 -19.09 564.30 -20.00 L561.21 -20.50 Q556.10 -21.50 551.89 -23.25 Q547.71 -25.00 545.14 -28.05 Q542.60 -31.09 542.60 -35.80 Q542.60 -43.00 547.94 -46.89 Q553.30 -50.80 562.00 -50.80 Q570.30 -50.80 575.69 -47.09 Q581.10 -43.41 582.71 -37.20 L572.10 -34.00 Q571.30 -38.20 568.60 -39.95 Q565.89 -41.70 562.00 -41.70 Q558.00 -41.70 555.85 -40.30 Q553.71 -38.91 553.71 -36.30 Q553.71 -33.70 555.89 -32.39 Q558.10 -31.09 561.80 -30.50 L564.89 -29.91 Q570.39 -28.91 574.85 -27.30 Q579.30 -25.70 581.89 -22.70 Q584.50 -19.70 584.50 -14.59 Q584.50 -6.91 578.94 -2.75 Q573.39 1.41 564.00 1.41 Z" style="fill:var(--text)" fill-rule="nonzero"/></g>
+      </svg>
+      <span>The New Ads</span>
+    </div>
+    <div class="meta">
+      <p class="eyebrow">Origem de leads e ROI</p>
+      <p class="period">27 mai – 30 jul 2026 &nbsp;·&nbsp; Google Ads + Meta Ads</p>
+    </div>
+  </header>
+
+  <h1>Vet&amp;Pet</h1>
+
+  <div class="hero-grid">
+    <div class="hero-card">
+      <p class="hero-label">Faturamento atribuído</p>
+      <p class="hero-value">R$ 20.279<span class="unit">,77</span></p>
+      <p class="hero-note">Soma do consumo, no sistema de gestão do hospital, de todo cliente cadastrado no período com origem Google ou Instagram.</p>
+    </div>
+    <div class="hero-card">
+      <p class="hero-label">ROAS combinado</p>
+      <p class="hero-value">7,77<span class="unit">x</span></p>
+      <p class="hero-note">Cada <b>R$ 1,00</b> investido em mídia (Google + Meta) retornou R$ 7,77 em faturamento no período.</p>
+    </div>
+    <div class="hero-card">
+      <p class="hero-label">Custo por cliente pagante</p>
+      <p class="hero-value">R$ 113<span class="unit">,54</span></p>
+      <p class="hero-note">23 dos 27 clientes cadastrados via mídia paga geraram receita (85,2% de conversão cadastro→pagante).</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Investimento e retorno por canal</h2>
+      <span class="hint">Cruzamento CRM (Código do cliente) × origem declarada ("Como nos conheceu?")</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Canal</th>
+            <th class="num">Investimento</th>
+            <th class="num">Clientes cadastrados</th>
+            <th class="num">Clientes pagantes</th>
+            <th class="num">Conv. cadastro→pagante</th>
+            <th class="num">Faturamento gerado</th>
+            <th class="num">CPA (pagante)</th>
+            <th class="num">ROAS</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="kw-name">Google Ads</span></td>
+            <td class="num mono">R$ 2.111,49</td>
+            <td class="num mono">19</td>
+            <td class="num mono">17</td>
+            <td class="num mono">89,5%</td>
+            <td class="num mono">R$ 16.452,17</td>
+            <td class="num mono">R$ 124,20</td>
+            <td class="num mono">7,79x</td>
+          </tr>
+          <tr>
+            <td><span class="kw-name">Meta Ads (Instagram)</span></td>
+            <td class="num mono">R$ 500,00</td>
+            <td class="num mono">8</td>
+            <td class="num mono">6</td>
+            <td class="num mono">75,0%</td>
+            <td class="num mono">R$ 3.827,60</td>
+            <td class="num mono">R$ 83,33</td>
+            <td class="num mono">7,66x</td>
+          </tr>
+          <tr class="channel-total">
+            <td><span class="kw-name">Total combinado</span></td>
+            <td class="num mono">R$ 2.611,49</td>
+            <td class="num mono">27</td>
+            <td class="num mono">23</td>
+            <td class="num mono">85,2%</td>
+            <td class="num mono">R$ 20.279,77</td>
+            <td class="num mono">R$ 113,54</td>
+            <td class="num mono">7,77x</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note-block" style="margin-top:12px;">Números confirmados: Google Ads (R$ 2.111,49, relatório da conta) e Meta Ads (R$ 500,00, investimento real). Os dois canais performam de forma parecida em ROAS (Google 7,79x, Meta 7,66x), com Google concentrando mais da metade do investimento e da carteira de clientes novos no período.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Custo total do serviço e ROI real</h2>
+      <span class="hint">Mídia + agência &middot; 27/05 a 30/07</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Item</th>
+            <th class="num">Valor</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="kw-name">Investimento em mídia (Google + Meta)</span></td>
+            <td class="num mono">R$ 2.611,49</td>
+          </tr>
+          <tr>
+            <td><span class="kw-name">Honorários da agência</span></td>
+            <td class="num mono">R$ 600,00</td>
+          </tr>
+          <tr>
+            <td><span class="kw-name">Hospedagem do site</span></td>
+            <td class="num mono">R$ 20,00</td>
+          </tr>
+          <tr class="channel-total">
+            <td><span class="kw-name">Custo total do serviço</span></td>
+            <td class="num mono">R$ 3.231,49</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="metric-groups" style="margin-top:20px;">
+      <div class="metric-grid">
+        <div class="metric"><p class="metric-label">Faturamento gerado</p><p class="metric-value mono">R$ 20.279,77</p></div>
+        <div class="metric"><p class="metric-label">Custo total do serviço</p><p class="metric-value mono">R$ 3.231,49</p></div>
+        <div class="metric"><p class="metric-label">ROAS real</p><p class="metric-value mono">6,28x</p></div>
+        <div class="metric"><p class="metric-label">ROI real</p><p class="metric-value mono">527,6%</p></div>
+      </div>
+    </div>
+    <p class="note-block" style="margin-top:12px;">O ROAS de mídia isolado (7,77x) considera só o gasto em anúncios. Incluindo honorários e hospedagem, o retorno real do serviço completo pro cliente é <b>6,28x</b>, ou seja, pra cada R$ 1,00 gasto com a The New Ads (mídia + agência), o Vet&amp;Pet faturou R$ 6,28. ROI de <b>527,6%</b> no período de aproximadamente dois meses.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <h2>Google Ads — performance da conta</h2>
+      <span class="hint">01/05 a 31/07/2026 &middot; dados reais do gerenciador</span>
+    </div>
+    <div class="metric-groups">
+      <div>
+        <div class="metric-grid">
+          <div class="metric"><p class="metric-label">Investimento</p><p class="metric-value mono">R$ 2.111,49</p></div>
+          <div class="metric"><p class="metric-label">Cliques</p><p class="metric-value mono">289</p></div>
+          <div class="metric"><p class="metric-label">CTR</p><p class="metric-value mono">5,17%</p></div>
+          <div class="metric"><p class="metric-label">CPC médio</p><p class="metric-value mono">R$ 7,31</p></div>
+        </div>
+      </div>
+      <div>
+        <p class="metric-subhead">Conversões (todas as ações)</p>
+        <div class="metric-grid">
+          <div class="metric"><p class="metric-label">Conversões</p><p class="metric-value mono">218</p></div>
+          <div class="metric"><p class="metric-label">Custo/conversão</p><p class="metric-value mono">R$ 9,69</p></div>
+          <div class="metric"><p class="metric-label">IS perdida (topo, classif.)</p><p class="metric-value mono">48,06%</p></div>
+          <div class="metric"><p class="metric-label">Taxa de interação</p><p class="metric-value mono">5,17%</p></div>
+        </div>
+      </div>
+    </div>
+    <p class="note-block" style="margin-top:20px;">Campanha ativa <b>BUSCA_FUNDO_FUNIL_TUBARAO_05.26</b> concentra praticamente todo o volume (213 das 218 conversões), com destaque para "Local actions - Other engagements" (91), "Local actions - Directions" (54) e "Whatsapp" (47). A campanha <b>Leads-Search-1</b> está pausada e contribuiu com apenas 5 conversões residuais no início do período. As 218 conversões do Google Ads são ações de engajamento (ligação, direções, WhatsApp, visita ao site), não corresponde 1 para 1 aos 19 clientes cadastrados no CRM com origem Google, o que é esperado: cada cliente pode gerar várias interações antes de fechar cadastro.</p>
+  </div>
+
+  <footer>
+    <span>Fontes: sistema de gestão do Vet&amp;Pet (clientes e faturamento por período), Google Ads (relatório de campanha 01/05-31/07), investimento real em Meta Ads informado pelo cliente.</span>
+    <span>The New Ads &middot; gerado em 12/08/2026</span>
+  </footer>
+
+</div>

@@ -1,0 +1,884 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Fabioli Ferreira — Dashboard de Tráfego</title>
+<link rel="icon" href="https://thenewads.com.br/marca/logo-PNG/tna-favicon.png" />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" />
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" />
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg:#0A0A0A;
+    --surface:#171717;
+    --surface2:#212121;
+    --amber:#FF6A00;
+    --amber-glow:#FFA24D;
+    --ink:#FAFAFA;
+    --muted:#8A8A8A;
+    --line:rgba(255,255,255,.09);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Switzer','Inter',system-ui,sans-serif;
+    padding:24px;
+    min-height:100vh;
+  }
+  .wrap{max-width:1160px;margin:0 auto;}
+  header{
+    display:flex;justify-content:space-between;align-items:flex-end;
+    flex-wrap:wrap;gap:16px;
+    padding-bottom:20px;margin-bottom:20px;
+    border-bottom:1px solid var(--line);
+  }
+  h1{
+    font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight:600;
+    font-size:clamp(22px,3vw,32px);
+    letter-spacing:-0.5%;
+  }
+  .sub{color:var(--muted);font-size:13px;margin-top:4px;}
+  .updated{
+    font-family:'JetBrains Mono',monospace;
+    font-size:11px;color:var(--muted);
+    text-align:right;
+  }
+  .updated b{color:var(--amber);}
+
+  /* seletor de datas */
+  .range-bar{
+    display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+    margin-bottom:24px;
+  }
+  .range-btn{
+    background:var(--surface);border:1px solid var(--line);color:var(--muted);
+    font-family:'Switzer';font-size:12px;font-weight:500;
+    padding:7px 14px;cursor:pointer;
+  }
+  .range-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.2);}
+  .range-btn.active{background:var(--amber);border-color:var(--amber);color:#0A0A0A;font-weight:600;}
+  /* dropdown de período, estilo gerenciador de anúncios */
+  .date-picker{position:relative;display:inline-block;margin-bottom:24px;}
+  .date-picker-trigger{
+    display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1px solid var(--line);color:var(--ink);
+    font-family:'Switzer';font-size:13px;font-weight:500;
+    padding:9px 14px;cursor:pointer;
+  }
+  .date-picker-trigger:hover{border-color:rgba(255,255,255,.2);}
+  .date-picker-trigger svg{color:var(--muted);flex:none;transition:transform .15s ease;}
+  .date-picker[data-open="true"] .date-picker-trigger svg{transform:rotate(180deg);}
+  .date-picker[data-open="true"] .date-picker-trigger{border-color:var(--amber);}
+
+  .date-picker-panel{
+    position:absolute;top:calc(100% + 6px);left:0;z-index:20;
+    width:240px;background:var(--surface);border:1px solid var(--line);
+    box-shadow:0 12px 32px rgba(0,0,0,.5);
+    flex-direction:column;padding:6px;
+  }
+  .date-picker-panel[hidden]{display:none;}
+  .date-picker-panel:not([hidden]){display:flex;}
+  .date-picker-option{
+    text-align:left;background:transparent;border:none;color:var(--ink);
+    font-family:'Switzer';font-size:13px;padding:9px 10px;cursor:pointer;
+  }
+  .date-picker-option:hover{background:var(--surface2);}
+  .date-picker-option.active{color:var(--amber);font-weight:600;}
+
+  .date-picker-custom{border-top:1px solid var(--line);margin-top:6px;padding:10px;}
+  .date-picker-custom-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+  .date-picker-custom-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .date-picker-custom-row span{color:var(--muted);font-size:12px;}
+  .date-picker-custom-row input{
+    background:var(--surface2);border:1px solid var(--line);color:var(--ink);
+    font-family:'JetBrains Mono',monospace;font-size:12px;padding:6px 8px;
+    color-scheme:dark;width:0;flex:1;min-width:118px;
+  }
+  .date-picker-apply{
+    width:100%;background:var(--amber);border:none;color:#0A0A0A;
+    font-family:'Switzer';font-size:12px;font-weight:600;
+    padding:8px;cursor:pointer;
+  }
+  .date-picker-apply:hover{filter:brightness(1.08);}
+
+  .kpis{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+    gap:1px;background:var(--line);
+    border:1px solid var(--line);
+    margin-bottom:32px;
+  }
+  .kpi{background:var(--surface);padding:18px;}
+  .kpi .label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+  .kpi .value{
+    font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight:600;font-size:24px;
+  }
+  .kpi .value.amber{color:var(--amber);}
+
+  /* KPIs primárias (visão geral) vs secundárias (eficiência de entrega) — contraste de escala cria hierarquia dentro do grupo Performance */
+  .kpis.kpis-primary{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
+  .kpis.kpis-primary .value{font-size:30px;}
+  .kpis.kpis-secondary{grid-template-columns:repeat(auto-fit,minmax(130px,1fr));margin-top:10px;}
+  .kpis.kpis-secondary .kpi{padding:13px 16px;}
+  .kpis.kpis-secondary .label{font-size:10px;margin-bottom:5px;}
+  .kpis.kpis-secondary .value{font-size:17px;}
+
+  section{margin-bottom:32px;}
+
+  /* agrupamento macro: Performance / Funil comercial / Engajamento / Rastreamento */
+  .macro{margin-top:56px;}
+  .macro:first-of-type{margin-top:0;}
+  .macro-title{
+    font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight:700;font-size:22px;letter-spacing:-0.5%;
+    padding-bottom:14px;margin-bottom:22px;
+    border-bottom:1px solid var(--line);
+    display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
+  }
+  .macro-title .macro-sub{font-family:'Switzer';font-weight:400;font-size:13px;color:var(--muted);}
+
+  .section-title{
+    font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight:600;font-size:15px;margin-bottom:12px;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .section-title .hint{font-family:'Switzer';font-weight:400;font-size:12px;color:var(--muted);}
+
+  .card{background:var(--surface);border:1px solid var(--line);padding:20px;}
+
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{
+    text-align:left;color:var(--muted);font-weight:500;
+    font-size:11px;text-transform:uppercase;letter-spacing:.04em;
+    padding:8px 12px;border-bottom:1px solid var(--line);
+    white-space:nowrap;
+  }
+  td{padding:10px 12px;border-bottom:1px solid var(--line);}
+  tr:last-child td{border-bottom:none;}
+  td.num{font-family:'JetBrains Mono',monospace;text-align:right;white-space:nowrap;}
+  th.num{text-align:right;}
+  td.name{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  td a.criativo{
+    color:var(--amber);text-decoration:none;font-size:12px;font-weight:600;
+    border:1px solid var(--amber);padding:3px 8px;display:inline-block;white-space:nowrap;
+  }
+  td a.criativo:hover{background:var(--amber);color:#0A0A0A;}
+  .tag{
+    font-size:11px;font-weight:600;padding:2px 8px;display:inline-block;
+    border:1px solid var(--line);color:var(--muted);
+  }
+  .tag.ganho{border-color:var(--amber);color:var(--amber);}
+  .tag.qualificado{border-color:rgba(255,255,255,.3);color:var(--ink);}
+
+  .bars{display:flex;flex-direction:column;gap:10px;}
+  .bar-row{display:grid;grid-template-columns:110px 1fr 70px;align-items:center;gap:10px;font-size:12px;}
+  .bar-track{height:8px;background:var(--surface2);position:relative;}
+  .bar-fill{height:100%;background:var(--muted);}
+  .bar-fill.top{background:var(--amber);}
+  .bar-val{font-family:'JetBrains Mono',monospace;color:var(--muted);text-align:right;}
+
+  .trend-wrap{position:relative;}
+  svg.trend{width:100%;height:140px;display:block;}
+  .trend-empty{color:var(--muted);font-size:13px;padding:24px 0;text-align:center;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media (max-width:720px){.grid2{grid-template-columns:1fr;} .range-bar{flex-direction:column;align-items:flex-start;}}
+
+  /* funil */
+  .funnel{display:flex;flex-direction:column;gap:2px;}
+  .funnel-stage{display:grid;grid-template-columns:140px 1fr 140px;align-items:center;gap:12px;}
+  .funnel-track{height:34px;background:var(--surface2);position:relative;}
+  .funnel-fill{height:100%;background:var(--amber);display:flex;align-items:center;padding-left:12px;
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#0A0A0A;white-space:nowrap;}
+  .funnel-label{font-size:13px;color:var(--ink);}
+  .funnel-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);text-align:right;}
+
+  /* pizza */
+  .pie-wrap{display:flex;align-items:center;gap:24px;flex-wrap:wrap;}
+  svg.pie{width:140px;height:140px;flex:none;}
+  .legend{display:flex;flex-direction:column;gap:8px;font-size:13px;}
+  .legend-item{display:flex;align-items:center;gap:8px;}
+  .legend-swatch{width:10px;height:10px;flex:none;}
+  .legend-val{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:12px;margin-left:auto;padding-left:12px;}
+
+  .note{
+    font-size:12px;color:var(--muted);margin-top:12px;line-height:1.6;
+  }
+
+  footer{
+    padding-top:20px;margin-top:12px;border-top:1px solid var(--line);
+    color:var(--muted);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;
+  }
+  footer a{color:var(--amber);text-decoration:none;}
+
+  .loading{color:var(--muted);font-size:13px;padding:40px 0;text-align:center;}
+  .skel{background:linear-gradient(90deg,var(--surface2) 25%,#2a2a2a 37%,var(--surface2) 63%);
+    background-size:400% 100%;animation:skel 1.4s ease infinite;height:22px;}
+  @keyframes skel{0%{background-position:100% 50%}100%{background-position:0 50%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div>
+      <h1>Fabioli Ferreira Lash Designer</h1>
+      <div class="sub">Performance de tráfego pago · Meta Ads</div>
+    </div>
+    <div class="updated">Atualizado em <b id="updated-at">—</b></div>
+  </header>
+
+  <div class="date-picker" id="date-picker">
+    <button class="date-picker-trigger" id="date-picker-trigger" aria-expanded="false">
+      <span id="date-picker-label">Últimos 30 dias</span>
+      <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <div class="date-picker-panel" id="date-picker-panel" hidden>
+      <button class="date-picker-option" data-preset="hoje">Hoje</button>
+      <button class="date-picker-option" data-preset="7">Últimos 7 dias</button>
+      <button class="date-picker-option active" data-preset="30">Últimos 30 dias</button>
+      <button class="date-picker-option" data-preset="90">Últimos 90 dias</button>
+      <button class="date-picker-option" data-preset="tudo">Tudo</button>
+      <div class="date-picker-custom">
+        <div class="date-picker-custom-label">Personalizado</div>
+        <div class="date-picker-custom-row">
+          <span>de</span><input type="date" id="date-from" />
+          <span>até</span><input type="date" id="date-to" />
+        </div>
+        <button class="date-picker-apply" id="btn-custom">Aplicar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="macro">
+    <div class="macro-title">Performance <span class="macro-sub">investimento e eficiência de entrega no período</span></div>
+
+    <section>
+      <div class="kpis kpis-primary" id="kpis">
+        <div class="kpi"><div class="label">Investimento</div><div class="value" id="kpi-investimento"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Impressões</div><div class="value" id="kpi-impressoes"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CTR médio</div><div class="value amber" id="kpi-ctr"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Leads / Resultados</div><div class="value" id="kpi-leads"><div class="skel"></div></div></div>
+      </div>
+      <div class="kpis kpis-secondary">
+        <div class="kpi"><div class="label">Alcance</div><div class="value" id="kpi-alcance"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPC médio</div><div class="value" id="kpi-cpc"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPM médio</div><div class="value" id="kpi-cpm"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Frequência média</div><div class="value" id="kpi-freq"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Taxa de gancho</div><div class="value" id="kpi-gancho"><div class="skel"></div></div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="macro">
+    <div class="macro-title">Funil comercial <span class="macro-sub" id="funnel-hint">período selecionado</span></div>
+
+    <section>
+      <div class="kpis" style="margin-bottom:20px;">
+        <div class="kpi"><div class="label">Taxa de qualificação</div><div class="value" id="kpi-taxa-qualificacao"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Taxa de conversão comercial</div><div class="value amber" id="kpi-taxa-comercial"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Taxa de conversão do funil</div><div class="value" id="kpi-taxa-funil"><div class="skel"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="funnel" id="funnel"><div class="loading">Carregando…</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="macro">
+    <div class="macro-title">Engajamento <span class="macro-sub">como o público reage ao criativo, além do clique</span></div>
+
+    <section>
+      <div class="kpis" style="margin-bottom:20px;">
+        <div class="kpi"><div class="label">Engajamento total</div><div class="value amber" id="kpi-engajamento-total"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Taxa de engajamento</div><div class="value" id="kpi-engajamento-taxa"><div class="skel"></div></div></div>
+      </div>
+      <div class="card">
+        <div class="bars" id="bars-engajamento"><div class="loading">Carregando…</div></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="macro">
+    <div class="macro-title">Rastreamento <span class="macro-sub">o que o Meta reporta vs quem realmente virou lead, por campanha/conjunto/anúncio</span></div>
+
+    <section>
+      <div class="section-title">Gap geral <span class="hint">mensagens iniciadas (Meta) vs leads confirmados (CRM) · só mensagem direta</span></div>
+      <div class="kpis" style="margin-bottom:0;">
+        <div class="kpi"><div class="label">Mensagens iniciadas</div><div class="value" id="kpi-gap-msgs"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Leads reais</div><div class="value" id="kpi-gap-leads"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Gap</div><div class="value amber" id="kpi-gap-pct"><div class="skel"></div></div></div>
+      </div>
+      <div class="note">Gap = mensagens iniciadas no Meta que não viraram lead confirmado no CRM (número errado, sem resposta, fora do público certo etc).</div>
+    </section>
+
+    <section>
+      <div class="section-title">Métricas detalhadas <span class="hint" id="metrics-hint">período selecionado</span></div>
+      <div class="range-bar" style="margin-bottom:12px;">
+        <button class="range-btn active" data-tab="campanha">Campanha</button>
+        <button class="range-btn" data-tab="conjunto">Conjunto</button>
+        <button class="range-btn" data-tab="anuncio">Anúncio</button>
+      </div>
+      <div class="card" style="overflow-x:auto;">
+        <table id="metrics-table">
+          <thead>
+            <tr>
+              <th>Nome</th><th class="num">Investimento</th><th class="num">Impressões</th><th class="num">Cliques</th>
+              <th class="num">CTR</th><th class="num">CPC</th><th class="num">CPM</th><th class="num">Freq.</th>
+              <th class="num">Msgs. iniciadas</th><th class="num">Leads reais</th><th class="num">Gap</th><th class="num">Resultados</th>
+            </tr>
+          </thead>
+          <tbody><tr><td colspan="12" class="loading">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid2">
+        <div>
+          <div class="section-title">Origem do lead</div>
+          <div class="card"><div class="pie-wrap" id="pie-origem"><div class="loading">Carregando…</div></div></div>
+        </div>
+        <div>
+          <div class="section-title">Seguidores no Instagram <span class="hint" id="followers-hint"></span></div>
+          <div class="card trend-wrap" id="trend-card"><div class="loading">Carregando…</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-title">Top criativos <span class="hint">os 5 anúncios com mais leads reais confirmados no período</span></div>
+      <div class="card" style="overflow-x:auto;">
+        <table id="top-criativos-table">
+          <thead>
+            <tr>
+              <th>Criativo</th><th class="num">Investimento</th><th class="num">CTR</th>
+              <th class="num">Msgs. iniciadas</th><th class="num">Leads reais</th><th class="num">Gap</th><th class="num">Resultados</th><th></th>
+            </tr>
+          </thead>
+          <tbody><tr><td colspan="8" class="loading">Carregando…</td></tr></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section>
+      <div class="grid2">
+        <div>
+          <div class="section-title">Idade e gênero</div>
+          <div class="card"><div class="bars" id="bars-demo"><div class="loading">Carregando…</div></div></div>
+        </div>
+        <div>
+          <div class="section-title">Plataforma e posição</div>
+          <div class="card">
+            <div class="bars" id="bars-placement"><div class="loading">Carregando…</div></div>
+            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line);">
+              <div class="section-title" style="font-size:12px;margin-bottom:8px;">Leads reais por posicionamento</div>
+              <div class="bars" id="bars-placement-leads"><div class="loading">Carregando…</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="note">Breakdowns de idade/gênero/plataforma começaram a ser coletados em 07/08/2026 — cobrem todo o histórico disponível, não respeitam o filtro de data acima.</div>
+    </section>
+  </div>
+
+  <footer>
+    <span>The New Ads · thenewads.com.br</span>
+    <span>Dashboard gerado automaticamente a partir do Meta Ads</span>
+  </footer>
+
+</div>
+
+<script>
+const sb = window.supabase.createClient(
+  'https://iklynyncffneuvutvgxa.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4'
+);
+
+const fmtMoney = (v) => 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtInt = (v) => Number(v || 0).toLocaleString('pt-BR');
+const fmtPct = (v) => Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+const fmtDate = (iso) => iso ? iso.slice(0, 10).split('-').reverse().join('/') : '—';
+
+function toISODate(d) { return d.toISOString().slice(0, 10); }
+function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); }
+
+let currentRange = { since: daysAgo(30), until: toISODate(new Date()) };
+
+// --- dropdown de período ---
+const datePicker = document.getElementById('date-picker');
+const datePickerTrigger = document.getElementById('date-picker-trigger');
+const datePickerPanel = document.getElementById('date-picker-panel');
+const datePickerLabel = document.getElementById('date-picker-label');
+
+const PRESET_LABELS = { hoje: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias', 90: 'Últimos 90 dias', tudo: 'Tudo' };
+
+function openDatePicker() {
+  datePickerPanel.hidden = false;
+  datePicker.dataset.open = 'true';
+  datePickerTrigger.setAttribute('aria-expanded', 'true');
+}
+function closeDatePicker() {
+  datePickerPanel.hidden = true;
+  datePicker.dataset.open = 'false';
+  datePickerTrigger.setAttribute('aria-expanded', 'false');
+}
+datePickerTrigger.addEventListener('click', (e) => {
+  e.stopPropagation();
+  datePickerPanel.hidden ? openDatePicker() : closeDatePicker();
+});
+document.addEventListener('click', (e) => {
+  if (!datePicker.contains(e.target)) closeDatePicker();
+});
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeDatePicker();
+});
+
+function applyPreset(preset) {
+  document.querySelectorAll('.date-picker-option').forEach((b) => b.classList.remove('active'));
+  const btn = document.querySelector(`.date-picker-option[data-preset="${preset}"]`);
+  if (btn) btn.classList.add('active');
+  datePickerLabel.textContent = PRESET_LABELS[preset];
+
+  const today = toISODate(new Date());
+  currentRange = preset === 'hoje' ? { since: today, until: today }
+    : preset === 'tudo' ? { since: '2020-01-01', until: today }
+    : { since: daysAgo(Number(preset)), until: today };
+
+  document.getElementById('date-from').value = currentRange.since;
+  document.getElementById('date-to').value = currentRange.until;
+  closeDatePicker();
+  loadAll();
+}
+
+document.querySelectorAll('.date-picker-option[data-preset]').forEach((btn) => {
+  btn.addEventListener('click', () => applyPreset(btn.dataset.preset));
+});
+
+document.getElementById('btn-custom').addEventListener('click', () => {
+  const from = document.getElementById('date-from').value;
+  const to = document.getElementById('date-to').value;
+  if (!from || !to) return;
+  document.querySelectorAll('.date-picker-option').forEach((b) => b.classList.remove('active'));
+  datePickerLabel.textContent = fmtDate(from) + ' – ' + fmtDate(to);
+  currentRange = { since: from, until: to };
+  closeDatePicker();
+  loadAll();
+});
+
+let metaRowsCache = [];
+
+async function loadKpisAndAds() {
+  const { data, error } = await sb
+    .from('fabioli_meta')
+    .select('campanha,conjunto_anuncio,anuncio,investimento,impressoes,alcance,cliques_no_link,lead,resultados,ctr,cpc,cpm,frequencia,video_view,mensagens_iniciadas,post_engajament,reacoes,comentarios,compartilhamentos,salvamentos,data')
+    .gte('data', currentRange.since)
+    .lte('data', currentRange.until);
+
+  if (error || !data) {
+    document.getElementById('kpis').innerHTML = '<div class="kpi">Erro ao carregar dados.</div>';
+    return;
+  }
+
+  metaRowsCache = data;
+
+  let investimento = 0, impressoes = 0, alcance = 0, leads = 0, resultados = 0, videoView = 0;
+  let engajamento = 0, reacoes = 0, comentarios = 0, compartilhamentos = 0, salvamentos = 0;
+  let ctrSum = 0, ctrN = 0, cpcSum = 0, cpcN = 0, cpmSum = 0, cpmN = 0, freqSum = 0, freqN = 0;
+
+  for (const row of data) {
+    investimento += Number(row.investimento || 0);
+    impressoes += Number(row.impressoes || 0);
+    alcance += Number(row.alcance || 0);
+    leads += Number(row.lead || 0);
+    resultados += Number(row.resultados || 0);
+    videoView += Number(row.video_view || 0);
+    engajamento += Number(row.post_engajament || 0);
+    reacoes += Number(row.reacoes || 0);
+    comentarios += Number(row.comentarios || 0);
+    compartilhamentos += Number(row.compartilhamentos || 0);
+    salvamentos += Number(row.salvamentos || 0);
+    if (row.ctr != null) { ctrSum += Number(row.ctr); ctrN++; }
+    if (row.cpc != null) { cpcSum += Number(row.cpc); cpcN++; }
+    if (row.cpm != null) { cpmSum += Number(row.cpm); cpmN++; }
+    if (row.frequencia != null) { freqSum += Number(row.frequencia); freqN++; }
+  }
+
+  document.getElementById('kpi-investimento').textContent = fmtMoney(investimento);
+  document.getElementById('kpi-impressoes').textContent = fmtInt(impressoes);
+  document.getElementById('kpi-alcance').textContent = fmtInt(alcance);
+  document.getElementById('kpi-ctr').textContent = ctrN ? fmtPct(ctrSum / ctrN) : '—';
+  document.getElementById('kpi-cpc').textContent = cpcN ? fmtMoney(cpcSum / cpcN) : '—';
+  document.getElementById('kpi-cpm').textContent = cpmN ? fmtMoney(cpmSum / cpmN) : '—';
+  document.getElementById('kpi-freq').textContent = freqN ? (freqSum / freqN).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
+  document.getElementById('kpi-gancho').textContent = impressoes ? fmtPct((videoView / impressoes) * 100) : '—';
+  document.getElementById('kpi-leads').textContent = fmtInt(leads) + ' / ' + fmtInt(resultados);
+
+  document.getElementById('kpi-engajamento-total').textContent = fmtInt(engajamento);
+  document.getElementById('kpi-engajamento-taxa').textContent = impressoes ? fmtPct((engajamento / impressoes) * 100) : '—';
+  renderBars(document.getElementById('bars-engajamento'), [
+    { label: 'Reações', impressoes: reacoes },
+    { label: 'Comentários', impressoes: comentarios },
+    { label: 'Compartilhamentos', impressoes: compartilhamentos },
+    { label: 'Salvamentos', impressoes: salvamentos },
+  ].filter((r) => r.impressoes > 0), (r) => r.label);
+}
+
+let trackingRowsCache = [];
+
+async function loadLeads() {
+  const { data, error } = await sb
+    .from('fabioli_tracking')
+    .select('nome,origem,etapa,qualificacao,data,url_criativo,campaing_name,adset_name,ad_name,posicionamento')
+    .eq('cliente', 'fabioli-ferreira')
+    .gte('data', currentRange.since)
+    .lte('data', currentRange.until)
+    .order('data', { ascending: false });
+
+  const funnelEl = document.getElementById('funnel');
+  const pieEl = document.getElementById('pie-origem');
+
+  if (error || !data) {
+    funnelEl.innerHTML = pieEl.innerHTML = '<div class="loading">Erro ao carregar.</div>';
+    return;
+  }
+
+  trackingRowsCache = data;
+
+  // --- funil ---
+  const total = data.length;
+  const qualificados = data.filter((l) => l.qualificacao === 'Qualificado').length;
+  const ganhos = data.filter((l) => l.etapa === 'Lead Ganho').length;
+  const stages = [
+    { label: 'Leads recebidos', value: total, pctOf: total },
+    { label: 'Qualificados', value: qualificados, pctOf: total },
+    { label: 'Lead Ganho', value: ganhos, pctOf: total },
+  ];
+  const maxVal = total || 1;
+  funnelEl.innerHTML = stages.map((s) => `
+    <div class="funnel-stage">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-track"><div class="funnel-fill" style="width:${Math.max((s.value / maxVal) * 100, s.value > 0 ? 4 : 0)}%">${fmtInt(s.value)}</div></div>
+      <div class="funnel-pct">${s.pctOf ? fmtPct((s.value / s.pctOf) * 100) : '—'} do total</div>
+    </div>
+  `).join('');
+
+  document.getElementById('kpi-taxa-qualificacao').textContent = total ? fmtPct((qualificados / total) * 100) : '—';
+  document.getElementById('kpi-taxa-comercial').textContent = qualificados ? fmtPct((ganhos / qualificados) * 100) : '—';
+  document.getElementById('kpi-taxa-funil').textContent = total ? fmtPct((ganhos / total) * 100) : '—';
+
+  // --- pizza origem ---
+  const origemMap = new Map();
+  for (const l of data) {
+    const key = l.origem || 'desconhecida';
+    origemMap.set(key, (origemMap.get(key) || 0) + 1);
+  }
+  const origemLabels = { mensagem_direto: 'Mensagem direta', link_bio: 'Link na bio', desconhecida: 'Desconhecida' };
+  const origemColors = ['#FF6A00', '#8A8A8A', '#4A4A4A', '#2A2A2A'];
+  const origemRows = [...origemMap.entries()].sort((a, b) => b[1] - a[1]);
+  const origemTotal = origemRows.reduce((a, [, v]) => a + v, 0) || 1;
+
+  let cumAngle = 0;
+  const slices = origemRows.map(([label, val], i) => {
+    const frac = val / origemTotal;
+    const startAngle = cumAngle;
+    cumAngle += frac * 360;
+    return { label, val, color: origemColors[i % origemColors.length], startAngle, endAngle: cumAngle };
+  });
+
+  function polarToCartesian(cx, cy, r, angleDeg) {
+    const a = ((angleDeg - 90) * Math.PI) / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
+  }
+  function arcPath(cx, cy, r, startAngle, endAngle) {
+    const [x1, y1] = polarToCartesian(cx, cy, r, endAngle);
+    const [x2, y2] = polarToCartesian(cx, cy, r, startAngle);
+    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
+    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2} Z`;
+  }
+
+  const svgSlices = slices.map((s) => `<path d="${arcPath(70, 70, 68, s.startAngle, s.endAngle)}" fill="${s.color}" stroke="#0A0A0A" stroke-width="2"/>`).join('');
+  const legend = slices.map((s) => `
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:${s.color}"></div>
+      <span>${origemLabels[s.label] || s.label}</span>
+      <span class="legend-val">${fmtInt(s.val)} (${fmtPct((s.val / origemTotal) * 100)})</span>
+    </div>
+  `).join('');
+
+  pieEl.innerHTML = data.length
+    ? `<svg class="pie" viewBox="0 0 140 140">${svgSlices}</svg><div class="legend">${legend}</div>`
+    : '<div class="loading">Sem leads no período.</div>';
+}
+
+function renderTopCriativos() {
+  const rows = buildMetricasPorChave('anuncio');
+
+  const urlPorAnuncio = new Map();
+  for (const row of trackingRowsCache) {
+    if (row.ad_name && row.url_criativo && !urlPorAnuncio.has(row.ad_name)) {
+      urlPorAnuncio.set(row.ad_name, row.url_criativo);
+    }
+  }
+
+  const top5 = [...rows].sort((a, b) => b.leadsReais - a.leadsReais).slice(0, 5);
+  const tbody = document.querySelector('#top-criativos-table tbody');
+
+  tbody.innerHTML = top5.map((r) => {
+    const url = urlPorAnuncio.get(r.nome);
+    return `
+      <tr>
+        <td class="name">${r.nome}</td>
+        <td class="num">${fmtMoney(r.investimento)}</td>
+        <td class="num">${r.ctr != null ? fmtPct(r.ctr) : '—'}</td>
+        <td class="num">${fmtInt(r.msgs)}</td>
+        <td class="num">${fmtInt(r.leadsReais)}</td>
+        <td class="num" style="color:${r.gapPct >= 50 ? 'var(--amber)' : 'inherit'}">${r.msgs ? fmtInt(r.gap) + ' (' + fmtPct(r.gapPct) + ')' : '—'}</td>
+        <td class="num">${fmtInt(r.resultados)}</td>
+        <td class="num">${url ? `<a class="criativo" href="${url}" target="_blank" rel="noopener">ver criativo</a>` : '—'}</td>
+      </tr>
+    `;
+  }).join('') || '<tr><td colspan="8">Sem leads reais no período.</td></tr>';
+}
+
+async function loadFollowers() {
+  const { data, error } = await sb
+    .from('instagram_followers_daily')
+    .select('data,seguidores')
+    .eq('cliente', 'fabioli-ferreira')
+    .order('data', { ascending: true });
+
+  const card = document.getElementById('trend-card');
+  if (error || !data || data.length === 0) {
+    card.innerHTML = '<div class="trend-empty">Ainda sem histórico de seguidores.</div>';
+    return;
+  }
+
+  if (data.length === 1) {
+    document.getElementById('followers-hint').textContent = 'histórico inicia em ' + fmtDate(data[0].data);
+    card.innerHTML = `<div class="kpi"><div class="label">Seguidores hoje</div><div class="value amber">${fmtInt(data[0].seguidores)}</div></div>`;
+    return;
+  }
+
+  document.getElementById('followers-hint').textContent = data.length + ' dias de histórico';
+  const w = 1000, h = 140, pad = 24;
+  const vals = data.map((d) => d.seguidores);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const range = max - min || 1;
+  const stepX = (w - pad * 2) / (data.length - 1);
+
+  const points = data.map((d, i) => {
+    const x = pad + i * stepX;
+    const y = h - pad - ((d.seguidores - min) / range) * (h - pad * 2);
+    return [x, y];
+  });
+
+  const path = points.map((p, i) => (i === 0 ? 'M' : 'L') + p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ');
+  const last = data[data.length - 1].seguidores;
+  const first = data[0].seguidores;
+  const delta = last - first;
+
+  card.innerHTML = `
+    <svg class="trend" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
+      <path d="${path}" fill="none" stroke="#FF6A00" stroke-width="2" />
+      <circle cx="${points[points.length - 1][0]}" cy="${points[points.length - 1][1]}" r="4" fill="#FF6A00" />
+    </svg>
+    <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)">
+      <span>${first} em ${fmtDate(data[0].data)}</span>
+      <span style="color:${delta >= 0 ? 'var(--amber)' : 'var(--muted)'}">${delta >= 0 ? '+' : ''}${delta} no período</span>
+      <span>${last} hoje</span>
+    </div>
+  `;
+}
+
+function renderBars(container, rows, labelFn) {
+  if (!rows.length) {
+    container.innerHTML = '<div class="loading">Sem dados ainda.</div>';
+    return;
+  }
+  const max = Math.max(...rows.map((r) => r.impressoes));
+  container.innerHTML = rows.map((r, i) => `
+    <div class="bar-row">
+      <span>${labelFn(r)}</span>
+      <div class="bar-track"><div class="bar-fill ${i === 0 ? 'top' : ''}" style="width:${(r.impressoes / max * 100).toFixed(1)}%"></div></div>
+      <span class="bar-val">${fmtInt(r.impressoes)}</span>
+    </div>
+  `).join('');
+}
+
+async function loadBreakdowns() {
+  const { data, error } = await sb
+    .from('meta_breakdowns')
+    .select('idade,genero,plataforma,posicionamento,impressoes')
+    .eq('cliente', 'fabioli-ferreira');
+
+  const demoEl = document.getElementById('bars-demo');
+  const placeEl = document.getElementById('bars-placement');
+
+  if (error || !data) {
+    demoEl.innerHTML = placeEl.innerHTML = '<div class="loading">Erro ao carregar.</div>';
+    return;
+  }
+
+  const demoMap = new Map();
+  const placeMap = new Map();
+
+  for (const row of data) {
+    if (row.idade) {
+      const key = `${row.idade} · ${row.genero === 'female' ? 'mulheres' : row.genero === 'male' ? 'homens' : row.genero}`;
+      demoMap.set(key, (demoMap.get(key) || 0) + Number(row.impressoes || 0));
+    }
+    if (row.plataforma) {
+      const key = `${row.plataforma} · ${row.posicionamento}`;
+      placeMap.set(key, (placeMap.get(key) || 0) + Number(row.impressoes || 0));
+    }
+  }
+
+  const toRows = (map) => [...map.entries()]
+    .map(([label, impressoes]) => ({ label, impressoes }))
+    .sort((a, b) => b.impressoes - a.impressoes)
+    .slice(0, 6);
+
+  renderBars(demoEl, toRows(demoMap), (r) => r.label);
+  renderBars(placeEl, toRows(placeMap), (r) => r.label);
+}
+
+// Chaves de cruzamento: coluna em fabioli_meta -> coluna correspondente em fabioli_tracking
+const METRICAS_CHAVES = {
+  campanha: { meta: 'campanha', track: 'campaing_name' },
+  conjunto: { meta: 'conjunto_anuncio', track: 'adset_name' },
+  anuncio: { meta: 'anuncio', track: 'ad_name' },
+};
+let metricasAtual = 'campanha';
+
+function buildMetricasPorChave(chave) {
+  const { meta: metaKey, track: trackKey } = METRICAS_CHAVES[chave];
+  const agg = new Map();
+
+  for (const row of metaRowsCache) {
+    const nome = row[metaKey];
+    if (!nome) continue;
+    const acc = agg.get(nome) || {
+      nome, investimento: 0, impressoes: 0, cliques: 0, resultados: 0, msgs: 0,
+      ctrSum: 0, ctrN: 0, cpcSum: 0, cpcN: 0, cpmSum: 0, cpmN: 0, freqSum: 0, freqN: 0, leads: 0,
+    };
+    acc.investimento += Number(row.investimento || 0);
+    acc.impressoes += Number(row.impressoes || 0);
+    acc.cliques += Number(row.cliques_no_link || 0);
+    acc.resultados += Number(row.resultados || 0);
+    acc.msgs += Number(row.mensagens_iniciadas || 0);
+    if (row.ctr != null) { acc.ctrSum += Number(row.ctr); acc.ctrN++; }
+    if (row.cpc != null) { acc.cpcSum += Number(row.cpc); acc.cpcN++; }
+    if (row.cpm != null) { acc.cpmSum += Number(row.cpm); acc.cpmN++; }
+    if (row.frequencia != null) { acc.freqSum += Number(row.frequencia); acc.freqN++; }
+    agg.set(nome, acc);
+  }
+
+  const leadsMap = new Map();
+  for (const row of trackingRowsCache) {
+    if (row.origem !== 'mensagem_direto') continue;
+    const nome = row[trackKey];
+    if (!nome) continue;
+    leadsMap.set(nome, (leadsMap.get(nome) || 0) + 1);
+  }
+
+  return [...agg.values()]
+    .map((r) => {
+      const leadsReais = leadsMap.get(r.nome) || 0;
+      const gap = r.msgs - leadsReais;
+      const gapPct = r.msgs ? (gap / r.msgs) * 100 : 0;
+      return {
+        nome: r.nome,
+        investimento: r.investimento,
+        impressoes: r.impressoes,
+        cliques: r.cliques,
+        ctr: r.ctrN ? r.ctrSum / r.ctrN : null,
+        cpc: r.cpcN ? r.cpcSum / r.cpcN : null,
+        cpm: r.cpmN ? r.cpmSum / r.cpmN : null,
+        freq: r.freqN ? r.freqSum / r.freqN : null,
+        msgs: r.msgs,
+        leadsReais,
+        gap,
+        gapPct,
+        resultados: r.resultados,
+      };
+    })
+    .sort((a, b) => b.investimento - a.investimento)
+    .slice(0, 15);
+}
+
+function renderMetricsTable() {
+  const rows = buildMetricasPorChave(metricasAtual);
+  const tbody = document.querySelector('#metrics-table tbody');
+  tbody.innerHTML = rows.map((r) => `
+    <tr>
+      <td class="name">${r.nome}</td>
+      <td class="num">${fmtMoney(r.investimento)}</td>
+      <td class="num">${fmtInt(r.impressoes)}</td>
+      <td class="num">${fmtInt(r.cliques)}</td>
+      <td class="num">${r.ctr != null ? fmtPct(r.ctr) : '—'}</td>
+      <td class="num">${r.cpc != null ? fmtMoney(r.cpc) : '—'}</td>
+      <td class="num">${r.cpm != null ? fmtMoney(r.cpm) : '—'}</td>
+      <td class="num">${r.freq != null ? r.freq.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</td>
+      <td class="num">${fmtInt(r.msgs)}</td>
+      <td class="num">${fmtInt(r.leadsReais)}</td>
+      <td class="num" style="color:${r.gapPct >= 50 ? 'var(--amber)' : 'inherit'}">${r.msgs ? fmtInt(r.gap) + ' (' + fmtPct(r.gapPct) + ')' : '—'}</td>
+      <td class="num">${fmtInt(r.resultados)}</td>
+    </tr>
+  `).join('') || '<tr><td colspan="12">Sem dados no período.</td></tr>';
+}
+
+document.querySelectorAll('.range-btn[data-tab]').forEach((btn) => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.range-btn[data-tab]').forEach((b) => b.classList.remove('active'));
+    btn.classList.add('active');
+    metricasAtual = btn.dataset.tab;
+    renderMetricsTable();
+  });
+});
+
+function loadGapGeral() {
+  let msgs = 0;
+  for (const row of metaRowsCache) msgs += Number(row.mensagens_iniciadas || 0);
+
+  let leadsReais = 0;
+  const leadsByPlacement = new Map();
+  for (const row of trackingRowsCache) {
+    if (row.origem !== 'mensagem_direto') continue;
+    leadsReais++;
+    if (row.posicionamento) leadsByPlacement.set(row.posicionamento, (leadsByPlacement.get(row.posicionamento) || 0) + 1);
+  }
+
+  const gap = msgs - leadsReais;
+  const gapPct = msgs ? (gap / msgs) * 100 : 0;
+  document.getElementById('kpi-gap-msgs').textContent = fmtInt(msgs);
+  document.getElementById('kpi-gap-leads').textContent = fmtInt(leadsReais);
+  document.getElementById('kpi-gap-pct').textContent = msgs ? fmtInt(gap) + ' (' + fmtPct(gapPct) + ')' : '—';
+
+  const placementRows = [...leadsByPlacement.entries()]
+    .map(([label, count]) => ({ label, impressoes: count }))
+    .sort((a, b) => b.impressoes - a.impressoes)
+    .slice(0, 6);
+  renderBars(document.getElementById('bars-placement-leads'), placementRows, (r) => r.label);
+
+  renderMetricsTable();
+}
+
+async function loadAll() {
+  document.getElementById('updated-at').textContent = new Date().toLocaleString('pt-BR');
+  document.getElementById('date-from').value = currentRange.since;
+  document.getElementById('date-to').value = currentRange.until;
+  await Promise.all([loadKpisAndAds(), loadLeads(), loadFollowers()]);
+  // depende dos caches (metaRowsCache/trackingRowsCache) preenchidos pelas duas chamadas acima
+  loadGapGeral();
+  renderTopCriativos();
+}
+
+loadAll();
+loadBreakdowns();
+</script>
+</body>
+</html>

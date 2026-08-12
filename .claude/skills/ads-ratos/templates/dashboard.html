@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{TITULO}} — Ads Ratos</title>
+    <style>
+        /* ================================================================
+           ADS RATOS — Dashboard Template
+           ================================================================
+
+           VARIÁVEIS CUSTOMIZÁVEIS:
+           Se o usuário tiver design-guide.md no CC-OS RATOS,
+           o Claude deve substituir as variáveis abaixo pelas
+           cores/fontes do cliente antes de gerar o HTML final.
+
+           Variáveis que o Claude substitui:
+           - {{TITULO}}: título do relatório
+           - {{CLIENTE}}: nome do cliente
+           - {{PERIODO}}: ex: "25/03 a 03/04/2026"
+           - {{DATA_GERACAO}}: data de geração
+           - {{PLATAFORMA}}: "Meta Ads", "Google Ads" ou "Meta + Google"
+           - {{KPI_CARDS}}: HTML dos cards de KPI
+           - {{CAMPANHAS_TABLE}}: HTML da tabela de campanhas
+           - {{GRAFICO_EVOLUCAO}}: SVG/CSS do gráfico de evolução diária
+           - {{ALERTAS}}: HTML dos alertas
+           - {{RECOMENDACOES}}: HTML das recomendações
+           ================================================================ */
+
+        /* === Reset & Base === */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            /* Cores padrão Ads Ratos (substituir pelo design-guide do cliente se existir) */
+            --bg: #0c0e18;
+            --bg-card: #13161f;
+            --bg-card-hover: #1a1d2e;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --green: #22c55e;
+            --red: #ef4444;
+            --amber: #f59e0b;
+            --blue: #3b82f6;
+            --border: #1e293b;
+            --radius: 12px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+        }
+
+        [data-theme="light"] {
+            --bg: #f8fafc;
+            --bg-card: #ffffff;
+            --bg-card-hover: #f1f5f9;
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        /* === Header === */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 2rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-info h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-info .meta {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        .header-info .meta span {
+            margin-right: 1rem;
+        }
+
+        .theme-toggle {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.5rem 1rem;
+            color: var(--text);
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        /* === KPI Cards === */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.25rem;
+            transition: background 0.2s;
+        }
+
+        .kpi-card:hover {
+            background: var(--bg-card-hover);
+        }
+
+        .kpi-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.75rem;
+            font-weight: 700;
+        }
+
+        .kpi-delta {
+            font-size: 0.8rem;
+            margin-top: 0.25rem;
+        }
+
+        .kpi-delta.up { color: var(--green); }
+        .kpi-delta.down { color: var(--red); }
+        .kpi-delta.neutral { color: var(--text-muted); }
+
+        /* Inversão: pra métricas onde "subir" é ruim (CPC, CPL, CPM) */
+        .kpi-delta.up.inverted { color: var(--red); }
+        .kpi-delta.down.inverted { color: var(--green); }
+
+        .kpi-badge {
+            display: inline-block;
+            font-size: 0.65rem;
+            font-weight: 600;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            margin-top: 0.35rem;
+            text-transform: uppercase;
+            letter-spacing: 0.03em;
+        }
+
+        .badge-excelente { background: rgba(34,197,94,0.15); color: var(--green); }
+        .badge-bom { background: rgba(59,130,246,0.15); color: var(--blue); }
+        .badge-atencao { background: rgba(245,158,11,0.15); color: var(--amber); }
+        .badge-critico { background: rgba(239,68,68,0.15); color: var(--red); }
+
+        /* === Seções === */
+        .section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        /* === Tabela de Campanhas === */
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+
+        th {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--text-muted);
+            border-bottom: 1px solid var(--border);
+        }
+
+        td {
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        tr:hover td {
+            background: var(--bg-card-hover);
+        }
+
+        .td-right {
+            text-align: right;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .status-active {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            margin-right: 0.5rem;
+        }
+
+        .status-paused {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--amber);
+            margin-right: 0.5rem;
+        }
+
+        /* === Gráficos CSS === */
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+
+        .chart-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        /* Barras CSS */
+        .bar-chart {
+            display: flex;
+            align-items: flex-end;
+            gap: 0.5rem;
+            height: 200px;
+            padding-top: 1.5rem;
+        }
+
+        .bar-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100%;
+            justify-content: flex-end;
+        }
+
+        .bar {
+            width: 100%;
+            max-width: 60px;
+            border-radius: 6px 6px 0 0;
+            background: var(--accent);
+            transition: height 0.3s;
+            min-height: 4px;
+        }
+
+        .bar-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            margin-top: 0.5rem;
+            text-align: center;
+        }
+
+        .bar-value {
+            font-size: 0.7rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        /* Linha SVG */
+        .line-chart svg {
+            width: 100%;
+            height: 200px;
+        }
+
+        .line-chart .line {
+            fill: none;
+            stroke: var(--accent);
+            stroke-width: 2.5;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .line-chart .area {
+            fill: var(--accent);
+            opacity: 0.1;
+        }
+
+        .line-chart .dot {
+            fill: var(--accent);
+            r: 4;
+        }
+
+        .line-chart .label {
+            font-size: 10px;
+            fill: var(--text-muted);
+            text-anchor: middle;
+        }
+
+        .line-chart .value-label {
+            font-size: 10px;
+            fill: var(--text);
+            text-anchor: middle;
+            font-weight: 600;
+        }
+
+        /* Grid 2 colunas pra gráficos */
+        .charts-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        /* === Alertas === */
+        .alert {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 1rem 1.25rem;
+            margin-bottom: 0.75rem;
+            border-left: 4px solid;
+            font-size: 0.85rem;
+        }
+
+        .alert-urgente { border-left-color: var(--red); }
+        .alert-atencao { border-left-color: var(--amber); }
+        .alert-sugestao { border-left-color: var(--blue); }
+
+        .alert-icon {
+            margin-right: 0.5rem;
+        }
+
+        .alert-action {
+            color: var(--text-muted);
+            font-size: 0.8rem;
+            margin-top: 0.35rem;
+        }
+
+        /* === Footer === */
+        .footer {
+            margin-top: 3rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+            text-align: center;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* === Responsivo === */
+        @media (max-width: 768px) {
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .charts-grid { grid-template-columns: 1fr; }
+            .header { flex-direction: column; gap: 1rem; }
+        }
+
+        @media (max-width: 480px) {
+            .kpi-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="header-info">
+                <h1>{{TITULO}}</h1>
+                <div class="meta">
+                    <span>{{CLIENTE}}</span>
+                    <span>{{PLATAFORMA}}</span>
+                    <span>{{PERIODO}}</span>
+                </div>
+            </div>
+            <button class="theme-toggle" onclick="toggleTheme()">Modo Claro</button>
+        </div>
+
+        <!-- KPIs -->
+        <div class="kpi-grid">
+            {{KPI_CARDS}}
+            <!-- Exemplo de KPI card:
+            <div class="kpi-card">
+                <div class="kpi-label">Gasto</div>
+                <div class="kpi-value">R$ 430,00</div>
+                <div class="kpi-delta up">↑ 12% vs anterior</div>
+                <span class="kpi-badge badge-bom">BOM</span>
+            </div>
+            -->
+        </div>
+
+        <!-- Gráficos -->
+        <div class="charts-grid">
+            {{GRAFICO_EVOLUCAO}}
+            <!-- O Claude gera o SVG de linha ou as barras CSS aqui -->
+        </div>
+
+        <!-- Campanhas -->
+        <div class="section">
+            <h2 class="section-title">Campanhas</h2>
+            <div class="table-wrap">
+                {{CAMPANHAS_TABLE}}
+                <!-- Exemplo:
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Campanha</th>
+                            <th class="td-right">Gasto</th>
+                            <th class="td-right">Conv.</th>
+                            <th class="td-right">CPL</th>
+                            <th class="td-right">CTR</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="status-active"></span>Vendas - Checkout</td>
+                            <td class="td-right">R$ 180,00</td>
+                            <td class="td-right">12</td>
+                            <td class="td-right">R$ 15,00</td>
+                            <td class="td-right">1.8%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                -->
+            </div>
+        </div>
+
+        <!-- Alertas -->
+        <div class="section">
+            <h2 class="section-title">Alertas e Recomendações</h2>
+            {{ALERTAS}}
+            <!-- Exemplo:
+            <div class="alert alert-urgente">
+                <span class="alert-icon">🔴</span>
+                <strong>CPL de R$ 45,00 está 125% acima do benchmark de R$ 20,00</strong>
+                <div class="alert-action">→ Revisar landing page e copy do anúncio</div>
+            </div>
+            -->
+        </div>
+
+        <!-- Recomendações -->
+        <div class="section">
+            {{RECOMENDACOES}}
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            Gerado em {{DATA_GERACAO}} · Ads Ratos
+        </div>
+    </div>
+
+    <script>
+        function toggleTheme() {
+            const html = document.documentElement;
+            const btn = document.querySelector('.theme-toggle');
+            if (html.getAttribute('data-theme') === 'dark') {
+                html.setAttribute('data-theme', 'light');
+                btn.textContent = 'Modo Escuro';
+            } else {
+                html.setAttribute('data-theme', 'dark');
+                btn.textContent = 'Modo Claro';
+            }
+        }
+
+        // Formatar números BR
+        function fmtBRL(v) {
+            return 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function fmtPct(v) {
+            return v.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%';
+        }
+    </script>
+</body>
+</html>

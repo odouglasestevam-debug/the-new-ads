@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="facebook-domain-verification" content="qv6p7sqqf3knbx82xusi80p8ldn386" />
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WPWMMR3S');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>the new ads — O novo padrão de mídia paga</title>
+<meta name="description" content="the new ads · O novo padrão de mídia paga.">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0A; --surface:#141414; --line:rgba(255,255,255,.10); --line-soft:rgba(255,255,255,.06);
+    --fg:#FAFAFA; --muted:#7A7A7A; --amber:#FF6A00; --amber-glow:#FFA24D;
+    --display:'Clash Display','Space Grotesk',system-ui,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{background:var(--bg)}
+  body{
+    background:var(--bg);color:var(--fg);font-family:var(--mono);
+    -webkit-font-smoothing:antialiased;min-height:100vh;
+    display:flex;justify-content:center;
+    padding:48px 18px 60px;
+    position:relative;overflow-x:hidden;
+  }
+  /* grão de filme real (ruído procedural via SVG), nunca decorativo demais: tira o preto seco sem virar padrão de grade repetida */
+  body::before{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;opacity:.35;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size:180px 180px;
+  }
+  body::after{
+    content:"";position:fixed;inset:0;pointer-events:none;z-index:0;
+    background:radial-gradient(560px 320px at 50% -6%, rgba(255,106,0,.16), transparent 62%);
+  }
+
+  .col{width:100%;max-width:480px;position:relative;z-index:1}
+
+  /* ---------- boot header ---------- */
+  .boot{display:flex;flex-direction:column;align-items:center;text-align:center}
+  .sym{width:52px;height:52px;margin-bottom:18px}
+  .sym path{
+    stroke-dasharray:220; stroke-dashoffset:220;
+    animation:draw 1.1s cubic-bezier(.65,0,.35,1) .15s forwards;
+  }
+  @keyframes draw{to{stroke-dashoffset:0}}
+
+  .wordmark{
+    font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.01em;
+    color:var(--fg);opacity:0;animation:rise .5s ease .9s forwards;
+  }
+  .tag{
+    margin-top:8px;font-size:12px;letter-spacing:.08em;color:var(--muted);
+    opacity:0;animation:rise .5s ease 1.05s forwards;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  /* ---------- log / ferramenta de comando ---------- */
+  .log{margin-top:34px;display:flex;flex-direction:column;gap:10px}
+  .row{
+    display:flex;align-items:center;gap:12px;
+    padding:15px 16px;border:1px solid var(--line);border-radius:10px;
+    text-decoration:none;color:var(--fg);position:relative;
+    opacity:0;transform:translateY(8px);
+    animation:rise .4s ease forwards;
+  }
+  .row:nth-child(1){animation-delay:1.2s}
+  .row:nth-child(2){animation-delay:1.32s}
+  .row:nth-child(3){animation-delay:1.44s}
+
+  .row .idx{
+    font-size:10px;color:var(--muted);letter-spacing:.06em;flex:none;width:20px;
+    transition:color .2s ease;
+  }
+  .row .body{flex:1;min-width:0}
+  .row .lbl{
+    display:block;font-family:var(--display);font-weight:600;font-size:15px;letter-spacing:0;
+    color:var(--fg);
+  }
+  .row .sub{
+    display:block;margin-top:2px;font-size:12.5px;color:var(--muted);letter-spacing:.01em;
+  }
+  .row .go{
+    flex:none;font-size:9.5px;color:var(--muted);transition:transform .2s ease,color .2s ease;
+  }
+  .row:hover{background:var(--line-soft);border-color:var(--amber)}
+  .row:hover .idx{color:var(--amber)}
+  .row:hover .go{color:var(--amber);transform:translateX(3px)}
+  .row:focus-visible{outline:2px solid var(--amber);outline-offset:-2px}
+
+  /* WhatsApp = ação primária, único preenchimento amber da página */
+  .row.primary{
+    background:var(--amber);border-color:var(--amber);color:#0A0A0A;
+  }
+  .row.primary .idx{color:rgba(10,10,10,.55)}
+  .row.primary .lbl{color:#0A0A0A}
+  .row.primary .sub{color:rgba(10,10,10,.62)}
+  .row.primary .go{color:rgba(10,10,10,.7)}
+  .row.primary:hover{background:#ff7a1a;border-color:#ff7a1a}
+  .row.primary:hover .go{transform:translateX(3px);color:#0A0A0A}
+
+  footer{
+    margin-top:36px;text-align:center;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;
+    color:#4a4a4a;opacity:0;animation:rise .5s ease 1.6s forwards;
+  }
+  footer .up{color:var(--muted)}
+
+  @media (prefers-reduced-motion: reduce){
+    .sym path{animation:none;stroke-dashoffset:0}
+    .wordmark,.tag,.row,footer{animation:none;opacity:1;transform:none}
+  }
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WPWMMR3S"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+<div class="col">
+
+  <div class="boot">
+    <svg class="sym" viewBox="0 0 100 100" fill="none">
+      <path d="M24 78 L48 26 L48 58 L78 24" stroke="#FF6A00" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round"/>
+    </svg>
+    <div class="wordmark">the new ads</div>
+    <div class="tag">O novo padrão de mídia paga</div>
+  </div>
+
+  <nav class="log">
+
+    <a class="row primary" href="https://wa.me/5548996936361?text=Ol%C3%A1!%20Vim%20pela%20p%C3%A1gina%20de%20links%20da%20The%20New%20Ads." target="_blank" rel="noopener">
+      <span class="idx">01</span>
+      <span class="body">
+        <span class="lbl">Falar no WhatsApp</span>
+        <span class="sub">Resposta direta, sem robô no meio</span>
+      </span>
+      <span class="go">→</span>
+    </a>
+
+    <a class="row" href="/trafego-pago">
+      <span class="idx">02</span>
+      <span class="body">
+        <span class="lbl">Contratar tráfego pago</span>
+        <span class="sub">Diagnóstico da operação, sem custo</span>
+      </span>
+      <span class="go">→</span>
+    </a>
+
+    <a class="row" href="/trackeamento">
+      <span class="idx">03</span>
+      <span class="body">
+        <span class="lbl">Contratar trackeamento</span>
+        <span class="sub">Tracking e dados do seu funil</span>
+      </span>
+      <span class="go">→</span>
+    </a>
+
+  </nav>
+
+  <footer>the new ads <span class="up">· Santa Catarina, BR</span></footer>
+</div>
+</body>
+</html>

@@ -3,10 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The New Ads — Brand Book</title>
+<title>The New Ads · Brand Book</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
     --preto:#0A0A0A;
@@ -17,8 +18,8 @@
     --ambar:#FF6A00;
     --ambar-glow:#FFA24D;
     --linha:rgba(255,255,255,.09);
-    --display:'Space Grotesk',system-ui,sans-serif;
-    --texto:'Inter',system-ui,sans-serif;
+    --display:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    --texto:'Switzer','Inter',system-ui,sans-serif;
     --mono:'JetBrains Mono',monospace;
   }
   *{margin:0;padding:0;box-sizing:border-box}
@@ -34,6 +35,10 @@
   .wrap{max-width:1120px;margin:0 auto;padding:0 40px}
   section{padding:120px 0;border-top:1px solid var(--linha);position:relative}
   section:first-of-type{border-top:none}
+  @media(max-width:760px){
+    .wrap{padding:0 22px}
+    section{padding:72px 0}
+  }
 
   .kicker{
     font-family:var(--mono);
@@ -49,10 +54,11 @@
     position:absolute;top:120px;right:40px;
     font-family:var(--mono);font-size:12px;color:var(--nevoa);letter-spacing:.1em;
   }
+  @media(max-width:760px){.sec-num{top:26px;right:22px;font-size:10px}}
 
-  h1{font-family:var(--display);font-weight:700;letter-spacing:-.03em}
-  h2{font-family:var(--display);font-weight:600;font-size:clamp(28px,4vw,46px);letter-spacing:-.025em;line-height:1.05;margin-bottom:28px}
-  h3{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.01em;margin-bottom:12px}
+  h1{font-family:var(--display);font-weight:700;letter-spacing:-.015em}
+  h2{font-family:var(--display);font-weight:600;font-size:clamp(28px,4vw,46px);letter-spacing:-.0125em;line-height:1.05;margin-bottom:28px}
+  h3{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:0;margin-bottom:12px}
   p{color:#cfcfcf;font-size:16.5px;max-width:60ch}
   p.lead{font-size:20px;color:var(--branco);max-width:52ch}
   .muted{color:var(--nevoa)}
@@ -67,27 +73,34 @@
       radial-gradient(1100px 620px at 78% 8%, rgba(255,106,0,.16), transparent 60%),
       radial-gradient(700px 500px at 12% 96%, rgba(255,106,0,.06), transparent 60%);
   }
-  .cover-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--nevoa)}
+  .cover-top{display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--nevoa);gap:12px}
   .cover-mark{display:flex;align-items:center;gap:14px}
   .glyph{width:26px;height:26px;flex:none}
-  .cover-center h1{font-size:clamp(52px,11vw,140px);line-height:.9;letter-spacing:-.05em}
+  .cover-center h1{font-size:clamp(52px,11vw,140px);line-height:.9;letter-spacing:-.02em}
   .cover-center h1 .l2{color:var(--nevoa)}
-  .cover-center .tag{font-family:var(--display);font-size:clamp(18px,2.4vw,26px);color:var(--branco);margin-top:34px;font-weight:500;letter-spacing:-.01em}
+  .cover-center .tag{font-family:var(--display);font-size:clamp(18px,2.4vw,26px);color:var(--branco);margin-top:34px;font-weight:500;letter-spacing:0}
   .cover-center .tag .ambar{font-weight:600}
-  .cover-bot{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--nevoa)}
+  .cover-bot{display:flex;justify-content:space-between;align-items:flex-end;font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--nevoa);gap:12px}
+  @media(max-width:480px){
+    .cover-top,.cover-bot{font-size:9px;letter-spacing:.1em}
+    .cover-mark span{display:none}
+  }
 
   /* ---------- MAPA MENTAL / grid ---------- */
   .grid{display:grid;gap:1px;background:var(--linha);border:1px solid var(--linha)}
   .g2{grid-template-columns:repeat(2,1fr)}
   .g3{grid-template-columns:repeat(3,1fr)}
   .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:900px){.g3,.g4{grid-template-columns:1fr 1fr}}
+  @media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
   .cell{background:var(--preto);padding:34px 30px}
+  @media(max-width:640px){.cell{padding:26px 22px}}
   .cell .idx{font-family:var(--mono);font-size:11px;color:var(--ambar);letter-spacing:.15em;margin-bottom:18px}
   .cell h3{margin-bottom:10px}
   .cell p{font-size:14.5px;color:var(--nevoa);max-width:none}
 
   /* ---------- destaque / conceito ---------- */
-  .big{font-family:var(--display);font-weight:600;font-size:clamp(32px,5.2vw,60px);line-height:1.02;letter-spacing:-.03em;max-width:20ch}
+  .big{font-family:var(--display);font-weight:600;font-size:clamp(32px,5.2vw,60px);line-height:1.02;letter-spacing:-.015em;max-width:20ch}
   .big .ambar{color:var(--ambar)}
   .two{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:start}
   .two.narrow{grid-template-columns:.9fr 1.1fr}
@@ -95,6 +108,7 @@
 
   .stack > * + *{margin-top:18px}
   .valores{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--linha);border:1px solid var(--linha);margin-top:8px}
+  @media(max-width:640px){.valores{grid-template-columns:1fr}}
   .valores .v{background:var(--preto);padding:28px 26px}
   .valores .v .n{font-family:var(--mono);color:var(--ambar);font-size:12px;margin-bottom:10px}
   .valores .v p{max-width:none;font-size:14.5px;color:var(--nevoa)}
@@ -121,18 +135,19 @@
 
   /* ---------- tipografia ---------- */
   .typespec{border:1px solid var(--linha);padding:44px 40px;background:linear-gradient(180deg,rgba(255,255,255,.02),transparent)}
-  .typespec .huge{font-family:var(--display);font-weight:700;font-size:clamp(60px,12vw,120px);line-height:.9;letter-spacing:-.04em}
+  .typespec .huge{font-family:var(--display);font-weight:700;font-size:clamp(60px,12vw,120px);line-height:.9;letter-spacing:-.02em}
   .typespec .scale{font-family:var(--display);display:flex;flex-wrap:wrap;gap:26px;align-items:baseline;margin-top:26px;color:var(--nevoa)}
   .typespec .scale b{color:var(--branco)}
   .type-body{border:1px solid var(--linha);padding:44px 40px;margin-top:1px}
-  .type-body .huge{font-family:var(--texto);font-weight:600;font-size:clamp(48px,9vw,90px);line-height:.95;letter-spacing:-.03em}
+  .type-body .huge{font-family:var(--texto);font-weight:600;font-size:clamp(48px,9vw,90px);line-height:.95;letter-spacing:-.015em}
+  @media(max-width:640px){.typespec,.type-body{padding:26px 22px}}
 
   /* ---------- logo placeholders ---------- */
   .logo-box{background:var(--grafite);border:1px solid var(--linha);border-radius:2px;display:flex;align-items:center;justify-content:center;min-height:220px;position:relative;overflow:hidden}
   .logo-box.light{background:var(--branco)}
   .logo-box .tagcorner{position:absolute;top:14px;left:16px;font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--nevoa)}
   .logo-box.light .tagcorner{color:#999}
-  .wordmark{font-family:var(--display);font-weight:600;letter-spacing:-.03em;font-size:34px;display:flex;align-items:center;gap:12px}
+  .wordmark{font-family:var(--display);font-weight:600;letter-spacing:-.015em;font-size:34px;display:flex;align-items:center;gap:12px}
   .wordmark.dark-txt{color:var(--preto)}
   .clear-demo{display:grid;grid-template-columns:1fr 1fr;gap:24px}
   @media(max-width:760px){.clear-demo{grid-template-columns:1fr}}
@@ -146,6 +161,9 @@
 
   /* ---------- prompt block ---------- */
   .prompt{background:var(--grafite);border:1px solid var(--linha);border-radius:4px;padding:34px 34px;font-family:var(--mono);font-size:13.5px;line-height:1.75;color:#d4d4d4;white-space:pre-wrap;position:relative}
+  @media(max-width:640px){.prompt{padding:24px 20px;font-size:12.5px}}
+  .reducao-demo{display:flex;flex-direction:row;gap:34px}
+  @media(max-width:480px){.reducao-demo{flex-wrap:wrap;justify-content:center;gap:20px}}
   .prompt .plabel{position:absolute;top:-11px;left:22px;background:var(--ambar);color:#0A0A0A;font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;padding:4px 12px;border-radius:2px;font-weight:500}
 
   /* ---------- contra capa ---------- */
@@ -179,7 +197,7 @@
   </div>
 
   <div class="cover-bot">
-    <span>Manual de Marca — Branding Style Guide</span>
+    <span>Manual de Marca · Branding Style Guide</span>
     <span>2026</span>
   </div>
 </div>
@@ -188,7 +206,7 @@
 <!-- ================= ABERTURA ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">00 — Intro</span>
+  <span class="sec-num">00 · Intro</span>
   <div class="kicker">Como usar este guia</div>
   <div class="two narrow">
     <h2>Isto não é decoração.<br>É a regra do jogo.</h2>
@@ -204,7 +222,7 @@
 <!-- ================= MAPA MENTAL ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">01 — A Marca</span>
+  <span class="sec-num">01 · A Marca</span>
   <div class="kicker">Mapa mental</div>
   <h2>Os oito pilares</h2>
   <p class="muted" style="margin-bottom:44px">O que sustenta a The New Ads antes de qualquer pixel.</p>
@@ -225,7 +243,7 @@
 <!-- ================= BIG IDEA ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">02 — Conceito</span>
+  <span class="sec-num">02 · Conceito</span>
   <div class="kicker">A ideia central</div>
   <div class="big">Tráfego não é sorte.<br>É <span class="ambar">sistema.</span></div>
   <div class="two" style="margin-top:56px">
@@ -245,7 +263,7 @@
 <!-- ================= POSICIONAMENTO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">03 — Posição</span>
+  <span class="sec-num">03 · Posição</span>
   <div class="kicker">Posicionamento</div>
   <div class="two narrow">
     <h2>Onde a marca<br>fica na cabeça<br>do cliente.</h2>
@@ -260,7 +278,7 @@
 <!-- ================= PROPOSITO / MISSAO / VISAO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">04 — Essência</span>
+  <span class="sec-num">04 · Essência</span>
   <div class="kicker">Propósito, missão e visão</div>
   <div class="grid g3">
     <div class="cell"><div class="idx">Propósito</div><h3>Por que existimos</h3><p style="color:#cfcfcf">Tirar a mídia paga do território da sorte e devolver ao empresário o controle sobre o próprio crescimento.</p></div>
@@ -281,7 +299,7 @@
 <!-- ================= ARQUETIPO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">05 — Arquétipo</span>
+  <span class="sec-num">05 · Arquétipo</span>
   <div class="kicker">Arquétipo de marca</div>
   <div class="two">
     <div class="stack">
@@ -290,11 +308,11 @@
     </div>
     <div class="stack">
       <div>
-        <h3 class="ambar">Sábio / Especialista <span class="muted" style="font-family:var(--mono);font-size:13px;font-weight:400">— dominante</span></h3>
+        <h3 class="ambar">Sábio / Especialista <span class="muted" style="font-family:var(--mono);font-size:13px;font-weight:400">(dominante)</span></h3>
         <p>Autoridade construída no domínio técnico. Mostra o método, ensina, prova com dado. Gera confiança porque sabe do que fala, não porque grita.</p>
       </div>
       <div style="margin-top:24px">
-        <h3 class="ambar">Rebelde <span class="muted" style="font-family:var(--mono);font-size:13px;font-weight:400">— tempero</span></h3>
+        <h3 class="ambar">Rebelde <span class="muted" style="font-family:var(--mono);font-size:13px;font-weight:400">(tempero)</span></h3>
         <p>Rompe com o "old ads". Tem opinião, incomoda o genérico do mercado, defende o novo padrão sem pedir licença. É o que dá atitude ao nome "New".</p>
       </div>
       <p class="note">Evitar: o arquétipo do Mago-guru (promessa mágica, "segredo revelado"). É exatamente o oposto do que a marca defende.</p>
@@ -306,7 +324,7 @@
 <!-- ================= PUBLICO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">06 — Público</span>
+  <span class="sec-num">06 · Público</span>
   <div class="kicker">Para quem</div>
   <h2>Quatro frentes,<br>um mesmo cansaço.</h2>
   <p class="muted" style="margin-bottom:44px">Verticais diferentes, a mesma dor: já gastaram com tráfego e não sabem dizer se deu certo.</p>
@@ -322,7 +340,7 @@
 <!-- ================= REGUA PERSONALIDADE ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">07 — Tom</span>
+  <span class="sec-num">07 · Tom</span>
   <div class="kicker">Régua de personalidade</div>
   <h2>Onde a marca mora.</h2>
   <p class="muted" style="margin-bottom:50px">A posição de cada eixo guia design, copy e comportamento.</p>
@@ -344,7 +362,7 @@
 <!-- ================= NAMING ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">08 — Nome</span>
+  <span class="sec-num">08 · Nome</span>
   <div class="kicker">Racional do naming</div>
   <div class="two narrow">
     <h2>Por que<br>The New Ads.</h2>
@@ -361,7 +379,7 @@
 <!-- ================= TOM DE VOZ ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">09 — Voz</span>
+  <span class="sec-num">09 · Voz</span>
   <div class="kicker">Tom de voz</div>
   <h2>Fala de operador,<br>não de guru.</h2>
   <div class="two" style="margin-top:20px">
@@ -392,7 +410,7 @@
 <!-- ================= TAGLINES / MANIFESTO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">10 — Assinatura</span>
+  <span class="sec-num">10 · Assinatura</span>
   <div class="kicker">Taglines e manifesto</div>
   <div class="two narrow">
     <div class="stack">
@@ -419,7 +437,7 @@
 <!-- ================= SISTEMA VISUAL / SIMBOLO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">11 — Símbolo</span>
+  <span class="sec-num">11 · Símbolo</span>
   <div class="kicker">O sistema visual</div>
   <h2>O Sinal.</h2>
   <div class="two" style="margin-top:8px">
@@ -445,7 +463,7 @@
 <!-- ================= VERSOES DO LOGO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">12 — Versões</span>
+  <span class="sec-num">12 · Versões</span>
   <div class="kicker">Versões do logotipo</div>
   <h2>Uma marca,<br>três formas.</h2>
   <div style="display:grid;gap:1px;margin-top:30px">
@@ -476,7 +494,7 @@
 <!-- ================= MARGEM + REDUCAO ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">13 — Aplicação</span>
+  <span class="sec-num">13 · Aplicação</span>
   <div class="kicker">Área de proteção e redução</div>
   <div class="two">
     <div>
@@ -499,7 +517,7 @@
         <li>Impresso: a partir de <strong>&nbsp;35mm</strong> de largura.</li>
         <li>Abaixo disso: somente o símbolo (mínimo 16px / favicon).</li>
       </ul>
-      <div class="logo-box" style="margin-top:22px;min-height:200px;gap:34px;flex-direction:row">
+      <div class="logo-box reducao-demo" style="margin-top:22px;min-height:200px">
         <div class="wordmark" style="font-size:22px">the new ads</div>
         <div class="wordmark" style="font-size:14px">the new ads</div>
         <svg width="24" height="24" viewBox="0 0 40 40" fill="none"><path d="M8 32 L22 8 L22 22 L32 8" stroke="#FF6A00" stroke-width="3.8" stroke-linejoin="round" stroke-linecap="round"/></svg>
@@ -512,7 +530,7 @@
 <!-- ================= USOS INDEVIDOS ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">14 — Restrições</span>
+  <span class="sec-num">14 · Restrições</span>
   <div class="kicker">Usos indevidos</div>
   <h2>O que nunca fazer.</h2>
   <div class="donts" style="margin-top:30px">
@@ -533,27 +551,27 @@
 <!-- ================= TIPOGRAFIA ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">15 — Tipografia</span>
+  <span class="sec-num">15 · Tipografia</span>
   <div class="kicker">Padrão tipográfico</div>
   <h2>Duas fontes.<br>Zero ruído.</h2>
   <p class="muted" style="margin-bottom:34px">Ambas com licença aberta, prontas para web, landing e apresentação.</p>
 
   <div class="typespec">
     <span class="muted" style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">DISPLAY · TÍTULOS</span>
-    <div class="huge">Space Grotesk</div>
+    <div class="huge">Clash Display</div>
     <div class="scale">
       <b>Bold 700</b><span>SemiBold 600</span><span>Medium 500</span><span>Regular 400</span>
     </div>
-    <p style="margin-top:22px">Grotesca geométrica com caráter tech. Usada em títulos, o wordmark e números de destaque. Tracking sempre fechado (-2% a -4%).</p>
+    <p style="margin-top:22px">Grotesca geométrica com caráter tech. Usada em títulos, o wordmark e números de destaque. Tracking leve (0 a -1,5%).</p>
   </div>
 
   <div class="type-body">
     <span class="muted" style="font-family:var(--mono);font-size:12px;letter-spacing:.1em">TEXTO · CORPO</span>
-    <div class="huge">Inter</div>
+    <div class="huge">Switzer</div>
     <div class="scale" style="font-family:var(--texto)">
       <b>SemiBold 600</b><span>Medium 500</span><span>Regular 400</span>
     </div>
-    <p style="margin-top:22px">Neutra, altíssima legibilidade, padrão de produtos digitais. Usada em corpo de texto, legendas e interface. É a voz calma sob os títulos afiados.</p>
+    <p style="margin-top:22px">Grotesca suíça, alta legibilidade, mesma fundição da Clash Display. Usada em corpo de texto, legendas e interface. É a voz calma sob os títulos afiados.</p>
   </div>
   <p class="note" style="margin-top:26px">Alternativa premium de display: Clash Display (Fontshare, licença gratuita), caso queira ainda mais atitude nos títulos. Mono de apoio (dados, código, labels técnicas): JetBrains Mono.</p>
 </div>
@@ -562,7 +580,7 @@
 <!-- ================= CORES ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">16 — Cores</span>
+  <span class="sec-num">16 · Cores</span>
   <div class="kicker">Paleta de cores</div>
   <h2>Preto absoluto,<br>âmbar de sinal.</h2>
   <p class="muted" style="margin-bottom:40px">O escuro carrega sofisticação e foco. O âmbar é o ponto de conversão, energia e calor humano dentro do dark. Usado com parcimônia: quanto mais raro, mais forte.</p>
@@ -592,7 +610,7 @@
 <!-- ================= APLICACOES ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">17 — No mundo</span>
+  <span class="sec-num">17 · No mundo</span>
   <div class="kicker">Aplicações</div>
   <h2>Como a marca<br>aparece por aí.</h2>
   <div class="grid g3" style="margin-top:30px">
@@ -606,12 +624,12 @@
 <!-- ================= PROMPT IA ================= -->
 <section>
 <div class="wrap">
-  <span class="sec-num">18 — Geração</span>
+  <span class="sec-num">18 · Geração</span>
   <div class="kicker">Prompt para a IA de identidade visual</div>
   <h2>Trazer à existência.</h2>
   <p class="muted" style="margin-bottom:34px">Cole este prompt na IA de imagem (Midjourney, DALL·E, Ideogram, etc). O prompt de logo está em inglês por render melhor; há uma versão em PT abaixo do documento.</p>
 
-  <div class="prompt"><span class="plabel">Prompt · Símbolo + Logotipo</span>Minimalist brand logo for "the new ads", a modern paid-media / performance marketing agency. Custom geometric symbol that fuses a media "play" triangle with an upward-pointing arrow, reading subtly as the letter "N" (for New) — a single continuous stroke of uniform weight, sharp corners, no rounding, conveying an upward, ascending motion (growth). Symbol in warm amber-orange (#FF6A00) on a pure near-black background (#0A0A0A). Lockup: symbol above a lowercase wordmark "the new ads" set in a geometric grotesque typeface (Space Grotesk style), tight letter-spacing, in off-white (#FAFAFA). Flat vector, ultra minimalist, premium tech aesthetic, high contrast, lots of negative space, no gradients, no shadows, no 3D, no photo texture. Clean, confident, timeless. --style raw</div>
+  <div class="prompt"><span class="plabel">Prompt · Símbolo + Logotipo</span>Minimalist brand logo for "the new ads", a modern paid-media / performance marketing agency. Custom geometric symbol that fuses a media "play" triangle with an upward-pointing arrow, reading subtly as the letter "N" (for New): a single continuous stroke of uniform weight, sharp corners, no rounding, conveying an upward, ascending motion (growth). Symbol in warm amber-orange (#FF6A00) on a pure near-black background (#0A0A0A). Lockup: symbol above a lowercase wordmark "the new ads" set in a geometric display typeface (Clash Display style), tight letter-spacing, in off-white (#FAFAFA). Flat vector, ultra minimalist, premium tech aesthetic, high contrast, lots of negative space, no gradients, no shadows, no 3D, no photo texture. Clean, confident, timeless. --style raw</div>
 
   <div class="prompt" style="margin-top:32px"><span class="plabel">Prompt · Sistema / Mockups</span>Brand identity system presentation for "the new ads", a premium paid-media agency. Dark minimalist aesthetic: pure black (#0A0A0A) and graphite (#171717) surfaces, off-white text (#FAFAFA), single warm amber accent (#FF6A00) used sparingly as a signal. Geometric grotesque typography. Show: business card, favicon/app icon, social profile, landing page hero. Swiss/brutalist-clean layout, generous negative space, sharp corners, no gradients, no clutter. Sophisticated, confident, tech-forward, human. Flat vector mockups, high contrast. --style raw --ar 16:9</div>
 </div>

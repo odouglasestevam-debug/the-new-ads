@@ -62,6 +62,7 @@ npx playwright screenshot --viewport-size=1080,1350 --full-page "file:///caminho
 ### Post for Me API
 **O que faz:** Publica posts no Instagram e TikTok direto do Claude Code
 **Precisa de conta:** Sim, postforme.dev
+**Custo:** Pago, US$10/mes (ate 1.000 posts/mes, contas e API keys ilimitadas). Sem plano gratuito confirmado
 **Configurar:** Salvar `POSTFORME_API_KEY` no `.env`
 **Como usar numa skill:**
 ```bash

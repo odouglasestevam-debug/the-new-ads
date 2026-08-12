@@ -1,0 +1,19 @@
+{
+  "detector": {
+    "ignoreRules": [
+      "dark-glow"
+    ],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "marquee",
+        "value": "*",
+        "files": [
+          "the-new-ads-site/trafego-pago.html"
+        ],
+        "createdAt": "2026-07-31T12:44:32.288Z",
+        "reason": "Auto-scroll continuo do carrossel de logos e proposital, confirmado pelo usuario"
+      }
+    ]
+  }
+}

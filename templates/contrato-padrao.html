@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Contrato de Prestação de Serviços — {{CLIENTE_NOME}}</title>
+<style>
+  @page { size: A4; margin: 2.2cm 2cm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: 'Switzer', 'Inter', system-ui, sans-serif;
+    color: #1a1a1a;
+    background: #ffffff;
+    line-height: 1.6;
+    font-size: 14px;
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+  header.doc-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid #0A0A0A;
+    padding-bottom: 16px;
+    margin-bottom: 32px;
+  }
+  header.doc-header .brand {
+    font-family: 'Clash Display', 'Space Grotesk', system-ui, sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: -0.02em;
+  }
+  header.doc-header .brand span { color: #FF6A00; }
+  header.doc-header .doc-meta { font-size: 11px; color: #666; text-align: right; }
+  h1 {
+    font-family: 'Clash Display', 'Space Grotesk', system-ui, sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    text-align: center;
+    margin: 0 0 8px;
+    letter-spacing: -0.01em;
+  }
+  .subtitle { text-align: center; color: #555; font-size: 13px; margin-bottom: 36px; }
+  h2 {
+    font-family: 'Clash Display', 'Space Grotesk', system-ui, sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: #FF6A00;
+    border-bottom: 1px solid #e5e5e5;
+    padding-bottom: 6px;
+    margin: 30px 0 12px;
+  }
+  p { margin: 0 0 10px; text-align: justify; }
+  ul { margin: 0 0 10px; padding-left: 20px; }
+  li { margin-bottom: 4px; }
+  .clausula-num { font-weight: 600; }
+  .placeholder {
+    background: #FFF3E8;
+    color: #B34700;
+    padding: 1px 4px;
+    border-radius: 2px;
+    font-weight: 600;
+  }
+  .qualificacao {
+    background: #f7f7f7;
+    border: 1px solid #e5e5e5;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    border-radius: 2px;
+  }
+  .qualificacao p { margin-bottom: 4px; }
+  table.pagamento { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  table.pagamento th, table.pagamento td {
+    border: 1px solid #e5e5e5;
+    padding: 8px 10px;
+    text-align: left;
+    font-size: 13px;
+  }
+  table.pagamento th { background: #f7f7f7; font-weight: 600; }
+  .assinaturas {
+    margin-top: 60px;
+    display: flex;
+    justify-content: space-between;
+    gap: 40px;
+  }
+  .assinatura-bloco { flex: 1; text-align: center; }
+  .linha-assinatura { border-top: 1px solid #1a1a1a; margin-top: 60px; padding-top: 6px; font-size: 12px; }
+  .linha-assinatura strong { display: block; font-size: 13px; }
+  .rodape-local-data { margin-top: 40px; font-size: 13px; }
+  footer.doc-footer {
+    margin-top: 50px;
+    padding-top: 12px;
+    border-top: 1px solid #e5e5e5;
+    font-size: 10px;
+    color: #999;
+    text-align: center;
+  }
+  @media print {
+    body { padding: 0; }
+    .placeholder { background: none; color: inherit; }
+  }
+</style>
+</head>
+<body>
+
+<header class="doc-header">
+  <div class="brand">THE NEW ADS <span>●</span></div>
+  <div class="doc-meta">Contrato nº {{NUMERO_CONTRATO}}<br>Tubarão/SC, {{DATA_ASSINATURA}}</div>
+</header>
+
+<h1>Contrato de Prestação de Serviços de Marketing Digital</h1>
+<p class="subtitle">Gestão de tráfego pago, tracking e serviços correlatos</p>
+
+<div class="qualificacao">
+  <p><strong>CONTRATADA:</strong> THE NEW ADS (Douglas Estevam Teixeira), inscrita no CNPJ sob o nº 49.951.219/0001-65, com sede na Rua Cecília Henrique Fernandes, 581, Congonhas, Tubarão/SC, doravante denominada <strong>CONTRATADA</strong>.</p>
+  <p><strong>CONTRATANTE:</strong> <span class="placeholder">{{CLIENTE_RAZAO_SOCIAL}}</span>, inscrita no CNPJ sob o nº <span class="placeholder">{{CLIENTE_CNPJ}}</span>, com sede em <span class="placeholder">{{CLIENTE_ENDERECO}}</span>, neste ato representada por <span class="placeholder">{{CLIENTE_REPRESENTANTE}}</span>, doravante denominada <strong>CONTRATANTE</strong>.</p>
+</div>
+
+<p>As partes acima identificadas têm, entre si, justo e acertado o presente Contrato de Prestação de Serviços de Marketing Digital, que se regerá pelas cláusulas seguintes.</p>
+
+<h2>1. Objeto</h2>
+<p>O presente contrato tem como objeto a prestação, pela CONTRATADA à CONTRATANTE, dos seguintes serviços:</p>
+<ul>
+  <li><span class="placeholder">{{ESCOPO_SERVICO_1}}</span></li>
+  <li><span class="placeholder">{{ESCOPO_SERVICO_2}}</span></li>
+  <li><span class="placeholder">{{ESCOPO_SERVICO_3}}</span></li>
+</ul>
+<p><strong>1.1.</strong> Não estão incluídos neste contrato: <span class="placeholder">{{ESCOPO_EXCLUSOES}}</span>.</p>
+<p><strong>1.2.</strong> A obrigação central da CONTRATADA é gerar, de forma contínua e crescente, demanda qualificada para a CONTRATANTE por meio de tráfego pago. A CONTRATADA assume esse resultado como compromisso ativo: acompanha as campanhas, testa, ajusta e otimiza continuamente para elevar o volume e a qualidade dos leads gerados, tratando o crescimento da CONTRATANTE como objetivo próprio, inclusive propondo e executando ações complementares fora do escopo original quando identificar oportunidade real de melhoria.</p>
+<p><strong>1.3.</strong> O serviço contratado é de geração de demanda por tráfego pago, e não de vendas. A conversão dos leads e oportunidades gerados em vendas fechadas é de responsabilidade comercial da CONTRATANTE, não cabendo à CONTRATADA cobrança, penalidade ou retenção de valores em função do volume de vendas, uma vez que essa etapa do processo está fora de seu controle direto.</p>
+
+<h2>2. Prazo de Vigência</h2>
+<p><strong>2.1.</strong> O presente contrato vigora por prazo mínimo de <span class="placeholder">{{PRAZO_MINIMO_MESES}}</span>, contados a partir da data de assinatura, renovando-se automaticamente por prazo indeterminado ao término desse período, salvo manifestação de rescisão nos termos da Cláusula 7.</p>
+
+<h2>3. Valores e Forma de Pagamento</h2>
+<p><strong>3.1.</strong> Pela prestação dos serviços descritos na Cláusula 1, a CONTRATANTE pagará à CONTRATADA os valores abaixo:</p>
+<table class="pagamento">
+  <tr><th>Item</th><th>Valor</th><th>Vencimento</th></tr>
+  <tr><td>Fee fixo mensal de gestão</td><td class="placeholder">{{VALOR_FEE_FIXO}}</td><td class="placeholder">{{DIA_VENCIMENTO}}</td></tr>
+  <tr><td>Componente variável (escala de verba)</td><td class="placeholder">{{PERCENTUAL_VARIAVEL}}</td><td>Junto à fatura do mês de referência</td></tr>
+</table>
+<p><strong>3.2.</strong> O componente variável incide sobre <span class="placeholder">{{REGRA_VARIAVEL_DETALHE}}</span> (ex.: percentual sobre a verba de mídia investida no mês, aplicado a partir de determinado patamar de investimento).</p>
+<p><strong>3.3.</strong> Forma de pagamento: <span class="placeholder">{{FORMA_PAGAMENTO}}</span> (PIX, boleto ou transferência).</p>
+<p><strong>3.4.</strong> Em caso de atraso, incidirá multa de 2% (dois por cento) sobre o valor devido, acrescida de juros de mora de 0,33% (trinta e três centésimos por cento) ao dia, calculados pro rata die.</p>
+<p><strong>3.5.</strong> Os valores serão reajustados anualmente pela variação do IPCA (ou índice que vier a substituí-lo), a contar da data de assinatura.</p>
+
+<h2>4. Verba de Mídia</h2>
+<p><strong>4.1.</strong> A verba destinada ao investimento em anúncios (Meta Ads, Google Ads ou outras plataformas) não está incluída nos valores da Cláusula 3 e é de responsabilidade exclusiva da CONTRATANTE, que a investirá diretamente junto às plataformas, salvo acordo expresso em contrário registrado em aditivo.</p>
+<p><strong>4.2.</strong> A CONTRATADA não se responsabiliza por bloqueios, suspensões ou glosas de conta de anúncio motivados por violação de políticas das plataformas por parte da CONTRATANTE ou de terceiros por ela indicados.</p>
+
+<h2>5. Obrigações da CONTRATADA</h2>
+<ul>
+  <li>Executar os serviços descritos na Cláusula 1 com zelo técnico, dentro das melhores práticas de mercado;</li>
+  <li>Fornecer relatórios de performance com periodicidade <span class="placeholder">{{PERIODICIDADE_RELATORIO}}</span>;</li>
+  <li>Manter canal de comunicação ativo para dúvidas e alinhamentos durante o horário comercial de atendimento: segunda a sexta-feira, das 7h às 19h;</li>
+  <li>Zelar pela confidencialidade das informações e acessos da CONTRATANTE.</li>
+</ul>
+<p><strong>5.1.</strong> Eventuais respostas ou atendimentos prestados pela CONTRATADA fora do horário comercial descrito no item anterior, ou em sábados, domingos e feriados, são realizados por mera liberalidade e não geram obrigatoriedade de atendimento nesses horários, tampouco criam precedente para exigência futura.</p>
+
+<h2>6. Obrigações da CONTRATANTE</h2>
+<ul>
+  <li>Fornecer, em tempo hábil, acessos, materiais, informações e aprovações necessárias à execução dos serviços;</li>
+  <li>Efetuar o pagamento da verba de mídia diretamente às plataformas, mantendo saldo suficiente para veiculação contínua dos anúncios;</li>
+  <li>Aprovar ou solicitar ajustes em criativos e peças no prazo de até <span class="placeholder">{{PRAZO_APROVACAO_DIAS}}</span> dias úteis, sob pena de os prazos de entrega da CONTRATADA serem prorrogados na mesma proporção do atraso;</li>
+  <li>Pagar os valores previstos na Cláusula 3 nas datas acordadas.</li>
+</ul>
+
+<h2>7. Rescisão e Aviso Prévio</h2>
+<p><strong>7.1.</strong> Encerrado o prazo mínimo previsto na Cláusula 2, qualquer das partes poderá rescindir o presente contrato, mediante aviso prévio por escrito com antecedência mínima de 30 (trinta) dias, prazo durante o qual os serviços e pagamentos seguem normalmente.</p>
+<p><strong>7.2.</strong> Caso a CONTRATANTE deseje encerrar o contrato de forma imediata, sem cumprir o aviso prévio de 30 dias previsto no item 7.1, incidirá multa rescisória correspondente a 50% (cinquenta por cento) do valor do fee fixo mensal vigente, a título de compensação pelo período de aviso não cumprido.</p>
+<p><strong>7.3.</strong> Não se aplica a multa do item 7.2 em caso de descumprimento contratual comprovado por parte da CONTRATADA, ou de comum acordo formalizado por escrito entre as partes.</p>
+<p><strong>7.4.</strong> O não pagamento de qualquer fatura por prazo superior a 15 (quinze) dias corridos após o vencimento autoriza a CONTRATADA a suspender os serviços até a regularização, sem prejuízo da cobrança dos valores em aberto.</p>
+
+<h2>8. Propriedade e Titularidade</h2>
+<p><strong>8.1.</strong> As contas de anúncio, pixels, tags e ativos de mídia criados em nome da CONTRATANTE permanecem de titularidade da CONTRATANTE durante e após a vigência deste contrato.</p>
+<p><strong>8.2.</strong> Os materiais criativos, textos, artes e demais peças produzidas pela CONTRATADA no âmbito do escopo contratado (Cláusula 1) são cedidos à CONTRATANTE para uso nas campanhas contratadas, mediante quitação integral dos valores devidos. Metodologias, processos internos, estrutura de campanhas, segmentações, templates e ferramentas proprietárias da CONTRATADA permanecem de sua exclusiva titularidade.</p>
+<p><strong>8.3.</strong> Encerrado o presente contrato, por qualquer motivo, a CONTRATANTE não poderá replicar, adaptar ou reaproveitar, por conta própria ou por meio de terceiros, a estrutura de campanhas, segmentações, estratégias de lances, funis, e a estrutura de rastreamento avançado (incluindo configuração de tags e eventos no Google Tag Manager e o rastreamento avançado de conversas via WhatsApp/API de mensagens) e demais metodologias desenvolvidas pela CONTRATADA durante a vigência contratual, as quais constituem know-how proprietário da CONTRATADA.</p>
+<p><strong>8.4.</strong> Materiais, artes, vídeos ou peças entregues pela CONTRATADA em caráter de cortesia, bônus ou excedente ao escopo contratado (overdelivery), sem cobrança específica, não têm seus direitos de uso cedidos à CONTRATANTE e não podem ser utilizados, publicados ou adaptados sem autorização expressa da CONTRATADA, salvo acordo em contrário formalizado por escrito.</p>
+
+<h2>9. Confidencialidade</h2>
+<p><strong>9.1.</strong> As partes se comprometem a manter sigilo sobre informações estratégicas, dados de performance, acessos e demais informações confidenciais trocadas em razão deste contrato, durante sua vigência e por 2 (dois) anos após seu término.</p>
+
+<h2>10. Proteção de Dados (LGPD)</h2>
+<p><strong>10.1.</strong> As partes se comprometem a tratar quaisquer dados pessoais aos quais tenham acesso em razão deste contrato em conformidade com a Lei Geral de Proteção de Dados (Lei nº 13.709/2018), utilizando-os exclusivamente para as finalidades aqui previstas.</p>
+
+<h2>11. Limitação de Responsabilidade</h2>
+<p><strong>11.1.</strong> Os serviços prestados pela CONTRATADA envolvem estratégia, execução técnica e otimização contínua, mas os resultados de campanhas de mídia paga dependem de fatores de mercado, concorrência, sazonalidade, políticas das plataformas e demais variáveis fora do controle da CONTRATADA. Não há garantia de resultado específico (volume de leads, vendas, ROAS ou faturamento).</p>
+
+<h2>12. Foro</h2>
+<p><strong>12.1.</strong> Fica eleito o foro da comarca de Tubarão/SC para dirimir quaisquer controvérsias oriundas deste contrato, com renúncia expressa a qualquer outro, por mais privilegiado que seja.</p>
+
+<p class="rodape-local-data">Tubarão/SC, <span class="placeholder">{{DATA_ASSINATURA}}</span>.</p>
+
+<div class="assinaturas">
+  <div class="assinatura-bloco">
+    <div class="linha-assinatura">
+      <strong>{{CLIENTE_RAZAO_SOCIAL}}</strong>
+      CONTRATANTE
+    </div>
+  </div>
+  <div class="assinatura-bloco">
+    <div class="linha-assinatura">
+      <strong>The New Ads</strong>
+      CONTRATADA
+    </div>
+  </div>
+</div>
+
+<footer class="doc-footer">
+  The New Ads — documento gerado a partir do template padrão. Revisar cláusulas em <span class="placeholder">{{}}</span> antes do envio.
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,1044 @@
+{
+  "name": "Trackeamento de Mensagens - TEMPLATE",
+  "description": "Template padrão de trackeamento CTWA (WhatsApp/NeoGo) + Meta CAPI + Supabase Tracking + Google Sheets. Baseado no workflow do Grupo Confiança em 2026-08-11. Antes de duplicar pra um cliente novo, buscar/substituir TODOS os placeholders COLE_*_AQUI e revisar a lista de variáveis no final deste arquivo.",
+  "active": false,
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "timezone": "America/Sao_Paulo"
+        }
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-704, 576],
+      "id": "55d0a48a-153e-40c1-bdcb-02e4d2d0cece",
+      "name": "Timestamp Atual (Lead Direto)"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "X",
+        "outputFieldName": "timestamp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-464, 576],
+      "id": "637ce2e3-92ea-48fa-9097-d221f6d896f2",
+      "name": "Formata Timestamp (Lead Direto)"
+    },
+    {
+      "parameters": {
+        "type": "SHA256",
+        "value": "={{ $('Monta Dados do Lead Direto').item.json.telefone }}",
+        "dataPropertyName": "telefone_hash"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [1168, 576],
+      "id": "495484be-5009-42fb-8fb6-ab0425532270",
+      "name": "Hash Telefone (Lead Direto)"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v22.0/{{ $item(\"0\").$node[\"Webhook Recebe Mensagem\"].json[\"body\"][\"data\"][\"meta_ads\"][\"source_id\"] }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "access_token", "value": "={{ $('Extrai Dados e Config Pixel').item.json.token }}" },
+            { "name": "fields", "value": "name,adset{id,name},campaign{id,name}" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [16, 576],
+      "id": "9f46d3a2-6db3-48eb-9319-3f28429bc656",
+      "name": "Busca Dados do Anuncio"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.timestamp }}",
+        "format": "custom",
+        "customFormat": "={{('dd/MM/yyyy')}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-224, 576],
+      "id": "de22dfda-2f80-49ab-a82e-8bc18e6d604f",
+      "name": "Formata Data BR (Lead Direto)"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "id": "df829a9e-0075-4bb5-97e8-3bb41aee8573",
+              "leftValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.IsFromMe }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-1488, 512],
+      "id": "e3a90870-c356-4bff-a6c3-7190d71c1503",
+      "name": "Mensagem do Atendente?"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $item(\"0\").$node[\"Webhook Recebe Mensagem\"].json[\"body\"][\"data\"][\"meta_ads\"][\"ctwa_clid\"] }}",
+                    "rightValue": "",
+                    "operator": { "type": "string", "operation": "exists", "singleValue": true },
+                    "id": "6199b231-502b-4682-ab00-87a715f9c2a7"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Direto"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "id": "080dc9c5-fd7b-405c-8e24-b2a9cf7934f0",
+                    "leftValue": "={{ $json.body.data.meta_ads.entry_point_conversion_source }}",
+                    "rightValue": "click_to_chat_link",
+                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Link_in_bio"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "id": "c39ce926-e984-4268-b7af-ce6300bf2237",
+                    "leftValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.meta_ads.entry_point_conversion_source }}",
+                    "rightValue": "click_to_chat_link",
+                    "operator": { "type": "string", "operation": "equals", "name": "filter.operator.equals" }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [-1168, 592],
+      "id": "3935c330-f725-4ec0-80bc-e135d5ad38dc",
+      "name": "Classifica Origem do Clique"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI/edit"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName }}",
+            "Telefone": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}",
+            "Origem": "=site",
+            "Data": "={{ $now }}"
+          },
+          "matchingColumns": ["Telefone"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [-528, 752],
+      "id": "3452213b-3005-4d13-8b1a-ba5ad87f8e28",
+      "name": "Grava Lead Origem Site",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "COLE_O_PATH_DO_WEBHOOK_AQUI",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-1984, 512],
+      "id": "2e376130-e42e-4a55-ba78-e1e7f3ad904d",
+      "name": "Webhook Recebe Mensagem"
+    },
+    {
+      "parameters": {
+        "url": "=https://graph.facebook.com/v22.0/{{ $item(\"0\").$node[\"Webhook Recebe Mensagem\"].json[\"body\"][\"data\"][\"meta_ads\"][\"source_id\"] }}/insights",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "fields", "value": "impressions,clicks" },
+            { "name": "breakdowns", "value": "publisher_platform,platform_position" },
+            { "name": "date_preset", "value": "maximum" },
+            { "name": "access_token", "value": "={{ $('Extrai Dados e Config Pixel').item.json.token }}" }
+          ]
+        },
+        "options": { "redirect": { "redirect": {} } }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [224, 576],
+      "id": "aeb4a381-c0df-4616-8747-ce0b12e8f191",
+      "name": "Busca Insights do Anuncio"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Code node - Atribuição de Placement do anúncio Meta\nconst insights = $input.first().json.data || [];\n\n// Função pra limpar placements duplicados (ex: instagram_instagram_stories → instagram_stories)\nfunction formatarPlacement(plataforma, posicao) {\n  const posicaoLimpa = posicao.replace(`${plataforma}_`, '');\n  return `${plataforma}_${posicaoLimpa}`;\n}\n\n// Filtra apenas placements com cliques > 0\nconst comCliques = insights\n  .filter(p => parseInt(p.clicks) > 0)\n  .sort((a, b) => parseInt(b.clicks) - parseInt(a.clicks));\n\nlet placementAtribuido;\nlet confianca;\n\nif (comCliques.length === 0) {\n  const maiorImpressao = insights\n    .sort((a, b) => parseInt(b.impressions) - parseInt(a.impressions))[0];\n  placementAtribuido = maiorImpressao\n    ? formatarPlacement(maiorImpressao.publisher_platform, maiorImpressao.platform_position)\n    : 'desconhecido';\n  confianca = 'baixa';\n} else if (comCliques.length === 1) {\n  placementAtribuido = formatarPlacement(comCliques[0].publisher_platform, comCliques[0].platform_position);\n  confianca = 'alta';\n} else {\n  const comCTR = comCliques.map(p => ({\n    ...p,\n    ctr: parseInt(p.clicks) / parseInt(p.impressions)\n  })).sort((a, b) => b.ctr - a.ctr);\n  placementAtribuido = formatarPlacement(comCTR[0].publisher_platform, comCTR[0].platform_position);\n  confianca = 'media';\n}\n\nreturn [{\n  json: {\n    placement: placementAtribuido,\n    confianca: confianca,\n    breakdown_completo: insights.map(p => ({\n      ...p,\n      placement_formatado: formatarPlacement(p.publisher_platform, p.platform_position)\n    })),\n    total_cliques: insights.reduce((acc, p) => acc + parseInt(p.clicks), 0),\n    total_impressoes: insights.reduce((acc, p) => acc + parseInt(p.impressions), 0)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [480, 576],
+      "id": "1fcfe6ed-0869-4c3a-8f37-82c65b16f69c",
+      "name": "Calcula Posicionamento"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $item(\"0\").$node[\"Mensagem do Atendente?\"].json[\"mensagem\"] }}",
+                    "rightValue": "COLE_AQUI_A_FRASE_DE_QUALIFICACAO_DO_CLIENTE",
+                    "operator": { "type": "string", "operation": "contains" },
+                    "id": "e436a268-3823-4470-9875-ef2ef2fecccd"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Qualificado"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "id": "109b8dcb-a624-408f-a9ca-d6b07370339d",
+                    "leftValue": "={{ $item(\"0\").$node[\"Mensagem do Atendente?\"].json[\"mensagem\"] }}",
+                    "rightValue": "COLE_AQUI_A_FRASE_DE_PURCHASE_DO_CLIENTE",
+                    "operator": { "type": "string", "operation": "contains" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Purchase"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [-1152, 272],
+      "id": "96e6bc00-3d65-4151-b540-543f4584091d",
+      "name": "Classifica Resposta do Atendente"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "filtersUI": {
+          "values": [
+            { "lookupColumn": "Telefone", "lookupValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}" },
+            { "lookupColumn": "Telefone", "lookupValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.RecipientAlt.split('@')[0] }}" },
+            { "lookupColumn": "Telefone", "lookupValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0].slice(0,4) + '9' + $('Webhook Recebe Mensagem').item.json.body.data.Info.RecipientAlt.split('@')[0].slice(4) }}" }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [-672, 80],
+      "id": "a6faf11b-74d8-4b1b-a7b1-8e8134a5a64a",
+      "name": "Busca Lead (Qualificacao)",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "e4065746-17cb-4f11-a2a3-14b76ae9452e", "name": "pixel", "value": "COLE_O_PIXEL_ID_AQUI", "type": "string" },
+            { "id": "5a00a97f-e1f7-4b28-84c4-71719036d76a", "name": "token", "value": "COLE_O_TOKEN_META_AQUI", "type": "string" },
+            { "id": "e70141af-eb0a-4803-bd96-fa5ddc8f5530", "name": "page_id", "value": "COLE_O_PAGE_ID_AQUI", "type": "string" },
+            { "id": "14ec5608-0929-417a-8cb2-14d50d144bfc", "name": "=telefone", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}", "type": "string" },
+            { "id": "13a310e0-af58-462f-b050-2a4c08392433", "name": "time_stamp", "value": "={{ $json.timestamp }}", "type": "string" },
+            { "id": "3ce6c3b8-d726-4f10-9b4e-6eb2d66dfd45", "name": "nome", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName }}", "type": "string" },
+            { "id": "3420850d-b70e-4992-a0b6-e16faf92e59e", "name": "ctwaclid", "value": "={{ $('Busca Lead (Qualificacao)').item.json.ctwaclid }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [784, 48],
+      "id": "2f541b0d-185b-42c7-9260-d0309b3fcf25",
+      "name": "Monta Payload Qualificado"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Qualificação": "Qualificado",
+            "Etapa": "Qualificação"
+          },
+          "matchingColumns": ["row_number"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [-208, 80],
+      "id": "0ea0a789-5a24-4078-8f8a-5bd4e70af3db",
+      "name": "Marca Como Qualificado",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": { "type": "SHA256", "value": "={{ $json.telefone }}", "dataPropertyName": "telefone_hash" },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [1024, 48],
+      "id": "7add7eb2-a040-47e9-91bb-42a461f11b50",
+      "name": "Hash Telefone (Qualificado)"
+    },
+    {
+      "parameters": { "options": { "timezone": "America/Sao_Paulo" } },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [272, 48],
+      "id": "27f92e86-617c-44bb-88d3-ee9fc4ae7907",
+      "name": "Timestamp Atual (Qualificado)"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "X",
+        "outputFieldName": "timestamp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [544, 48],
+      "id": "d57d3786-857c-44a0-8068-af2da1c89bc0",
+      "name": "Formata Timestamp (Qualificado)"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "filtersUI": {
+          "values": [
+            { "lookupColumn": "Telefone", "lookupValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}" },
+            { "lookupColumn": "Telefone", "lookupValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.RecipientAlt.split('@')[0] }}" },
+            { "lookupColumn": "Telefone", "lookupValue": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0].slice(0,4) + '9' + $('Webhook Recebe Mensagem').item.json.body.data.Info.RecipientAlt.split('@')[0].slice(4) }}" }
+          ]
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [-672, 272],
+      "id": "3c39b1a9-578a-4689-a9ca-3618c0f74190",
+      "name": "Busca Lead (Purchase)",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "e4065746-17cb-4f11-a2a3-14b76ae9452e", "name": "pixel", "value": "={{ $('Extrai Dados e Config Pixel').item.json.pixel }}", "type": "string" },
+            { "id": "5a00a97f-e1f7-4b28-84c4-71719036d76a", "name": "token", "value": "={{ $('Extrai Dados e Config Pixel').item.json.token }}", "type": "string" },
+            { "id": "e70141af-eb0a-4803-bd96-fa5ddc8f5530", "name": "page_id", "value": "={{ $('Extrai Dados e Config Pixel').item.json.page_id }}", "type": "string" },
+            { "id": "14ec5608-0929-417a-8cb2-14d50d144bfc", "name": "=telefone", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}", "type": "string" },
+            { "id": "13a310e0-af58-462f-b050-2a4c08392433", "name": "time_stamp", "value": "={{ $json.timestamp }}", "type": "string" },
+            { "id": "3ce6c3b8-d726-4f10-9b4e-6eb2d66dfd45", "name": "nome", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName }}", "type": "string" },
+            { "id": "3420850d-b70e-4992-a0b6-e16faf92e59e", "name": "ctwaclid", "value": "={{ $('Busca Lead (Purchase)').item.json.ctwaclid }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [368, 272],
+      "id": "aa10b4e5-ad14-4790-81db-4e76baea7299",
+      "name": "Monta Payload Purchase"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "Etapa": "Lead Ganho",
+            "Data do Fechamento": "={{ $('Formata Data Fechamento').item.json.formattedDate }}"
+          },
+          "matchingColumns": ["row_number"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [-416, 272],
+      "id": "7d247cd2-311c-4fa3-b88b-85c70128b119",
+      "name": "Marca Como Lead Ganho",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": { "type": "SHA256", "value": "={{ $json.telefone }}", "dataPropertyName": "telefone_hash" },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 1,
+      "position": [608, 272],
+      "id": "ac97e0c0-1708-428c-a14f-5df6f9cb761f",
+      "name": "Hash Telefone (Purchase)"
+    },
+    {
+      "parameters": { "options": { "timezone": "America/Sao_Paulo" } },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-144, 272],
+      "id": "4fe9a4f1-ca71-4c17-a5ff-751bc817150d",
+      "name": "Timestamp Atual (Purchase)"
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "X",
+        "outputFieldName": "timestamp",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [128, 272],
+      "id": "10f15df9-70f0-4299-8500-56d1d9803dbf",
+      "name": "Formata Timestamp (Purchase)"
+    },
+    {
+      "parameters": {
+        "jsCode": "const webhookData = $('Webhook Recebe Mensagem').first().json.body.data;\n\nconst mensagem =\n  webhookData?.Message?.conversation ||\n  webhookData?.Message?.extendedTextMessage?.text ||\n  webhookData?.Message?.imageMessage?.caption ||\n  webhookData?.Message?.videoMessage?.caption ||\n  '';\n\nif (!mensagem || typeof mensagem !== 'string') {\n  throw new Error('Mensagem não encontrada no webhook. Estrutura recebida: ' + JSON.stringify(webhookData?.Message || {}));\n}\n\nconst match = mensagem.match(/R\\$\\s*([\\d.]+,?\\d{0,2}|\\d+)/i);\n\nif (!match) {\n  throw new Error('Valor não encontrado na mensagem: \"' + mensagem + '\"');\n}\n\nlet valor = match[1]\n  .replace(/\\./g, '')\n  .replace(',', '.');\n\nreturn {\n  json: {\n    ...$json,\n    mensagem_atendente: mensagem,\n    valor_venda: parseFloat(valor),\n    moeda: 'BRL'\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [816, 272],
+      "id": "57263c93-84bd-4d40-969b-47030abf1f76",
+      "name": "Extrai Valor da Venda"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "e4065746-17cb-4f11-a2a3-14b76ae9452e", "name": "pixel", "value": "COLE_O_PIXEL_ID_AQUI", "type": "string" },
+            { "id": "5a00a97f-e1f7-4b28-84c4-71719036d76a", "name": "token", "value": "COLE_O_TOKEN_META_AQUI", "type": "string" },
+            { "id": "e70141af-eb0a-4803-bd96-fa5ddc8f5530", "name": "page_id", "value": "COLE_O_PAGE_ID_AQUI", "type": "string" },
+            { "id": "41584846-e16f-4b50-9c46-59ed57012077", "name": "mensagem", "value": "={{ $json.body.data.Message.conversation }}", "type": "string" },
+            { "id": "5d548644-4ab9-4b50-9bd3-9b9a830f12f1", "name": "telefone", "value": "={{ $json.body.data.Info.Chat.split('@')[0] }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-1744, 512],
+      "id": "f0bbc3d0-4a73-4e13-9416-1eeb0e43ff0f",
+      "name": "Extrai Dados e Config Pixel"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "14ec5608-0929-417a-8cb2-14d50d144bfc", "name": "=telefone", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}", "type": "string" },
+            { "id": "13a310e0-af58-462f-b050-2a4c08392433", "name": "time_stamp", "value": "={{ $item(\"0\").$node[\"Formata Timestamp (Lead Direto)\"].json[\"timestamp\"] }}", "type": "string" },
+            { "id": "1ffa1a59-cb1c-48bf-be6d-f747794cf499", "name": "ctwaclid", "value": "={{ $item(\"0\").$node[\"Webhook Recebe Mensagem\"].json[\"body\"][\"data\"][\"meta_ads\"][\"ctwa_clid\"] }}", "type": "string" },
+            { "id": "31b5fd9f-7f37-48b1-805b-51296c761f02", "name": "=url_criativo", "value": "={{ $item(\"0\").$node[\"Webhook Recebe Mensagem\"].json[\"body\"][\"data\"][\"meta_ads\"][\"source_url\"] }}", "type": "string" },
+            { "id": "a0be2dff-f0f2-4f5c-a082-067d0bf8a53e", "name": "campaing_name", "value": "={{ $item(\"0\").$node[\"Busca Dados do Anuncio\"].json[\"campaign\"][\"name\"] }}", "type": "string" },
+            { "id": "fcbfa202-08fb-44e7-b3a7-706aeb673f68", "name": "adset_name", "value": "={{ $item(\"0\").$node[\"Busca Dados do Anuncio\"].json[\"adset\"][\"name\"] }}", "type": "string" },
+            { "id": "f42c305b-fe0d-4763-8b99-9d56be308913", "name": "ad_name", "value": "={{ $item(\"0\").$node[\"Busca Dados do Anuncio\"].json[\"name\"] }}", "type": "string" },
+            { "id": "07a4c039-06e7-459b-b5b8-f3255e55232a", "name": "data", "value": "={{ $item(\"0\").$node[\"Formata Data BR (Lead Direto)\"].json[\"formattedDate\"] }}", "type": "string" },
+            { "id": "3ce6c3b8-d726-4f10-9b4e-6eb2d66dfd45", "name": "nome", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName }}", "type": "string" },
+            { "id": "8e35020f-091b-4d9f-870d-7556320b1c6e", "name": "posiconamento", "value": "={{ $json.placement }}", "type": "string" },
+            { "id": "id-data-field-auto", "name": "id_data", "value": "={{ $('Webhook Recebe Mensagem').item.json.body.data.meta_ads.source_id }}_{{ $now.toFormat('yyyy-MM-dd') }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [688, 576],
+      "id": "004d888f-4d3d-437e-b956-80690fc97e23",
+      "name": "Monta Dados do Lead Direto"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v20.0/{{$json.pixel}}/events",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "access_token", "value": "={{ $('Extrai Dados e Config Pixel').item.json.token }}" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": [\n    {\n      \"action_source\": \"business_messaging\",\n      \"event_name\": \"QualifiedLead\",\n      \"event_time\": {{ $json.time_stamp }},\n      \"event_id\": \"qualead_{{ $json.ctwaclid }}_{{ $json.time_stamp }}\",\n      \"messaging_channel\": \"whatsapp\",\n      \"user_data\": {\n        \"ph\": [\"{{ $json.telefone_hash }}\"],\n        \"ctwa_clid\": \"{{ $json.ctwaclid }}\",\n        \"page_id\": \"{{ $json.page_id }}\"\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [1232, 48],
+      "id": "53f37993-90c1-4145-b2d7-fe636185db90",
+      "name": "Envia QualifiedLead"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v20.0/{{$json.pixel}}/events",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "access_token", "value": "={{ $json.token }}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": [\n    {\n      \"action_source\": \"business_messaging\",\n      \"event_name\": \"Purchase\",\n      \"event_time\": {{ $json.time_stamp }},\n      \"event_id\": \"purchase_{{ $json.ctwaclid }}_{{ $json.time_stamp }}\",\n      \"messaging_channel\": \"whatsapp\",\n      \"user_data\": {\n        \"ph\": [\"{{ $json.telefone_hash }}\"],\n        \"ctwa_clid\": \"{{ $json.ctwaclid }}\",\n        \"page_id\": \"{{ $json.page_id }}\"\n      },\n      \"custom_data\": {\n        \"currency\": \"{{ $json.moeda }}\",\n        \"value\": {{ $json.valor_venda }}\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [1040, 272],
+      "id": "c98bd5ad-bcd6-4776-a35e-ed82cf50ab92",
+      "name": "Envia Purchase"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://graph.facebook.com/v20.0/{{ $('Extrai Dados e Config Pixel').item.json.pixel }}/events",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "access_token", "value": "={{ $('Extrai Dados e Config Pixel').item.json.token }}" }]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": [\n    {\n      \"action_source\": \"business_messaging\",\n      \"event_name\": \"LeadSubmitted\",\n      \"event_time\": \"{{ $('Formata Timestamp (Lead Direto)').item.json.timestamp }}\",\n      \"messaging_channel\": \"whatsapp\",\n      \"user_data\": {\n        \"ph\": \"{{ $json.telefone_hash }}\",\n        \"ctwa_clid\": \"{{ $json.ctwaclid }}\",\n        \"page_id\": \"{{ $('Extrai Dados e Config Pixel').item.json.page_id }}\"\n      }\n    }\n  ]\n}\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1360, 576],
+      "id": "84ec3be2-75c9-421b-a30e-1c9bfbebbf9f",
+      "name": "Envia LeadSubmitted",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "id": "82fea250-763e-4e1d-8d77-9c389cb18b81",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": { "type": "object", "operation": "empty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-464, 80],
+      "id": "f4554555-1f21-4d85-b875-cf031ee6710c",
+      "name": "Lead Encontrado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [0, -80],
+      "id": "a2c46077-6c7a-4eba-9032-a326cee0bbf3",
+      "name": "Lead Nao Encontrado"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.mensagem }}",
+                    "rightValue": "site",
+                    "operator": { "type": "string", "operation": "contains" },
+                    "id": "cfd6c658-e44b-410c-b25c-b25c8adaf7d5"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "site"
+            },
+            {
+              "conditions": {
+                "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+                "conditions": [
+                  {
+                    "id": "cc879db8-453f-4aa5-97cf-5800cf5027f3",
+                    "leftValue": "={{ $json.mensagem }}",
+                    "rightValue": "COLE_AQUI_A_MARCACAO_DO_LINK_DA_BIO",
+                    "operator": { "type": "string", "operation": "contains" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "link bio"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.3,
+      "position": [-896, 672],
+      "id": "3521b44a-f779-4a16-83ea-9e8701214f3a",
+      "name": "Classifica Site ou Link Bio"
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName }}",
+            "Telefone": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0] }}",
+            "Origem": "=link_bio",
+            "Data": "={{ $now }}"
+          },
+          "matchingColumns": ["Telefone"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [-512, 928],
+      "id": "c8f40d4b-753f-403f-98bc-f90236b9a3e6",
+      "name": "Grava Lead Origem Link Bio",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "leftValue": "", "typeValidation": "strict", "version": 2 },
+          "conditions": [
+            {
+              "id": "3846c6b7-8f02-40b8-b36a-215f71339998",
+              "leftValue": "={{ $('Busca Lead (Qualificacao)').item.json.ctwaclid }}",
+              "rightValue": "",
+              "operator": { "type": "string", "operation": "notEmpty", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [0, 80],
+      "id": "44dfcf25-9b3b-4f43-b6d7-9630cf853d3c",
+      "name": "Tem CTWA Clid?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [256, 224],
+      "id": "8a542ed6-f0d8-42c2-bbb1-5a5cd7f77916",
+      "name": "Sem CTWA Clid (Nao Envia)"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI",
+          "mode": "list",
+          "cachedResultName": "COLE_O_NOME_DA_PLANILHA_AQUI"
+        },
+        "sheetName": { "__rl": true, "value": "gid=0", "mode": "list", "cachedResultName": "Página1" },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Nome": "={{ $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName }}",
+            "Telefone": "={{ $json.telefone }}",
+            "Origem": "=mensagem_direto",
+            "Data": "={{ $now }}",
+            "Campaing_name": "={{ $json.campaing_name }}",
+            "Adset_name": "={{ $json.adset_name }}",
+            "Ad_name": "={{ $json.ad_name }}",
+            "Url_criativo": "={{ $json.url_criativo }}",
+            "Posicionamento": "={{ $json.posiconamento }}",
+            "ctwaclid": "={{ $json.ctwaclid }}",
+            "id_data": "={{ $('Monta Dados do Lead Direto').item.json.id_data }}"
+          },
+          "matchingColumns": ["Telefone"],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [944, 576],
+      "id": "b535d4ef-cf72-452f-aecf-a3973d7f8f25",
+      "name": "Grava Lead Direto",
+      "credentials": {
+        "googleSheetsOAuth2Api": { "id": "t0BgChrhSMkaMFEr", "name": "Credencial Google Sheets" }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.timestamp }}",
+        "format": "custom",
+        "customFormat": "yyyy-MM-dd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-224, 736],
+      "id": "iso-date-lead-direto-template",
+      "name": "Formata Data ISO (Lead Direto)"
+    },
+    {
+      "parameters": { "options": { "timezone": "America/Sao_Paulo" } },
+      "id": "ts-fechamento-template",
+      "name": "Timestamp Atual (Fechamento)",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-640, 448]
+    },
+    {
+      "parameters": {
+        "operation": "formatDate",
+        "date": "={{ $json.currentDate }}",
+        "format": "custom",
+        "customFormat": "dd/MM/yyyy",
+        "options": {}
+      },
+      "id": "fmt-fechamento-template",
+      "name": "Formata Data Fechamento",
+      "type": "n8n-nodes-base.dateTime",
+      "typeVersion": 2,
+      "position": [-448, 448]
+    },
+    {
+      "parameters": {
+        "number": "COLE_O_NUMERO_WHATSAPP_NOTIFICACAO_AQUI",
+        "text": "={{ '🆕 Novo lead CTWA (COLE_O_NOME_DO_CLIENTE_AQUI)\\n\\n*Nome*: ' + $('Webhook Recebe Mensagem').item.json.body.data.Info.PushName + '\\n*Telefone*: ' + $json.telefone + '\\n*Mensagem*: ' + $json.mensagem + '\\n*ctwa_clid*: ' + $('Webhook Recebe Mensagem').item.json.body.data.meta_ads.ctwa_clid }}"
+      },
+      "id": "588a679a-d2b5-4e6b-bd8e-ba716f2033ff",
+      "name": "Notifica Novo Lead CTWA",
+      "type": "n8n-nodes-neogo.neoGo",
+      "typeVersion": 1,
+      "position": [-832, 1072],
+      "credentials": {
+        "neoGoApi": { "id": "vHqavrkRJiQhjIrS", "name": "Douglas" }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://iklynyncffneuvutvgxa.supabase.co/rest/v1/COLE_O_NOME_DA_TABELA_TRACKING_AQUI",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "on_conflict", "value": "cliente,telefone" }]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Authorization", "value": "Bearer COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"cliente\": \"COLE_O_SLUG_DO_CLIENTE_AQUI\",\n  \"nome\": {{ JSON.stringify($json.nome) }},\n  \"telefone\": {{ JSON.stringify($json.telefone) }},\n  \"origem\": \"mensagem_direto\",\n  \"data\": \"{{ $now.format('yyyy-MM-dd') }}\",\n  \"id_data\": {{ JSON.stringify($json.id_data) }},\n  \"source_id\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.meta_ads.source_id) }},\n  \"campaing_name\": {{ JSON.stringify($json.campaing_name) }},\n  \"adset_name\": {{ JSON.stringify($json.adset_name) }},\n  \"ad_name\": {{ JSON.stringify($json.ad_name) }},\n  \"posicionamento\": {{ JSON.stringify($json.posiconamento) }},\n  \"url_criativo\": {{ JSON.stringify($json.url_criativo) }},\n  \"ctwaclid\": {{ JSON.stringify($json.ctwaclid) }}\n}",
+        "options": { "response": { "response": {} } }
+      },
+      "id": "d3bfac67-6764-4e07-b7d5-2210bf08c687",
+      "name": "Supabase Tracking - Lead Direto",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [944, 784],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://iklynyncffneuvutvgxa.supabase.co/rest/v1/COLE_O_NOME_DA_TABELA_TRACKING_AQUI",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "on_conflict", "value": "cliente,telefone" }]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Authorization", "value": "Bearer COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"cliente\": \"COLE_O_SLUG_DO_CLIENTE_AQUI\",\n  \"nome\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.Info.PushName) }},\n  \"telefone\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0]) }},\n  \"origem\": \"site\",\n  \"data\": \"{{ $now.format('yyyy-MM-dd') }}\"\n}",
+        "options": { "response": { "response": {} } }
+      },
+      "id": "04351747-423d-4af7-b00e-9a0cedbc837c",
+      "name": "Supabase Tracking - Site",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-528, 1088],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://iklynyncffneuvutvgxa.supabase.co/rest/v1/COLE_O_NOME_DA_TABELA_TRACKING_AQUI",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "on_conflict", "value": "cliente,telefone" }]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Authorization", "value": "Bearer COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"cliente\": \"COLE_O_SLUG_DO_CLIENTE_AQUI\",\n  \"nome\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.Info.PushName) }},\n  \"telefone\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0]) }},\n  \"origem\": \"link_bio\",\n  \"data\": \"{{ $now.format('yyyy-MM-dd') }}\"\n}",
+        "options": { "response": { "response": {} } }
+      },
+      "id": "7d82a5e1-8f92-4083-b8f2-eae8a55853e1",
+      "name": "Supabase Tracking - Link Bio",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-544, 1248],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://iklynyncffneuvutvgxa.supabase.co/rest/v1/COLE_O_NOME_DA_TABELA_TRACKING_AQUI",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "on_conflict", "value": "cliente,telefone" }]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Authorization", "value": "Bearer COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"cliente\": \"COLE_O_SLUG_DO_CLIENTE_AQUI\",\n  \"telefone\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0]) }},\n  \"qualificacao\": \"Qualificado\",\n  \"etapa\": \"Qualificação\"\n}",
+        "options": { "response": { "response": {} } }
+      },
+      "id": "25de0e2e-65f6-42f5-9d4d-9b31a97ed7f6",
+      "name": "Supabase Tracking - Qualificado",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-208, 208],
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://iklynyncffneuvutvgxa.supabase.co/rest/v1/COLE_O_NOME_DA_TABELA_TRACKING_AQUI",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [{ "name": "on_conflict", "value": "cliente,telefone" }]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            { "name": "apikey", "value": "COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Authorization", "value": "Bearer COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI" },
+            { "name": "Prefer", "value": "resolution=merge-duplicates,return=representation" },
+            { "name": "Content-Type", "value": "application/json" }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"cliente\": \"COLE_O_SLUG_DO_CLIENTE_AQUI\",\n  \"telefone\": {{ JSON.stringify($('Webhook Recebe Mensagem').item.json.body.data.Info.Chat.split('@')[0]) }},\n  \"etapa\": \"Lead Ganho\",\n  \"data_fechamento\": \"{{ $now.format('yyyy-MM-dd') }}\"\n}",
+        "options": { "response": { "response": {} } }
+      },
+      "id": "abe1b154-0865-40b0-95f7-3cab5d45fcae",
+      "name": "Supabase Tracking - Lead Ganho",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [-224, 384],
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Timestamp Atual (Lead Direto)": { "main": [[{ "node": "Formata Timestamp (Lead Direto)", "type": "main", "index": 0 }]] },
+    "Formata Timestamp (Lead Direto)": { "main": [[{ "node": "Formata Data BR (Lead Direto)", "type": "main", "index": 0 }, { "node": "Formata Data ISO (Lead Direto)", "type": "main", "index": 0 }]] },
+    "Hash Telefone (Lead Direto)": { "main": [[{ "node": "Envia LeadSubmitted", "type": "main", "index": 0 }]] },
+    "Busca Dados do Anuncio": { "main": [[{ "node": "Busca Insights do Anuncio", "type": "main", "index": 0 }]] },
+    "Formata Data BR (Lead Direto)": { "main": [[{ "node": "Busca Dados do Anuncio", "type": "main", "index": 0 }]] },
+    "Mensagem do Atendente?": { "main": [[{ "node": "Classifica Resposta do Atendente", "type": "main", "index": 0 }], [{ "node": "Classifica Origem do Clique", "type": "main", "index": 0 }]] },
+    "Classifica Origem do Clique": { "main": [[{ "node": "Timestamp Atual (Lead Direto)", "type": "main", "index": 0 }, { "node": "Notifica Novo Lead CTWA", "type": "main", "index": 0 }], [{ "node": "Classifica Site ou Link Bio", "type": "main", "index": 0 }], [{ "node": "Classifica Site ou Link Bio", "type": "main", "index": 0 }]] },
+    "Webhook Recebe Mensagem": { "main": [[{ "node": "Extrai Dados e Config Pixel", "type": "main", "index": 0 }]] },
+    "Busca Insights do Anuncio": { "main": [[{ "node": "Calcula Posicionamento", "type": "main", "index": 0 }]] },
+    "Calcula Posicionamento": { "main": [[{ "node": "Monta Dados do Lead Direto", "type": "main", "index": 0 }]] },
+    "Classifica Resposta do Atendente": { "main": [[{ "node": "Busca Lead (Qualificacao)", "type": "main", "index": 0 }], [{ "node": "Busca Lead (Purchase)", "type": "main", "index": 0 }]] },
+    "Busca Lead (Qualificacao)": { "main": [[{ "node": "Lead Encontrado?", "type": "main", "index": 0 }]] },
+    "Monta Payload Qualificado": { "main": [[{ "node": "Hash Telefone (Qualificado)", "type": "main", "index": 0 }]] },
+    "Marca Como Qualificado": { "main": [[{ "node": "Tem CTWA Clid?", "type": "main", "index": 0 }, { "node": "Supabase Tracking - Qualificado", "type": "main", "index": 0 }]] },
+    "Hash Telefone (Qualificado)": { "main": [[{ "node": "Envia QualifiedLead", "type": "main", "index": 0 }]] },
+    "Timestamp Atual (Qualificado)": { "main": [[{ "node": "Formata Timestamp (Qualificado)", "type": "main", "index": 0 }]] },
+    "Formata Timestamp (Qualificado)": { "main": [[{ "node": "Monta Payload Qualificado", "type": "main", "index": 0 }]] },
+    "Busca Lead (Purchase)": { "main": [[{ "node": "Marca Como Lead Ganho", "type": "main", "index": 0 }, { "node": "Timestamp Atual (Fechamento)", "type": "main", "index": 0 }]] },
+    "Monta Payload Purchase": { "main": [[{ "node": "Hash Telefone (Purchase)", "type": "main", "index": 0 }]] },
+    "Marca Como Lead Ganho": { "main": [[{ "node": "Timestamp Atual (Purchase)", "type": "main", "index": 0 }, { "node": "Supabase Tracking - Lead Ganho", "type": "main", "index": 0 }]] },
+    "Hash Telefone (Purchase)": { "main": [[{ "node": "Extrai Valor da Venda", "type": "main", "index": 0 }]] },
+    "Timestamp Atual (Purchase)": { "main": [[{ "node": "Formata Timestamp (Purchase)", "type": "main", "index": 0 }]] },
+    "Formata Timestamp (Purchase)": { "main": [[{ "node": "Monta Payload Purchase", "type": "main", "index": 0 }]] },
+    "Extrai Valor da Venda": { "main": [[{ "node": "Envia Purchase", "type": "main", "index": 0 }]] },
+    "Extrai Dados e Config Pixel": { "main": [[{ "node": "Mensagem do Atendente?", "type": "main", "index": 0 }]] },
+    "Monta Dados do Lead Direto": { "main": [[{ "node": "Grava Lead Direto", "type": "main", "index": 0 }, { "node": "Supabase Tracking - Lead Direto", "type": "main", "index": 0 }]] },
+    "Lead Encontrado?": { "main": [[{ "node": "Lead Nao Encontrado", "type": "main", "index": 0 }], [{ "node": "Marca Como Qualificado", "type": "main", "index": 0 }]] },
+    "Classifica Site ou Link Bio": { "main": [[{ "node": "Grava Lead Origem Site", "type": "main", "index": 0 }, { "node": "Supabase Tracking - Site", "type": "main", "index": 0 }], [{ "node": "Grava Lead Origem Link Bio", "type": "main", "index": 0 }, { "node": "Supabase Tracking - Link Bio", "type": "main", "index": 0 }]] },
+    "Tem CTWA Clid?": { "main": [[{ "node": "Timestamp Atual (Qualificado)", "type": "main", "index": 0 }], [{ "node": "Sem CTWA Clid (Nao Envia)", "type": "main", "index": 0 }]] },
+    "Grava Lead Direto": { "main": [[{ "node": "Hash Telefone (Lead Direto)", "type": "main", "index": 0 }]] },
+    "Timestamp Atual (Fechamento)": { "main": [[{ "node": "Formata Data Fechamento", "type": "main", "index": 0 }]] }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "_checklist_variaveis_por_cliente": [
+    "COLE_O_PATH_DO_WEBHOOK_AQUI — path do node Webhook Recebe Mensagem. TEM que ser único por cliente (não repetir 'wpp' de outro cliente ativo, senão a URL colide em produção). Sugestão: usar o slug do cliente.",
+    "COLE_O_PIXEL_ID_AQUI — Meta Pixel ID do cliente (aparece 2x: node 'Extrai Dados e Config Pixel' e node de fallback do Purchase).",
+    "COLE_O_TOKEN_META_AQUI — Meta CAPI Access Token do cliente (aparece 2x, mesmos nodes do pixel).",
+    "COLE_O_PAGE_ID_AQUI — Page ID do Facebook do cliente (aparece 2x, mesmos nodes do pixel).",
+    "COLE_O_ID_DA_PLANILHA_GOOGLE_SHEETS_AQUI + COLE_O_NOME_DA_PLANILHA_AQUI — ID/nome da planilha Google Sheets do cliente (aparece em 6 nodes de Google Sheets). A credencial OAuth2 do Google Sheets (id t0BgChrhSMkaMFEr) fica igual pra todos os clientes, só troca o documentId.",
+    "COLE_AQUI_A_FRASE_DE_QUALIFICACAO_DO_CLIENTE — frase que o atendente manda quando qualifica o lead (node 'Classifica Resposta do Atendente').",
+    "COLE_AQUI_A_FRASE_DE_PURCHASE_DO_CLIENTE — frase que o atendente manda quando fecha a venda (mesmo node).",
+    "COLE_AQUI_A_MARCACAO_DO_LINK_DA_BIO — texto que identifica cliques vindos do link da bio (node 'Classifica Site ou Link Bio'). No original do Grupo Confiança esse valor parece ser um caractere invisível residual — conferir com um lead real de link_bio antes de copiar literalmente.",
+    "COLE_O_NUMERO_WHATSAPP_NOTIFICACAO_AQUI — normalmente NÃO troca: fica sempre o número pessoal do Douglas (ver memória neogo-credencial-douglas.md). Só mudar se o cliente pedir notificação pra outro número.",
+    "COLE_O_NOME_DO_CLIENTE_AQUI — nome do cliente no texto da notificação (node 'Notifica Novo Lead CTWA').",
+    "COLE_O_NOME_DA_TABELA_TRACKING_AQUI — nome da tabela Supabase, ex: 'confianca_tracking' (aparece em 5 nodes 'Supabase Tracking - *').",
+    "COLE_O_SLUG_DO_CLIENTE_AQUI — slug do cliente usado no campo 'cliente' do payload Supabase (aparece em 5 nodes 'Supabase Tracking - *').",
+    "COLE_A_SERVICE_ROLE_KEY_SUPABASE_AQUI — NÃO troca por cliente: é a mesma service_role key do projeto Supabase compartilhado (mesmo valor em todos os clientes, só copiar de qualquer workflow já ativo)."
+  ],
+  "_bug_corrigido_nesta_atualizacao": "No workflow ao vivo do Grupo Confiança (fpsrReLEOPnqDxY3), o node 'Monta Payload Purchase' referenciava um node chamado 'ids' que não existe (foi renomeado pra 'Extrai Dados e Config Pixel' em algum momento), quebrando silenciosamente o evento Purchase da Meta CAPI. Corrigido neste template — ao usar este template, NÃO reintroduzir a referência antiga a 'ids'."
+}

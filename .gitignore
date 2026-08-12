@@ -31,10 +31,6 @@ anotacoes/
 curriculo/
 tarefas.md
 
-# Skills instaladas pelo usuário (específicas do negócio dele).
-# O kit distribuído NÃO leva skill nenhuma aqui — só templates em templates/skills/.
-# .claude/commands/ e .claude/settings.json continuam versionados (são do kit).
-.claude/skills/
 
 # Arquivos gerados pelo uso/registro das skills (conteúdo pessoal, nunca no kit)
 automacoes-dm.md

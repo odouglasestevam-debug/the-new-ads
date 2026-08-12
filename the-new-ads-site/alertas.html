@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>The New Ads — Alertas</title>
+<meta name="description" content="Saude das contas de anuncio dos clientes" />
+<link rel="manifest" href="/manifest.json" />
+<meta name="theme-color" content="#0A0A0A" />
+<link rel="apple-touch-icon" href="/icons/icon-192.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --surface: #171717;
+    --surface2: #212121;
+    --amber: #FF6A00;
+    --amber-glow: #FFA24D;
+    --text: #FAFAFA;
+    --muted: #8A8A8A;
+    --line: rgba(255,255,255,.09);
+    --ok: #3DDC84;
+    --atencao: #FFC53D;
+    --critico: #FF4D4D;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
+  header img { width: 36px; height: 36px; }
+  header h1 {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 600;
+    font-size: 22px;
+    letter-spacing: -0.5%;
+  }
+  header p { color: var(--muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 20px;
+    margin-bottom: 16px;
+  }
+
+  .subscribe-card { text-align: center; }
+  .subscribe-card p { color: var(--muted); font-size: 16px; margin: 8px 0 16px; line-height: 1.5; }
+  .btn {
+    background: var(--amber);
+    color: #0A0A0A;
+    border: none;
+    font-family: 'Switzer', sans-serif;
+    font-weight: 600;
+    font-size: 16px;
+    padding: 12px 24px;
+    border-radius: 4px;
+    cursor: pointer;
+    box-shadow: 0 8px 30px rgba(255,106,0,.28);
+    transition: filter .15s ease;
+  }
+  .btn:hover { filter: brightness(1.08); }
+  .btn:disabled { opacity: .5; cursor: default; box-shadow: none; }
+  .btn.outline {
+    background: transparent;
+    color: var(--amber);
+    border: 1px solid var(--amber);
+    box-shadow: none;
+  }
+  .status-msg { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); margin-top: 12px; }
+
+  .section-title {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 600;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted);
+    margin: 28px 0 12px;
+  }
+
+  .conta-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background: var(--surface);
+  }
+  .conta-nome { font-size: 16px; font-weight: 500; }
+  .conta-motivo { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
+  .badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    flex-shrink: 0;
+    margin-left: 12px;
+  }
+  .badge.ok { background: rgba(61,220,132,.12); color: var(--ok); }
+  .badge.atencao { background: rgba(255,197,61,.12); color: var(--atencao); }
+  .badge.critico { background: rgba(255,77,77,.14); color: var(--critico); }
+
+  .skel { background: linear-gradient(90deg, var(--surface) 0%, var(--surface2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; height: 52px; margin-bottom: 8px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+  footer { text-align: center; margin-top: 32px; color: var(--muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+
+  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border: 1px solid var(--line); border-radius: 4px; padding: 4px; }
+  .tab-btn {
+    flex: 1;
+    background: transparent;
+    border: none;
+    color: var(--muted);
+    font-family: 'Switzer', sans-serif;
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 8px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .tab-btn.active { background: var(--surface2); color: var(--text); }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  .log-item {
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    margin-bottom: 8px;
+    background: var(--surface);
+  }
+  .log-item .log-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+  .log-item .log-cliente { font-size: 14px; font-weight: 500; }
+  .log-item .log-quando { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+  .log-item .log-msg { font-size: 13px; color: var(--muted); margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <img src="/icons/icon-192.png" alt="" />
+      <div>
+        <h1>Alertas de Conta</h1>
+        <p id="updated-at">carregando...</p>
+      </div>
+    </header>
+
+    <div class="card subscribe-card" id="subscribe-card">
+      <p>Ative as notificacoes pra receber um aviso no celular assim que uma conta de anuncio tiver bloqueio, problema de pagamento ou saldo baixo, ou o fluxo de tracking tiver problema.</p>
+      <button class="btn" id="btn-subscribe">Ativar notificacoes</button>
+      <div class="status-msg" id="subscribe-status"></div>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" id="tab-btn-contas" data-tab="contas">Contas de Anuncio</button>
+      <button class="tab-btn" id="tab-btn-tracking" data-tab="tracking">Fluxo de Tracking (n8n)</button>
+    </div>
+
+    <div class="tab-panel active" id="tab-contas">
+      <div class="section-title">Status atual das contas</div>
+      <div id="contas-list">
+        <div class="skel"></div>
+        <div class="skel"></div>
+        <div class="skel"></div>
+      </div>
+    </div>
+
+    <div class="tab-panel" id="tab-tracking">
+      <div class="section-title">Status dos fluxos de tracking</div>
+      <div id="tracking-list">
+        <div class="skel"></div>
+        <div class="skel"></div>
+      </div>
+
+      <div class="section-title">Ultimas notificacoes</div>
+      <div id="log-list">
+        <div class="skel"></div>
+        <div class="skel"></div>
+      </div>
+    </div>
+
+    <footer>The New Ads &middot; checagem automatica diaria</footer>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = "https://iklynyncffneuvutvgxa.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4";
+    const VAPID_PUBLIC_KEY = "BDDeqpWqOp-dMo0kSCvIEc9Ii_PVajOheOY4BI76sNlVl7gV32DzUZm0YZuvvTaCwavbcO_u76tL_1vSrY9zI6M";
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function urlBase64ToUint8Array(base64String) {
+      const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+      const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+      const rawData = atob(base64);
+      return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
+    }
+
+    const NIVEL_LABEL = { ok: "OK", atencao: "Atencao", critico: "Critico" };
+
+    async function loadContas() {
+      const { data, error } = await sb
+        .from("conta_saude")
+        .select("slug, status_texto, nivel, checked_at, clientes_meta_contas(nome)")
+        .order("nivel", { ascending: true });
+
+      const list = document.getElementById("contas-list");
+      const updated = document.getElementById("updated-at");
+
+      if (error || !data) {
+        list.innerHTML = '<div class="status-msg">Nao foi possivel carregar o status das contas.</div>';
+        return;
+      }
+
+      const ordem = { critico: 0, atencao: 1, ok: 2 };
+      data.sort((a, b) => (ordem[a.nivel] ?? 3) - (ordem[b.nivel] ?? 3));
+
+      if (data.length === 0) {
+        list.innerHTML = '<div class="status-msg">Nenhuma checagem rodou ainda.</div>';
+        return;
+      }
+
+      list.innerHTML = data
+        .map((row) => {
+          const nome = row.clientes_meta_contas?.nome || row.slug;
+          return `
+            <div class="conta-row">
+              <div>
+                <div class="conta-nome">${nome}</div>
+                <div class="conta-motivo">${row.status_texto || ""}</div>
+              </div>
+              <span class="badge ${row.nivel}">${NIVEL_LABEL[row.nivel] || row.nivel}</span>
+            </div>
+          `;
+        })
+        .join("");
+
+      const ultima = data.reduce((max, r) => (r.checked_at > max ? r.checked_at : max), data[0].checked_at);
+      updated.textContent = "ultima checagem: " + new Date(ultima).toLocaleString("pt-BR");
+    }
+
+    async function subscribeToPush() {
+      const statusEl = document.getElementById("subscribe-status");
+      const btn = document.getElementById("btn-subscribe");
+      btn.disabled = true;
+
+      try {
+        if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
+          statusEl.textContent = "Esse navegador nao suporta notificacoes push.";
+          btn.disabled = false;
+          return;
+        }
+
+        const reg = await navigator.serviceWorker.register("/sw.js");
+        await navigator.serviceWorker.ready;
+
+        const permission = await Notification.requestPermission();
+        if (permission !== "granted") {
+          statusEl.textContent = "Permissao negada. Ative nas configuracoes do navegador pra receber alertas.";
+          btn.disabled = false;
+          return;
+        }
+
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+        }
+
+        const raw = sub.toJSON();
+        const { error } = await sb.from("push_subscriptions").insert({
+          endpoint: raw.endpoint,
+          p256dh: raw.keys.p256dh,
+          auth: raw.keys.auth,
+          user_agent: navigator.userAgent,
+        });
+
+        if (error && !String(error.message).includes("duplicate")) {
+          statusEl.textContent = "Erro ao salvar inscricao: " + error.message;
+          btn.disabled = false;
+          return;
+        }
+
+        btn.textContent = "Notificacoes ativas";
+        statusEl.textContent = "Voce vai receber um alerta aqui assim que algo mudar.";
+      } catch (err) {
+        statusEl.textContent = "Erro: " + err.message;
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("btn-subscribe").addEventListener("click", subscribeToPush);
+
+    const NIVEL_LABEL_TRACKING = { ok: "OK", atencao: "Atencao", critico: "Falha" };
+
+    async function loadTracking() {
+      const list = document.getElementById("tracking-list");
+
+      const { data, error } = await sb
+        .from("tracking_saude")
+        .select("slug, nome, nivel, status_texto, execucoes_problema, execucoes_corrigidas, execucoes_pendentes, checked_at")
+        .order("nivel", { ascending: true });
+
+      if (error) {
+        list.innerHTML = '<div class="status-msg">Nao foi possivel carregar o status dos fluxos.</div>';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="status-msg">Nenhuma checagem de tracking rodou ainda.</div>';
+        return;
+      }
+
+      const ordem = { critico: 0, atencao: 1, ok: 2 };
+      data.sort((a, b) => (ordem[a.nivel] ?? 3) - (ordem[b.nivel] ?? 3));
+
+      list.innerHTML = data
+        .map((row) => {
+          const motivo = row.status_texto || (row.nivel === "ok" ? "Enviando eventos normalmente" : "");
+          return `
+            <div class="conta-row">
+              <div>
+                <div class="conta-nome">${row.nome}</div>
+                <div class="conta-motivo">${motivo}</div>
+              </div>
+              <span class="badge ${row.nivel}">${NIVEL_LABEL_TRACKING[row.nivel] || row.nivel}</span>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    async function loadLog() {
+      const list = document.getElementById("log-list");
+
+      const { data, error } = await sb
+        .from("alertas_enviados")
+        .select("slug, tipo, mensagem, nivel, enviado_em")
+        .order("enviado_em", { ascending: false })
+        .limit(20);
+
+      if (error) {
+        list.innerHTML = '<div class="status-msg">Nao foi possivel carregar o historico.</div>';
+        return;
+      }
+
+      if (!data || data.length === 0) {
+        list.innerHTML = '<div class="status-msg">Nenhum alerta registrado ainda.</div>';
+        return;
+      }
+
+      list.innerHTML = data
+        .map((row) => {
+          const quando = new Date(row.enviado_em).toLocaleString("pt-BR");
+          return `
+            <div class="log-item">
+              <div class="log-top">
+                <span class="log-cliente">${row.slug} &middot; ${row.tipo}</span>
+                <span class="log-quando">${quando}</span>
+              </div>
+              <div class="log-msg">${row.mensagem}</div>
+            </div>
+          `;
+        })
+        .join("");
+    }
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    (async () => {
+      if ("serviceWorker" in navigator) {
+        try {
+          const reg = await navigator.serviceWorker.register("/sw.js");
+          const sub = await reg.pushManager.getSubscription();
+          if (sub && Notification.permission === "granted") {
+            document.getElementById("btn-subscribe").textContent = "Notificacoes ativas";
+          }
+        } catch (e) {}
+      }
+      loadContas();
+      loadTracking();
+      loadLog();
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The New Ads — Central de Contas</title>
+<meta name="description" content="Navegação entre os dashboards de análise de todos os clientes" />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --surface: #171717;
+    --surface2: #212121;
+    --amber: #FF6A00;
+    --text: #FAFAFA;
+    --muted: #8A8A8A;
+    --line: rgba(255,255,255,.09);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    min-height: 100vh;
+    padding: 32px 20px 60px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 960px; margin: 0 auto; }
+  header { margin-bottom: 28px; }
+  header h1 {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 600;
+    font-size: 26px;
+    letter-spacing: -0.5%;
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s ease, transform .15s ease;
+    cursor: pointer;
+  }
+  .card.disponivel:hover {
+    border-color: var(--amber);
+    transform: translateY(-1px);
+  }
+  .card.indisponivel {
+    cursor: default;
+    opacity: .5;
+  }
+
+  .card-nome { font-size: 15px; font-weight: 500; line-height: 1.3; }
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .card.disponivel .card-tag { color: var(--amber); }
+
+  .skel { background: linear-gradient(90deg, var(--surface) 0%, var(--surface2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; height: 56px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Central de Contas</h1>
+    </header>
+
+    <div class="grid" id="grid">
+      <div class="skel"></div>
+      <div class="skel"></div>
+      <div class="skel"></div>
+      <div class="skel"></div>
+      <div class="skel"></div>
+      <div class="skel"></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    const SUPABASE_URL = "https://iklynyncffneuvutvgxa.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4";
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // slug -> URL do dashboard pronto. Clientes fora dessa lista aparecem como "em breve".
+    const DASHBOARDS_PRONTOS = {
+      "fabioli-ferreira": "/dashboard-fabioli",
+    };
+
+    async function carregar() {
+      const { data: clientes, error } = await sb
+        .from("clientes_meta_contas")
+        .select("slug, nome")
+        .eq("ativo", true)
+        .order("nome");
+
+      const grid = document.getElementById("grid");
+
+      if (error || !clientes) {
+        grid.innerHTML = '<div>Não foi possível carregar os clientes.</div>';
+        return;
+      }
+
+      grid.innerHTML = clientes
+        .map((cliente) => {
+          const href = DASHBOARDS_PRONTOS[cliente.slug];
+          const disponivel = !!href;
+          const tag = disponivel ? "a" : "div";
+          const hrefAttr = disponivel ? ` href="${href}"` : "";
+          const cta = disponivel ? "Abrir →" : "Em breve";
+
+          return `
+            <${tag} class="card ${disponivel ? "disponivel" : "indisponivel"}"${hrefAttr}>
+              <div class="card-nome">${cliente.nome}</div>
+              <span class="card-tag">${cta}</span>
+            </${tag}>
+          `;
+        })
+        .join("");
+    }
+
+    carregar();
+  </script>
+</body>
+</html>
