@@ -1,10 +1,12 @@
 ---
 name: dashboard-cliente
 description: >
-  Cria (ou audita) o dashboard de tráfego pago de um cliente, no padrão vivo publicado em
-  thenewads.com.br (Supabase + Cloudflare Pages). Use quando o usuário pedir "cria o dashboard
-  do cliente X", "monta um dashboard pra [cliente]", "quero um dash igual o da Confiança/Fabioli",
-  ou "confere se o dashboard do [cliente] tá certo".
+  Cria (ou audita) o dashboard de tráfego pago de um cliente E/OU o fluxo n8n de tracking (CTWA)
+  que grava no Supabase, no padrão vivo publicado em thenewads.com.br (Supabase + Cloudflare Pages
+  + n8n). Use quando o usuário pedir "cria o dashboard do cliente X", "monta um dashboard pra
+  [cliente]", "quero um dash igual o da Confiança/Fabioli", "confere se o dashboard do [cliente]
+  tá certo", "atualiza o fluxo de tracking do [cliente] pro padrão novo", ou "cria o fluxo de
+  n8n do [cliente] que grava no Supabase".
 ---
 
 # Dashboard de cliente — Supabase + Cloudflare Pages
@@ -117,6 +119,48 @@ Depois, checar manualmente (`Grep` por `[Cc]onfiança|confianca` no arquivo novo
 - Tabelas de nível "gerenciador de anúncios" (top anúncios por investimento) usam só Meta, sem mistura com tracking.
 - Seção "Rastreamento" usa tracking com atribuição (`campaing_name`/`adset_name`/`ad_name`) pra cruzar com a Meta por campanha.
 
+## Passo 3.5 — Fluxo n8n de tracking (CTWA), se o cliente ainda não tem
+
+Nasceu de montar o fluxo do Fátima Esportes em 2026-08-13. Só é necessário se o Passo "Antes de tudo" #2 confirmar que ainda não existe automação — se já existe fluxo n8n rodando, pular pra auditoria (última seção deste passo).
+
+### Achar se já existe (mesmo com nome errado)
+
+Rodar `n8n_list_workflows` e procurar por `Trackeamento de Mensagem <Cliente>`. **Atenção**: pode existir com nome genérico tipo `Template CTWA + Meta CAPI (WhatsApp)` — isso não significa que é um template vazio, pode já estar em produção recebendo webhook de verdade (foi o caso do Fátima: nome genérico, mas `pixel`/`token`/`page_id`/`planilha_id` já preenchidos de verdade, execuções recentes bem-sucedidas). Antes de assumir "não existe, vou criar do zero":
+1. Checar `n8n_executions` (`action: list`, filtrar por `workflowId`) do workflow suspeito — se tem execuções recentes com `status: success`, é produção viva.
+2. Ler os nós `Extrai Dados e Config Pixel` (mode `filtered`) — se `pixel`/`token`/`page_id` são valores reais (não `COLE_AQUI_...`), é o fluxo do cliente.
+
+Se realmente não existir nenhum candidato, perguntar ao Douglas onde estão as mensagens do WhatsApp desse cliente sendo capturadas hoje (qual instância NeoGo/Evolution) antes de criar um webhook novo do zero.
+
+### Workflow de referência (copiar a lógica, não um workflow específico)
+
+**`Trackeamento de Mensagens Grupo Confiança`** (id `fpsrReLEOPnqDxY3`) é o padrão-ouro: já foi corrigido pra não ter escrita em paralelo (bug real de perda de lead, ver `_contexto` se existir nota sobre isso) e tem `retryOnFail` nos nós de Supabase. Usar `n8n_get_workflow` com `mode: filtered` nos nós `Supabase Tracking - *` pra copiar o `jsonBody` exato — não reescrever de memória.
+
+### Os 5 nós HTTP a inserir (sempre os mesmos 5, sempre em série depois do nó de Sheets equivalente)
+
+| Nó novo | Depois de | Antes de | O que grava |
+|---|---|---|---|
+| `Supabase Tracking - Lead Direto` | `Grava Lead Direto` | `Hash Telefone (Lead Direto)` | registro completo (nome, telefone, origem, data, campanha/conjunto/anúncio, ctwaclid, id_data, source_id) |
+| `Supabase Tracking - Site` | `Grava Lead Origem Site` | (leaf) | nome, telefone, origem=site, data |
+| `Supabase Tracking - Link Bio` | `Grava Lead Origem Link Bio` | (leaf) | nome, telefone, origem=link_bio, data |
+| `Supabase Tracking - Qualificado` | `Marca Como Qualificado` | `Tem CTWA Clid?` | telefone, qualificacao=Qualificado, etapa=Qualificação |
+| `Supabase Tracking - Lead Ganho` | `Marca Como Lead Ganho` | próximo nó existente | telefone, etapa=Lead Ganho, data_fechamento |
+
+Todos: `POST https://iklynyncffneuvutvgxa.supabase.co/rest/v1/<slug>_tracking`, query `on_conflict=cliente,telefone`, headers `apikey`/`Authorization: Bearer` com o JWT `service_role` do projeto (é o mesmo em todos os clientes, é service role do projeto inteiro, não por cliente), header `Prefer: resolution=merge-duplicates,return=representation`. Corpo sempre com `"cliente": "<slug>"` fixo. `onError: continueRegularOutput`, `retryOnFail: true`, `maxTries: 3`, `waitBetweenTries: 2000`.
+
+**Data do lead, não data de hoje**: se o workflow já tiver um nó `Formata Data ISO (Lead Direto)` (formatDate customFormat `yyyy-MM-dd`) ligado à cadeia de timestamp da mensagem, usar ele no campo `"data"` do node Lead Direto (`$('Formata Data ISO (Lead Direto)').item.json.formattedDate`) em vez de `$now.format(...)` — usar `$now` grava a data de processamento, não a data real do lead (bug identificado e corrigido na Confiança em 2026-08-13). Se esse nó não existir no workflow que você está clonando, considerar adicionar.
+
+Usar `addNode` + `removeConnection`/`addConnection` via `n8n_update_partial_workflow`, sempre `validateOnly: true` primeiro pra pegar erro de expressão antes de aplicar de verdade.
+
+### Depois de aplicar, sempre confirmar 3 coisas
+
+1. `n8n_validate_workflow` — 0 erros.
+2. **`n8n_get_workflow` com `mode: 'active'`** (não `full`/`draft`) — confirmar que a mudança está no grafo *publicado*. n8n tem modelo draft/publish; já aconteceu de aplicar a correção só no rascunho e o usuário ver "nada mudou" porque o publicado ficou intocado.
+3. Checar se `Extrai Dados e Config Pixel` tem `frase_qualificacao`/`frase_compra` (e a marcação de link da bio, se o workflow clonado tiver essa branch) preenchidos de verdade, não como placeholder tipo `COLE_AQUI_A_FRASE_...`. Sem isso, os nós de Qualificado/Lead Ganho nunca disparam mesmo estando tecnicamente corretos — **avisar o Douglas e perguntar as frases reais**, não adivinhar.
+
+### Bug sistêmico a checar em QUALQUER workflow de tracking existente
+
+Antes de mexer em qualquer fluxo antigo (Fabioli, Nações Shopping, Anália Franco, Tietê), checar a estrutura (`mode: structure`) procurando conexões em paralelo saindo do mesmo nó pra Sheets E Supabase ao mesmo tempo (ex: `"Monta Dados do Lead Direto": [[Grava Lead Direto, Supabase Tracking - Lead Direto]]`). Isso é o mesmo bug de perda de lead corrigido na Confiança — **Fabioli e Nações Shopping ainda tinham esse bug em 2026-08-13**, não fixados ainda. Avisar o Douglas antes de corrigir, não corrigir sem avisar (workflows já em produção recebendo tráfego real).
+
 ## Passo 5 — Deploy
 
 **Nunca publicar isolado** — cada deploy do Cloudflare Pages substitui o site inteiro.
@@ -136,6 +180,7 @@ URL final: `https://thenewads.com.br/dashboard-<slug>`.
 - [ ] Linha em `clientes_meta_contas` existe e `ativo=true`, `sincronizar_metricas=true`
 - [ ] `<slug>_meta` e `<slug>_tracking` existem com RLS + policy de leitura pública
 - [ ] Dado de tracking populado (CSV ou n8n) e de Meta (cron + backfill se pedido)
+- [ ] Se montou/atualizou fluxo n8n: os 5 nós Supabase Tracking em série (não paralelo), `n8n_validate_workflow` sem erro, confirmado no `mode: active` (não só draft), `frase_qualificacao`/`frase_compra`/link-bio preenchidos de verdade (ou avisado ao Douglas que faltam)
 - [ ] Dashboard é cópia de `dashboard-confianca.html`, com todas as referências ao cliente errado trocadas
 - [ ] KPI "Leads" = tracking, "CPL" = investimento/leads tracking, "Resultados" separado
 - [ ] Deploy feito com o site completo, não isolado
