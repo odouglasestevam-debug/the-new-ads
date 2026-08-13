@@ -24,3 +24,14 @@ Públicos atendidos: B2B (ticket alto, ciclo longo), Local (clínicas, advogados
 ## Contexto adicional
 
 Douglas não toma decisões por achismo — sempre analisa CPA, CPL, ROAS, CAC, ticket médio, taxa de conversão, CTR, CPC, CPM, qualidade dos leads e LTV quando possível. Espera que a IA questione decisões e aponte alternativas melhores quando existirem, não apenas concorde.
+
+## Padrão de relatórios e dashboards (vale pra TODOS os clientes, definido 2026-08-13)
+
+Sempre que o assunto for relatório de performance ou dashboard de qualquer cliente, aplicar:
+
+- **"Leads" (métrica principal) = contagem do banco de dados de tracking do cliente** (a tabela viva de CRM/conversas, tipo `confianca_tracking`/`fabioli_tracking`), nunca a coluna de "resultados"/"leads" do Gerenciador de Anúncios da Meta — essa superconta (mensagem iniciada ≠ lead real).
+- **Métricas de nível "gerenciador de anúncios"** (investimento, impressões, CTR, CPC, ranking de anúncio por gasto) = sempre só Meta, sem misturar com tracking.
+- **Breakdown por campanha/conjunto/anúncio** = usa o tracking com atribuição (quando o dado de campanha/conjunto/anúncio existir na linha do lead), não a Meta.
+- **Vendas/faturamento/receita têm gap real e conhecido**: negócio local sempre tem venda que não fica registrada automaticamente no tracking (fecha por fora, WhatsApp pessoal, indicação etc). **Por isso, sempre que o assunto for relatório com número de venda/lead ganho/receita de qualquer cliente, perguntar a Douglas se tem CSV ou outra base pra importar/complementar antes de fechar os números** — não assumir que o tracking automático sozinho reflete o total de vendas.
+- Quando ele importar um CSV de vendas: usar como fonte de verdade pra contagem de vendas/receita, atribuindo à campanha/conjunto/anúncio só o que der pra identificar (o resto fica na visão geral).
+- Isso é processo institucional, não caso pontual — aplicar em qualquer dashboard novo ou revisão de dashboard existente, de qualquer cliente, sem precisar o Douglas repetir.
