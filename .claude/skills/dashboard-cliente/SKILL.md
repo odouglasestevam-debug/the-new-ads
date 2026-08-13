@@ -34,15 +34,22 @@ Sempre necessário (dashboard + tabelas):
 - **Precisa de histórico retroativo** de métricas da Meta? Desde quando?
 - **Instagram ID** pra seguidores diários (opcional)
 
-Só se for montar/atualizar o fluxo n8n do zero (Passo 3.5 abaixo) — perguntar mesmo que pareça redundante, cada um é um dado que só existe na cabeça do Douglas ou no Business Manager da Meta:
+**Se for montar/atualizar o fluxo n8n (Passo 3.5), fazer a descoberta ANTES de perguntar, não perguntar tudo por padrão:**
+
+Sempre existe a chance de o fluxo já existir (mesmo com nome errado — ver "Achar se já existe" no Passo 3.5) e já ter parte ou todas essas variáveis configuradas de verdade. Rodar essa descoberta primeiro:
+1. `n8n_list_workflows` + procurar candidato pro cliente.
+2. Se achar candidato, `n8n_get_workflow` (`mode: filtered`, nó `Extrai Dados e Config Pixel`) pra ler `pixel`, `token`, `page_id`, `planilha_id` — e o webhook path do nó `Webhook Recebe Mensagem`.
+3. Pra cada valor: se já está preenchido com algo real (não `COLE_AQUI_...` nem vazio), **não perguntar — só confirmar na mensagem do plano** ("já achei pixel/token/page_id/planilha configurados no fluxo atual, vou reaproveitar"). Só perguntar o que realmente não existe ou está como placeholder.
+
+Variáveis do fluxo n8n (perguntar só as que a descoberta acima não resolveu):
 - **Pixel ID** da Meta (Conversions API) do cliente
 - **Token de acesso do CAPI** desse pixel (token de sistema, não é o `META_ACCESS_TOKEN` de leitura de Ads — cada cliente/pixel tem o seu, gerado no Business Manager)
 - **Page ID** do Facebook do cliente
 - Mantém **Google Sheets** como backup manual (link da planilha) ou vai só pro Supabase?
-- **De onde vêm as mensagens do WhatsApp hoje** — já existe instância NeoGo/Evolution conectada? (determina se dá pra reaproveitar um workflow existente ou se precisa de webhook novo)
-- **Frase de qualificação** e **frase de compra/venda** que o atendente usa (usadas pra classificar a resposta automaticamente — sem isso os nós de Qualificado/Lead Ganho nunca disparam)
+- **De onde vêm as mensagens do WhatsApp hoje** — já existe instância NeoGo/Evolution conectada? (só relevante se não achou workflow existente — se achou, o webhook já está recebendo tráfego de algum lugar, não precisa perguntar de novo)
+- **Frase de qualificação** e **frase de compra/venda** que o atendente usa (usadas pra classificar a resposta automaticamente — sem isso os nós de Qualificado/Lead Ganho nunca disparam). Essas quase nunca vêm preenchidas de verdade mesmo em fluxo existente (ficam como placeholder `COLE_AQUI_A_FRASE_...`) — checar sempre, não assumir que já tem só porque o resto do fluxo existe.
 
-Só perguntar o que já não está claro pelo pedido do Douglas ou pelo que já existe no Supabase/n8n (ex: se ele já disse "sem CSV por enquanto", não perguntar de novo). Mas levantar tudo que falta **numa mensagem só**, antes de tocar em qualquer ferramenta de escrita — nunca ir descobrindo variável por variável no meio da execução.
+Só perguntar o que já não está claro pelo pedido do Douglas, pelo que já existe no Supabase/n8n, ou pela descoberta acima (ex: se ele já disse "sem CSV por enquanto", não perguntar de novo). Mas levantar tudo que falta **numa mensagem só**, antes de tocar em qualquer ferramenta de escrita — nunca ir descobrindo variável por variável no meio da execução.
 
 ## Passo 1 — Conta no `clientes_meta_contas`
 
