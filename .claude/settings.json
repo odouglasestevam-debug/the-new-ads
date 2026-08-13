@@ -112,7 +112,8 @@
       "Bash(ls -la \"/c/Users/odoug/Projetos\" 2>/dev/null || echo \"NOT_EXIST\")",
       "Read(//c/Users/odoug/**)",
       "Bash(mkdir -p \"/c/Users/odoug/Projetos\" && echo OK)",
-      "mcp__claude_ai_Supabase__list_projects"
+      "mcp__claude_ai_Supabase__list_projects",
+      "mcp__n8n__n8n_workflow_versions"
     ],
     "additionalDirectories": [
       "C:\\Users\\odoug\\AppData\\Local\\Packages\\Claude_pzs8sxrjxfjjc\\LocalCache\\Roaming\\Claude\\local-agent-mode-sessions\\76fca591-79a1-4205-8b39-983a6c06e1a4\\aa24127f-27fd-46b8-b525-0d32a6e05a21\\local_386be040-ccfc-4557-99ff-496088a4afdc\\outputs",
