@@ -1,49 +1,90 @@
 ---
 name: central-demandas
 description: >
-  Central de demandas pessoais do Douglas dentro do ClickUp já existente (lista "Central de
-  Demandas" no space PESSOAL), operada pelo Claude Code: capturar demanda avulsa (ex. o que
-  foi pensado fora do horário de trabalho), listar o que está pendente, executar em conversa
-  marcando status conforme avança, e gerar relatório de produtividade a partir das tarefas
-  concluídas. Resolve o problema de "fiz muita coisa com o Claude mas não vejo o trabalho" —
-  dá visibilidade concreta do que foi feito. Use quando o usuário disser "lança essa demanda",
-  "anota essa tarefa", "o que eu preciso fazer hoje/amanhã", "lista minhas demandas", "resumo
-  do meu dia", "relatório de produtividade", ou pedir pra marcar algo como feito.
+  Opera o ClickUp real do Douglas como central de demandas, sem lista nova nem sistema
+  paralelo: cada cliente já tem sua lista operacional (Operacional/Gestão de Tráfego), e
+  demandas internas caem em Geral > Interno (the new ads) ou Interno TBAds > Demandas
+  (Tubarão Ads). O Claude Code lança demanda avulsa direto na lista certa, agrega tudo
+  (inclusive tarefas recorrentes já existentes) numa visão só, executa em conversa
+  movendo status, e gera relatório de produtividade a partir das tarefas concluídas.
+  Resolve "fiz muita coisa com o Claude mas não vejo o trabalho" — visibilidade concreta
+  do que foi feito, sem duplicar a estrutura que já existe. Use quando o usuário disser
+  "lança essa demanda", "anota essa tarefa", "o que eu preciso fazer hoje/amanhã", "lista
+  minhas demandas", "resumo do meu dia", "relatório de produtividade", ou pedir pra marcar
+  algo como feito.
 ---
 
 # Central de demandas
 
-Não é um sistema novo — usa o ClickUp que já existe e já está conectado (MCP `clickup_*`). Nasceu da decisão de não construir um app/banco próprio pra isso: menos manutenção, e o ClickUp já resolve.
+Usa o ClickUp que já existe, do jeito que já existe. Cada cliente tem sua própria lista
+operacional com tarefas (inclusive recorrentes, tipo "Revisão Diária de Budget e
+Performance") já rodando — não recriar isso, não criar lista nova. Demanda avulsa lançada
+pelo Douglas se agrega dentro da lista certa, junto com o que já está lá.
 
-**IDs fixos**: lista "Central de Demandas" = `901114321741`, space PESSOAL = `90114022907`.
+> Nota: existe uma lista "Central de Demandas" (id `901114321741`) criada por engano no
+> space PESSOAL numa iteração anterior desta skill — está vazia e não é usada por este
+> fluxo. Não há endpoint de delete de lista no MCP; se o Douglas quiser, ele apaga direto
+> no ClickUp.
 
-**Statuses da lista** (herdados do padrão da workspace): `não feito` → `fazendo` → `aguardando cliente` → `análise interna` → `feito` → `done` (fechado, é o único status que popula `date_closed` — usar esse pra fechar tarefa, não "feito", porque o relatório de produtividade depende de `date_closed`).
+**Spaces fixos**: `the new ads` = `90113792830`, `TUBARAO ADS` = `90113792821`.
+
+**Listas de demanda interna/não-cliente** (fixas):
+- The New Ads: `Geral > Interno` = `901110935077`
+- Tubarão Ads: `Interno TBAds > Demandas` = `901113669770`
+
+**Statuses** (padrão em toda a workspace): `não feito` → `fazendo` → `aguardando cliente` →
+`análise interna` → `feito` → `done` (fechado — é o único que popula `date_closed`, usado
+no relatório de produtividade).
 
 ## Capturar demanda
 
-Quando o Douglas descrever algo que precisa ser feito (mesmo informal, tipo "amanhã preciso revisar a campanha da Entretec e responder o Grupo Confiança"), quebrar em tarefas separadas e criar uma por vez com `clickup_create_task` na lista `901114321741`. Campos: `name` claro e acionável, `due_date` se ele deu prazo (senão deixar em aberto), `priority` só se ele sinalizar urgência.
+1. Identificar se a demanda é de um cliente específico ou interna/geral. Se o Douglas não
+   disser a agência (The New Ads vs Tubarão Ads) e o nome do cliente for ambíguo, perguntar
+   — não adivinhar, cliente errado gera tarefa no lugar errado.
+2. Se for de cliente: achar a lista operacional dele. `clickup_get_folder(folder_name=<cliente>,
+   space_name=<agência>)` pra confirmar o folder, depois `clickup_get_workspace_hierarchy`
+   com `space_ids=[<id da agência>]` (retorna todos os folders+listas da agência numa
+   chamada só) pra achar, dentro do folder do cliente, a lista `Operacional` ou
+   `Gestão de Tráfego` (o nome varia por cliente, sempre uma dessas duas).
+3. Se for interna/geral: usar a lista fixa da agência certa (acima).
+4. Antes de criar, checar rapidamente (`clickup_filter_tasks` na lista alvo, ou
+   `clickup_search`) se já não existe uma tarefa recorrente/aberta equivalente — não duplicar
+   o que já está rodando.
+5. `clickup_create_task` na lista resolvida. `name` claro e acionável, `due_date` se o
+   Douglas deu prazo, `priority` só se ele sinalizar urgência, `assignees` = Douglas
+   (`270704987`) por padrão, salvo ele indicar outra pessoa (Pedro Henrique `212499201`,
+   Igor Mendes `176467453`, Danilo Patrício `236528857`).
 
-Não pedir confirmação pra cada campo — criar direto e mostrar o que foi criado. Se a demanda for vaga, criar mesmo assim com o texto como veio; refinar depois se precisar.
+Não pedir confirmação de cada campo — criar direto e mostrar o que foi criado, com link.
 
-## Listar demandas pendentes
+## Listar demandas pendentes ("o que eu preciso fazer hoje/essa semana")
 
-`clickup_filter_tasks` com `list_ids: ["901114321741"]`, `statuses` excluindo `done` (ou simplesmente olhar todas as não-`done`). Ordenar por `due_date`. É a resposta padrão pra "o que eu preciso fazer hoje/essa semana".
+`clickup_filter_tasks` com `space_ids: ["90113792830", "90113792821"]`,
+`assignees: ["270704987"]` (ou quem for perguntado), excluindo status `done`, ordenado por
+`due_date`. Isso agrega automaticamente tudo: tarefas recorrentes já existentes, demandas
+antigas e as que o Claude acabou de lançar — não precisa de lista separada pra "ver tudo".
+
+Se o Douglas quiser só demanda avulsa/pessoal (sem misturar operação de cliente), filtrar
+adicionalmente pelas duas listas internas fixas (`list_ids`) em vez do space inteiro.
 
 ## Executar
 
-Ao começar uma demanda, mover pra `fazendo` (`clickup_update_task`). Trabalhar normalmente (é uma conversa com o Claude Code, não um app separado). Ao terminar, mover pra `done` — isso fecha a tarefa e marca `date_closed`, que é o dado usado no relatório de produtividade.
-
-Se a demanda depender de algo do cliente ou de decisão do Douglas antes de continuar, mover pra `aguardando cliente` ou `análise interna` em vez de deixar em `não feito`.
+Ao começar, mover pra `fazendo` (`clickup_update_task`). Trabalhar a demanda normalmente em
+conversa. Ao concluir, mover pra `done` (fecha e marca `date_closed` — é o dado do
+relatório). Se travar esperando algo do cliente ou decisão do Douglas, mover pra
+`aguardando cliente` ou `análise interna` em vez de deixar em `não feito`.
 
 ## Relatório de produtividade
 
 Quando pedido ("resumo do meu dia", "o que eu fiz hoje", "relatório de produtividade"):
 
-1. `clickup_filter_tasks` com `list_ids: ["901114321741"]`, `include_closed: true`, `date_closed_from`/`date_closed_to` cobrindo o período pedido (hoje = data atual; se não especificar período, assumir hoje).
-2. Se o Douglas quiser visão mais ampla (não só demanda avulsa, mas tudo que foi feito em tarefas de cliente também), repetir o filtro nas listas relevantes de `the new ads`/`TUBARAO ADS` usando o mesmo `date_closed_from`/`date_closed_to` — perguntar se é isso que ele quer antes de expandir, não assumir.
-3. Montar a resposta como lista concreta do que foi concluído (nome da tarefa, não estatística vazia) — o objetivo é ele *ver* o trabalho feito, não só um número.
+1. `clickup_filter_tasks` com `space_ids: ["90113792830", "90113792821"]`,
+   `include_closed: true`, `date_closed_from`/`date_closed_to` cobrindo o período (sem
+   período especificado, assumir hoje), `assignees: ["270704987"]`.
+2. Montar a resposta como lista concreta do que foi concluído (nome da tarefa e cliente/lista
+   de origem), não estatística vazia — o objetivo é o Douglas *ver* o trabalho, não só contar.
 
 ## Fora de escopo
 
-- Não duplica a estrutura de cliente (Contrato/Pagamento/Onboarding/Operacional) — isso continua sendo domínio da skill `onboarding-cliente`.
-- Não cria dashboard visual separado — o relatório é conversacional, direto na resposta do Claude Code.
+- Não cria/duplica estrutura de cliente (isso é a skill `onboarding-cliente`).
+- Não cria lista, folder ou space novo — só opera o que já existe.
