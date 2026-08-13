@@ -34,6 +34,9 @@ tarefas.md
 # Contratos gerados (dados reais de cliente — nunca commitar)
 contratos/
 
+# Projeto de software separado (movido pra Projetos/agenda-cilios)
+agenda-cilios/
+
 # Caches de ferramentas (Wrangler, impeccable, Supabase CLI)
 .wrangler/
 .impeccable/
