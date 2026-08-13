@@ -261,7 +261,8 @@
         <div class="kpi"><div class="label">Investimento</div><div class="value" id="kpi-investimento"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Impressões</div><div class="value" id="kpi-impressoes"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CTR médio</div><div class="value amber" id="kpi-ctr"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">Leads / Resultados</div><div class="value" id="kpi-leads"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Leads</div><div class="value" id="kpi-leads"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPL</div><div class="value" id="kpi-cpl"><div class="skel"></div></div></div>
       </div>
       <div class="kpis kpis-secondary">
         <div class="kpi"><div class="label">Alcance</div><div class="value" id="kpi-alcance"><div class="skel"></div></div></div>
@@ -269,6 +270,7 @@
         <div class="kpi"><div class="label">CPM médio</div><div class="value" id="kpi-cpm"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Frequência média</div><div class="value" id="kpi-freq"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Taxa de gancho</div><div class="value" id="kpi-gancho"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Resultados (Meta Ads)</div><div class="value amber" id="kpi-resultados-meta"><div class="skel"></div></div></div>
       </div>
     </section>
   </div>
@@ -407,6 +409,8 @@ function toISODate(d) { return d.toISOString().slice(0, 10); }
 function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); }
 
 let currentRange = { since: daysAgo(30), until: toISODate(new Date()) };
+let lastInvestimento = 0;
+let lastLeadsTotal = 0;
 
 // --- dropdown de período ---
 const datePicker = document.getElementById('date-picker');
@@ -515,7 +519,8 @@ async function loadKpisAndAds() {
   document.getElementById('kpi-cpm').textContent = cpmN ? fmtMoney(cpmSum / cpmN) : '—';
   document.getElementById('kpi-freq').textContent = freqN ? (freqSum / freqN).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   document.getElementById('kpi-gancho').textContent = impressoes ? fmtPct((videoView / impressoes) * 100) : '—';
-  document.getElementById('kpi-leads').textContent = fmtInt(leads) + ' / ' + fmtInt(resultados);
+  document.getElementById('kpi-resultados-meta').textContent = fmtInt(resultados);
+  lastInvestimento = investimento;
 
   document.getElementById('kpi-engajamento-total').textContent = fmtInt(engajamento);
   document.getElementById('kpi-engajamento-taxa').textContent = impressoes ? fmtPct((engajamento / impressoes) * 100) : '—';
@@ -552,6 +557,8 @@ async function loadLeads() {
   const total = data.length;
   const qualificados = data.filter((l) => l.qualificacao === 'Qualificado').length;
   const ganhos = data.filter((l) => l.etapa === 'Lead Ganho').length;
+  document.getElementById('kpi-leads').textContent = fmtInt(total);
+  lastLeadsTotal = total;
   const stages = [
     { label: 'Leads recebidos', value: total, pctOf: total },
     { label: 'Qualificados', value: qualificados, pctOf: total },
@@ -872,6 +879,7 @@ async function loadAll() {
   document.getElementById('date-from').value = currentRange.since;
   document.getElementById('date-to').value = currentRange.until;
   await Promise.all([loadKpisAndAds(), loadLeads(), loadFollowers()]);
+  document.getElementById('kpi-cpl').textContent = lastLeadsTotal ? fmtMoney(lastInvestimento / lastLeadsTotal) : '—';
   // depende dos caches (metaRowsCache/trackingRowsCache) preenchidos pelas duas chamadas acima
   loadGapGeral();
   renderTopCriativos();
