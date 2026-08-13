@@ -13,15 +13,36 @@ description: >
 
 Skill de referência pra criar ou auditar o dashboard de tráfego pago de qualquer cliente, replicando o padrão que já está em produção (Grupo Confiança, Fabioli Ferreira, Fátima Esportes — os 3 são hoje idênticos estruturalmente). Nasceu da correção de bug de métricas em 2026-08-13.
 
-## Antes de tudo: perguntar o que falta saber
+## Passo 0 — Anunciar o plano e coletar TODAS as variáveis de uma vez
 
-Não assumir nada disso — perguntar direto ao Douglas se não estiver claro:
+**Nunca começar a executar antes desse passo.** Antes de rodar qualquer SQL, criar qualquer arquivo ou mexer em qualquer workflow n8n, responder ao Douglas com duas coisas juntas, numa mensagem só:
 
-1. **Conta de anúncio da Meta** (`act_XXXXXXXXX`) do cliente.
-2. **Já existe fluxo n8n de tracking (CTWA)** rodando pra esse cliente, ou vai ser CSV manual por enquanto?
-3. **Tem CSV de vendas/leads pra importar** agora, ou começa vazio e alimenta depois? (ver regra geral em `_contexto/empresa.md`, seção "Padrão de relatórios e dashboards")
-4. **Precisa de histórico retroativo** de métricas da Meta? Desde quando?
-5. **Tem Instagram ID** pra puxar seguidores diários (opcional, mas se tiver, adiciona ao `clientes_meta_contas`)?
+**(a) O plano** — lista curta e numerada do que vai ser feito nessa execução (ajustar aos passos que realmente se aplicam ao pedido — nem todo pedido precisa dos 6):
+1. Cadastrar/conferir conta em `clientes_meta_contas`
+2. Criar `<slug>_meta` e `<slug>_tracking` com RLS
+3. Popular dado (backfill de Meta se pedido / importar CSV de tracking se tiver)
+4. Montar ou atualizar o fluxo n8n de tracking (só se ainda não existir automação)
+5. Clonar o dashboard de `dashboard-confianca.html`
+6. Deploy do site completo
+
+**(b) Todas as variáveis necessárias, perguntadas de uma vez só (não uma pergunta por vez, não descobrir no meio do processo):**
+
+Sempre necessário (dashboard + tabelas):
+- **Conta de anúncio da Meta** (`act_XXXXXXXXX`) do cliente
+- **Já existe fluxo n8n de tracking (CTWA)** rodando pra esse cliente, ou vai ser CSV manual por enquanto?
+- **Tem CSV de vendas/leads pra importar** agora, ou começa vazio? (ver regra geral em `_contexto/empresa.md`, seção "Padrão de relatórios e dashboards")
+- **Precisa de histórico retroativo** de métricas da Meta? Desde quando?
+- **Instagram ID** pra seguidores diários (opcional)
+
+Só se for montar/atualizar o fluxo n8n do zero (Passo 3.5 abaixo) — perguntar mesmo que pareça redundante, cada um é um dado que só existe na cabeça do Douglas ou no Business Manager da Meta:
+- **Pixel ID** da Meta (Conversions API) do cliente
+- **Token de acesso do CAPI** desse pixel (token de sistema, não é o `META_ACCESS_TOKEN` de leitura de Ads — cada cliente/pixel tem o seu, gerado no Business Manager)
+- **Page ID** do Facebook do cliente
+- Mantém **Google Sheets** como backup manual (link da planilha) ou vai só pro Supabase?
+- **De onde vêm as mensagens do WhatsApp hoje** — já existe instância NeoGo/Evolution conectada? (determina se dá pra reaproveitar um workflow existente ou se precisa de webhook novo)
+- **Frase de qualificação** e **frase de compra/venda** que o atendente usa (usadas pra classificar a resposta automaticamente — sem isso os nós de Qualificado/Lead Ganho nunca disparam)
+
+Só perguntar o que já não está claro pelo pedido do Douglas ou pelo que já existe no Supabase/n8n (ex: se ele já disse "sem CSV por enquanto", não perguntar de novo). Mas levantar tudo que falta **numa mensagem só**, antes de tocar em qualquer ferramenta de escrita — nunca ir descobrindo variável por variável no meio da execução.
 
 ## Passo 1 — Conta no `clientes_meta_contas`
 
