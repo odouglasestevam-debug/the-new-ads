@@ -74,6 +74,14 @@ conversa. Ao concluir, mover pra `done` (fecha e marca `date_closed` — é o da
 relatório). Se travar esperando algo do cliente ou decisão do Douglas, mover pra
 `aguardando cliente` ou `análise interna` em vez de deixar em `não feito`.
 
+**Múltiplos chats em paralelo**: o Douglas pode ter várias sessões do Claude Code abertas
+ao mesmo tempo (abas/janelas diferentes), todas nesta mesma pasta de projeto, cada uma
+puxando e resolvendo tarefas da lista de pendências. Como o ClickUp é o estado
+compartilhado entre elas, antes de começar qualquer tarefa reconferir o status dela
+(`clickup_get_task` ou reler no resultado do `listar demandas`): se já estiver em `fazendo`,
+outro chat já pegou — pular pra próxima da lista em vez de trabalhar em cima. Mover pra
+`fazendo` assim que começar funciona como o sinal pros outros chats.
+
 ## Relatório de produtividade
 
 Quando pedido ("resumo do meu dia", "o que eu fiz hoje", "relatório de produtividade"):
