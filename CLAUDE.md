@@ -42,6 +42,7 @@ Objetivo, técnico, direto, sem enrolação, em português do Brasil. Nunca usar
 ## Ferramentas conectadas
 
 - [x] N8N (MCP instalado e conectado — `flow.neoai.systems`)
+- [x] ClickUp (MCP conectado — gestão real de clientes e demanda interna; skill `central-demandas` lança/lista/executa/relata produtividade direto nas listas de cada cliente, sem sistema paralelo)
 - [ ] Google Calendar (agendar reuniões)
 - [ ] Gmail (comunicação com clientes)
 - [ ] Google Drive (briefings, decks)
