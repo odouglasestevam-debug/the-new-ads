@@ -19,13 +19,12 @@ Skill de orquestração — não reinventa processo nenhum, só executa em ordem
 
 Antes de tocar em qualquer ferramenta de escrita, listar o plano (passos 1-7 abaixo, ajustados ao que o pedido precisa) e pedir numa mensagem só:
 
-1. **Nome do cliente** (usado pra achar o contrato em `contratos/` e nomear pasta/slug)
+1. **Nome do cliente** (usado pra achar o contrato em `contratos/`, nomear pasta/slug, e localizar a linha certa na planilha única de briefing — ver Passo 2)
 2. **Qual agência**: The New Ads ou Tubarão Ads (define o space no ClickUp)
-3. **Link do Google Sheets de respostas do Forms de briefing inicial** (Douglas sempre tem, é onde ticket médio, site e identidade visual vêm de gestor)
-4. **Contexto de negócio extra** que não estiver nem no contrato nem no forms (histórico, concorrentes, diferencial, sazonalidade) — perguntar mesmo que pareça redundante, geralmente só existe na cabeça do Douglas
-5. **Data/hora da "Call de Onboarding e Acessos"** (Etapa 02 do ClickUp), se já tiver combinada
+3. **Contexto de negócio extra** que não estiver nem no contrato nem no forms (histórico, concorrentes, diferencial, sazonalidade) — perguntar mesmo que pareça redundante, geralmente só existe na cabeça do Douglas
+4. **Data/hora da "Call de Onboarding e Acessos"** (Etapa 02 do ClickUp), se já tiver combinada — antes de perguntar, checar se já existe evento com o contato do cliente marcado pra essa call (`search_events`/`list_events`); se já tiver, usar esse e não perguntar
 
-Não perguntar o que já dá pra puxar sozinho (contrato e forms) — só confirmar depois de ler, não perguntar antes.
+Não perguntar o link do Google Sheets — é sempre a mesma planilha única de respostas do Forms (ver Passo 2). Não perguntar o que já dá pra puxar sozinho (contrato e forms) — só confirmar depois de ler, não perguntar antes.
 
 ## Passo 1 — Ler o contrato
 
@@ -42,7 +41,11 @@ Se não achar o contrato pelo nome, perguntar ao Douglas em vez de assumir que n
 
 ## Passo 2 — Ler o briefing (Google Forms)
 
-Ler a planilha de respostas via Google Drive (`read_file_content`/`download_file_content`, é Sheets nativo). Extrair: ticket médio, se tem site (e qual URL), se tem identidade visual pronta, e qualquer outro campo relevante pro `briefing.md`. Google Forms não tem API acessível diretamente aqui — sempre a planilha de respostas, nunca tentar acessar o Forms em si.
+Todos os clientes respondem o mesmo Forms — as respostas caem numa única planilha, uma linha por cliente. O link é sempre fixo, não precisa perguntar nem redescobrir:
+
+`https://docs.google.com/spreadsheets/d/17Rcp8pRQ4N5_HNHj6c0t9U792QABHQ4atO3jzyvvK7A/edit?resourcekey=&gid=181066902#gid=181066902`
+
+Ler via Google Drive (`read_file_content`, fileId `17Rcp8pRQ4N5_HNHj6c0t9U792QABHQ4atO3jzyvvK7A`) e localizar a linha do cliente pelo nome/empresa (última coluna de identificação é geralmente "Seu nome completo e o da sua empresa" ou o e-mail). O arquivo cresce a cada cliente novo — se a resposta esperada não aparecer, pode ser porque ainda não foi respondida; nesse caso perguntar ao Douglas em vez de assumir. Extrair: ticket médio, faturamento, site, identidade visual, público-alvo, concorrentes, sazonalidade e qualquer outro campo relevante pro `briefing.md`. Google Forms não tem API acessível diretamente aqui — sempre a planilha de respostas, nunca tentar acessar o Forms em si.
 
 ## Passo 3 — Workspace local
 
@@ -63,11 +66,15 @@ Isso substitui a ideia antiga de "duplicar a pasta" — a API do ClickUp não te
 
 ## Passo 5 — Asaas: assinatura recorrente
 
-Projeto já usa Asaas pra tudo (token em `.env`, `ASAS_ACCESS_TOKEN`). Criar:
-1. `POST /v3/customers` (se o cliente ainda não existir no Asaas — buscar primeiro por CPF/CNPJ antes de criar duplicado).
-2. `POST /v3/subscriptions` — `cycle: MONTHLY`, `value` = valor mensal do contrato (Passo 1), `nextDueDate` = data de início + dia de vencimento do contrato, `endDate` = data de início + vigência em meses (Passo 1). Isso implementa "criar a assinatura com base no tempo assinado em contrato" — depois da vigência mínima o contrato normalmente renova automaticamente por prazo indeterminado (ver texto do contrato), então confirmar com o Douglas se `endDate` deve mesmo travar nesse ponto ou se a assinatura deve continuar (mais comum: deixar sem `endDate`, e o cancelamento é manual quando o contrato encerrar de verdade).
+Projeto já usa Asaas pra tudo (token em `.env`, `ASAS_ACCESS_TOKEN`). **Sempre conferir antes de criar qualquer coisa:**
 
-**Não tem endpoint de teste — toda chamada aqui é real e gera cobrança de verdade pro cliente.** Confirmar os valores com o Douglas antes de criar a assinatura (mostrar valor, ciclo e data), nunca criar direto sem essa confirmação.
+1. `GET /v3/customers?cpfCnpj=<cnpj-ou-cpf-sem-formatacao>` — se já existir cliente, pular criação.
+2. `GET /v3/subscriptions?customer=<id>` — se já existir assinatura (qualquer status ativo), **não criar outra**. Reportar a existente (valor, ciclo, vencimento) e seguir pro próximo passo sem tocar no Asaas.
+3. Só se não existir cliente e/ou assinatura, criar:
+   - `POST /v3/customers` (se o cliente ainda não existir).
+   - `POST /v3/subscriptions` — `cycle: MONTHLY`, `value` = valor mensal do contrato (Passo 1), `nextDueDate` = data de início + dia de vencimento do contrato, `endDate` = data de início + vigência em meses (Passo 1). Isso implementa "criar a assinatura com base no tempo assinado em contrato" — depois da vigência mínima o contrato normalmente renova automaticamente por prazo indeterminado (ver texto do contrato), então confirmar com o Douglas se `endDate` deve mesmo travar nesse ponto ou se a assinatura deve continuar (mais comum: deixar sem `endDate`, e o cancelamento é manual quando o contrato encerrar de verdade).
+
+**Não tem endpoint de teste — toda chamada de criação aqui é real e gera cobrança de verdade pro cliente.** Confirmar os valores com o Douglas antes de criar a assinatura (mostrar valor, ciclo e data), nunca criar direto sem essa confirmação. Consultas (`GET`) não têm esse risco e não precisam de confirmação prévia.
 
 ## Passo 6 — Agenda
 
@@ -90,7 +97,7 @@ Ao final, perguntar se já é hora de rodar a skill `dashboard-cliente` (Supabas
 - [ ] `clientes/<slug>/` criado com `briefing.md` preenchido
 - [ ] Entrada em `tarefas.md`
 - [ ] Folder + 4 listas + tarefas recriadas no ClickUp, no space certo
-- [ ] Assinatura no Asaas criada **só depois de confirmar valor/ciclo/data com o Douglas**
+- [ ] Asaas conferido (cliente + assinatura) — criado **só se não existir**, e só depois de confirmar valor/ciclo/data com o Douglas
 - [ ] Call de Onboarding agendada (ou deixada como pendência explícita)
 - [ ] Grupo de WhatsApp e ativos do BM deixados como checklist, não como "feito"
 - [ ] Perguntado se já roda `dashboard-cliente` em seguida
