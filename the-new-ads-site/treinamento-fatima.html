@@ -1,0 +1,906 @@
+<title>Treinamento de Atendimento Comercial</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --surface:#141414;
+    --surface-2:#1c1c1c;
+    --accent:#ff6a00;
+    --accent-glow:#ffa24d;
+    --text:#fafafa;
+    --muted:#9a9a9a;
+    --border:rgba(255,255,255,.09);
+    --bad:#e4483c;
+    --bad-bg:rgba(228,72,60,.08);
+    --good:#33c17a;
+    --good-bg:rgba(51,193,122,.08);
+    --display:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    --body:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--bg);
+    color:var(--text);
+    font-family:var(--body);
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  ::selection{background:var(--accent);color:#0a0a0a;}
+
+  .rail{position:fixed;left:0;top:0;bottom:0;width:6px;background:var(--border);z-index:50;overflow:hidden;}
+  .rail-fill{
+    position:absolute;top:0;left:0;width:100%;height:100%;
+    background:linear-gradient(180deg,var(--accent),var(--accent-glow));
+    transform:scaleY(var(--progress,0));
+    transform-origin:top;
+    transition:transform .15s linear;
+  }
+
+  .deck{position:relative;height:100vh;width:100vw;overflow:hidden;}
+
+  .slide{
+    position:absolute;
+    inset:0;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    padding:6vh 8vw;
+    overflow-y:auto;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s ease;
+  }
+  .slide.active{opacity:1;pointer-events:auto;z-index:2;cursor:pointer;}
+
+  .nav-btn{
+    position:fixed;bottom:2.2vh;
+    width:42px;height:42px;
+    border:1px solid var(--border);
+    background:var(--surface);
+    color:var(--text);
+    display:flex;align-items:center;justify-content:center;
+    font-family:var(--mono);font-size:1.1rem;
+    z-index:60;user-select:none;
+    transition:border-color .15s,color .15s;
+  }
+  .nav-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .nav-prev{left:2vw;}
+  .nav-next{right:2vw;}
+
+  .act{
+    font-family:var(--mono);
+    font-size:.7rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--muted);
+    margin:0 0 .5rem 0;
+  }
+  .act b{color:var(--accent);}
+
+  .kicker{
+    font-family:var(--mono);
+    font-size:.78rem;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--accent);
+    margin:0 0 1.3rem 0;
+    display:flex;
+    align-items:center;
+    gap:.6em;
+  }
+  .kicker::before{content:'';width:22px;height:1px;background:var(--accent);display:inline-block;}
+
+  .theory-tag{
+    font-family:var(--mono);
+    font-size:.74rem;
+    letter-spacing:.06em;
+    color:var(--accent-glow);
+    margin:0 0 1rem 0;
+    display:inline-block;
+    padding:.3rem .7rem;
+    border:1px solid rgba(255,162,77,.3);
+    background:rgba(255,162,77,.06);
+  }
+
+  h1,h2{
+    font-family:var(--display);
+    font-weight:800;
+    letter-spacing:-.01em;
+    text-wrap:balance;
+    margin:0 0 1rem 0;
+    color:var(--text);
+  }
+  h2{font-size:clamp(1.55rem,3.4vw,2.5rem);}
+  h1{font-size:clamp(2.6rem,6.5vw,5.2rem); line-height:1.02;}
+
+  .lede{
+    font-size:clamp(.98rem,1.4vw,1.14rem);
+    color:var(--muted);
+    max-width:66ch;
+    margin:0 0 1.4rem 0;
+  }
+
+  .cover{
+    justify-content:center;
+    align-items:flex-start;
+    background:radial-gradient(ellipse 900px 500px at 85% 15%, rgba(255,106,0,.14), transparent 60%), var(--bg);
+    overflow:hidden;
+  }
+  .cover::before{
+    content:'';
+    position:absolute;inset:0;
+    background-image:repeating-linear-gradient(to bottom, rgba(255,255,255,.045) 0, rgba(255,255,255,.045) 1px, transparent 1px, transparent 72px);
+    pointer-events:none;
+  }
+  .cover::after{
+    content:'01';
+    position:absolute;right:3vw;bottom:-4vh;
+    font-family:var(--mono);
+    font-size:26vw;
+    font-weight:800;
+    color:rgba(255,255,255,.035);
+    line-height:1;
+    pointer-events:none;
+    user-select:none;
+  }
+  .cover .stats-line{
+    font-family:var(--mono);
+    font-size:.85rem;
+    letter-spacing:.08em;
+    color:var(--muted);
+    text-transform:uppercase;
+    margin-top:2.2rem;
+    display:flex;
+    gap:2rem;
+    flex-wrap:wrap;
+    position:relative;
+  }
+  .cover .stats-line b{color:var(--accent-glow);font-weight:700;font-family:var(--display);font-size:1.3rem;display:block;}
+  .cover .meta{
+    margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);
+    font-family:var(--mono);font-size:.85rem;color:var(--muted);display:flex;gap:2.5rem;
+  }
+  .cover .meta span{display:block;}
+  .cover .meta b{color:var(--text);display:block;font-weight:600;margin-bottom:.2rem;}
+
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem;max-width:1200px;}
+  @media (max-width:900px){.cols{grid-template-columns:1fr;}}
+
+  .point-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:1rem;max-width:62ch;}
+  .point-list li{padding-left:1.4rem;position:relative;color:var(--text);font-size:1.02rem;}
+  .point-list li::before{content:'';position:absolute;left:0;top:.55em;width:6px;height:6px;background:var(--accent);}
+  .point-list b{color:var(--accent-glow);}
+
+  .card{background:var(--surface);border:1px solid var(--border);padding:1.4rem 1.6rem;}
+  .card h3{font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 .8rem 0;}
+
+  .example{border:1px solid var(--border);background:var(--surface);padding:1.1rem 1.3rem;margin-bottom:.8rem;}
+  .example.bad{background:var(--bad-bg);}
+  .example.good{background:var(--good-bg);}
+  .example .tag{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.5rem;display:block;}
+  .example.bad .tag{color:var(--bad);}
+  .example.good .tag{color:var(--good);}
+  .example .msg{font-size:.92rem;color:var(--text);margin:0 0 .35rem 0;}
+  .example .note{font-size:.84rem;color:var(--muted);margin:0;}
+
+  .funnel-map{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);max-width:1200px;margin-top:.8rem;}
+  .funnel-map .stop{background:var(--surface);padding:1.3rem 1.2rem;}
+  .funnel-map .stop .km{font-family:var(--mono);font-size:.7rem;color:var(--accent);letter-spacing:.08em;text-transform:uppercase;margin-bottom:.5rem;}
+  .funnel-map .stop h4{font-family:var(--display);font-size:1.08rem;margin:0 0 .35rem 0;font-weight:700;}
+  .funnel-map .stop p{font-size:.82rem;color:var(--muted);margin:0 0 .5rem 0;}
+  .funnel-map .stop .tools{display:flex;flex-wrap:wrap;gap:.3rem;}
+  .funnel-map .stop .tools span{font-family:var(--mono);font-size:.62rem;background:var(--surface-2);border:1px solid var(--border);padding:.22rem .45rem;color:var(--accent-glow);}
+  @media (max-width:900px){.funnel-map{grid-template-columns:1fr;}}
+
+  .pillar-head{display:flex;align-items:center;gap:1.2rem;margin-bottom:.4rem;}
+  .pillar-head .num{font-family:var(--display);font-weight:800;font-size:2.3rem;color:var(--accent);line-height:1;}
+  .pillar-etapas{font-family:var(--mono);font-size:.76rem;color:var(--muted);letter-spacing:.04em;margin-bottom:1.3rem;}
+
+  .checklist{list-style:none;margin:0;padding:0;}
+  .checklist li{display:flex;gap:.8rem;align-items:flex-start;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.92rem;}
+  .checklist li:last-child{border-bottom:none;}
+  .checklist li::before{content:'→';color:var(--accent);font-family:var(--mono);flex-shrink:0;}
+
+  .objection-grid{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;max-width:1200px;}
+  @media (max-width:900px){.objection-grid{grid-template-columns:1fr;}}
+  .objection{background:var(--surface);border:1px solid var(--border);padding:.95rem 1.25rem;}
+  .objection .said{font-family:var(--display);font-weight:700;font-size:.98rem;color:var(--accent-glow);margin:0 0 .3rem 0;}
+  .objection .resp{font-size:.85rem;color:var(--text);margin:0;}
+
+  .why-box{background:var(--surface);border:1px solid var(--border);padding:1.3rem 1.5rem;max-width:760px;margin-bottom:1.2rem;}
+  .why-box .why-item{display:flex;gap:1rem;padding:.7rem 0;border-bottom:1px solid var(--border);}
+  .why-box .why-item:last-child{border-bottom:none;}
+  .why-box .why-item .k{font-family:var(--mono);color:var(--accent);font-size:.8rem;flex-shrink:0;width:1.4rem;}
+  .why-box .why-item p{margin:0;font-size:.9rem;}
+
+  .pair-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem;max-width:1200px;margin-bottom:1rem;}
+  @media (max-width:1000px){.pair-grid{grid-template-columns:1fr;}}
+  .pair{border:1px solid var(--border);background:var(--surface);padding:.95rem 1.15rem;}
+  .pair .ask{font-size:.83rem;color:var(--muted);margin:0 0 .65rem 0;font-family:var(--mono);}
+  .pair .seca,.pair .conduz{font-size:.86rem;margin:0 0 .2rem 0;}
+  .pair .seca{color:var(--bad);}
+  .pair .conduz{color:var(--good);}
+  .pair .lbl{font-family:var(--mono);font-size:.64rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-top:.5rem;margin-bottom:.1rem;}
+
+  .chat{display:flex;flex-direction:column;gap:.48rem;max-width:640px;margin:0 0 1rem 0;}
+  .chat .bubble{max-width:82%;padding:.58rem .88rem;font-size:.86rem;}
+  .chat .bubble.customer{align-self:flex-start;background:var(--surface);border:1px solid var(--border);}
+  .chat .bubble.seller{align-self:flex-end;background:var(--surface-2);border:1px solid rgba(255,106,0,.22);}
+  .chat .bubble .who{font-family:var(--mono);font-size:.62rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);display:block;margin-bottom:.2rem;}
+  .chat .bubble .time{font-family:var(--mono);font-size:.62rem;color:var(--muted);display:block;margin-top:.22rem;}
+  .chat .bubble.audio{font-style:italic;}
+  .chat .bubble.audio .who::after{content:' · áudio';font-style:normal;color:var(--accent-glow);}
+  .chat .gap{align-self:center;font-family:var(--mono);font-size:.66rem;color:var(--bad);letter-spacing:.05em;text-transform:uppercase;padding:.22rem .75rem;border:1px dashed var(--bad);margin:.2rem 0;}
+  .chat .silence{align-self:center;font-family:var(--mono);font-size:.66rem;color:var(--muted);font-style:italic;padding:.2rem 0;}
+  .sim-cols{display:grid;grid-template-columns:1fr 1fr;gap:1.7rem;max-width:1300px;}
+  @media (max-width:1000px){.sim-cols{grid-template-columns:1fr;}}
+  .sim-label{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:.65rem;display:block;}
+  .sim-label.bad{color:var(--bad);}
+  .sim-label.good{color:var(--good);}
+
+  .followup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.85rem;max-width:1200px;margin-bottom:1.1rem;}
+  @media (max-width:1000px){.followup-grid{grid-template-columns:1fr;}}
+  .followup-grid .fu{background:var(--surface);border:1px solid var(--border);padding:1rem 1.2rem;}
+  .followup-grid .fu h4{font-family:var(--display);font-weight:700;font-size:.96rem;margin:0 0 .5rem 0;color:var(--accent-glow);}
+  .followup-grid .fu p{font-size:.82rem;color:var(--muted);margin:0 0 .65rem 0;}
+  .followup-grid .fu .msg{font-size:.82rem;color:var(--text);background:var(--surface-2);padding:.6rem .8rem;border:1px solid var(--border);}
+
+  .acronym{display:flex;gap:.85rem;flex-wrap:wrap;max-width:1200px;margin:1.1rem 0 1.3rem;}
+  .acronym .letter{flex:1;min-width:180px;border:1px solid var(--border);background:var(--surface);padding:1rem 1.1rem;}
+  .acronym .letter .L{font-family:var(--display);font-weight:800;font-size:1.9rem;color:var(--accent);line-height:1;margin-bottom:.45rem;}
+  .acronym .letter .name{font-family:var(--mono);font-size:.66rem;text-transform:uppercase;letter-spacing:.06em;color:var(--accent-glow);margin-bottom:.35rem;display:block;}
+  .acronym .letter p{margin:0;font-size:.82rem;color:var(--text);}
+  .acronym .letter .ex{margin-top:.45rem;font-size:.78rem;color:var(--muted);font-style:italic;}
+
+  .cialdini-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.8rem;max-width:1200px;margin-bottom:1rem;}
+  @media (max-width:900px){.cialdini-grid{grid-template-columns:1fr 1fr;}}
+  @media (max-width:600px){.cialdini-grid{grid-template-columns:1fr;}}
+  .cialdini-grid .cp{background:var(--surface);border:1px solid var(--border);padding:.95rem 1.15rem;}
+  .cialdini-grid .cp h4{font-family:var(--display);font-weight:700;font-size:.92rem;margin:0 0 .35rem 0;color:var(--accent-glow);}
+  .cialdini-grid .cp p{margin:0;font-size:.79rem;color:var(--text);}
+
+  .fab-table{border:1px solid var(--border);max-width:1200px;margin:1.1rem 0;}
+  .fab-row{display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);}
+  .fab-row:last-child{border-bottom:none;}
+  .fab-row.head{background:var(--surface-2);}
+  .fab-row.head span{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+  .fab-row span{padding:.7rem .9rem;font-size:.8rem;border-right:1px solid var(--border);}
+  .fab-row span:last-child{border-right:none;}
+  .fab-row:not(.head) span:first-child{color:var(--accent-glow);}
+  @media (max-width:900px){.fab-row{grid-template-columns:1fr;}.fab-row span{border-right:none;border-bottom:1px solid var(--border);}.fab-row span:last-child{border-bottom:none;}}
+
+  .ammo-table{border:1px solid var(--border);max-width:1100px;margin:1.1rem 0;}
+  .ammo-row{display:grid;grid-template-columns:1.1fr 1fr 1.2fr;border-bottom:1px solid var(--border);}
+  .ammo-row:last-child{border-bottom:none;}
+  .ammo-row.head{background:var(--surface-2);}
+  .ammo-row.head span{font-family:var(--mono);font-size:.65rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted);}
+  .ammo-row span{padding:.75rem 1rem;font-size:.82rem;border-right:1px solid var(--border);}
+  .ammo-row span:last-child{border-right:none;}
+  .ammo-row:not(.head) span:first-child{color:var(--accent-glow);}
+  @media (max-width:900px){.ammo-row{grid-template-columns:1fr;}.ammo-row span{border-right:none;border-bottom:1px solid var(--border);}.ammo-row span:last-child{border-bottom:none;}}
+
+  .stat-row{display:flex;gap:1rem;flex-wrap:wrap;max-width:1100px;margin:1.1rem 0;}
+  .stat-box{flex:1;min-width:210px;background:var(--surface);border:1px solid var(--border);padding:1.2rem 1.4rem;}
+  .stat-box .num{font-family:var(--display);font-weight:800;font-size:2.4rem;color:var(--accent);line-height:1;}
+  .stat-box .desc{font-size:.85rem;margin:.5rem 0 .65rem;color:var(--text);}
+  .stat-box .source{font-family:var(--mono);font-size:.65rem;color:var(--muted);line-height:1.4;}
+
+  .rule-box{max-width:820px;padding:1.5rem 0 0 0;border-top:2px solid var(--accent);margin:1.3rem 0;}
+  .rule-box .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.65rem;}
+  .rule-box p{font-family:var(--display);font-weight:700;font-size:1.22rem;line-height:1.35;margin:0;text-wrap:balance;}
+  .rule-box p b{color:var(--accent-glow);}
+
+  .map-note{max-width:800px;background:var(--surface);border:1px solid var(--border);padding:1.2rem 1.4rem;margin-top:1.2rem;}
+  .map-note p{margin:0;font-size:.92rem;}
+  .map-note b{color:var(--accent-glow);}
+
+  .synth{max-width:820px;}
+  .synth p{font-size:1.05rem;margin:0 0 1rem 0;}
+  .synth b{color:var(--accent-glow);}
+
+  .foot-index{position:fixed;right:2vw;top:2vh;font-family:var(--mono);font-size:.75rem;color:var(--muted);letter-spacing:.06em;z-index:50;}
+
+  .end{align-items:flex-start;justify-content:center;}
+  .end .big{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3.6rem);text-wrap:balance;max-width:18ch;}
+</style>
+
+<div class="rail"><div class="rail-fill" id="railFill"></div></div>
+<div class="foot-index" id="slideIndex">01 / 27</div>
+<button class="nav-btn nav-prev" id="btnPrev" aria-label="Slide anterior">←</button>
+<button class="nav-btn nav-next" id="btnNext" aria-label="Próximo slide">→</button>
+
+<div class="deck" id="deck">
+
+  <section class="slide cover active">
+    <div class="kicker">Fátima Esportes</div>
+    <h1>Treinamento de<br>Atendimento Comercial.</h1>
+    <p class="lede">Como conduzir a conversa com o cliente, do primeiro contato até a venda fechada, no WhatsApp e na loja.</p>
+    <div class="meta">
+      <span><b>Cliente</b>Fátima Esportes</span>
+      <span><b>Formato</b>WhatsApp e loja física</span>
+      <span><b>Apresenta</b>Douglas Estevam, The New Ads</span>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 1 · <b>o contexto</b></div>
+    <div class="kicker">Contextualização</div>
+    <h2>Atender por WhatsApp não é a mesma venda que atender na loja.</h2>
+    <ul class="point-list">
+      <li><b>Quem entra na loja já andou até aqui.</b> Saiu de casa, foi ao shopping, escolheu entrar naquela loja específica. Já pagou um custo antes de falar com alguém.</li>
+      <li><b>Quem manda mensagem só tocou na tela.</b> Viu um anúncio no feed e escreveu. Não gastou esforço nenhum pra chegar ali.</li>
+      <li><b>A demora só custa caro no digital.</b> Na loja, esperar alguns minutos não afasta ninguém. No WhatsApp, sair da conversa é de graça.</li>
+    </ul>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 1 · <b>o contexto</b></div>
+    <div class="kicker">Por que o lead é diferente</div>
+    <h2>O corpo entrega o que a tela esconde.</h2>
+    <div class="cols">
+      <div>
+        <p class="lede" style="margin-bottom:1rem">Na loja, dá pra perceber a intenção de um cliente sem ele dizer nada: o jeito de andar, quanto tempo ele fica parado num produto, se ele já vem direto numa prateleira.</p>
+        <p class="lede">No WhatsApp isso desaparece. "Quanto custa esse tênis?" pode vir de quem já decidiu comprar hoje ou de quem só ficou curioso rolando o feed, e por fora as duas mensagens são idênticas.</p>
+      </div>
+      <div class="card">
+        <h3>O que isso muda na prática</h3>
+        <p style="margin:0;font-size:.98rem">Tratar toda mensagem como se a pessoa já estivesse comprometida, sem perguntar nada, é o erro que mais aparece nas conversas reais da própria equipe. E é o problema que esse treinamento inteiro resolve.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 2 · <b>como o cliente pensa</b></div>
+    <div class="theory-tag">Teoria · Funil de vendas</div>
+    <h2>Toda venda passa por 3 fases.</h2>
+    <div class="cols">
+      <div class="card">
+        <h3>Topo de funil — Descoberta</h3>
+        <p style="margin:0 0 1rem;font-size:.94rem">A pessoa ainda não tem clareza do que quer.</p>
+        <h3>Meio de funil — Consideração</h3>
+        <p style="margin:0 0 1rem;font-size:.94rem">Já sabe o que quer, está comparando onde comprar.</p>
+        <h3>Fundo de funil — Decisão</h3>
+        <p style="margin:0;font-size:.94rem">Pronta pra fechar, só falta o empurrão certo.</p>
+      </div>
+      <div>
+        <div class="example">
+          <span class="tag">Meio de funil</span>
+          <p class="msg">"Quais tênis entram nessa promoção? Consegue enviar os modelos e valor?"</p>
+          <p class="note">Ainda comparando opções, precisa ser conduzida.</p>
+        </div>
+        <div class="example">
+          <span class="tag">Fundo de funil</span>
+          <p class="msg">"Tem o Adizero, tamanho 37, valor?"</p>
+          <p class="note">Já sabe exatamente o que quer, precisa de fechamento rápido.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 2 · <b>como o cliente pensa</b></div>
+    <div class="theory-tag">Teoria · Eugene Schwartz, os 5 Níveis de Consciência</div>
+    <h2>Quanto a pessoa já sabe sobre o que quer.</h2>
+    <p class="lede">Além da fase, cada pessoa chega sabendo mais ou menos sobre o que precisa. De "nem sabia direito o que procurava" até "já sei o modelo exato, só quero confirmar preço e loja".</p>
+    <div class="cols">
+      <div class="card">
+        <h3>1 — Inconsciente</h3>
+        <p style="margin:0 0 .7rem;font-size:.88rem">Nem sabe que tem o desejo ainda.</p>
+        <h3>2 — Consciente do problema</h3>
+        <p style="margin:0 0 .7rem;font-size:.88rem">Sabe que quer algo, não sabe qual solução.</p>
+        <h3>3 — Consciente da solução</h3>
+        <p style="margin:0;font-size:.88rem">Sabe que quer um tênis, não decidiu qual nem onde.</p>
+      </div>
+      <div class="card">
+        <h3>4 — Consciente do produto</h3>
+        <p style="margin:0 0 .7rem;font-size:.88rem">Já sabe o modelo, comparando onde comprar.</p>
+        <h3>5 — Mais consciente</h3>
+        <p style="margin:0;font-size:.88rem">Já decidiu tudo, só quer confirmar e fechar.</p>
+      </div>
+    </div>
+    <div class="map-note">
+      <p><b>Conclusão do Ato 2:</b> a gente nunca sabe, só de olhar a mensagem, em que fase e em que nível a pessoa está. Só descobrindo isso é que dá pra vender direito. E é exatamente aí que entra o mapa da próxima parte.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 3 · <b>o mapa mestre</b></div>
+    <div class="theory-tag">Teoria · AIDA</div>
+    <h2>O único mapa que você precisa guardar.</h2>
+    <p class="lede">Modelo clássico de vendas e publicidade, um dos mais usados no mundo todo. Toda conversa de venda percorre essas 4 etapas, nessa ordem.</p>
+    <div class="acronym">
+      <div class="letter">
+        <span class="L">A</span>
+        <span class="name">Atenção</span>
+        <p>O anúncio já fez esse trabalho. A pessoa parou de rolar o feed e escreveu.</p>
+      </div>
+      <div class="letter">
+        <span class="L">I</span>
+        <span class="name">Interesse</span>
+        <p>O vendedor desperta perguntando e mostrando que entendeu o que a pessoa procura.</p>
+      </div>
+      <div class="letter">
+        <span class="L">D</span>
+        <span class="name">Desejo</span>
+        <p>Mostrar o benefício real do produto, não só características, e responder objeções.</p>
+      </div>
+      <div class="letter">
+        <span class="L">A</span>
+        <span class="name">Ação</span>
+        <p>Fechar com um compromisso concreto: dia, hora, "vamos te esperar".</p>
+      </div>
+    </div>
+    <p class="lede">A gente já chamou isso de largada, percurso, obstáculo e chegada. <b style="color:var(--accent-glow)">É a mesma coisa</b>, só com o nome que fica mais fácil de lembrar no dia a dia da loja.</p>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 3 · <b>o mapa mestre</b></div>
+    <div class="kicker">Como tudo se encaixa</div>
+    <h2>Um mapa, e ferramentas específicas pra cada etapa dele.</h2>
+    <p class="lede">As teorias que vêm a seguir não competem entre si. Você não escolhe "hoje eu uso SPIN, amanhã eu uso AIDA". <b style="color:var(--accent-glow)">AIDA é o mapa que você está sempre dentro dele</b>. As outras são ferramentas que você pega da caixa quando chega na etapa certa desse mapa.</p>
+    <div class="funnel-map">
+      <div class="stop">
+        <div class="km">Largada</div>
+        <h4>Abertura</h4>
+        <p>Responder rápido e se apresentar.</p>
+        <div class="tools"><span>Resposta rápida</span><span>Texto x áudio</span></div>
+      </div>
+      <div class="stop">
+        <div class="km">Percurso</div>
+        <h4>Condução</h4>
+        <p>Perguntar antes de só responder o que foi pedido.</p>
+        <div class="tools"><span>SPIN Selling</span><span>Regra universal</span></div>
+      </div>
+      <div class="stop">
+        <div class="km">Obstáculo</div>
+        <h4>Objeção</h4>
+        <p>Quebrar objeção e contornar indisponibilidade.</p>
+        <div class="tools"><span>Cialdini</span><span>FAB</span></div>
+      </div>
+      <div class="stop">
+        <div class="km">Chegada</div>
+        <h4>Fechamento</h4>
+        <p>Agendar compromisso e fazer follow-up.</p>
+        <div class="tools"><span>Compromisso e coerência</span><span>Regra dos 7 contatos</span></div>
+      </div>
+    </div>
+    <div class="map-note">
+      <p>Regra de uso: sempre que ficar em dúvida "qual teoria eu uso aqui", pergunte primeiro <b>"em qual etapa do mapa eu estou"</b>. A etapa responde qual ferramenta pegar.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 4 · <b>largada</b></div>
+    <div class="pillar-head"><span class="num">01</span><h2 style="margin:0">Abertura: por que demorar mata a venda</h2></div>
+    <div class="pillar-etapas">Etapas 1 e 2 do funil · responde rápido + se apresenta</div>
+    <p class="lede">Quem responde rápido não está sendo só educado, está aproveitando a janela em que o interesse ainda está quente.</p>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="num">21x</span>
+        <p class="desc">mais chance de qualificar o lead respondendo em até <b style="color:var(--accent-glow)">5 minutos</b>, em vez de esperar 30 minutos.</p>
+        <span class="source">Lead Response Management Study, James Oldroyd (MIT), publicado na Harvard Business Review</span>
+      </div>
+      <div class="example bad" style="flex:1;min-width:220px;margin-bottom:0">
+        <span class="tag">Exemplo real, anonimizado</span>
+        <p class="msg">Cliente pergunta o preço às 10h03.</p>
+        <p class="msg">Resposta chega às 13h59.</p>
+        <p class="note">Quase 4 horas de espera numa promoção que pedia decisão na hora.</p>
+      </div>
+    </div>
+    <div class="card" style="max-width:800px">
+      <h3>Regra prática</h3>
+      <ul class="checklist">
+        <li>Definir com a equipe uma meta de tempo de resposta.</li>
+        <li>Se não der pra responder na hora, mandar uma frase-ponte: "já te retorno em instantes, só um momento".</li>
+        <li>Sempre se apresentar (nome + loja) antes de qualquer preço.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 4 · <b>largada</b></div>
+    <div class="kicker">Ferramenta extra</div>
+    <h2>Texto cria distância. Voz aproxima.</h2>
+    <p class="lede">Responder só por texto, o tempo todo, cria um bloqueio entre o vendedor e o cliente. Um áudio curto, com energia alta, chamando a pessoa pelo nome, muda o clima da conversa inteira.</p>
+    <div class="cols">
+      <div class="card">
+        <h3>Quando usar</h3>
+        <ul class="checklist">
+          <li>Logo na abertura, pra já criar conexão em vez de só responder um preço.</li>
+          <li>Depois de fechar um compromisso importante, pra reforçar o "vamos te esperar" com voz de verdade.</li>
+          <li>Quando o texto já foi longo e a conversa esfriou, um áudio reanima.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Como soa</h3>
+        <p style="margin:0;font-size:.94rem">"Oi Marcelo, tudo bem? Aqui é o Rafael da Fátima Esportes, cheguei agora vendo sua mensagem! Já vou te confirmar o que você precisa, só um segundo."</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 4 · <b>largada</b></div>
+    <div class="kicker">Na prática</div>
+    <h2>A mesma pergunta, dois destinos.</h2>
+    <div class="sim-cols">
+      <div>
+        <span class="sim-label bad">Do jeito que costuma acontecer</span>
+        <div class="chat">
+          <div class="bubble customer"><span class="who">Cliente</span>Vi seu anúncio da liquidação, seria muito bom aproveitar! Vocês têm o Adizero no 41?<span class="time">10:03</span></div>
+          <div class="gap">3h56 sem resposta</div>
+          <div class="bubble seller"><span class="who">Vendedor</span>Olá, tudo bem? Aqui é o vendedor da Fátima Esportes, como posso ajudar?<span class="time">13:59</span></div>
+          <div class="silence">cliente não respondeu mais</div>
+        </div>
+      </div>
+      <div>
+        <span class="sim-label good">Reescrita aplicando Largada + Percurso</span>
+        <div class="chat">
+          <div class="bubble customer"><span class="who">Cliente</span>Vi seu anúncio da liquidação, seria muito bom aproveitar! Vocês têm o Adizero no 41?<span class="time">10:03</span></div>
+          <div class="bubble seller audio"><span class="who">Vendedor</span>Oi, tudo bem? Aqui é o Marcelo da Fátima Esportes! Deixa eu confirmar rapidinho pra te atender direito: o 41 é seu número certinho, ou você calça meio a meio?<span class="time">10:07</span></div>
+          <div class="bubble customer"><span class="who">Cliente</span>É certinho, sempre uso 41<span class="time">10:09</span></div>
+          <div class="bubble seller"><span class="who">Vendedor</span>Perfeito, temos sim disponível no seu número! Vai usar mais pra treino ou pro dia a dia?<span class="time">10:10</span></div>
+          <div class="bubble customer"><span class="who">Cliente</span>Pra corrida mesmo, treino<span class="time">10:11</span></div>
+          <div class="bubble seller"><span class="who">Vendedor</span>Show, esse modelo é ótimo pra isso, tem bastante amortecimento. Consegue passar aqui hoje pra experimentar, ou prefere que eu separe pra amanhã?<span class="time">10:12</span></div>
+          <div class="bubble customer"><span class="who">Cliente</span>Hoje mesmo se der!<span class="time">10:14</span></div>
+          <div class="bubble seller"><span class="who">Vendedor</span>Combinado, vou separar um 41 aqui no seu nome. Estamos abertos até as 20h, vamos te esperar!<span class="time">10:15</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 5 · <b>percurso</b></div>
+    <div class="pillar-head"><span class="num">02</span><h2 style="margin:0">Condução: responder não é vender</h2></div>
+    <div class="pillar-etapas">Etapa 3 do funil · pergunta antes de responder só o que foi pedido</div>
+    <div class="why-box">
+      <h3 style="font-family:var(--mono);font-size:.74rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 .8rem 0">Por que toda resposta precisa terminar em pergunta ou convite</h3>
+      <div class="why-item"><span class="k">1</span><p>Uma resposta seca não dá ao cliente nada concreto pra responder. A conversa fica parada, e a saída mais fácil pra ele é só sumir.</p></div>
+      <div class="why-item"><span class="k">2</span><p>Uma pergunta devolve a bola pro cliente. Ele tem algo específico pra responder, e enquanto ele responde, a conversa continua viva.</p></div>
+      <div class="why-item"><span class="k">3</span><p>Isso muda quem conduz a venda. Quem pergunta guia a conversa. Quem só responde fica esperando o cliente saber o que perguntar, e a maioria não sabe.</p></div>
+    </div>
+    <div class="rule-box">
+      <span class="label">Regra universal da venda</span>
+      <p>Venda é um processo psicológico. A pessoa mais importante pra qualquer um é <b>ela mesma</b>. Quem pergunta mais ganha o controle da conversa, quem só responde primeiro perde esse controle. Perguntar é o que traz o poder pra nossa mão.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 5 · <b>percurso</b></div>
+    <div class="theory-tag">Teoria · Neil Rackham, SPIN Selling</div>
+    <h2>As 4 camadas de pergunta que vendem sem empurrar.</h2>
+    <p class="lede">Metodologia criada nos anos 80, ainda referência em venda consultiva. Em vez de empurrar o produto, o vendedor pergunta em 4 camadas até o próprio cliente concluir que precisa comprar.</p>
+    <div class="acronym">
+      <div class="letter">
+        <span class="L">S</span>
+        <span class="name">Situação</span>
+        <p>Entender o contexto.</p>
+        <p class="ex">"Pra qual ocasião você procura o tênis, treino ou dia a dia?"</p>
+      </div>
+      <div class="letter">
+        <span class="L">P</span>
+        <span class="name">Problema</span>
+        <p>Identificar a dor ou necessidade.</p>
+        <p class="ex">"O que te incomoda no tênis que você usa hoje?"</p>
+      </div>
+      <div class="letter">
+        <span class="L">I</span>
+        <span class="name">Implicação</span>
+        <p>Mostrar o custo de não resolver.</p>
+        <p class="ex">"Se continuar sem amortecimento, isso costuma forçar o joelho no treino."</p>
+      </div>
+      <div class="letter">
+        <span class="L">N</span>
+        <span class="name">Necessidade</span>
+        <p>Fazer a pessoa verbalizar que precisa de algo melhor.</p>
+        <p class="ex">"Faria diferença ter um com mais amortecimento?"</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 5 · <b>percurso</b></div>
+    <div class="kicker">Continuação do SPIN</div>
+    <h2>Toda pergunta é munição pra depois.</h2>
+    <p class="lede">Perguntar não serve só pra qualificar. Serve pra descobrir a dor e o desejo real do cliente, durabilidade, desempenho, conforto, estética, preço, e guardar isso como munição pra usar na quebra de objeção lá no Obstáculo.</p>
+    <div class="ammo-table">
+      <div class="ammo-row head"><span>Pergunta</span><span>O que revela</span><span>Munição pro Obstáculo</span></div>
+      <div class="ammo-row"><span>"Com que frequência você treina ou joga?"</span><span>Intensidade de uso</span><span>Se usa muito, durabilidade pesa mais que estética na hora de justificar preço</span></div>
+      <div class="ammo-row"><span>"O que te incomoda no que você usa hoje?"</span><span>A dor específica</span><span>Escolher a característica do produto que resolve exatamente essa dor</span></div>
+      <div class="ammo-row"><span>"O que é mais importante pra você, durar mais, ter mais desempenho, ou o preço?"</span><span>A prioridade de valor</span><span>Qual argumento usar primeiro quando a objeção aparecer</span></div>
+    </div>
+    <p class="lede">Exemplo: se o cliente diz que treina todo dia e que o tênis atual "desmancha rápido", já dá pra saber que <b style="color:var(--accent-glow)">durabilidade</b> é o argumento que mais pesa, muito antes dele reclamar do preço.</p>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 5 · <b>percurso</b></div>
+    <div class="kicker">Vários exemplos</div>
+    <h2>A mesma informação, dois caminhos.</h2>
+    <div class="pair-grid">
+      <div class="pair">
+        <p class="ask">"Qual o preço desse tênis?"</p>
+        <span class="lbl">Seca</span><p class="seca">"R$ 299,99."</p>
+        <span class="lbl">Conduz</span><p class="conduz">"R$ 299,99! Você já usou esse modelo antes ou seria a primeira vez?"</p>
+      </div>
+      <div class="pair">
+        <p class="ask">"Vocês têm jaqueta Adidas?"</p>
+        <span class="lbl">Seca</span><p class="seca">"Temos sim."</p>
+        <span class="lbl">Conduz</span><p class="conduz">"Temos sim! Você procura pra qual tamanho, M ou G?"</p>
+      </div>
+      <div class="pair">
+        <p class="ask">"Vi a promoção, quero saber mais"</p>
+        <span class="lbl">Seca</span><p class="seca">"Qual produto você quer saber?"</p>
+        <span class="lbl">Conduz</span><p class="conduz">"Que bom! Me conta, você tá pensando em tênis de corrida, de treino, ou pro dia a dia?"</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 5 · <b>percurso</b></div>
+    <div class="kicker">Na prática</div>
+    <h2>O efeito cascata de uma boa pergunta.</h2>
+    <div class="sim-cols">
+      <div>
+        <span class="sim-label bad">Conversa que morre em 2 mensagens</span>
+        <div class="chat">
+          <div class="bubble customer"><span class="who">Cliente</span>Boa tarde, tem jaqueta Adidas masculina?<span class="time">15:07</span></div>
+          <div class="bubble seller"><span class="who">Vendedor</span>Temos sim, no GG.<span class="time">15:22</span></div>
+          <div class="bubble customer"><span class="who">Cliente</span>Ah, não é meu tamanho. Obrigado.<span class="time">15:23</span></div>
+          <div class="silence">venda encerrada sem alternativa</div>
+        </div>
+      </div>
+      <div>
+        <span class="sim-label good">Conversa conduzida do início ao fim</span>
+        <div class="chat">
+          <div class="bubble customer"><span class="who">Cliente</span>Boa tarde, tem jaqueta Adidas masculina?<span class="time">15:07</span></div>
+          <div class="bubble seller"><span class="who">Vendedora</span>Boa tarde! Sou a vendedora aqui da Fátima Esportes. Temos sim, qual tamanho você usa, M ou G?<span class="time">15:09</span></div>
+          <div class="bubble customer"><span class="who">Cliente</span>Uso G normalmente<span class="time">15:10</span></div>
+          <div class="bubble seller"><span class="who">Vendedora</span>Nessa numeração eu tenho um modelo bem parecido, mesma linha. Quer que eu te mande a foto?<span class="time">15:11</span></div>
+          <div class="bubble customer"><span class="who">Cliente</span>Manda sim!<span class="time">15:11</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 6 · <b>obstáculo</b></div>
+    <div class="pillar-head"><span class="num">03</span><h2 style="margin:0">Objeção: mapa de respostas prontas</h2></div>
+    <div class="pillar-etapas">Etapa 4 do funil · quebra objeção e oferece com gancho</div>
+    <div class="objection-grid">
+      <div class="objection">
+        <p class="said">"Achei caro"</p>
+        <p class="resp">Validar sem debater. Explicar que o valor se justifica por ser produto original, com as características de um original: durabilidade, conforto, estética. Oferecer parcelamento.</p>
+      </div>
+      <div class="objection">
+        <p class="said">"Vou pensar"</p>
+        <p class="resp">Não empurrar. Criar urgência real (o tamanho pode acabar) e propor um compromisso leve: "separo aqui até amanhã pra garantir".</p>
+      </div>
+      <div class="objection">
+        <p class="said">"Vou ver em outro lugar"</p>
+        <p class="resp">Falar das condições de pagamento (parcelamento) e reforçar que o valor já está bem abaixo, sem precisar atacar o concorrente.</p>
+      </div>
+      <div class="objection">
+        <p class="said">"Vi mais barato na internet"</p>
+        <p class="resp">Perguntar se é o mesmo modelo exato. Reforçar garantia, procedência, produto original de verdade, e a chance de experimentar antes de levar (ver simulação a seguir).</p>
+      </div>
+      <div class="objection">
+        <p class="said">"Preciso falar com meu marido/esposa"</p>
+        <p class="resp">Não pressionar. Oferecer reservar o produto por um prazo curto pra decidirem juntos com calma.</p>
+      </div>
+      <div class="objection">
+        <p class="said">"Não tenho certeza do tamanho"</p>
+        <p class="resp">Convidar pra experimentar na loja e reforçar que a troca é facilitada se não servir.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 6 · <b>obstáculo</b></div>
+    <div class="theory-tag">Teoria · Robert Cialdini, os 6 princípios da persuasão</div>
+    <h2>Por que cada resposta de objeção funciona.</h2>
+    <p class="lede">Pesquisador americano que mapeou os gatilhos que fazem uma pessoa dizer sim. Cada resposta de objeção que a gente usa aqui aciona um desses princípios.</p>
+    <div class="cialdini-grid">
+      <div class="cp"><h4>Reciprocidade</h4><p>Dar algo primeiro (uma dica honesta, avisar uma condição especial) faz o cliente querer retribuir.</p></div>
+      <div class="cp"><h4>Compromisso e coerência</h4><p>Pequenos "sins" ao longo da conversa aumentam a chance do "sim" final.</p></div>
+      <div class="cp"><h4>Prova social</h4><p>Mostrar que outros clientes aprovaram gera confiança. "Esse é o modelo que mais saiu esse mês."</p></div>
+      <div class="cp"><h4>Afeição</h4><p>Se apresentar pelo nome e ter um tom humano gera mais confiança que atendimento robótico.</p></div>
+      <div class="cp"><h4>Autoridade</h4><p>Demonstrar conhecimento técnico do produto passa segurança pra decisão.</p></div>
+      <div class="cp"><h4>Escassez</h4><p>Urgência real acelera decisão, mas só funciona se for verdade.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 6 · <b>obstáculo</b></div>
+    <div class="theory-tag">Teoria · FAB, Característica → Vantagem → Benefício</div>
+    <h2>Como justificar preço sem dar desconto.</h2>
+    <p class="lede">Framework clássico de vendas: em vez de só descrever o produto, mostrar o que ele significa na vida do cliente. É a estrutura por trás da resposta pra "achei caro".</p>
+    <div class="fab-table">
+      <div class="fab-row head"><span>Característica</span><span>Vantagem</span><span>Benefício</span></div>
+      <div class="fab-row"><span>Entressola com tecnologia de amortecimento</span><span>Menos impacto no joelho a cada passada</span><span>Você treina mais tempo sem sentir dor depois</span></div>
+      <div class="fab-row"><span>Material original certificado</span><span>Não descasca nem racha com o tempo</span><span>Usa por anos sem parecer velho</span></div>
+      <div class="fab-row"><span>Solado de borracha vulcanizada</span><span>Mais aderência em qualquer piso</span><span>Menos risco de escorregar e se machucar jogando</span></div>
+      <div class="fab-row"><span>Tecido com tecnologia de respirabilidade</span><span>Seca o suor mais rápido</span><span>Treina mais confortável, sem aquela roupa pesada e molhada</span></div>
+      <div class="fab-row"><span>Costura reforçada dupla</span><span>Aguenta mais tração e uso intenso</span><span>Não descosta no meio do treino, dura a temporada inteira</span></div>
+      <div class="fab-row"><span>Nota fiscal e garantia de fábrica</span><span>Cobertura garantida em caso de defeito</span><span>Compra tranquilo, sem risco de ficar no prejuízo</span></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 6 · <b>obstáculo</b></div>
+    <div class="kicker">Na prática</div>
+    <h2>Quebrando a objeção de preço.</h2>
+    <div class="chat" style="max-width:720px">
+      <div class="bubble customer"><span class="who">Cliente</span>Nossa, achei meio salgado esse valor...<span class="time">16:40</span></div>
+      <div class="bubble seller"><span class="who">Vendedor</span>Entendo, é um investimento mesmo! Mas esse valor já é justo pelo que é: produto original, com entressola de amortecimento de verdade, que dura muito mais que os mais baratos. E dá pra parcelar em 3x sem juros, quer que eu calcule?<span class="time">16:42</span></div>
+      <div class="bubble customer"><span class="who">Cliente</span>Ah, parcelado fica bem melhor sim<span class="time">16:43</span></div>
+      <div class="bubble seller"><span class="who">Vendedor</span>Perfeito, fica bem mais leve assim. Posso já separar um pra você vir experimentar hoje?<span class="time">16:44</span></div>
+    </div>
+    <p class="lede">Repara na estrutura: valida sem debater, justifica o preço pela originalidade e pelo FAB (amortecimento → menos impacto → treina sem dor), facilita com parcelamento, fecha com pergunta que já convida pra loja.</p>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 6 · <b>obstáculo</b></div>
+    <div class="kicker">Na prática</div>
+    <h2>Quando não tem o que o cliente pediu.</h2>
+    <div class="card" style="margin-bottom:1.3rem;max-width:800px">
+      <h3>Checklist pra falta de estoque, tamanho ou cor</h3>
+      <ul class="checklist">
+        <li>Oferecer uma alternativa parecida na hora.</li>
+        <li>Oferecer avisar quando o produto certo chegar.</li>
+        <li>Sugerir outro modelo com o mesmo uso.</li>
+      </ul>
+    </div>
+    <div class="chat" style="max-width:720px">
+      <div class="bubble customer"><span class="who">Cliente</span>Tem esse aqui na cor azul, tamanho 39?<span class="time">15:51</span></div>
+      <div class="bubble seller"><span class="who">Vendedora</span>Nessa numeração eu tenho em preto e cinza, mas não tenho no azul agora. Quer que eu separe em uma dessas cores, ou prefere que eu te avise assim que o azul chegar?<span class="time">15:53</span></div>
+      <div class="bubble customer"><span class="who">Cliente</span>Hmm, pode ser o cinza então<span class="time">15:55</span></div>
+      <div class="bubble seller"><span class="who">Vendedora</span>Show, vou separar o cinza no 39 pra você. Consegue passar aqui até quando?<span class="time">15:55</span></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 6 · <b>obstáculo</b></div>
+    <div class="kicker">Na prática</div>
+    <h2>"Vi mais barato na internet."</h2>
+    <p class="lede">A objeção mais delicada, porque compara diretamente com outro vendedor. A saída não é brigar por preço, é trabalhar o risco que o cliente não está enxergando.</p>
+    <div class="chat" style="max-width:720px">
+      <div class="bubble customer"><span class="who">Cliente</span>Achei esse mesmo modelo bem mais barato num site.<span class="time">17:20</span></div>
+      <div class="bubble seller"><span class="who">Vendedor</span>Entendo! Só pra eu te ajudar direito, é exatamente esse modelo, mesma numeração e cor? Às vezes tem uma linha parecida que não é bem a mesma.<span class="time">17:21</span></div>
+      <div class="bubble customer"><span class="who">Cliente</span>Acho que sim, pelo menos parece igual na foto<span class="time">17:22</span></div>
+      <div class="bubble seller"><span class="who">Vendedor</span>Aqui você tem certeza que é original, com nota fiscal e garantia de fábrica, e ainda pode experimentar antes de levar. É pra alguma ocasião específica, tipo uma corrida ou evento?<span class="time">17:24</span></div>
+      <div class="bubble customer"><span class="who">Cliente</span>É sim, tenho uma corrida em 2 semanas<span class="time">17:25</span></div>
+      <div class="bubble seller"><span class="who">Vendedor</span>Então pensa comigo: se pedir pela internet e não servir direito, é todo aquele trabalho de embalar, esperar o correio, torcer pra chegar a tempo. Aqui, se não servir, você troca na hora, sem esse risco. Vale a pena pra uma data que não pode falhar.<span class="time">17:26</span></div>
+    </div>
+    <p class="lede">Estrutura: confirma se é o mesmo produto, reforça originalidade e garantia, e usa a ocasião específica pra trabalhar o medo real (não servir e não ter tempo de resolver), não o preço.</p>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 7 · <b>chegada</b></div>
+    <div class="pillar-head"><span class="num">04</span><h2 style="margin:0">Fechamento real: do WhatsApp até a loja</h2></div>
+    <div class="pillar-etapas">Etapa 5 do funil · agenda o compromisso</div>
+    <div class="theory-tag">Teoria · Compromisso e coerência, aplicado ao fechamento</div>
+    <div class="chat" style="max-width:720px;margin-bottom:1.1rem">
+      <div class="bubble seller"><span class="who">Vendedor</span>Perfeito! Posso separar esse par pra você. Consegue passar aqui até amanhã às 18h?<span class="time">11:02</span></div>
+      <div class="bubble customer"><span class="who">Cliente</span>Consigo sim!<span class="time">11:03</span></div>
+      <div class="bubble seller"><span class="who">Vendedor</span>Combinado, vou deixar reservado no seu nome e vamos te esperar. Qualquer coisa me chama por aqui.<span class="time">11:04</span></div>
+    </div>
+    <div class="stat-row">
+      <div class="stat-box">
+        <span class="num">22%</span>
+        <p class="desc">de adesão a um pedido grande quando ele é feito direto, sem compromisso prévio.</p>
+      </div>
+      <div class="stat-box">
+        <span class="num">76%</span>
+        <p class="desc">de adesão ao <b style="color:var(--accent-glow)">mesmo pedido</b>, quando a pessoa já tinha aceitado um compromisso pequeno antes.</p>
+      </div>
+    </div>
+    <p class="lede" style="font-family:var(--mono);font-size:.7rem;color:var(--muted)">Estudo clássico de psicologia social, Freedman e Fraser (1966), técnica conhecida como "pé na porta"</p>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 7 · <b>chegada</b></div>
+    <div class="theory-tag">Teoria · Regra dos 7 contatos</div>
+    <h2>O que é follow-up e por que ele existe.</h2>
+    <div class="why-box">
+      <div class="why-item"><span class="k">·</span><p><b style="color:var(--accent-glow)">Follow-up é o contato que a loja faz por conta própria</b>, sem esperar o cliente escrever de novo.</p></div>
+      <div class="why-item"><span class="k">·</span><p>Princípio clássico de marketing: uma pessoa costuma precisar de vários pontos de contato antes de decidir. Não significa mandar 7 mensagens, significa não desistir no primeiro silêncio.</p></div>
+      <div class="why-item"><span class="k">·</span><p>Quem some nem sempre desistiu. Muitas vezes só ficou ocupado, esqueceu, ou estava comparando em paralelo.</p></div>
+      <div class="why-item"><span class="k">·</span><p>Silêncio da loja é lido pelo cliente como desinteresse, mesmo quando não é essa a intenção.</p></div>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="act">Ato 7 · <b>chegada</b></div>
+    <div class="kicker">Na prática</div>
+    <h2>Três momentos pra usar follow-up.</h2>
+    <div class="followup-grid">
+      <div class="fu">
+        <h4>Confirmar compromisso</h4>
+        <p>Na véspera do dia combinado, pra reduzir falta.</p>
+        <div class="msg">"Oi! Só confirmando que vamos te esperar amanhã até as 18h, separei o par aqui pra você. Até lá!"</div>
+      </div>
+      <div class="fu">
+        <h4>Recuperar silêncio</h4>
+        <p>Quando a conversa esfria sem resposta.</p>
+        <div class="msg">"Oi! Vi que ficamos sem resposta por aqui. O produto que você queria ainda tá disponível, se quiser posso separar pra você. Sem compromisso!"</div>
+      </div>
+      <div class="fu">
+        <h4>Recuperar ausência</h4>
+        <p>Quando a pessoa não aparece no dia combinado.</p>
+        <div class="msg">"Oi! Sentimos sua falta hoje. Se ainda tiver interesse, consigo deixar reservado pra outro dia, é só me avisar."</div>
+      </div>
+    </div>
+    <p class="lede" style="margin-top:.3rem">Regra de ouro: tom leve, nunca de cobrança. Dar sempre uma saída fácil, e no máximo 1 ou 2 tentativas.</p>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Síntese</div>
+    <h2>O raciocínio inteiro, numa linha só.</h2>
+    <div class="synth">
+      <p>O lead que chega pelo anúncio não é o mesmo cliente que entra na loja, ele está em algum <b>nível de consciência</b> que a gente não vê. Por isso, toda a conversa segue o mapa <b>AIDA</b>: atenção já veio do anúncio, o resto é construir interesse, desejo e ação.</p>
+      <p>Na <b>largada</b>, a velocidade decide se o interesse ainda existe. No <b>percurso</b>, cada pergunta usa <b>SPIN</b> pra descobrir a dor e o desejo do cliente, e essas respostas viram munição. No <b>obstáculo</b>, essa munição vira argumento com <b>FAB</b>, e cada resposta aciona um gatilho de <b>Cialdini</b>. Na <b>chegada</b>, o mesmo princípio de compromisso que quebrou a objeção fecha o dia e a hora, e o <b>follow-up</b> garante que ninguém se perde no caminho.</p>
+      <p>Uma única ideia sustenta tudo isso: <b>quem pergunta, guia a venda</b>.</p>
+    </div>
+  </section>
+
+  <section class="slide">
+    <div class="kicker">Aplicação</div>
+    <h2>A mesma lógica, na loja física.</h2>
+    <ul class="point-list">
+      <li><b>Abordar</b> sem esperar o cliente puxar a conversa primeiro.</li>
+      <li><b>Perguntar</b> o que a pessoa procura, mesmo quando ela só está olhando.</li>
+      <li><b>Quebrar objeção</b> do mesmo jeito, presencialmente, sem desistir na primeira negativa.</li>
+      <li><b>Fechar um compromisso</b>: convidar pra experimentar, separar a peça, marcar retorno.</li>
+    </ul>
+  </section>
+
+  <section class="slide end">
+    <div class="kicker">Agora é prática</div>
+    <p class="big">Vamos pegar mensagens reais da loja e reescrever juntos, aplicando o mapa inteiro: largada, percurso, obstáculo, chegada.</p>
+  </section>
+
+</div>
+
+<script>
+  const deck = document.getElementById('deck');
+  const railFill = document.getElementById('railFill');
+  const idx = document.getElementById('slideIndex');
+  const slides = document.querySelectorAll('.slide');
+  const total = slides.length;
+  const btnPrev = document.getElementById('btnPrev');
+  const btnNext = document.getElementById('btnNext');
+
+  let current = 0;
+
+  function render(){
+    slides.forEach((s, i) => s.classList.toggle('active', i === current));
+    const ratio = total > 1 ? current / (total - 1) : 0;
+    railFill.style.setProperty('--progress', ratio);
+    idx.textContent = String(current + 1).padStart(2,'0') + ' / ' + String(total).padStart(2,'0');
+    slides[current].scrollTop = 0;
+  }
+
+  function go(delta){
+    current = Math.min(total - 1, Math.max(0, current + delta));
+    render();
+  }
+
+  btnPrev.addEventListener('click', (e) => { e.stopPropagation(); go(-1); });
+  btnNext.addEventListener('click', (e) => { e.stopPropagation(); go(1); });
+
+  deck.addEventListener('click', (e) => {
+    if (window.getSelection().toString().length > 0) return;
+    const half = window.innerWidth / 2;
+    go(e.clientX > half ? 1 : -1);
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') { e.preventDefault(); go(1); }
+    if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); }
+  });
+
+  render();
+</script>

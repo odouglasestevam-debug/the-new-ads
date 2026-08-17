@@ -1,0 +1,227 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>The New Ads — Painel</title>
+<meta name="description" content="Painel central com todos os links: dashboards, treinamentos, relatórios e ferramentas" />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --surface: #171717;
+    --surface2: #212121;
+    --amber: #FF6A00;
+    --amber-glow: #FFA24D;
+    --text: #FAFAFA;
+    --muted: #8A8A8A;
+    --line: rgba(255,255,255,.09);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    min-height: 100vh;
+    padding: 48px 20px 80px;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 980px; margin: 0 auto; }
+
+  header { margin-bottom: 40px; }
+  header .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 10px;
+  }
+  header h1 {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    letter-spacing: -0.5%;
+  }
+  header p {
+    color: var(--muted);
+    font-size: 14px;
+    margin-top: 8px;
+  }
+
+  .group { margin-bottom: 36px; }
+  .group-head {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--line);
+  }
+  .group-head h2 {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+  }
+  .group-head .count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 10px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color .15s ease, transform .15s ease;
+  }
+  .card:hover {
+    border-color: var(--amber);
+    transform: translateY(-1px);
+  }
+  .card-nome { font-size: 15px; font-weight: 500; line-height: 1.35; }
+  .card-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+  .card-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--amber-glow);
+    margin-top: 6px;
+  }
+
+  footer {
+    margin-top: 50px;
+    padding-top: 20px;
+    border-top: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--muted);
+  }
+</style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="eyebrow">The New Ads</div>
+      <h1>Painel</h1>
+      <p>Todos os links num lugar só, organizados por tipo.</p>
+    </header>
+
+    <div class="group">
+      <div class="group-head"><h2>Dashboards</h2><span class="count">5</span></div>
+      <div class="grid">
+        <a class="card" href="/central">
+          <div class="card-nome">Central de Contas</div>
+          <div class="card-desc">Lista dinâmica de todos os clientes ativos</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/dashboard-fatima">
+          <div class="card-nome">Fátima Esportes</div>
+          <div class="card-desc">Tráfego pago e leads</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/dashboard-confianca">
+          <div class="card-nome">Grupo Confiança</div>
+          <div class="card-desc">Tráfego pago e leads</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/dashboard-confianca-criativos">
+          <div class="card-nome">Grupo Confiança — Criativos</div>
+          <div class="card-desc">Performance de criativos ativos</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/dashboard-fabioli">
+          <div class="card-nome">Fabioli Ferreira</div>
+          <div class="card-desc">Tráfego pago e leads</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h2>Treinamentos</h2><span class="count">1</span></div>
+      <div class="grid">
+        <a class="card" href="/treinamento-fatima">
+          <div class="card-nome">Fátima Esportes — Atendimento Comercial</div>
+          <div class="card-desc">Slides do treinamento de vendas, WhatsApp e loja</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h2>Relatórios</h2><span class="count">2</span></div>
+      <div class="grid">
+        <a class="card" href="/relatorio-dedalos-moveis">
+          <div class="card-nome">Dédalos Móveis</div>
+          <div class="card-desc">Relatório de performance</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/relatorio-vetpet-google-ads">
+          <div class="card-nome">VetPet — Google Ads</div>
+          <div class="card-desc">Relatório de performance</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h2>Ferramentas</h2><span class="count">2</span></div>
+      <div class="grid">
+        <a class="card" href="/alertas">
+          <div class="card-nome">TNA Alertas</div>
+          <div class="card-desc">PWA de notificação push</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/trackeamento">
+          <div class="card-nome">Trackeamento</div>
+          <div class="card-desc">Documentação de tracking</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="group">
+      <div class="group-head"><h2>Site institucional</h2><span class="count">4</span></div>
+      <div class="grid">
+        <a class="card" href="/">
+          <div class="card-nome">Home</div>
+          <div class="card-desc">thenewads.com.br</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/trafego-pago">
+          <div class="card-nome">Tráfego pago</div>
+          <div class="card-desc">Landing page de serviço</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/manual-da-marca">
+          <div class="card-nome">Manual da marca</div>
+          <div class="card-desc">Brand book oficial</div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+        <a class="card" href="/politica-de-privacidade">
+          <div class="card-nome">Política de privacidade</div>
+          <div class="card-desc"></div>
+          <span class="card-tag">Abrir →</span>
+        </a>
+      </div>
+    </div>
+
+    <footer>Atualizado manualmente. Novo link publicado deve ser adicionado aqui também.</footer>
+  </div>
+</body>
+</html>
