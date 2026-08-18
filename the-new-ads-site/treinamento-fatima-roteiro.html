@@ -1,0 +1,601 @@
+<title>Guia do Apresentador</title>
+<style>
+  :root{
+    --bg:#0a0a0a;
+    --surface:#141414;
+    --surface-2:#1c1c1c;
+    --accent:#ff6a00;
+    --accent-glow:#ffa24d;
+    --text:#fafafa;
+    --muted:#9a9a9a;
+    --border:rgba(255,255,255,.09);
+    --display:'Segoe UI','Helvetica Neue',Arial,sans-serif;
+    --body:'Segoe UI',system-ui,-apple-system,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,'Cascadia Code','SFMono-Regular',Consolas,monospace;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--body);line-height:1.6;-webkit-font-smoothing:antialiased;}
+  ::selection{background:var(--accent);color:#0a0a0a;}
+
+  .wrap{max-width:760px;margin:0 auto;padding:8vh 1.5rem 16vh;}
+
+  .masthead{margin-bottom:5rem;}
+  .masthead .kicker{font-family:var(--mono);font-size:.78rem;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-bottom:1.2rem;}
+  .masthead h1{font-family:var(--display);font-weight:800;font-size:clamp(2rem,5vw,3rem);letter-spacing:-.01em;text-wrap:balance;margin:0 0 1rem 0;}
+  .masthead p{color:var(--muted);font-size:1.05rem;max-width:58ch;margin:0;}
+  .masthead .meta{margin-top:2rem;padding-top:1.4rem;border-top:1px solid var(--border);display:flex;gap:2rem;font-family:var(--mono);font-size:.82rem;color:var(--muted);flex-wrap:wrap;}
+  .masthead .meta b{color:var(--text);display:block;font-weight:600;}
+
+  .act-divider{
+    margin:0 0 2.5rem 0;
+    padding:1.1rem 1.4rem;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-left:2px solid var(--accent);
+  }
+  .act-divider .n{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.35rem;}
+  .act-divider h2{font-family:var(--display);font-weight:800;font-size:1.35rem;margin:0 0 .4rem 0;}
+  .act-divider p{margin:0;font-size:.9rem;color:var(--muted);}
+
+  .toc{background:var(--surface);border:1px solid var(--border);padding:1.4rem 1.6rem;margin-bottom:6rem;}
+  .toc h2{font-family:var(--mono);font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin:0 0 1rem 0;}
+  .toc .act-group{margin-bottom:1rem;}
+  .toc .act-group:last-child{margin-bottom:0;}
+  .toc .act-title{font-family:var(--mono);font-size:.72rem;color:var(--accent);text-transform:uppercase;letter-spacing:.06em;margin-bottom:.4rem;}
+  .toc ol{margin:0 0 0 1.1rem;padding:0;}
+  .toc li{font-size:.86rem;margin-bottom:.3rem;color:var(--text);}
+
+  section.block{margin-bottom:4.5rem;padding-bottom:4rem;border-bottom:1px solid var(--border);}
+  section.block:last-child{border-bottom:none;}
+
+  .block-head{display:flex;align-items:baseline;gap:1rem;margin-bottom:.6rem;}
+  .block-head .n{font-family:var(--mono);color:var(--accent);font-size:.92rem;}
+  .block-head h2{font-family:var(--display);font-weight:800;font-size:clamp(1.3rem,2.6vw,1.7rem);margin:0;text-wrap:balance;}
+  .block-goal{color:var(--muted);font-size:.94rem;margin:0 0 2rem 0;max-width:60ch;}
+
+  .theory-note{font-family:var(--mono);font-size:.76rem;color:var(--accent-glow);margin:0 0 1.1rem 0;padding:.28rem .65rem;border:1px solid rgba(255,162,77,.3);background:rgba(255,162,77,.06);display:inline-block;}
+
+  .say{background:var(--surface);border:1px solid var(--border);padding:1.2rem 1.5rem;margin:0 0 1.1rem 0;}
+  .say .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent-glow);margin-bottom:.55rem;display:block;}
+  .say p{margin:0 0 .75rem 0;font-size:.98rem;}
+  .say p:last-child{margin-bottom:0;}
+  .say p em{color:var(--muted);font-style:normal;font-family:var(--mono);font-size:.83rem;display:block;margin-top:.3rem;}
+
+  .how{background:transparent;border:1px dashed var(--border);padding:1rem 1.4rem;margin:0 0 1.1rem 0;}
+  .how .label{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.55rem;display:block;}
+  .how ul{margin:0;padding-left:1.1rem;}
+  .how li{font-size:.91rem;color:var(--text);margin-bottom:.4rem;}
+  .how li:last-child{margin-bottom:0;}
+
+  .show{font-family:var(--mono);font-size:.78rem;color:var(--muted);margin:0 0 1.3rem 0;padding-left:1.4rem;position:relative;}
+  .show::before{content:'slide →';position:absolute;left:0;color:var(--accent);}
+
+  .script-line{font-size:.98rem;margin:0 0 1rem 0;}
+  .script-line b{color:var(--accent-glow);}
+
+  .roteiro-obj{display:grid;gap:.6rem;margin-bottom:1.1rem;}
+  .roteiro-obj .item{background:var(--surface);border:1px solid var(--border);padding:.8rem 1.05rem;}
+  .roteiro-obj .item .q{font-family:var(--display);font-weight:700;color:var(--accent-glow);margin:0 0 .3rem 0;font-size:.92rem;}
+  .roteiro-obj .item p{margin:0;font-size:.84rem;}
+
+  .mini-chat{background:var(--surface);border:1px solid var(--border);padding:1.05rem 1.35rem;margin-bottom:1.1rem;font-size:.9rem;}
+  .mini-chat .ln{margin-bottom:.5rem;}
+  .mini-chat .ln:last-child{margin-bottom:0;}
+  .mini-chat .ln b{color:var(--accent-glow);}
+  .mini-chat .ln.c b{color:var(--muted);}
+
+  .acro-line{display:flex;gap:.8rem;margin-bottom:.65rem;font-size:.92rem;}
+  .acro-line .L{font-family:var(--display);font-weight:800;color:var(--accent);width:1.4rem;flex-shrink:0;}
+  .acro-line b{color:var(--accent-glow);}
+
+  .fab-list{margin:0 0 1rem 0;padding-left:1.2rem;}
+  .fab-list li{font-size:.9rem;margin-bottom:.5rem;}
+  .fab-list li b{color:var(--accent-glow);}
+
+  .closing{text-align:left;padding-top:1rem;}
+  .closing p{font-family:var(--display);font-weight:700;font-size:1.4rem;text-wrap:balance;max-width:32ch;color:var(--text);}
+</style>
+
+<div class="wrap">
+
+  <div class="masthead">
+    <div class="kicker">Guia do apresentador</div>
+    <h1>Da largada à chegada</h1>
+    <p>Roteiro completo, organizado em 7 atos, do mesmo jeito que o deck. Estude na ordem, mas fale com suas palavras. O texto entre aspas é sugestão de fala, não decoreba. Os blocos de teoria têm nome do framework e mnemônico, pra você citar a fonte com segurança.</p>
+    <div class="meta">
+      <span><b>Cliente</b>Fátima Esportes</span>
+      <span><b>Duração estimada</b>75 a 95 min</span>
+      <span><b>Material de apoio</b>treinamento-equipe-deck.html</span>
+    </div>
+  </div>
+
+  <div class="toc" style="border-color:var(--accent);margin-bottom:3rem;">
+    <h2 style="color:var(--accent-glow)">Versão de 60 minutos (corte pra apresentação corrida)</h2>
+    <ol style="columns:1;padding-left:1.2rem;">
+      <li><b>0-5 min</b> — Abertura e tema (bloco 1)</li>
+      <li><b>5-10 min</b> — Contextualização + por que o lead é diferente (blocos 2-3). Funil e Níveis de Consciência (blocos 4-5): só cite de passagem, sem slide parado</li>
+      <li><b>10-16 min</b> — AIDA + Como tudo se encaixa (blocos 6-7, o coração da clareza, não corta)</li>
+      <li><b>16-24 min</b> — Largada: abertura/stat + simulação (blocos 8, 10). Pule o slide de texto x áudio (bloco 9), vira dica rápida se sobrar tempo</li>
+      <li><b>24-34 min</b> — Percurso: por que pergunta + regra universal, SPIN, simulação (blocos 11, 12, 15). Pule "vários exemplos" e "toda pergunta é munição" (blocos 13-14)</li>
+      <li><b>34-47 min</b> — Obstáculo: mapa de objeções + FAB + simulação de preço (blocos 16, 18, 19). Pule o slide dedicado de Cialdini (bloco 17, cite os gatilhos de passagem) e as simulações de indisponibilidade e "vi mais barato" (blocos 20-21)</li>
+      <li><b>47-55 min</b> — Chegada: simulação de agendamento + follow-up (blocos 22, 24). Pule a teoria da Regra dos 7 contatos isolada (bloco 23, funde na explicação do follow-up)</li>
+      <li><b>55-58 min</b> — Síntese (bloco 25, não corta, é o fechamento conceitual)</li>
+      <li><b>58-60 min</b> — Encerramento rápido: avisa que o material completo fica no link pra equipe reler, sem prática ao vivo extensa</li>
+    </ol>
+    <p style="margin-top:1rem;font-size:.85rem;color:var(--muted)">Nada é apagado do deck, só pulado ao vivo. Manda o link pra equipe estudar o resto (inclusive a prática completa) depois.</p>
+  </div>
+
+  <div class="toc">
+    <h2>Nesta ordem</h2>
+    <div class="act-group">
+      <div class="act-title">Ato 1 · O contexto</div>
+      <ol><li>Abertura e tema</li><li>Contextualização</li><li>Por que o lead é diferente</li></ol>
+    </div>
+    <div class="act-group">
+      <div class="act-title">Ato 2 · Como o cliente pensa</div>
+      <ol><li>Funil de vendas</li><li>5 Níveis de Consciência</li></ol>
+    </div>
+    <div class="act-group">
+      <div class="act-title">Ato 3 · O mapa mestre</div>
+      <ol><li>AIDA</li><li>Como tudo se encaixa</li></ol>
+    </div>
+    <div class="act-group">
+      <div class="act-title">Ato 4 · Largada</div>
+      <ol><li>Abertura e a regra dos 5 minutos</li><li>Texto x áudio</li><li>Simulação</li></ol>
+    </div>
+    <div class="act-group">
+      <div class="act-title">Ato 5 · Percurso</div>
+      <ol><li>Por que terminar com pergunta</li><li>SPIN Selling</li><li>Toda pergunta é munição</li><li>Vários exemplos</li><li>Simulação</li></ol>
+    </div>
+    <div class="act-group">
+      <div class="act-title">Ato 6 · Obstáculo</div>
+      <ol><li>Mapa de objeções</li><li>6 princípios de Cialdini</li><li>FAB</li><li>Simulação, preço</li><li>Simulação, indisponibilidade</li><li>Simulação, "vi mais barato"</li></ol>
+    </div>
+    <div class="act-group">
+      <div class="act-title">Ato 7 · Chegada + fechamento</div>
+      <ol><li>Simulação de agendamento</li><li>Regra dos 7 contatos</li><li>3 momentos de follow-up</li><li>Síntese</li><li>Aplicação presencial e prática final</li></ol>
+    </div>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">01</span><h2>Abertura e tema</h2></div>
+    <p class="block-goal">Objetivo: situar a equipe sem soar como bronca, e avisar que o treinamento inteiro é uma linha de raciocínio só, não uma lista de dicas soltas.</p>
+    <div class="show">capa, "Da largada à chegada"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Hoje eu quero mostrar uma forma de vocês venderem ainda mais, usando conversas reais que já aconteceram aqui na loja, mais a teoria de marketing e vendas que explica por que cada coisa funciona. É tudo conectado: vocês vão sair daqui com um raciocínio único, não uma lista de dicas soltas."</p>
+      <p>"A ideia é pensar o atendimento como uma corrida, do primeiro oi no WhatsApp até a pessoa entrar pela porta. Largada, percurso, obstáculo e chegada."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Tom leve, de conversa. Pergunte antes de começar: "quem de vocês já perdeu uma venda no WhatsApp sem saber bem por quê?"</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 1</span>
+    <h2>O contexto</h2>
+    <p>Por que o jeito de vender da loja não funciona igual no digital.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">02</span><h2>Contextualização</h2></div>
+    <p class="block-goal">Objetivo: fazer a equipe entender por que o jeito de vender que funciona na loja não funciona igual no WhatsApp.</p>
+    <div class="show">"Atender por WhatsApp não é a mesma venda que atender na loja"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Pensa no cliente que entra aqui na loja. Ele já saiu de casa, já veio até o shopping, já escolheu entrar. Por isso, esperar ele fazer a próxima pergunta funciona bem, ele não vai embora por causa de alguns segundos de silêncio."</p>
+      <p>"Agora pensa em quem manda mensagem depois de ver um anúncio. Essa pessoa não gastou nada pra chegar até vocês. Se a resposta demora, sair da conversa não custa nada pra ela."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">03</span><h2>Por que o lead é diferente</h2></div>
+    <p class="block-goal">Objetivo: mostrar que a mesma pergunta pode esconder intenções muito diferentes.</p>
+    <div class="show">"O corpo entrega o que a tela esconde"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p><b>"A gente não pode tratar toda mensagem como se a pessoa já estivesse decidida. A gente precisa perguntar pra descobrir isso, porque no WhatsApp não dá pra ver."</b></p>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 2</span>
+    <h2>Como o cliente pensa</h2>
+    <p>Antes de ensinar o que fazer, ensinar como enxergar o cliente do outro lado.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">04</span><h2>Funil de vendas: as 3 fases</h2></div>
+    <p class="block-goal">Objetivo: dar nome técnico (topo, meio, fundo de funil) às 3 fases, com exemplo real.</p>
+    <div class="theory-note">Teoria · Funil de vendas</div>
+    <div class="show">"Toda venda passa por 3 fases"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"No marketing isso se chama topo, meio e fundo de funil. Topo é descoberta, a pessoa ainda nem sabe direito o que quer. Meio é consideração, já sabe o que quer, tá comparando onde comprar. Fundo é decisão, já tá pronta, só falta o empurrão certo."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">05</span><h2>Teoria: os 5 Níveis de Consciência</h2></div>
+    <p class="block-goal">Objetivo: apresentar a teoria de Eugene Schwartz de forma simples, e fechar o Ato 2 com a pergunta que puxa pro Ato 3.</p>
+    <div class="theory-note">Teoria · Eugene Schwartz</div>
+    <div class="show">"Quanto a pessoa já sabe sobre o que quer" + nota de conclusão do Ato 2</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Existe uma teoria clássica de um publicitário chamado Eugene Schwartz, usada até hoje, que diz que todo cliente está em um de 5 níveis antes de comprar. Do 'nem sabia que precisava' até 'já decidi tudo, só quero fechar'. Não precisa decorar os 5 nomes, o que importa é: sem saber o nível, toda resposta é um chute."</p>
+      <p><b>"E é exatamente por isso que a gente precisa de um mapa fixo pra seguir em toda conversa, não importa o nível do cliente. É o que vem agora."</b> <em>gancho direto pro Ato 3</em></p>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 3</span>
+    <h2>O mapa mestre</h2>
+    <p>O momento mais importante do treinamento: mostrar que AIDA é o único mapa, e as outras teorias são ferramentas dentro dele. É aqui que a confusão desaparece.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">06</span><h2>Teoria: AIDA</h2></div>
+    <p class="block-goal">Objetivo: apresentar o framework mestre e deixar claríssimo que "largada, percurso, obstáculo, chegada" é a tradução dele, não outra coisa.</p>
+    <div class="theory-note">Teoria · AIDA (Atenção, Interesse, Desejo, Ação)</div>
+    <div class="show">"O único mapa que você precisa guardar"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Esse é um dos modelos mais usados em vendas e publicidade no mundo todo, chama AIDA."</p>
+      <div class="acro-line"><span class="L">A</span><p><b>Atenção:</b> o anúncio já fez esse trabalho.</p></div>
+      <div class="acro-line"><span class="L">I</span><p><b>Interesse:</b> o vendedor desperta perguntando e mostrando que entendeu o cliente.</p></div>
+      <div class="acro-line"><span class="L">D</span><p><b>Desejo:</b> mostrar o benefício real, responder objeções.</p></div>
+      <div class="acro-line"><span class="L">A</span><p><b>Ação:</b> fechar com compromisso concreto.</p></div>
+      <p><b>"A gente já chamou isso de largada, percurso, obstáculo e chegada. É a mesma coisa. Guardem isso: sempre que eu falar de um pilar, é AIDA por trás."</b></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">07</span><h2>Como tudo se encaixa</h2></div>
+    <p class="block-goal">Objetivo: resolver de vez a confusão entre as teorias. Este é o slide mais importante do treinamento pra dar clareza, vá devagar aqui.</p>
+    <div class="show">"Um mapa, e ferramentas específicas pra cada etapa dele" (funil com etiquetas de ferramenta)</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Eu sei que até aqui apareceram vários nomes: AIDA, SPIN, Cialdini, FAB. Deixa eu deixar uma coisa bem clara: <b>elas não competem entre si</b>. Vocês não escolhem qual teoria usar. AIDA é o mapa, vocês estão sempre dentro dele. As outras são ferramentas que vocês pegam quando chegam na etapa certa desse mapa."</p>
+      <p>"Na largada e no percurso, que é a etapa de Interesse do AIDA, a ferramenta é o SPIN Selling, é ali que a gente pergunta. No obstáculo, que é a etapa de Desejo, as ferramentas são Cialdini e FAB, é ali que a gente convence. Na chegada, que é a etapa de Ação, usamos o mesmo princípio de compromisso, e o follow-up."</p>
+      <p><b>"Regra prática pra vocês: sempre que ficarem em dúvida de qual técnica usar, perguntem primeiro 'em qual etapa do mapa eu tô'. A etapa responde qual ferramenta pegar."</b></p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Esse slide existe justamente pra resolver a confusão entre as teorias. Pergunte à sala: "ficou mais claro agora como isso se encaixa?" antes de seguir.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 4</span>
+    <h2>Largada</h2>
+    <p>A primeira etapa prática: responder rápido, se apresentar, e o cuidado extra da voz.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">08</span><h2>Pilar 1: Abertura</h2></div>
+    <p class="block-goal">Objetivo: instalar a urgência do tempo de resposta com teoria de gestão comercial e dado real.</p>
+    <div class="theory-note">Teoria · Gestão de resposta a leads</div>
+    <div class="show">"Por que demorar mata a venda"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Tem um estudo do MIT, referência em gestão comercial, que mediu isso: empresas que respondem um lead em até 5 minutos são 21 vezes mais propensas a qualificar esse lead do que empresas que esperam 30 minutos."</p>
+      <p>"Peguei uma conversa real daqui. O cliente perguntou o preço às 10h03. A resposta chegou às 13h59. Quase 4 horas depois."</p>
+      <p class="script-line"><b>Regra prática:</b> "vamos definir juntos uma meta de tempo de resposta. Quanto vocês acham razoável?" <em>deixar a equipe sugerir o número aumenta o compromisso</em></p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">09</span><h2>Texto x áudio</h2></div>
+    <p class="block-goal">Objetivo: ensinar uma ferramenta simples de humanização que a equipe ainda não usa.</p>
+    <div class="show">"Texto cria distância. Voz aproxima."</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Responder só por texto, o tempo todo, cria uma distância entre vocês e o cliente. Um áudio curto, com energia alta, chamando a pessoa pelo nome, muda o clima da conversa. Vocês usam isso na loja o tempo todo sem perceber, é o tom de voz, o sorriso, a energia de quem recebe bem. No WhatsApp, o áudio é o jeito de trazer isso de volta."</p>
+      <p>"Não precisa ser toda mensagem em áudio. Uso bom: na abertura, pra criar conexão logo de cara, ou depois de fechar um compromisso importante, pra reforçar com voz de verdade."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Se possível, grave um áudio de exemplo ali na hora, no seu próprio celular, e toque pra sala. Ouvir é mais forte que só ler o exemplo.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">10</span><h2>Pilar 1: simulação</h2></div>
+    <p class="block-goal">Objetivo: mostrar o antes e depois aplicando largada e percurso juntos, sem pular etapa de qualificação.</p>
+    <div class="show">"A mesma pergunta, dois destinos" (chat lado a lado)</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Na primeira conversa, a demora mata a venda antes mesmo de começar."</p>
+      <p>"Na segunda, resposta rápida, mas repara que ele não sai já convidando pra loja. Primeiro confirma o número certo, depois pergunta se é pra treino ou dia a dia, só depois convida. Pular direto pro convite sem perguntar nada fica esquisito, parece vendedor afobado. As perguntas vêm antes do convite, sempre."</p>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 5</span>
+    <h2>Percurso</h2>
+    <p>O coração do treinamento: como perguntar transforma controle da conversa em munição de venda.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">11</span><h2>Pilar 2: por que terminar com pergunta</h2></div>
+    <p class="block-goal">Objetivo: explicar o mecanismo, e entregar a regra universal como a frase mais importante do treinamento.</p>
+    <div class="show">"Por que toda resposta precisa terminar em pergunta ou convite" + regra universal</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Uma resposta seca não dá ao cliente nada pra responder. A conversa fica parada, e a saída mais fácil pra ele é sumir. Uma pergunta devolve a bola, e enquanto ele responde, a conversa continua viva."</p>
+      <p class="script-line"><b>Regra universal:</b> "venda é um processo psicológico. A pessoa mais importante pra qualquer um é ela mesma. Quem pergunta mais ganha o controle da conversa, quem só responde primeiro perde esse controle. Perguntar é o que traz o poder pra nossa mão."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Fale essa regra universal devagar, é a frase que sustenta o treinamento inteiro. Pode repetir mais adiante se fizer sentido.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">12</span><h2>Teoria: SPIN Selling</h2></div>
+    <p class="block-goal">Objetivo: dar o framework técnico por trás de "perguntar antes de responder".</p>
+    <div class="theory-note">Teoria · Neil Rackham, SPIN Selling</div>
+    <div class="show">"As 4 camadas de pergunta que vendem sem empurrar"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Existe uma metodologia chamada SPIN, criada por Neil Rackham. A ideia é perguntar em 4 camadas até o próprio cliente concluir que precisa comprar."</p>
+      <div class="acro-line"><span class="L">S</span><p><b>Situação:</b> "pra qual ocasião você procura o tênis?"</p></div>
+      <div class="acro-line"><span class="L">P</span><p><b>Problema:</b> "o que te incomoda no que você usa hoje?"</p></div>
+      <div class="acro-line"><span class="L">I</span><p><b>Implicação:</b> "treinar sem amortecimento direito, com o tempo, já chegou a forçar seu joelho?"</p></div>
+      <div class="acro-line"><span class="L">N</span><p><b>Necessidade:</b> "faria diferença ter um com mais amortecimento?"</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">13</span><h2>Toda pergunta é munição</h2></div>
+    <p class="block-goal">Objetivo: mostrar que perguntar serve pra descobrir o que o cliente valoriza, e guardar isso pra usar no Ato 6.</p>
+    <div class="show">"Toda pergunta é munição pra depois" (tabela pergunta / revela / munição)</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Toda pergunta que a gente faz revela o que o cliente mais valoriza: durabilidade, desempenho, conforto, estética ou preço. Isso vira munição pra usar depois, no obstáculo."</p>
+      <p>"Exemplo: se o cliente conta que treina todo dia e que o tênis dele 'desmancha rápido', já sabemos que o argumento que mais pesa é durabilidade, muito antes dele reclamar do preço."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Esse bloco é o elo entre percurso e obstáculo. Deixe claro: "o que vocês descobrem aqui é o que vocês vão usar lá na frente".</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">14</span><h2>Pilar 2: vários exemplos</h2></div>
+    <p class="block-goal">Objetivo: repetir o padrão "seca x conduz" em situações diferentes.</p>
+    <div class="show">"A mesma informação, dois caminhos" (3 pares)</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Três situações comuns da loja. Em todas, a informação é a mesma. O que muda é se a conversa continua ou para."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">15</span><h2>Pilar 2: simulação</h2></div>
+    <p class="block-goal">Objetivo: mostrar o efeito cascata de uma boa pergunta numa conversa inteira.</p>
+    <div class="show">"O efeito cascata de uma boa pergunta"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Na primeira, a vendedora respondeu certo mas não perguntou nada, e quando o tamanho não bateu, a venda morreu ali. Na segunda, a mesma pergunta inicial, mas ela já pergunta o tamanho, e quando não tem exatamente aquele produto, já tem munição pra oferecer alternativa."</p>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 6</span>
+    <h2>Obstáculo</h2>
+    <p>Onde a munição levantada no percurso vira argumento de verdade, com psicologia e estrutura por trás.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">16</span><h2>Pilar 3: mapa de objeções</h2></div>
+    <p class="block-goal">Objetivo: entregar respostas prontas e atualizadas pras objeções mais comuns.</p>
+    <div class="show">"Objeção: mapa de respostas prontas" (grid com 6 objeções)</div>
+    <div class="roteiro-obj">
+      <div class="item"><p class="q">"Achei caro"</p><p>Validar sem debater, explicar que o valor se justifica por ser produto original (durabilidade, conforto, estética), oferecer parcelamento.</p></div>
+      <div class="item"><p class="q">"Vou pensar"</p><p>Não empurrar. Urgência real e compromisso leve de reservar até um prazo curto.</p></div>
+      <div class="item"><p class="q">"Vou ver em outro lugar"</p><p>Falar de condições de pagamento e reforçar que o valor já está bem abaixo, sem atacar o concorrente.</p></div>
+      <div class="item"><p class="q">"Vi mais barato na internet"</p><p>Confirmar se é o mesmo modelo, reforçar garantia, procedência, produto original, chance de experimentar antes.</p></div>
+      <div class="item"><p class="q">"Preciso falar com meu marido/esposa"</p><p>Não pressionar, oferecer reservar por um prazo curto.</p></div>
+      <div class="item"><p class="q">"Não tenho certeza do tamanho"</p><p>Convidar pra experimentar na loja, reforçar troca facilitada.</p></div>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">17</span><h2>Teoria: os 6 princípios de Cialdini</h2></div>
+    <p class="block-goal">Objetivo: mostrar que cada resposta de objeção aciona um gatilho psicológico documentado.</p>
+    <div class="theory-note">Teoria · Robert Cialdini</div>
+    <div class="show">"Por que cada resposta de objeção funciona"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Robert Cialdini mapeou os gatilhos que fazem uma pessoa dizer sim. São 6, e cada resposta de objeção aciona um deles: reciprocidade, compromisso e coerência, prova social, afeição, autoridade e escassez."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Ritmo rápido aqui, é dar nome ao que eles já fazem intuitivamente.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">18</span><h2>Teoria: FAB, com 6 exemplos</h2></div>
+    <p class="block-goal">Objetivo: dar a estrutura exata pra justificar preço, com repertório amplo o suficiente pra qualquer produto da loja.</p>
+    <div class="theory-note">Teoria · FAB, framework clássico de vendas</div>
+    <div class="show">"Como justificar preço sem dar desconto" (tabela com 6 linhas)</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Característica é o que o produto tem. Vantagem é o que isso significa na prática. Benefício é o que isso muda na vida do cliente. O benefício é o que justifica o preço, porque fala da vida da pessoa, não do produto."</p>
+    </div>
+    <ul class="fab-list">
+      <li><b>Amortecimento</b> → menos impacto no joelho → treina mais tempo sem dor</li>
+      <li><b>Material original certificado</b> → não descasca nem racha → usa por anos sem parecer velho</li>
+      <li><b>Solado vulcanizado</b> → mais aderência → menos risco de escorregar e se machucar</li>
+      <li><b>Tecido respirável</b> → seca o suor mais rápido → treina confortável, sem roupa pesada</li>
+      <li><b>Costura reforçada</b> → aguenta uso intenso → não descosta no meio do treino</li>
+      <li><b>Nota fiscal e garantia</b> → cobertura em caso de defeito → compra tranquilo, sem risco de prejuízo</li>
+    </ul>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Peça pra equipe montar um FAB novo, ao vivo, pra outro produto da loja que não está na lista.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">19</span><h2>Pilar 3: simulação, objeção de preço</h2></div>
+    <p class="block-goal">Objetivo: mostrar FAB, originalidade e Cialdini juntos numa conversa real.</p>
+    <div class="show">"Quebrando a objeção de preço"</div>
+    <div class="mini-chat">
+      <p class="ln c"><b>Cliente:</b> Nossa, achei meio salgado esse valor...</p>
+      <p class="ln"><b>Vendedor:</b> Entendo, é um investimento mesmo! Mas esse valor já é justo pelo que é: produto original, com entressola de amortecimento de verdade, que dura muito mais. Dá pra parcelar em 3x sem juros, quer que eu calcule?</p>
+      <p class="ln c"><b>Cliente:</b> Ah, parcelado fica bem melhor sim.</p>
+      <p class="ln"><b>Vendedor:</b> Perfeito, fica mais leve assim. Posso separar um pra você vir experimentar hoje?</p>
+    </div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Repara: valida sem discutir, justifica o preço pela originalidade e pelo FAB, facilita com parcelamento, fecha com pergunta que já convida pra loja."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">20</span><h2>Pilar 3: simulação, indisponibilidade</h2></div>
+    <p class="block-goal">Objetivo: mostrar a recuperação de venda quando o produto pedido não está disponível.</p>
+    <div class="show">"Quando não tem o que o cliente pediu"</div>
+    <div class="mini-chat">
+      <p class="ln c"><b>Cliente:</b> Tem esse aqui na cor azul, tamanho 39?</p>
+      <p class="ln"><b>Vendedora:</b> Nessa numeração eu tenho em preto e cinza, mas não tenho no azul agora. Quer que eu separe em uma dessas cores, ou prefere que eu te avise quando o azul chegar?</p>
+      <p class="ln c"><b>Cliente:</b> Hmm, pode ser o cinza então.</p>
+      <p class="ln"><b>Vendedora:</b> Show, vou separar o cinza no 39. Consegue passar aqui até quando?</p>
+    </div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Nunca responder só 'não tenho'. Sempre oferecer duas saídas: alternativa agora, ou aviso pra quando chegar."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">21</span><h2>Pilar 3: simulação, "vi mais barato na internet"</h2></div>
+    <p class="block-goal">Objetivo: dar o roteiro completo pra objeção mais delicada, trabalhando o medo real em vez de brigar por preço.</p>
+    <div class="show">"Vi mais barato na internet" (chat completo)</div>
+    <div class="mini-chat">
+      <p class="ln c"><b>Cliente:</b> Achei esse mesmo modelo bem mais barato num site.</p>
+      <p class="ln"><b>Vendedor:</b> Entendo! Só pra eu te ajudar direito, é exatamente esse modelo, mesma numeração e cor? Às vezes tem uma linha parecida que não é bem a mesma.</p>
+      <p class="ln c"><b>Cliente:</b> Acho que sim, pelo menos parece igual na foto.</p>
+      <p class="ln"><b>Vendedor:</b> Aqui você tem certeza que é original, com nota fiscal e garantia de fábrica, e ainda pode experimentar antes de levar. É pra alguma ocasião específica, tipo uma corrida ou evento?</p>
+      <p class="ln c"><b>Cliente:</b> É sim, tenho uma corrida em 2 semanas.</p>
+      <p class="ln"><b>Vendedor:</b> Então pensa comigo: se pedir pela internet e não servir direito, é todo aquele trabalho de embalar, esperar o correio, torcer pra chegar a tempo. Aqui, se não servir, você troca na hora, sem esse risco. Vale a pena pra uma data que não pode falhar.</p>
+    </div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Aqui a gente não compete em preço, compete em risco. Primeiro confirma se é o mesmo produto, sem acusar o cliente de estar errado. Depois reforça garantia e originalidade. E o golpe de mestre é achar a ocasião específica, porque é ali que mora o medo real: não servir e não ter tempo de resolver. Na loja, esse risco simplesmente não existe."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Essa é a objeção mais sofisticada do treinamento. Se a equipe achar difícil de aplicar de primeira, tudo bem, é a que mais exige prática.</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="act-divider">
+    <span class="n">Ato 7</span>
+    <h2>Chegada</h2>
+    <p>Fechar o compromisso e garantir que ele vira presença real na loja.</p>
+  </div>
+
+  <section class="block">
+    <div class="block-head"><span class="n">22</span><h2>Pilar 4: simulação de agendamento</h2></div>
+    <p class="block-goal">Objetivo: mostrar como travar dia e hora, com o dado que sustenta por que isso funciona.</p>
+    <div class="show">"Fechamento real: do WhatsApp até a loja" + dado 22%/76%</div>
+    <div class="mini-chat">
+      <p class="ln"><b>Vendedor:</b> Perfeito! Posso separar esse par pra você. Consegue passar aqui até amanhã às 18h?</p>
+      <p class="ln c"><b>Cliente:</b> Consigo sim!</p>
+      <p class="ln"><b>Vendedor:</b> Combinado, vou deixar reservado no seu nome e vamos te esperar. Qualquer coisa me chama por aqui.</p>
+    </div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Quando o cliente diz 'consigo sim' em voz alta, ele cria um compromisso psicológico consigo mesmo. Tem um experimento clássico de psicologia dos anos 60, dos pesquisadores Freedman e Fraser: pediram um favor grande direto pra um grupo, só 22% aceitou. Pro outro grupo, pediram um favor pequeno primeiro, e depois o mesmo favor grande, e a aceitação subiu pra 76%."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">23</span><h2>Teoria: Regra dos 7 contatos</h2></div>
+    <p class="block-goal">Objetivo: apresentar o conceito de follow-up com respaldo teórico.</p>
+    <div class="theory-note">Teoria · Regra dos 7 contatos</div>
+    <div class="show">"O que é follow-up e por que ele existe"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Follow-up é o contato que a loja faz por conta própria. No marketing existe um princípio clássico: uma pessoa costuma precisar de vários pontos de contato antes de decidir. Não significa mandar 7 mensagens, significa não desistir no primeiro silêncio."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Confirme entendimento: "hoje, quando o cliente some, alguém volta a chamar? Nunca? Então é aqui que a gente ganha venda que hoje está sendo perdida."</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">24</span><h2>Follow-up: os 3 momentos</h2></div>
+    <p class="block-goal">Objetivo: dar exemplos prontos de mensagem pra cada situação.</p>
+    <div class="show">"Três momentos pra usar follow-up"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Confirmar um compromisso já marcado, recuperar uma conversa que esfriou, e recuperar quando a pessoa não aparece. Tom sempre leve, nunca de cobrança, com saída fácil, e no máximo 1 ou 2 tentativas."</p>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">25</span><h2>Síntese</h2></div>
+    <p class="block-goal">Objetivo: fechar amarrando tudo numa única linha de raciocínio, antes de partir pra prática. Esse é o momento de deixar a mensagem central ecoar.</p>
+    <div class="show">"O raciocínio inteiro, numa linha só"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Deixa eu amarrar tudo. O lead não é o mesmo cliente da loja, ele tá em algum nível de consciência que a gente não vê. Por isso a conversa segue o mapa AIDA: atenção já veio do anúncio, o resto é construir interesse, desejo e ação."</p>
+      <p>"Na largada, velocidade decide se o interesse ainda existe. No percurso, cada pergunta usa SPIN pra descobrir a dor e o desejo, e vira munição. No obstáculo, essa munição vira argumento com FAB, e cada resposta aciona um gatilho de Cialdini. Na chegada, o mesmo compromisso que quebrou a objeção fecha o dia e a hora, e o follow-up garante que ninguém se perde."</p>
+      <p><b>"Uma ideia sustenta tudo isso: quem pergunta, guia a venda."</b></p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Fale isso devagar, sem pressa, é o fechamento conceitual do treinamento inteiro. Deixe uma pausa depois da última frase antes de seguir pra prática.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="block">
+    <div class="block-head"><span class="n">26</span><h2>Aplicação presencial e prática final</h2></div>
+    <p class="block-goal">Objetivo: mostrar que os pilares valem na loja física, e terminar com a equipe praticando.</p>
+    <div class="show">"A mesma lógica, na loja física" + slide final "Agora é prática"</div>
+    <div class="say">
+      <span class="label">O que falar</span>
+      <p>"Tudo isso vale aqui dentro também. Abordar sem esperar o cliente puxar assunto. Perguntar mesmo quando ela só está olhando. Quebrar objeção sem desistir na primeira negativa. Fechar um compromisso: experimentar, separar a peça, marcar retorno."</p>
+      <p>"Pra fechar, vamos pegar mensagens reais daqui, sem nome de ninguém, e reescrever juntos, aplicando o mapa inteiro."</p>
+    </div>
+    <div class="how">
+      <span class="label">Como falar</span>
+      <ul>
+        <li>Escolha de 2 a 3 mensagens reais anonimizadas com antecedência.</li>
+        <li>Deixe cada vendedor tentar reescrever em voz alta antes de dar a resposta pronta.</li>
+      </ul>
+    </div>
+    <div class="closing">
+      <p>Fim do roteiro. Boa sorte na apresentação.</p>
+    </div>
+  </section>
+
+</div>
