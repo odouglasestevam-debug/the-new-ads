@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Agari Drinks — Estratégia · The New Ads</title>
+<meta name="description" content="Plano estratégico de tráfego pago, tracking e conversão para a Agari Drinks." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0A0A0A;
+  --surface:#171717;
+  --surface2:#212121;
+  --accent:#FF6A00;
+  --accent-glow:#FFA24D;
+  --text:#FAFAFA;
+  --muted:#8A8A8A;
+  --line:rgba(255,255,255,.09);
+  --mono:'JetBrains Mono','SFMono-Regular',Consolas,monospace;
+  --display:'Clash Display','Space Grotesk',-apple-system,'Segoe UI',sans-serif;
+  --body:'Switzer','Inter',system-ui,-apple-system,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#0A0A0A;}
+a{color:var(--accent-glow);}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+
+.wrap{max-width:1180px;margin:0 auto;padding:0 32px 120px;}
+
+/* ---- Hero ---- */
+.hero{
+  padding:90px 32px 64px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute;
+  top:-40%;right:-10%;
+  width:640px;height:640px;
+  background:radial-gradient(circle,rgba(255,106,0,.16),transparent 70%);
+  pointer-events:none;
+}
+.hero-inner{max-width:1180px;margin:0 auto;position:relative;}
+.eyebrow{
+  font-family:var(--mono);
+  font-size:12.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:22px;
+}
+.eyebrow::before{content:"";width:7px;height:7px;background:var(--accent);flex:none;}
+h1{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:clamp(32px,4.6vw,52px);
+  line-height:1.08;
+  letter-spacing:-.01em;
+  text-wrap:balance;
+  margin:0 0 22px;
+  max-width:20ch;
+}
+.hero-sub{
+  font-size:17px;
+  color:var(--muted);
+  max-width:66ch;
+  margin:0 0 34px;
+}
+.hero-sub b{color:var(--text);font-weight:600;}
+.hero-meta{display:flex;flex-wrap:wrap;gap:12px;}
+.tag{
+  font-family:var(--mono);
+  font-size:12px;
+  letter-spacing:.03em;
+  color:var(--text);
+  border:1px solid var(--line);
+  background:var(--surface);
+  padding:7px 12px;
+}
+.tag b{color:var(--accent-glow);font-weight:600;}
+
+/* ---- section shell ---- */
+section{padding:64px 0;border-bottom:1px solid var(--line);}
+section:last-of-type{border-bottom:none;}
+.section-head{display:flex;align-items:baseline;gap:16px;margin-bottom:32px;}
+.section-num{
+  font-family:var(--mono);
+  color:var(--accent);
+  font-size:14px;
+  flex:none;
+}
+h2{
+  font-family:var(--display);
+  font-weight:600;
+  font-size:clamp(24px,3vw,34px);
+  letter-spacing:-.01em;
+  margin:0;
+  text-wrap:balance;
+}
+h3{
+  font-family:var(--body);
+  font-weight:700;
+  font-size:18px;
+  margin:0 0 12px;
+  color:var(--text);
+}
+p{margin:0 0 14px;max-width:70ch;}
+.lede{font-size:17px;color:var(--muted);max-width:68ch;margin-bottom:8px;}
+
+/* ---- grids / cards ---- */
+.grid{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);}
+.grid.cols-2{grid-template-columns:1fr 1fr;}
+.grid.cols-3{grid-template-columns:repeat(3,1fr);}
+.card{background:var(--surface);padding:26px;}
+.card h3{font-size:16px;}
+.card p{margin-bottom:0;font-size:14.5px;color:var(--muted);}
+.card .stat{
+  font-family:var(--mono);
+  font-size:28px;
+  color:var(--accent-glow);
+  display:block;
+  margin-bottom:6px;
+}
+@media (max-width:760px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr;}}
+
+/* ---- roadmap ---- */
+.phase{
+  display:grid;
+  grid-template-columns:120px 1fr;
+  gap:28px;
+  padding:28px 0;
+  border-top:1px solid var(--line);
+}
+.phase:first-of-type{border-top:none;}
+.phase-label{font-family:var(--mono);}
+.phase-num{font-size:13px;color:var(--accent);letter-spacing:.05em;text-transform:uppercase;display:block;margin-bottom:4px;}
+.phase-when{font-size:13px;color:var(--muted);}
+.phase-body h3{font-size:19px;margin-bottom:8px;}
+.phase-body ul{margin:10px 0 0;padding-left:18px;}
+.phase-body li{margin-bottom:6px;color:var(--text);font-size:15px;}
+.phase-body li::marker{color:var(--accent);}
+.phase-note{
+  margin-top:14px;
+  font-family:var(--mono);
+  font-size:12.5px;
+  color:var(--muted);
+  border-top:1px solid var(--line);
+  padding-top:12px;
+}
+@media (max-width:640px){.phase{grid-template-columns:1fr;gap:8px;}}
+
+/* ---- table ---- */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--line);}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14.5px;}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line);}
+th{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--muted);
+  background:var(--surface);
+}
+tr:last-child td{border-bottom:none;}
+td{color:var(--text);}
+td.muted{color:var(--muted);}
+tbody tr:hover{background:var(--surface);}
+
+/* ---- keyword chips ---- */
+.kwgroup{margin-bottom:22px;}
+.kwgroup h4{
+  font-family:var(--mono);
+  font-size:13px;
+  color:var(--accent-glow);
+  text-transform:uppercase;
+  letter-spacing:.05em;
+  margin:0 0 10px;
+}
+.chips{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{
+  font-size:13.5px;
+  background:var(--surface);
+  border:1px solid var(--line);
+  padding:6px 11px;
+  color:var(--text);
+}
+
+/* ---- callout ---- */
+.callout{
+  background:var(--surface);
+  border:1px solid var(--line);
+  padding:20px 22px;
+  margin:22px 0;
+}
+.callout p{margin:0;color:var(--text);font-size:15px;}
+.callout p+p{margin-top:8px;}
+.callout .label{
+  font-family:var(--mono);
+  font-size:11.5px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--accent);
+  display:block;
+  margin-bottom:8px;
+}
+
+/* ---- checklist ---- */
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);}
+.checklist li{background:var(--surface);padding:14px 18px;font-size:14.5px;display:flex;gap:12px;align-items:flex-start;}
+.checklist li::before{content:"→";color:var(--accent);flex:none;font-family:var(--mono);}
+
+/* footer */
+footer{padding:48px 0 0;text-align:center;}
+footer p{margin:0;font-family:var(--mono);font-size:12px;color:var(--muted);max-width:none;}
+footer a{color:var(--muted);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow">Plano estratégico · Agari Drinks</div>
+    <h1>Estratégia de tráfego pago e tracking</h1>
+    <p class="hero-sub">O plano segue três frentes em sequência: <b>manter</b> o canal que já gera resultado (WhatsApp/CTWA) sem interrupção, <b>construir</b> a estrutura de dados que hoje não existe (tracking completo do site e do WhatsApp), e <b>ativar</b> o site como canal de geração de leads assim que as páginas estiverem prontas para converter. Cada frente entra por cima da anterior, nenhuma substitui o que já roda.</p>
+    <div class="hero-meta">
+      <span class="tag">Ticket médio <b>R$ 4.600</b></span>
+      <span class="tag">Verba de mídia <b>R$ 7.000/mês</b></span>
+      <span class="tag">Meta <b>+20-30% faturamento em 6 meses</b></span>
+      <span class="tag">Tracking hoje: <b>zero</b></span>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+
+<section id="diagnostico">
+  <div class="section-head"><span class="section-num">01</span><h2>Diagnóstico</h2></div>
+  <p class="lede">A Agari já investe R$6-7k/mês há tempo sem visibilidade real de CPA, CPL ou CAC. O problema não é falta de verba, é falta de estrutura para medir o que a verba está comprando.</p>
+
+  <div class="grid cols-3">
+    <div class="card">
+      <span class="stat">0</span>
+      <h3>Tracking no site</h3>
+      <p>Nenhum Meta Pixel, GA4 ou GTM detectado. Qualquer campanha apontando pro site hoje roda cega.</p>
+    </div>
+    <div class="card">
+      <span class="stat">1</span>
+      <h3>Formulário existente</h3>
+      <p>Só na página de contato, sem campos qualificadores (tipo de evento, data, convidados, orçamento). WhatsApp funciona, mas isolado de CRM e sem evento de conversão disparado.</p>
+    </div>
+    <div class="card">
+      <span class="stat">~100</span>
+      <h3>Links no menu</h3>
+      <p>Estrutura inchada, cursos (bartender, vinhos, barista) misturados com o core de eventos. Dilui foco de quem chega via anúncio pago.</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="label">Gap crítico de conversão</span>
+    <p>Zero prova social no site: sem depoimento, sem case nomeado, sem número de eventos realizados, sem foto de evento real identificado. Para um ticket de R$4.600 decidido em poucas conversas, isso pesa mais que qualquer ajuste de CTA.</p>
+  </div>
+
+  <p>O diferencial real da Agari (13+ anos, estrutura própria, atendimento simultâneo de múltiplos eventos, portfólio amplo de atrações) não aparece destacado em lugar nenhum do site hoje. É a maior alavanca de copy disponível e está sendo desperdiçada.</p>
+</section>
+
+<section id="mercado">
+  <div class="section-head"><span class="section-num">02</span><h2>Mercado: bares para eventos sociais e corporativos</h2></div>
+  <p class="lede">Grande São Paulo tem mais de 400 empresas oferecendo open bar para casamento. Mercado fragmentado, o que torna os 13 anos de mercado da Agari um ativo de diferenciação real contra concorrência mais nova.</p>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h3>Sazonalidade social</h3>
+      <p>40-45% dos casamentos concentrados de agosto a dezembro, pico em setembro-outubro. Maio ("mês das noivas") ainda forte. Decisão de contratação de bar costuma vir 60-90 dias antes do evento.</p>
+    </div>
+    <div class="card">
+      <h3>Sazonalidade corporativa</h3>
+      <p>Confraternizações de fim de ano concentram demanda em novembro-dezembro, mas o fechamento de contrato acontece 60-90 dias antes: julho a outubro é a janela real de captação, não novembro.</p>
+    </div>
+    <div class="card">
+      <h3>Concorrência direta</h3>
+      <p>Chapa Drinks (simulador de orçamento instantâneo), Vip Drinks (dezenas de LPs hiperlocais por bairro/cidade), Prime Bartenders (cardápio autoral), Vegas Bartenders (posicionamento de luxo). Todos têm formulário/simulador próprio e presença em diretórios de casamento.</p>
+    </div>
+    <div class="card">
+      <h3>Tendência de conteúdo/oferta 2026</h3>
+      <p>Welcome drink autoral nomeado como assinatura do casal, categoria low/no-alcohol em expansão, cuidado estético do drink como elemento de decoração. Corporativo: eventos viraram investimento estratégico em cultura, não custo de branding (+20% em volume 2025 vs 2024).</p>
+    </div>
+  </div>
+
+  <p style="margin-top:22px">Gancho de copy direto: nenhum concorrente pesquisado comunica "atendimento simultâneo de múltiplos eventos" como diferencial, mesmo sendo um argumento forte contra operações menores. Vale testar como headline em campanha corporativa (empresa que não pode arriscar atraso ou improviso).</p>
+</section>
+
+<section id="tracking">
+  <div class="section-head"><span class="section-num">03</span><h2>Arquitetura de tracking</h2></div>
+  <p class="lede">Regra da fase 1: não tocar no que já traz resultado. O CTWA continua rodando como está enquanto a fundação de dados é construída por trás.</p>
+
+  <div class="callout">
+    <span class="label">Por que não pivotar tudo de uma vez</span>
+    <p>O CTWA (click-to-WhatsApp) é hoje o único canal validado do cliente. Trocar a estrutura de campanha antes de ter tracking novo rodando significa perder a única referência de performance que existe, mesmo que informal. A virada de chave acontece em paralelo, não por cima.</p>
+  </div>
+
+  <div class="grid cols-2" style="margin-top:24px">
+    <div class="card">
+      <h3>Mantém (CTWA)</h3>
+      <p>Estrutura de campanha, públicos e criativos atuais preservados. Evolução: padronizar UTMs de origem, adicionar evento de conversão "Contato iniciado" via Conversions API do WhatsApp assim que disponível, e passar a registrar toda conversa em planilha/CRM leve para virar a base do dashboard de CPL.</p>
+    </div>
+    <div class="card">
+      <h3>Constrói (site)</h3>
+      <p>GTM como camada única de disparo. GA4 para comportamento e funil. Meta CAPI com Advanced Matching (nome, email, telefone, hash SHA-256 client + server-side) para recuperar sinal perdido por bloqueio de cookies e iOS. Deduplicação de evento entre Pixel (client-side) e CAPI (server-side) pelo mesmo <code>event_id</code>.</p>
+    </div>
+  </div>
+
+  <div class="tbl-wrap" style="margin-top:24px">
+    <table>
+      <thead><tr><th>Evento</th><th>Onde dispara</th><th>Dado enviado (Advanced Matching)</th><th>Uso</th></tr></thead>
+      <tbody>
+        <tr><td>Contato iniciado (WhatsApp)</td><td>CTWA, botão flutuante do site</td><td class="muted">telefone (hash), origem, campanha</td><td>Otimização do CTWA, base do CPL atual</td></tr>
+        <tr><td>Lead (formulário)</td><td>Novo formulário qualificado nas LPs</td><td>nome, email, telefone (hash) + tipo de evento, data, nº convidados, orçamento</td><td>Otimização de campanhas de leads no site, roteamento comercial</td></tr>
+        <tr><td>Visualização de conteúdo</td><td>Páginas de atração (Open Bar, Totem, Plataforma 360)</td><td class="muted">página, tipo de evento inferido</td><td>Público de remarketing segmentado por interesse</td></tr>
+        <tr><td>Contrato fechado (offline)</td><td>Import manual/CRM → CAPI</td><td>valor do contrato, email/telefone do lead original</td><td>Otimização por valor (ROAS real), não só por lead</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:20px">Assim que o volume de eventos estiver estável (2-3 semanas de dados), entra um dashboard consolidando CPA, CPL, CAC e funil comercial num painel único, visível em tempo real.</p>
+</section>
+
+<section id="formulario">
+  <div class="section-head"><span class="section-num">04</span><h2>Formulário de cadastro</h2></div>
+  <p class="lede">Substitui o formulário genérico atual (nome, email, telefone, texto livre) por um formulário qualificador, igual em estrutura nas duas LPs, com campos que já servem de filtro comercial.</p>
+
+  <ul class="checklist">
+    <li>Nome e telefone (obrigatório, com máscara e validação de DDD)</li>
+    <li>Tipo de evento: casamento / aniversário / 15 anos / formatura / confraternização de empresa / evento corporativo / outro</li>
+    <li>Data prevista do evento (calendário, não texto livre, para captar sazonalidade)</li>
+    <li>Número estimado de convidados (faixas: até 80 / 80-150 / 150-300 / 300+)</li>
+    <li>Faixa de orçamento (faixas, não valor exato, reduz abandono)</li>
+    <li>Campo oculto de origem (utm_source/campaign/content) gravado junto ao lead</li>
+  </ul>
+
+  <p style="margin-top:18px">Envio dispara ao mesmo tempo: gravação em planilha/CRM, evento de conversão via CAPI (com hash dos dados de contato) e notificação para a equipe comercial. Sem isso, o CPL vira igual ao do WhatsApp hoje: um número solto, sem qualidade.</p>
+</section>
+
+<section id="lp">
+  <div class="section-head"><span class="section-num">05</span><h2>Landing pages: eventos sociais e corporativos</h2></div>
+
+  <p>Pré-requisito técnico para qualquer campanha paga apontando pro site: Google Ads e Meta Ads de leads no site só entram depois das duas páginas prontas, para não desperdiçar verba em uma página sem conversão nem tracking.</p>
+
+  <div class="grid cols-2" style="margin-top:22px">
+    <div class="card">
+      <h3>LP — Eventos sociais</h3>
+      <p>Casamento, aniversário, 15 anos, formatura. Gatilho emocional (experiência, drink de assinatura do casal/aniversariante), prova social com fotos de eventos reais nomeados, portfólio de atrações com foto/vídeo (Totem, Plataforma 360, Túnel Infinito, Pista Paris), CTA "solicite seu orçamento" com promessa de resposta em até 2h úteis.</p>
+    </div>
+    <div class="card">
+      <h3>LP — Eventos corporativos</h3>
+      <p>Confraternização, evento empresarial, lançamento de produto. Gatilho racional (estrutura própria, atendimento simultâneo, segurança operacional, 13 anos de mercado), prova social por número (eventos realizados, empresas atendidas), CTA de orçamento com campo de nº de convidados em destaque (dimensiona equipe/preço).</p>
+    </div>
+  </div>
+
+  <p style="margin-top:20px">As duas herdam o mesmo formulário qualificado (seção 04) e o mesmo tracking (seção 03), só muda copy, prova social e imagem de topo por segmento.</p>
+</section>
+
+<section id="roadmap">
+  <div class="section-head"><span class="section-num">06</span><h2>Roadmap por fases</h2></div>
+  <p class="lede">Sequência pensada para nunca deixar a conta sem canal ativo: o que já funciona (CTWA) continua rodando em todas as fases, o resto entra por cima.</p>
+
+  <div class="phase">
+    <div class="phase-label"><span class="phase-num">Fase 1</span><span class="phase-when">Semana 1-3</span></div>
+    <div class="phase-body">
+      <h3>Fundação: manter e medir</h3>
+      <ul>
+        <li>Acessos concluídos: Google Ads, Meta Business Manager, GTM/GA4, Google Meu Negócio</li>
+        <li>CTWA mantido sem alteração de estrutura, só padronização de UTM</li>
+        <li>Implementação de GTM + GA4 + Meta CAPI com Advanced Matching no site atual (antes de qualquer LP nova)</li>
+        <li>Otimização de Google Meu Negócio (categoria, fotos, avaliações, posts)</li>
+        <li>Baseline de dashboard: CPL do CTWA a partir dos dados que já existem</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-label"><span class="phase-num">Fase 2</span><span class="phase-when">Semana 2-5 (paralelo à fase 1)</span></div>
+    <div class="phase-body">
+      <h3>Construção de audiência (Meta)</h3>
+      <ul>
+        <li>Campanhas de visita ao perfil (Instagram/Facebook) segmentadas por interesse em eventos sociais e corporativos na região de atuação (Grande SP, ABC, litoral norte)</li>
+        <li>Objetivo: gerar volume de engajamento e visualização de conteúdo para formar público personalizado (quem visitou o perfil / interagiu) antes de existir tráfego de site</li>
+        <li>Conteúdo alinhado ao que performa no nicho: reels de preparo de drink, bastidores de montagem de estrutura, evento real com prova social</li>
+      </ul>
+      <div class="phase-note">Essa fase não depende do site pronto: roda em cima do perfil, prepara a audiência que será usada depois em remarketing de tráfego e leads no site.</div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-label"><span class="phase-num">Fase 3</span><span class="phase-when">Semana 3-6</span></div>
+    <div class="phase-body">
+      <h3>Produção das LPs e formulário</h3>
+      <ul>
+        <li>Produção da LP de eventos sociais e da LP de eventos corporativos</li>
+        <li>Formulário qualificado integrado a CAPI/CRM</li>
+        <li>QA de tracking: validar deduplicação Pixel/CAPI e disparo de evento em ambiente real antes de ligar qualquer campanha</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-label"><span class="phase-num">Fase 4</span><span class="phase-when">Semana 6 em diante</span></div>
+    <div class="phase-body">
+      <h3>Campanhas para o site</h3>
+      <ul>
+        <li>Google Ads Search: grupos de eventos corporativos e eventos sociais (estrutura completa na seção 07)</li>
+        <li>Meta Ads: tráfego para site, reconhecimento, leads por mensagem (mantendo CTWA) e leads no site, agora com pixel validado</li>
+        <li>Remarketing para quem visitou o perfil na fase 2 e para quem visitou a LP sem converter</li>
+      </ul>
+      <div class="phase-note">Só entra depois da LP publicada e do tracking validado: mandar tráfego pago para uma página sem pixel e sem prova social é orçamento perdido.</div>
+    </div>
+  </div>
+
+  <div class="phase">
+    <div class="phase-label"><span class="phase-num">Fase 5</span><span class="phase-when">Contínuo, a partir do mês 2</span></div>
+    <div class="phase-body">
+      <h3>Otimização orientada a dado</h3>
+      <ul>
+        <li>Dashboard consolidado de CPA/CPL/CAC/funil comercial, cruzando tracking com vendas fechadas</li>
+        <li>CPA alvo e ROAS mínimo calculados com base no ticket médio de R$4.600</li>
+        <li>Teste de oferta combinada (Open Bar + atração) para elevar ticket médio, alinhado à meta de crescimento</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="google">
+  <div class="section-head"><span class="section-num">07</span><h2>Google Ads: estrutura de rede de pesquisa</h2></div>
+  <p class="lede">Dois grupos de campanha segmentados por jornada de decisão (social x corporativo), mais estrutura geográfica replicando o que a concorrência já valida com SEO local.</p>
+
+  <div class="kwgroup">
+    <h4>Campanha — Eventos sociais</h4>
+    <div class="chips">
+      <span class="chip">open bar para casamento sp</span>
+      <span class="chip">open bar casamento preço</span>
+      <span class="chip">bartender para casamento</span>
+      <span class="chip">bar de drinks para casamento</span>
+      <span class="chip">quanto custa open bar casamento</span>
+      <span class="chip">welcome drink casamento</span>
+      <span class="chip">open bar para aniversário</span>
+      <span class="chip">bartender para festa de 15 anos</span>
+      <span class="chip">open bar para debutante</span>
+      <span class="chip">open bar para formatura</span>
+      <span class="chip">bartender para festa de formatura</span>
+    </div>
+  </div>
+
+  <div class="kwgroup">
+    <h4>Campanha — Eventos corporativos</h4>
+    <div class="chips">
+      <span class="chip">bartender para evento corporativo</span>
+      <span class="chip">open bar corporativo</span>
+      <span class="chip">open bar para confraternização de empresa</span>
+      <span class="chip">coquetel corporativo sp</span>
+      <span class="chip">bar para evento empresarial</span>
+      <span class="chip">open bar para lançamento de produto</span>
+      <span class="chip">empresa de bartender para eventos corporativos</span>
+      <span class="chip">confraternização de fim de ano empresa sp</span>
+    </div>
+  </div>
+
+  <div class="kwgroup">
+    <h4>Campanha — Geo / genérico</h4>
+    <div class="chips">
+      <span class="chip">empresa de open bar sp</span>
+      <span class="chip">contratar bartender sp</span>
+      <span class="chip">open bar zona sul sp</span>
+      <span class="chip">bartender abc paulista</span>
+      <span class="chip">open bar litoral norte</span>
+      <span class="chip">open bar guarulhos</span>
+      <span class="chip">bartender santos</span>
+    </div>
+  </div>
+
+  <div class="callout" style="margin-top:8px">
+    <span class="label">Negativação</span>
+    <p>Excluir desde o dia 1: "curso de bartender", "vaga bartender", "como ser bartender", "apostila", "aula", "emprego" — o menu de cursos do site já mistura essas intenções, e sem negativa a campanha herda o mesmo problema.</p>
+  </div>
+
+  <p>Correspondência de frase/exata priorizada para termos de alta intenção comercial ("contratar", "preço", "orçamento", "quanto custa"). Campanha corporativa recebe orçamento mais alto por lead: ticket potencial maior e ciclo de decisão mais curto quando cai dentro da janela julho-outubro.</p>
+</section>
+
+<section id="meta">
+  <div class="section-head"><span class="section-num">08</span><h2>Meta Ads: estrutura por objetivo</h2></div>
+
+  <div class="tbl-wrap">
+    <table>
+      <thead><tr><th>Campanha</th><th>Objetivo</th><th>Público</th><th>Entra em</th></tr></thead>
+      <tbody>
+        <tr><td>CTWA (atual)</td><td>Mensagens no WhatsApp</td><td class="muted">Estrutura existente, mantida</td><td>Já roda</td></tr>
+        <tr><td>Visita ao perfil</td><td>Engajamento / tráfego para perfil</td><td>Interesse em casamento, eventos corporativos, festas, região GSP/ABC/litoral norte</td><td>Fase 2</td></tr>
+        <tr><td>Reconhecimento</td><td>Alcance/awareness de marca</td><td>Lookalike de quem visitou o perfil + interações</td><td>Fase 4</td></tr>
+        <tr><td>Leads por mensagem</td><td>Mensagens (complementa CTWA)</td><td>Remarketing de visita ao perfil e engajamento</td><td>Fase 4</td></tr>
+        <tr><td>Tráfego para site</td><td>Cliques na LP</td><td>Interesse + lookalike de leads qualificados</td><td>Fase 4, após LP pronta</td></tr>
+        <tr><td>Leads no site</td><td>Conversão (formulário)</td><td>Quem visitou LP sem converter + público quente</td><td>Fase 4, após pixel validado</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p style="margin-top:20px">Conteúdo orgânico que alimenta as campanhas de visita ao perfil e reconhecimento: reels de preparo de drink (ação visual), bastidores de montagem de estrutura (autoridade), evento real com depoimento (prova social). Mix, não série única de produto parado.</p>
+</section>
+
+<section id="proximos-passos">
+  <div class="section-head"><span class="section-num">09</span><h2>Próximos passos</h2></div>
+  <ul class="checklist">
+    <li>Iniciar a estruturação das landing pages de eventos sociais e eventos corporativos</li>
+    <li>Subir campanhas de tráfego para o perfil e de reconhecimento de marca</li>
+    <li>Finalizar o trackeamento de mensagens (CTWA) e o trackeamento do site</li>
+    <li>Integrar CRM à Meta e ao Google</li>
+  </ul>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap" style="padding-bottom:0">
+    <p>the new ads · estratégia Agari Drinks</p>
+  </div>
+</footer>
+</body>
+</html>
