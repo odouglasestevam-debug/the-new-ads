@@ -315,6 +315,8 @@
         <div class="kpi"><div class="label">Frequência média</div><div class="value" id="kpi-freq"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Taxa de gancho</div><div class="value" id="kpi-gancho"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Resultados (Meta Ads)</div><div class="value amber" id="kpi-resultados-meta"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Leads (Meta Ads)</div><div class="value amber" id="kpi-leads-meta"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPL (Meta Ads)</div><div class="value amber" id="kpi-cpl-meta"><div class="skel"></div></div></div>
       </div>
     </section>
   </div>
@@ -331,6 +333,27 @@
       <div class="card">
         <div class="funnel" id="funnel"><div class="loading">Carregando…</div></div>
       </div>
+    </section>
+  </div>
+
+  <div class="macro">
+    <div class="macro-title">Comercial <span class="macro-sub">vendas reais (CSV informado manualmente) · receita, CAC e LTV</span></div>
+
+    <section>
+      <div class="kpis kpis-primary" id="kpis-vendas" style="margin-bottom:0;">
+        <div class="kpi"><div class="label">Vendas aprovadas</div><div class="value" id="kpi-vendas-aprovadas"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Receita total</div><div class="value" id="kpi-receita-total"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">MRR gerado</div><div class="value" id="kpi-mrr"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Taxa de conversão</div><div class="value amber" id="kpi-taxa-conversao-vendas"><div class="skel"></div></div></div>
+      </div>
+      <div class="kpis kpis-secondary">
+        <div class="kpi"><div class="label">Adesão gerada</div><div class="value" id="kpi-adesao-total"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CAC</div><div class="value" id="kpi-cac"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">LTV (mediana informada)</div><div class="value" id="kpi-ltv"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">LTV : CAC</div><div class="value amber" id="kpi-ltv-cac"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">ROAS sobre LTV</div><div class="value amber" id="kpi-roas-ltv"><div class="skel"></div></div></div>
+      </div>
+      <div class="note" id="vendas-note">Vendas registradas manualmente a partir de CSV/lista fechada com o cliente — só entram aqui as marcadas como "aprovado". LTV é a mediana informada pelo Grupo Confiança (quanto cada associado deixa em média ao longo do tempo de contrato), não calculada a partir do histórico.</div>
     </section>
   </div>
 
@@ -352,13 +375,13 @@
     <div class="macro-title">Rastreamento <span class="macro-sub">o que o Meta reporta vs quem realmente virou lead, por campanha/conjunto/anúncio</span></div>
 
     <section>
-      <div class="section-title">Gap geral <span class="hint">mensagens iniciadas (Meta) vs leads confirmados (CRM) · só mensagem direta</span></div>
+      <div class="section-title">Gap geral <span class="hint">mensagens iniciadas vs leads reportados pelo Meta · campanha de mensagem</span></div>
       <div class="kpis" style="margin-bottom:0;">
         <div class="kpi"><div class="label">Mensagens iniciadas</div><div class="value" id="kpi-gap-msgs"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Leads reais</div><div class="value" id="kpi-gap-leads"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Gap</div><div class="value amber" id="kpi-gap-pct"><div class="skel"></div></div></div>
       </div>
-      <div class="note">Gap = mensagens iniciadas no Meta que não viraram lead confirmado no CRM (número errado, sem resposta, fora do público certo etc).</div>
+      <div class="note">Leads reais = métrica "Leads" do próprio Meta Ads, somada só nas campanhas de mensagem (WhatsApp) — não inclui campanhas de formulário. Gap = mensagens iniciadas que não geraram lead reconhecido pelo Meta (número errado, sem resposta, fora do público certo etc).</div>
     </section>
 
     <section>
@@ -595,6 +618,8 @@ async function loadKpisAndAds() {
   document.getElementById('kpi-freq').textContent = freqN ? (freqSum / freqN).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   document.getElementById('kpi-gancho').textContent = impressoes ? fmtPct((videoView / impressoes) * 100) : '—';
   document.getElementById('kpi-resultados-meta').textContent = fmtInt(resultados);
+  document.getElementById('kpi-leads-meta').textContent = fmtInt(leads);
+  document.getElementById('kpi-cpl-meta').textContent = leads ? fmtMoney(investimento / leads) : '—';
   lastInvestimento = investimento;
 
   document.getElementById('kpi-engajamento-total').textContent = fmtInt(engajamento);
@@ -944,13 +969,18 @@ document.querySelectorAll('.range-btn[data-tab]').forEach((btn) => {
 
 function loadGapGeral() {
   let msgs = 0;
-  for (const row of metaRowsCache) msgs += Number(row.mensagens_iniciadas || 0);
-
   let leadsReais = 0;
+  for (const row of metaRowsCache) {
+    msgs += Number(row.mensagens_iniciadas || 0);
+    // campanhas de formulário (prefixo FORM_) não são mensagem — só conta lead de campanha de mensagem (WhatsApp)
+    if (!row.campanha || !row.campanha.toUpperCase().startsWith('FORM')) {
+      leadsReais += Number(row.lead || 0);
+    }
+  }
+
   const leadsByPlacement = new Map();
   for (const row of trackingRowsCache) {
     if (row.origem !== 'mensagem_direto') continue;
-    leadsReais++;
     if (row.posicionamento) leadsByPlacement.set(row.posicionamento, (leadsByPlacement.get(row.posicionamento) || 0) + 1);
   }
 
@@ -969,6 +999,41 @@ function loadGapGeral() {
   renderMetricsTable();
 }
 
+const LTV_MEDIANO = 1100; // valor informado pelo Grupo Confiança — quanto cada associado deixa em média ao longo do contrato
+
+async function loadVendas() {
+  const { data, error } = await sb
+    .from('confianca_vendas')
+    .select('nome,status,mensalidade,adesao,data_fechamento')
+    .eq('status', 'aprovado')
+    .gte('data_fechamento', currentRange.since)
+    .lte('data_fechamento', currentRange.until);
+
+  if (error || !data) {
+    document.getElementById('kpis-vendas').innerHTML = '<div class="kpi">Erro ao carregar vendas.</div>';
+    return;
+  }
+
+  const vendas = data.length;
+  const mrr = data.reduce((a, v) => a + Number(v.mensalidade || 0), 0);
+  const adesaoTotal = data.reduce((a, v) => a + Number(v.adesao || 0), 0);
+  const receitaTotal = mrr + adesaoTotal;
+  const cac = vendas ? lastInvestimento / vendas : null;
+  const ltvCac = cac ? LTV_MEDIANO / cac : null;
+  const roasLtv = lastInvestimento ? (vendas * LTV_MEDIANO) / lastInvestimento : null;
+  const taxaConversao = lastLeadsTotal ? (vendas / lastLeadsTotal) * 100 : null;
+
+  document.getElementById('kpi-vendas-aprovadas').textContent = fmtInt(vendas);
+  document.getElementById('kpi-receita-total').textContent = fmtMoney(receitaTotal);
+  document.getElementById('kpi-mrr').textContent = fmtMoney(mrr);
+  document.getElementById('kpi-adesao-total').textContent = fmtMoney(adesaoTotal);
+  document.getElementById('kpi-cac').textContent = cac != null ? fmtMoney(cac) : '—';
+  document.getElementById('kpi-ltv').textContent = fmtMoney(LTV_MEDIANO);
+  document.getElementById('kpi-ltv-cac').textContent = ltvCac != null ? ltvCac.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' : 1' : '—';
+  document.getElementById('kpi-roas-ltv').textContent = roasLtv != null ? roasLtv.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'x' : '—';
+  document.getElementById('kpi-taxa-conversao-vendas').textContent = taxaConversao != null ? fmtPct(taxaConversao) : '—';
+}
+
 async function loadAll() {
   document.getElementById('updated-at').textContent = new Date().toLocaleString('pt-BR');
   document.getElementById('date-from').value = currentRange.since;
@@ -978,6 +1043,7 @@ async function loadAll() {
   // depende dos caches (metaRowsCache/trackingRowsCache) preenchidos pelas duas chamadas acima
   loadGapGeral();
   renderTopCriativos();
+  loadVendas();
 }
 
 loadAll();
