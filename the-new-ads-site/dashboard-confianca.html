@@ -214,6 +214,42 @@
   }
   footer a{color:var(--amber);text-decoration:none;}
 
+  /* botão + modal de criativo */
+  .btn-criativo{
+    background:transparent;color:var(--amber);border:1px solid var(--amber);
+    font-family:'Switzer';font-size:11px;font-weight:600;
+    padding:3px 8px;cursor:pointer;white-space:nowrap;
+  }
+  .btn-criativo:hover{background:var(--amber);color:#003018;}
+
+  .modal-overlay{
+    display:none;position:fixed;inset:0;z-index:100;
+    background:rgba(0,10,5,.75);
+    align-items:center;justify-content:center;padding:24px;
+  }
+  .modal-overlay[data-open="true"]{display:flex;}
+  .modal-box{
+    background:var(--surface);border:1px solid var(--line);
+    max-width:min(640px,92vw);max-height:88vh;
+    display:flex;flex-direction:column;overflow:hidden;
+  }
+  .modal-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:12px 16px;border-bottom:1px solid var(--line);
+  }
+  .modal-head span{font-size:13px;color:var(--ink);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .modal-close{
+    background:transparent;border:none;color:var(--muted);cursor:pointer;
+    font-size:20px;line-height:1;padding:2px 6px;flex:none;
+  }
+  .modal-close:hover{color:var(--ink);}
+  .modal-body{padding:16px;overflow:auto;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+  .modal-body img{max-width:100%;max-height:70vh;display:block;}
+  .modal-fallback{color:var(--muted);font-size:13px;text-align:center;padding:32px 0;}
+  .modal-foot{padding:10px 16px;border-top:1px solid var(--line);text-align:right;}
+  .modal-foot a{color:var(--amber);font-size:12px;text-decoration:none;font-weight:600;}
+  .modal-foot a:hover{text-decoration:underline;}
+
   .loading{color:var(--muted);font-size:13px;padding:40px 0;text-align:center;}
   .skel{background:linear-gradient(90deg,var(--surface2) 25%,#2a2a2a 37%,var(--surface2) 63%);
     background-size:400% 100%;animation:skel 1.4s ease infinite;height:22px;}
@@ -338,10 +374,10 @@
             <tr>
               <th>Nome</th><th class="num">Investimento</th><th class="num">Impressões</th><th class="num">Cliques</th>
               <th class="num">CTR</th><th class="num">CPC</th><th class="num">CPM</th><th class="num">Freq.</th>
-              <th class="num">Msgs. iniciadas</th><th class="num">Leads reais</th><th class="num">Gap</th><th class="num">Resultados</th>
+              <th class="num">Msgs. iniciadas</th><th class="num">Leads reais</th><th class="num">Gap</th><th class="num">Resultados</th><th></th>
             </tr>
           </thead>
-          <tbody><tr><td colspan="12" class="loading">Carregando…</td></tr></tbody>
+          <tbody><tr><td colspan="13" class="loading">Carregando…</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -402,6 +438,17 @@
 
 </div>
 
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-head">
+      <span id="modal-title">Criativo</span>
+      <button class="modal-close" id="modal-close" aria-label="Fechar">&times;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+    <div class="modal-foot"><a id="modal-link" href="#" target="_blank" rel="noopener">abrir original em nova aba ↗</a></div>
+  </div>
+</div>
+
 <script>
 const sb = window.supabase.createClient(
   'https://iklynyncffneuvutvgxa.supabase.co',
@@ -415,6 +462,26 @@ const fmtDate = (iso) => iso ? iso.slice(0, 10).split('-').reverse().join('/') :
 
 function toISODate(d) { return d.toISOString().slice(0, 10); }
 function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); }
+
+// --- modal de criativo ---
+const modalOverlay = document.getElementById('modal-overlay');
+const modalBody = document.getElementById('modal-body');
+const modalTitle = document.getElementById('modal-title');
+const modalLink = document.getElementById('modal-link');
+
+function openCreativeModal(url, nome) {
+  modalTitle.textContent = nome || 'Criativo';
+  modalLink.href = url;
+  modalBody.innerHTML = '<img src="' + url + '" alt="Criativo" onerror="this.replaceWith(Object.assign(document.createElement(\'div\'),{className:\'modal-fallback\',textContent:\'Não deu pra pré-visualizar esse link direto — use \\\'abrir original\\\' abaixo.\'}))" />';
+  modalOverlay.dataset.open = 'true';
+}
+function closeCreativeModal() {
+  modalOverlay.dataset.open = 'false';
+  modalBody.innerHTML = '';
+}
+document.getElementById('modal-close').addEventListener('click', closeCreativeModal);
+modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) closeCreativeModal(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCreativeModal(); });
 
 let currentRange = { since: daysAgo(30), until: toISODate(new Date()) };
 let lastInvestimento = 0;
@@ -545,7 +612,7 @@ let trackingRowsCache = [];
 async function loadLeads() {
   const { data, error } = await sb
     .from('confianca_tracking')
-    .select('nome,origem,etapa,qualificacao,data,url_criativo,campaing_name,adset_name,ad_name,posicionamento')
+    .select('nome,email,origem,etapa,qualificacao,data,url_criativo,campaing_name,adset_name,ad_name,posicionamento')
     .eq('cliente', 'grupo-confianca')
     .gte('data', currentRange.since)
     .lte('data', currentRange.until)
@@ -586,12 +653,18 @@ async function loadLeads() {
   document.getElementById('kpi-taxa-funil').textContent = total ? fmtPct((ganhos / total) * 100) : '—';
 
   // --- pizza origem ---
+  // link na bio sempre mantém a classificação original; lead sem link_bio mas com e-mail preenchido conta como "site"
+  function origemEfetiva(l) {
+    if (l.origem === 'link_bio') return 'link_bio';
+    if (l.email) return 'site';
+    return l.origem || 'desconhecida';
+  }
   const origemMap = new Map();
   for (const l of data) {
-    const key = l.origem || 'desconhecida';
+    const key = origemEfetiva(l);
     origemMap.set(key, (origemMap.get(key) || 0) + 1);
   }
-  const origemLabels = { mensagem_direto: 'Mensagem direta', link_bio: 'Link na bio', desconhecida: 'Desconhecida' };
+  const origemLabels = { mensagem_direto: 'Mensagem direta', link_bio: 'Link na bio', site: 'Site', desconhecida: 'Desconhecida' };
   const origemColors = ['#c9f003', '#00c71c', '#8c8c8c', '#0b492a'];
   const origemRows = [...origemMap.entries()].sort((a, b) => b[1] - a[1]);
   const origemTotal = origemRows.reduce((a, [, v]) => a + v, 0) || 1;
@@ -653,7 +726,7 @@ function renderTopCriativos() {
         <td class="num">${fmtInt(r.leadsReais)}</td>
         <td class="num" style="color:${r.gapPct >= 50 ? 'var(--amber)' : 'inherit'}">${r.msgs ? fmtInt(r.gap) + ' (' + fmtPct(r.gapPct) + ')' : '—'}</td>
         <td class="num">${fmtInt(r.resultados)}</td>
-        <td class="num">${url ? `<a class="criativo" href="${url}" target="_blank" rel="noopener">ver criativo</a>` : '—'}</td>
+        <td class="num">${url ? `<button class="btn-criativo" type="button" onclick="openCreativeModal('${url.replace(/'/g, "\\'")}', '${r.nome.replace(/'/g, "\\'")}')">ver criativo</button>` : '—'}</td>
       </tr>
     `;
   }).join('') || '<tr><td colspan="8">Sem leads reais no período.</td></tr>';
@@ -828,7 +901,19 @@ function buildMetricasPorChave(chave) {
 function renderMetricsTable() {
   const rows = buildMetricasPorChave(metricasAtual);
   const tbody = document.querySelector('#metrics-table tbody');
-  tbody.innerHTML = rows.map((r) => `
+
+  let urlPorAnuncio = new Map();
+  if (metricasAtual === 'anuncio') {
+    for (const row of trackingRowsCache) {
+      if (row.ad_name && row.url_criativo && !urlPorAnuncio.has(row.ad_name)) {
+        urlPorAnuncio.set(row.ad_name, row.url_criativo);
+      }
+    }
+  }
+
+  tbody.innerHTML = rows.map((r) => {
+    const url = urlPorAnuncio.get(r.nome);
+    return `
     <tr>
       <td class="name">${r.nome}</td>
       <td class="num">${fmtMoney(r.investimento)}</td>
@@ -842,8 +927,10 @@ function renderMetricsTable() {
       <td class="num">${fmtInt(r.leadsReais)}</td>
       <td class="num" style="color:${r.gapPct >= 50 ? 'var(--amber)' : 'inherit'}">${r.msgs ? fmtInt(r.gap) + ' (' + fmtPct(r.gapPct) + ')' : '—'}</td>
       <td class="num">${fmtInt(r.resultados)}</td>
+      <td class="num">${url ? `<button class="btn-criativo" type="button" onclick="openCreativeModal('${url.replace(/'/g, "\\'")}', '${r.nome.replace(/'/g, "\\'")}')">ver criativo</button>` : '—'}</td>
     </tr>
-  `).join('') || '<tr><td colspan="12">Sem dados no período.</td></tr>';
+  `;
+  }).join('') || '<tr><td colspan="13">Sem dados no período.</td></tr>';
 }
 
 document.querySelectorAll('.range-btn[data-tab]').forEach((btn) => {
