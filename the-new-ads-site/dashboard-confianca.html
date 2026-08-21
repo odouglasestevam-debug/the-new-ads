@@ -1031,7 +1031,7 @@ async function loadVendas() {
   const cac = vendas ? lastInvestimento / vendas : null;
   const ltvCac = cac ? LTV_MEDIANO / cac : null;
   const roasLtv = lastInvestimento ? (vendas * LTV_MEDIANO) / lastInvestimento : null;
-  const taxaConversao = lastLeadsTotal ? (vendas / lastLeadsTotal) * 100 : null;
+  const taxaConversao = lastLeadsQualificados ? (vendas / lastLeadsQualificados) * 100 : null;
 
   document.getElementById('kpi-vendas-aprovadas').textContent = fmtInt(vendas);
   document.getElementById('kpi-receita-total').textContent = fmtMoney(receitaTotal);
