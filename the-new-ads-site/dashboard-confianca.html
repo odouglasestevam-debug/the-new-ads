@@ -10,14 +10,14 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
-    --bg:#0A0A0A;
-    --surface:#171717;
-    --surface2:#212121;
-    --amber:#FF6A00;
-    --amber-glow:#FFA24D;
-    --ink:#FAFAFA;
-    --muted:#8A8A8A;
-    --line:rgba(255,255,255,.09);
+    --bg:#003018;
+    --surface:#073c22;
+    --surface2:#0b492a;
+    --amber:#c9f003;
+    --amber-glow:#e2fa5c;
+    --ink:#fcffe9;
+    --muted:#8c8c8c;
+    --line:rgba(252,255,233,.09);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
@@ -58,8 +58,8 @@
     font-family:'Switzer';font-size:12px;font-weight:500;
     padding:7px 14px;cursor:pointer;
   }
-  .range-btn:hover{color:var(--ink);border-color:rgba(255,255,255,.2);}
-  .range-btn.active{background:var(--amber);border-color:var(--amber);color:#0A0A0A;font-weight:600;}
+  .range-btn:hover{color:var(--ink);border-color:rgba(252,255,233,.2);}
+  .range-btn.active{background:var(--amber);border-color:var(--amber);color:#003018;font-weight:600;}
   /* dropdown de período, estilo gerenciador de anúncios */
   .date-picker{position:relative;display:inline-block;margin-bottom:24px;}
   .date-picker-trigger{
@@ -68,7 +68,7 @@
     font-family:'Switzer';font-size:13px;font-weight:500;
     padding:9px 14px;cursor:pointer;
   }
-  .date-picker-trigger:hover{border-color:rgba(255,255,255,.2);}
+  .date-picker-trigger:hover{border-color:rgba(252,255,233,.2);}
   .date-picker-trigger svg{color:var(--muted);flex:none;transition:transform .15s ease;}
   .date-picker[data-open="true"] .date-picker-trigger svg{transform:rotate(180deg);}
   .date-picker[data-open="true"] .date-picker-trigger{border-color:var(--amber);}
@@ -98,7 +98,7 @@
     color-scheme:dark;width:0;flex:1;min-width:118px;
   }
   .date-picker-apply{
-    width:100%;background:var(--amber);border:none;color:#0A0A0A;
+    width:100%;background:var(--amber);border:none;color:#003018;
     font-family:'Switzer';font-size:12px;font-weight:600;
     padding:8px;cursor:pointer;
   }
@@ -165,13 +165,13 @@
     color:var(--amber);text-decoration:none;font-size:12px;font-weight:600;
     border:1px solid var(--amber);padding:3px 8px;display:inline-block;white-space:nowrap;
   }
-  td a.criativo:hover{background:var(--amber);color:#0A0A0A;}
+  td a.criativo:hover{background:var(--amber);color:#003018;}
   .tag{
     font-size:11px;font-weight:600;padding:2px 8px;display:inline-block;
     border:1px solid var(--line);color:var(--muted);
   }
   .tag.ganho{border-color:var(--amber);color:var(--amber);}
-  .tag.qualificado{border-color:rgba(255,255,255,.3);color:var(--ink);}
+  .tag.qualificado{border-color:rgba(252,255,233,.3);color:var(--ink);}
 
   .bars{display:flex;flex-direction:column;gap:10px;}
   .bar-row{display:grid;grid-template-columns:110px 1fr 70px;align-items:center;gap:10px;font-size:12px;}
@@ -192,7 +192,7 @@
   .funnel-stage{display:grid;grid-template-columns:140px 1fr 140px;align-items:center;gap:12px;}
   .funnel-track{height:34px;background:var(--surface2);position:relative;}
   .funnel-fill{height:100%;background:var(--amber);display:flex;align-items:center;padding-left:12px;
-    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#0A0A0A;white-space:nowrap;}
+    font-family:'JetBrains Mono',monospace;font-size:13px;font-weight:600;color:#003018;white-space:nowrap;}
   .funnel-label{font-size:13px;color:var(--ink);}
   .funnel-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);text-align:right;}
 
@@ -224,9 +224,17 @@
 <div class="wrap">
 
   <header>
-    <div>
-      <h1>Grupo Confiança — Proteção Veicular</h1>
-      <div class="sub">Performance de tráfego pago · Meta Ads</div>
+    <div style="display:flex;align-items:center;gap:14px;">
+      <svg width="36" height="36" viewBox="0 0 36 36" fill="none" aria-hidden="true" style="flex:none;">
+        <rect width="36" height="36" rx="8" fill="var(--bg)"/>
+        <rect x="9" y="12" width="12" height="3.4" rx="1.2" fill="var(--ink)"/>
+        <rect x="13" y="16.3" width="14" height="3.4" rx="1.2" fill="#00c71c"/>
+        <rect x="9" y="20.6" width="12" height="3.4" rx="1.2" fill="var(--amber)"/>
+      </svg>
+      <div>
+        <h1>Grupo Confiança — Proteção Veicular</h1>
+        <div class="sub">Performance de tráfego pago · Meta Ads</div>
+      </div>
     </div>
     <div class="updated">Atualizado em <b id="updated-at">—</b></div>
   </header>
@@ -584,7 +592,7 @@ async function loadLeads() {
     origemMap.set(key, (origemMap.get(key) || 0) + 1);
   }
   const origemLabels = { mensagem_direto: 'Mensagem direta', link_bio: 'Link na bio', desconhecida: 'Desconhecida' };
-  const origemColors = ['#FF6A00', '#8A8A8A', '#4A4A4A', '#2A2A2A'];
+  const origemColors = ['#c9f003', '#00c71c', '#8c8c8c', '#0b492a'];
   const origemRows = [...origemMap.entries()].sort((a, b) => b[1] - a[1]);
   const origemTotal = origemRows.reduce((a, [, v]) => a + v, 0) || 1;
 
@@ -607,7 +615,7 @@ async function loadLeads() {
     return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2} Z`;
   }
 
-  const svgSlices = slices.map((s) => `<path d="${arcPath(70, 70, 68, s.startAngle, s.endAngle)}" fill="${s.color}" stroke="#0A0A0A" stroke-width="2"/>`).join('');
+  const svgSlices = slices.map((s) => `<path d="${arcPath(70, 70, 68, s.startAngle, s.endAngle)}" fill="${s.color}" stroke="#003018" stroke-width="2"/>`).join('');
   const legend = slices.map((s) => `
     <div class="legend-item">
       <div class="legend-swatch" style="background:${s.color}"></div>
@@ -690,8 +698,8 @@ async function loadFollowers() {
 
   card.innerHTML = `
     <svg class="trend" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none">
-      <path d="${path}" fill="none" stroke="#FF6A00" stroke-width="2" />
-      <circle cx="${points[points.length - 1][0]}" cy="${points[points.length - 1][1]}" r="4" fill="#FF6A00" />
+      <path d="${path}" fill="none" stroke="#c9f003" stroke-width="2" />
+      <circle cx="${points[points.length - 1][0]}" cy="${points[points.length - 1][1]}" r="4" fill="#c9f003" />
     </svg>
     <div style="display:flex;justify-content:space-between;margin-top:8px;font-size:12px;color:var(--muted)">
       <span>${first} em ${fmtDate(data[0].data)}</span>
