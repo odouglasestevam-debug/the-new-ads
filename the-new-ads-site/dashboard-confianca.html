@@ -333,6 +333,7 @@
       <div class="card">
         <div class="funnel" id="funnel"><div class="loading">Carregando…</div></div>
       </div>
+      <div class="note">"Lead Ganho" usa as vendas reais da seção Comercial abaixo (não o campo do CRM, que subconta vendas fechadas fora do fluxo do bot).</div>
     </section>
   </div>
 
@@ -509,6 +510,28 @@ document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCreat
 let currentRange = { since: daysAgo(30), until: toISODate(new Date()) };
 let lastInvestimento = 0;
 let lastLeadsTotal = 0;
+let lastLeadsQualificados = 0;
+
+function renderFunil(vendas) {
+  const total = lastLeadsTotal;
+  const qualificados = lastLeadsQualificados;
+  const funnelEl = document.getElementById('funnel');
+  const stages = [
+    { label: 'Leads recebidos', value: total, pctOf: total },
+    { label: 'Qualificados', value: qualificados, pctOf: total },
+    { label: 'Lead Ganho', value: vendas, pctOf: total },
+  ];
+  const maxVal = total || 1;
+  funnelEl.innerHTML = stages.map((s) => `
+    <div class="funnel-stage">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-track"><div class="funnel-fill" style="width:${Math.max((s.value / maxVal) * 100, s.value > 0 ? 4 : 0)}%">${fmtInt(s.value)}</div></div>
+      <div class="funnel-pct">${s.pctOf ? fmtPct((s.value / s.pctOf) * 100) : '—'} do total</div>
+    </div>
+  `).join('');
+  document.getElementById('kpi-taxa-comercial').textContent = qualificados ? fmtPct((vendas / qualificados) * 100) : '—';
+  document.getElementById('kpi-taxa-funil').textContent = total ? fmtPct((vendas / total) * 100) : '—';
+}
 
 // --- dropdown de período ---
 const datePicker = document.getElementById('date-picker');
@@ -654,28 +677,15 @@ async function loadLeads() {
   trackingRowsCache = data;
 
   // --- funil ---
+  // "Lead Ganho" não usa o campo etapa do tracking (subconta vendas reais — mesmo gap já visto em outros clientes).
+  // O valor real vem de confianca_vendas (renderFunil, chamado depois de loadVendas carregar).
   const total = data.length;
   const qualificados = data.filter((l) => l.qualificacao === 'Qualificado').length;
-  const ganhos = data.filter((l) => l.etapa === 'Lead Ganho').length;
   document.getElementById('kpi-leads').textContent = fmtInt(total);
   lastLeadsTotal = total;
-  const stages = [
-    { label: 'Leads recebidos', value: total, pctOf: total },
-    { label: 'Qualificados', value: qualificados, pctOf: total },
-    { label: 'Lead Ganho', value: ganhos, pctOf: total },
-  ];
-  const maxVal = total || 1;
-  funnelEl.innerHTML = stages.map((s) => `
-    <div class="funnel-stage">
-      <div class="funnel-label">${s.label}</div>
-      <div class="funnel-track"><div class="funnel-fill" style="width:${Math.max((s.value / maxVal) * 100, s.value > 0 ? 4 : 0)}%">${fmtInt(s.value)}</div></div>
-      <div class="funnel-pct">${s.pctOf ? fmtPct((s.value / s.pctOf) * 100) : '—'} do total</div>
-    </div>
-  `).join('');
+  lastLeadsQualificados = qualificados;
 
   document.getElementById('kpi-taxa-qualificacao').textContent = total ? fmtPct((qualificados / total) * 100) : '—';
-  document.getElementById('kpi-taxa-comercial').textContent = qualificados ? fmtPct((ganhos / qualificados) * 100) : '—';
-  document.getElementById('kpi-taxa-funil').textContent = total ? fmtPct((ganhos / total) * 100) : '—';
 
   // --- pizza origem ---
   // link na bio sempre mantém a classificação original; lead sem link_bio mas com e-mail preenchido conta como "site"
@@ -1032,6 +1042,8 @@ async function loadVendas() {
   document.getElementById('kpi-ltv-cac').textContent = ltvCac != null ? ltvCac.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' : 1' : '—';
   document.getElementById('kpi-roas-ltv').textContent = roasLtv != null ? roasLtv.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'x' : '—';
   document.getElementById('kpi-taxa-conversao-vendas').textContent = taxaConversao != null ? fmtPct(taxaConversao) : '—';
+
+  renderFunil(vendas);
 }
 
 async function loadAll() {
