@@ -342,7 +342,7 @@
 
     <section>
       <div class="kpis kpis-primary" id="kpis-vendas" style="margin-bottom:0;">
-        <div class="kpi"><div class="label">Vendas aprovadas</div><div class="value" id="kpi-vendas-aprovadas"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Vendas</div><div class="value" id="kpi-vendas-aprovadas"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Receita total</div><div class="value" id="kpi-receita-total"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">MRR gerado</div><div class="value" id="kpi-mrr"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Taxa de conversão</div><div class="value amber" id="kpi-taxa-conversao-vendas"><div class="skel"></div></div></div>
@@ -350,11 +350,12 @@
       <div class="kpis kpis-secondary">
         <div class="kpi"><div class="label">Adesão gerada</div><div class="value" id="kpi-adesao-total"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CAC</div><div class="value" id="kpi-cac"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">LTV (mediana informada)</div><div class="value" id="kpi-ltv"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">LTV</div><div class="value" id="kpi-ltv"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">LTV : CAC</div><div class="value amber" id="kpi-ltv-cac"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">ROAS sobre LTV</div><div class="value amber" id="kpi-roas-ltv"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Receita futura esperada</div><div class="value amber" id="kpi-receita-futura"><div class="skel"></div></div></div>
       </div>
-      <div class="note" id="vendas-note">Vendas registradas manualmente a partir de CSV/lista fechada com o cliente — só entram aqui as marcadas como "aprovado". LTV é a mediana informada pelo Grupo Confiança (quanto cada associado deixa em média ao longo do tempo de contrato), não calculada a partir do histórico.</div>
+      <div class="note" id="vendas-note">Vendas registradas manualmente a partir de CSV/lista fechada com o cliente. LTV = mediana histórica de receita por associado (base de 2 anos, só quem já saiu). Receita futura esperada = vendas do período × LTV — projeção do que essa safra deve gerar ao longo do relacionamento, não receita já realizada.</div>
     </section>
   </div>
 
@@ -1032,6 +1033,7 @@ async function loadVendas() {
   const ltvCac = cac ? LTV_MEDIANO / cac : null;
   const roasLtv = lastInvestimento ? (vendas * LTV_MEDIANO) / lastInvestimento : null;
   const taxaConversao = lastLeadsQualificados ? (vendas / lastLeadsQualificados) * 100 : null;
+  const receitaFutura = vendas * LTV_MEDIANO;
 
   document.getElementById('kpi-vendas-aprovadas').textContent = fmtInt(vendas);
   document.getElementById('kpi-receita-total').textContent = fmtMoney(receitaTotal);
@@ -1042,6 +1044,7 @@ async function loadVendas() {
   document.getElementById('kpi-ltv-cac').textContent = ltvCac != null ? ltvCac.toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + ' : 1' : '—';
   document.getElementById('kpi-roas-ltv').textContent = roasLtv != null ? roasLtv.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'x' : '—';
   document.getElementById('kpi-taxa-conversao-vendas').textContent = taxaConversao != null ? fmtPct(taxaConversao) : '—';
+  document.getElementById('kpi-receita-futura').textContent = fmtMoney(receitaFutura);
 
   renderFunil(vendas);
 }
