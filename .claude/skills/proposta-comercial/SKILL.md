@@ -44,14 +44,14 @@ Criar um arquivo HTML completo com as seguintes seções:
 **Estrutura da proposta:**
 1. Header — logo/nome da empresa prestadora + data. Se o design guide tiver logo definido na seção **Logo**, usar a imagem (largura 140-180px). Escolher a versão correta (fundo claro ou escuro) conforme o estilo da proposta. Se não tiver logo, usar o nome da empresa em texto
 2. Destinatário — "Proposta para [Cliente]"
-3. O problema — o desafio que o cliente enfrenta (em 2-3 parágrafos, na perspectiva do cliente)
-4. A solução — o que você propõe e por que resolve
-5. Escopo — o que está incluído (lista clara)
-6. O que NÃO está incluído (quando relevante — evita conflito depois)
+3. O problema — o desafio que o cliente enfrenta, direto ao ponto (1 parágrafo curto, no máximo 2-3 frases, sem repetir a mesma ideia com outras palavras)
+4. A solução — o que você propõe e por que resolve, também em 1 parágrafo curto
+5. Escopo — o que está incluído (lista clara). Se o cliente usa Shopify + checkout Yampi, considerar incluir otimização do fluxo de checkout (upsell/order bump, campos, tempo de carregamento) como item de escopo quando fizer sentido pro objetivo do projeto, não só as páginas de produto
+6. O que NÃO está incluído (quando relevante — evita conflito depois). Não listar o óbvio nem itens que não se aplicam ao contexto do cliente (ex: não citar migração de plataforma se o cliente acabou de migrar e não há motivo pra migrar de novo)
 7. Prazo e entregáveis
 8. Investimento — valor com contexto de ROI quando possível
-9. Próximos passos — call to action claro
-10. Sobre a empresa — 3-4 linhas sobre quem entrega
+9. Próximos passos — call to action claro e curto, sem parágrafo de venda extra
+10. Sobre a empresa — 1-2 linhas sobre quem entrega, não 3-4
 
 **Estilo visual:**
 - Aplicar cores e fontes do `marca/design-guide.md`
@@ -74,3 +74,5 @@ Perguntar: "Quer que eu publique essa proposta com um link compartilhável? É s
 - Nunca inventar valor, prazo ou escopo — se não foi fornecido, deixar placeholder claro pra preencher
 - A proposta deve soar como veio de uma pessoa, não de um template corporativo
 - Sem jargão desnecessário ("soluções inovadoras", "entregamos valor", etc)
+- **Direto ao ponto, sem firula:** parágrafos curtos (1-3 frases), sem repetir a mesma ideia de formas diferentes, sem frase de efeito antes de chegar no ponto. Cortar qualquer trecho que só existe pra "soar bem" e não carrega informação nova
+- Toda lista (escopo, o que não está incluído) reflete só o que é real e específico pro cliente daquela proposta, nunca item genérico de template
