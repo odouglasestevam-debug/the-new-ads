@@ -1,24 +1,26 @@
-# Regras de Design — Carrossel (Elaborado)
+# Regras de Design — Carrossel (Prova Social / Editorial)
 
 > Este arquivo controla como os slides do carrossel são criados visualmente.
+> Padrão inspirado em contas de referência de alta performance (ex: @brandsdecoded_ / Content Machine).
+> Foco: autoridade, prova concreta, fotografia editorial e mecânica de conversão — não só design bonito.
 > Tu pode editar qualquer regra aqui e o Claude vai seguir na próxima vez que criar um carrossel.
 
 ---
 
 ## Filosofia
 
-Cada carrossel deve ter personalidade visual própria. Antes de criar qualquer slide, definir uma direção estética forte e executar com precisão. Nunca fazer o óbvio ou o genérico.
+Esse estilo vende antes de "impressionar". Cada slide existe pra provar um ponto, não só decorar um texto. A estética é grotesk bold + fotografia editorial + prova real (screenshots, dados, cases), nunca gradiente genérico ou ilustração decorativa solta.
 
 **Pensar antes de criar:**
-- Qual é o tom do conteúdo? (provocativo, educativo, inspiracional, urgente)
-- Qual é a sensação que cada slide deve provocar?
-- O que torna esse carrossel memorável? Qual elemento visual alguém vai lembrar?
+- Esse slide está afirmando algo ou provando algo? Prova > afirmação sempre que possível
+- Tem um dado, print, exemplo real ou case pra sustentar o argumento deste slide?
+- A headline tem UMA palavra ou frase que merece destaque de cor, ou tá tudo no mesmo peso?
 
 **NUNCA fazer:**
-- Layout previsível e repetitivo (texto em cima, corpo embaixo, todos iguais)
-- Cores e fontes genéricas sem personalidade
-- Design que parece "template pronto de Canva"
-- Fundo sólido chapado em todos os slides
+- Texto genérico sem prova quando existe dado disponível
+- Cor de destaque aplicada em mais de uma frase/bloco por slide
+- Foto de banco de imagem genérica (pose de stock, sorriso forçado). Preferir still editorial com grade de cor forte, ou não usar foto
+- Fundo com gradiente decorativo sem função (esse estilo é fundo sólido, não textura)
 
 ---
 
@@ -26,88 +28,78 @@ Cada carrossel deve ter personalidade visual própria. Antes de criar qualquer s
 
 - **Instagram:** 1080x1350px (proporção 4:5)
 - **TikTok:** 1080x1920px (proporção 9:16)
-- **Safe area:** 56px nas laterais, 80px embaixo
+- **Safe area:** 45px nas laterais, 60px em cima, 80px embaixo
 
 ---
 
-## Composição espacial
+## Barra de assinatura (todo slide, sem exceção)
 
-Não centralizar tudo. Usar o espaço de forma intencional:
+Barra fina no topo de todo slide, três colunas:
+- **Esquerda:** "Powered by [marca/agência]" — ou nome da marca do cliente
+- **Centro:** "@handle" do Instagram
+- **Direita:** mês/ano (ex: "Janeiro 2026 ®") ou apenas ano com "//" (ex: "2026 //")
 
-- **Assimetria:** texto alinhado à esquerda com respiro generoso à direita, ou o contrário
-- **Terço inferior / superior:** concentrar conteúdo numa zona e deixar o resto respirar
-- **Elementos que quebram o grid:** número enorme que vaza da safe area, bloco de cor que ocupa metade do slide, borda lateral grossa
-- **Sobreposição:** texto por cima de blocos de cor, cards sobrepostos, camadas visuais
-- **Densidade controlada:** ou muito ar (editorial) ou muita informação (impacto). Nunca meio-termo morno
+Fonte pequena (11-13px), sans-serif regular, cor branca em fundo escuro/vibrante, cor preta/escura em fundo claro. Nunca decorativa, sempre discreta — é assinatura, não elemento de destaque.
 
 ---
 
-## Ritmo visual
+## Paleta e alternância de fundo
 
-O carrossel é uma sequência narrativa, não uma coleção de slides iguais.
+Rotacionar entre **3 tipos de fundo**, nunca dois slides seguidos iguais:
+1. **Claro/off-white** (`#F4F4F4` ou similar) — texto escuro
+2. **Escuro/navy quase preto** (`#0A0A14` ou similar) — texto branco, destaque em amarelo-claro ou accent
+3. **Cor vibrante sólida** (a cor de destaque da marca, saturada — ex: laranja `#FF4500`) — texto branco/preto conforme contraste
 
-- Variar entre slides densos e slides com muito respiro
-- Alternar fundos claros e escuros (ou variações da paleta)
-- Nunca 3 slides seguidos com o mesmo layout
-- O slide de CTA deve ser visualmente diferente de todos os outros
+A cor de destaque da marca (`marca/design-guide.md`) aparece em: palavra-chave dentro de headline, sublinhado, ou como fundo sólido de slide inteiro (não as três coisas no mesmo slide).
+
+---
+
+## Capa (slide 1)
+
+Estrutura fixa:
+1. Barra de assinatura no topo
+2. **Avatar + @handle + badge verificado**, centralizado, logo abaixo da barra ou sobre a foto — ativa prova social antes do usuário ler qualquer coisa. Avatar circular pequeno (44-56px), pode ter anel gradiente decorativo em volta
+3. Foto full-bleed (still editorial, cor forte, alto contraste) OU fundo de cor vibrante sólida
+4. Headline em caps, peso black/900, ocupando quase a largura toda do slide. 1-3 palavras (nunca a frase inteira) na cor de destaque
+5. Linha de apoio pequena abaixo, começando com seta "→", tom mais baixo (peso regular, menor)
+
+Se não tiver foto disponível pra capa, usar fundo de cor vibrante sólida + a mesma estrutura de avatar/handle/headline. Funciona igual de bem.
 
 ---
 
 ## Tipografia
 
-Usar fontes do design guide, mas com intenção:
+- **Família:** sans-serif grotesk bold (ex: Archivo, General Sans, Inter Black, ou equivalente do design guide). Peso black/900 pra headlines, regular/500 pro corpo
+- **Headlines:** 56-96px, caps ou title case conforme o tom, sempre peso extremo (black)
+- **Corpo:** 28-36px, peso regular, altura de linha generosa (1.3-1.4)
+- **Uma exceção por carrossel:** pelo menos 1 slide pode usar fonte serifada editorial (ex: instrument serif, times) pra uma citação ou afirmação de peso — cria contraste de registro e sinaliza "isso é verdade importante"
 
-- **Headlines:** tamanho grande e confiante (64-108px). Peso bold ou extrabold
-- **Corpo:** legível e limpo (30-38px). Peso regular ou light
-- **Contraste tipográfico:** misturar pesos e tamanhos com propósito
-- **Tratamento de palavras-chave:** highlight com cor de fundo (texto escuro sobre destaque), itálico com peso diferente, sublinhado estilizado. Não apenas trocar a cor
-
----
-
-## Fundos e texturas
-
-Criar atmosfera e profundidade:
-
-- **Gradientes sutis:** dois tons próximos da paleta, angulados (135deg, 160deg)
-- **Noise/grain:** overlay de ruído leve (2-4% opacity) pra tirar o look "digital flat". Usar SVG filter inline:
-  ```html
-  <svg style="position:absolute;width:0;height:0">
-    <filter id="noise"><feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" stitchTiles="stitch"/></filter>
-  </svg>
-  ```
-  E no CSS do body: pseudo-element com `filter: url(#noise); opacity: 0.03`
-- **Blocos de cor parciais:** retângulo de cor ocupando 30-40% do slide como elemento decorativo
-- **Linhas e separadores:** linhas finas como composição (não como divisor genérico)
-- **Sombras dramáticas:** text-shadow ou box-shadow com blur grande e cor da paleta
+### Destaque de palavra-chave (escolher UMA técnica por slide, nunca combinar)
+- **Cor:** só a palavra/frase-chave na cor de destaque, resto no branco/preto padrão
+- **Sublinhado manual:** `border-bottom` fino (2-3px) sob a frase inteira que é o argumento central do slide — não a `text-decoration` padrão
+- Nunca usar highlight de fundo colorido atrás do texto nesse estilo (isso é do estilo "elaborado")
 
 ---
 
-## Layouts obrigatórios (variar entre eles)
+## Listas e marcadores
 
-Usar pelo menos 3 layouts diferentes. Escolher os que fazem sentido pro conteúdo:
-
-- **Editorial:** headline enorme no terço inferior, subtítulo pequeno, resto é respiro puro
-- **Número em destaque:** stat gigante (120-200px) com contexto menor. O número É o slide
-- **Card com borda:** texto em card com border-left grosso (5-8px) ou borda completa
-- **Citação:** aspas decorativas gigantes (200px, opacity 0.08) no fundo, texto itálico por cima
-- **Split:** metade do slide é bloco de cor sólida (com número/tag), metade é texto. Divisão vertical
-- **Coluna lateral:** barra vertical de cor (40-80px) na esquerda com accent, conteúdo ao lado
-- **Full bleed text:** texto enorme, 2-3 palavras por linha, impacto máximo
-- **Badge + headline:** tag em badge colorido (background da cor de destaque, texto escuro) acima da headline
+Escolher o marcador pelo tipo de conteúdo, nunca bullet genérico (•):
+- **Seta "→":** benefícios, consequências, o que vai mudar, o que o leitor vai aprender
+- **X vermelho "✕":** mitos, crenças erradas, o que parou de funcionar
+- **Números "1. 2. 3.":** passo a passo, framework, ordem de execução
+- **"MODELO 01 / MODELO 02":** quando o slide apresenta um framework nomeado e replicável — número em cor de destaque, headline do modelo em peso black logo depois
 
 ---
 
-## Elementos decorativos
+## Prova social embutida (o diferencial desse estilo)
 
-Usar com intenção pra criar profundidade:
+Usar pelo menos 1-2 slides com prova concreta, não só texto puro:
+- **Card de perfil do Instagram:** mockup simples de card branco com avatar, @handle, bio e contagem de seguidores — usado como "veja esse case real"
+- **Grid de mini-thumbnails:** 6-8 miniaturas de posts/carrosséis anteriores dispostas em grid 2x4, com legenda de estrutura embaixo (ex: "Slide 1: gancho. Slides 2-3: promessa..."). Bom pra slide de "como fazer" ou "anatomia de"
+- **Print de dado/gráfico real:** se o usuário tiver ou puder fornecer estatística com fonte, montar como card visual (fundo branco, título do gráfico, fonte citada embaixo pequena)
+- **Mockup de post do Instagram:** card com foto, curtidas, comentários, botão "Turbinar post" — pra ilustrar um exemplo dentro de um framework
 
-- **Números de fundo:** tamanho 300-600px, opacity 3-8%, como textura. Pode vazar da safe area
-- **Stripes/linhas diagonais:** linhas finas da cor de destaque cruzando o slide (opacity 0.1-0.3)
-- **Glow:** radial-gradient sutil da cor de destaque atrás do conteúdo principal (opacity 0.1)
-- **Barra de progresso:** 2-3px no rodapé, fill proporcional. Cor de destaque em claros, branco em escuros
-- **Tags/labels:** texto pequeno uppercase, letter-spacing 3-6px amplo
-- **Bordas parciais:** border-left ou border-top apenas, não a caixa toda
-- **Accent bar:** barra fina (6-8px) na lateral esquerda do slide inteiro como assinatura visual
+Esses elementos são fabricados em HTML/CSS (card, mockup, grid), não fotos reais de terceiros — a menos que o usuário forneça screenshots próprios.
 
 ---
 
@@ -115,46 +107,53 @@ Usar com intenção pra criar profundidade:
 
 Imagens em `conteudo/carrosseis/[tema]/imagens/`, referência relativa no HTML.
 
-- **Capa com foto:** full-bleed + gradiente escuro (0.7-0.9 opacity). Contraste 4.5:1
-- **Slide escuro com foto:** overlay 80-90%. Legibilidade primeiro
-- **Slide claro com foto:** image box (100% width, ~360px, border-radius 12-20px)
-- **Todas as imagens fornecidas devem ser usadas**
+- **Foto de capa/full-bleed:** cobre o slide inteiro ou uma faixa grande (60-70% da altura), sem overlay de gradiente — a foto já vem com grade de cor forte (contraste, saturação). Texto sobreposto direto no terço inferior com fundo escuro natural da foto (não overlay artificial)
+- **Foto em box (slides de conteúdo):** retângulo com `border-radius: 4-8px` (quase reto, não arredondado como o estilo elaborado), ocupando a largura do slide, altura fixa (~420-480px), com texto abaixo, nunca sobreposto
+- **Grade de cor:** se o usuário não tiver foto com grade de cor pronta, aplicar `filter: contrast(1.1) saturate(1.2)` no CSS pra aproximar do look editorial
+- Nem toda foto precisa de pessoa — still de objeto/ambiente também funciona se bem enquadrado e colorido
 
 ---
 
 ## Design sem foto
 
-O design brilha sozinho sem foto:
+Slides 100% tipográficos funcionam bem nesse estilo (metade dos exemplos de referência não usa foto):
+- Fundo de cor sólida vibrante ou navy escuro
+- Headline black + corpo + lista com seta/X/número
+- Linha fina horizontal (`border-top: 1px solid`, opacity baixa) como separador entre blocos de texto dentro do mesmo slide
+- Espaço em branco generoso — não precisa preencher o slide inteiro, um bloco de texto no terço superior com muito respiro embaixo é válido
 
-- Números gigantes como visual principal
-- Split layouts com blocos de cor sólida
-- Gradientes + noise pra profundidade
-- Glow radial da cor de destaque
-- Stripes diagonais como textura de fundo
-- O slide NÃO pode parecer que "faltou a foto"
+---
+
+## CTA final
+
+Mecânica de comentário pra desbloquear, não link solto:
+- Pill/botão com borda arredondada (`border-radius: 999px`), borda fina, fundo branco/transparente
+- Texto: "Comenta '[PALAVRA]' e [ação]" — a palavra-chave em bold
+- Acima do CTA, um elemento visual de "oferta": mockup de produto, foto de pessoa usando o produto/serviço, ou objeto simbólico (livro, ebook)
+- Se o usuário não tiver oferta/lead magnet, adaptar pra CTA direto do negócio (ex: "Comenta 'ORÇAMENTO' e recebe uma proposta")
 
 ---
 
 ## Logo no slide final
 
-Se `marca/design-guide.md` tiver logo, incluir no CTA: 120-200px.
+Se `marca/design-guide.md` tiver logo, incluir de forma discreta (junto da barra de assinatura ou perto do CTA): 100-160px.
 
 ---
 
 ## HTML técnico
 
 - 1080x1350px, inline CSS, Google Fonts via `<link>`
-- SVG inline pra noise filter e formas decorativas
-- Cor de destaque com moderação: highlights, bordas, progress. Nunca como fundo de texto corrido
-- Pseudo-elements (::before, ::after) pra overlays e texturas
+- Sem SVG de noise/textura (esse estilo é limpo, sem grão)
+- Cor de destaque com moderação: uma aplicação por slide (palavra, sublinhado, ou fundo sólido — nunca as três)
+- Bordas quase retas (`border-radius` baixo, 0-8px) em cards e imagens — o estilo é mais "editorial revista" que "app moderno arredondado"
 
 ---
 
 ## O que ajustar
 
-- **Muito caótico:** reduz elementos decorativos, aumenta respiro, remove stripes/glow
-- **Pouca energia:** adiciona mais texturas, split layouts, números maiores
-- **Layout repetitivo:** escolhe layouts diferentes da lista acima
-- **Quer estilo específico:** descreve aqui (ex: "brutalista", "neon cyberpunk", "editorial revista")
+- **Muito "corporativo"/sem graça:** aumenta contraste do peso tipográfico (mais black, menos regular), adiciona mais slides de prova social
+- **Muito carregado:** reduz pra 1 elemento de prova social por carrossel, mais slides de texto puro com respiro
+- **Falta autoridade:** adiciona dado com fonte, ou mockup de case real
+- **Quer estilo específico:** descreve aqui
 
 Qualquer mudança aqui vale pro próximo carrossel. Pede pro Claude: "muda a regra X no design do carrossel" e ele edita este arquivo.
