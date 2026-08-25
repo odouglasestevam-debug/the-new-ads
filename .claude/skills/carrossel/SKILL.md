@@ -36,12 +36,14 @@ Ler `references/design-carrossel.md`. Se o arquivo contiver a linha `<!-- estilo
 > "Como tu quer o visual dos slides?
 > 1. **Minimalista:** limpo, muito espaço em branco, layouts simples. Elegante e clean
 > 2. **Elaborado:** texturas, composições ousadas, layouts variados. Impactante e marcante no feed
-> 3. **Tweet:** simula um tweet/post do Twitter. Fundo branco, foto de perfil e @handle no topo, texto grande embaixo. Ultra-limpo e familiar"
+> 3. **Tweet:** simula um tweet/post do Twitter. Fundo branco, foto de perfil e @handle no topo, texto grande embaixo. Ultra-limpo e familiar
+> 4. **Prova social/editorial:** grotesk bold, fotografia editorial, barra de assinatura fixa, prova concreta (screenshots, cases, dados) em vez de só afirmação. Estilo de conta de autoridade/educador, foco em conversão"
 
 Conforme a resposta, **substituir o conteúdo inteiro** de `references/design-carrossel.md` pelo conteúdo do arquivo de estilo escolhido:
 - Minimalista: copiar conteúdo de `references/design-minimalista.md`
 - Elaborado: copiar conteúdo de `references/design-elaborado.md`
 - Tweet: copiar conteúdo de `references/design-tweet.md`
+- Prova social/editorial: copiar conteúdo de `references/design-prova-social.md`
 
 Se `design-carrossel.md` NÃO contiver `<!-- estilo: pendente -->`, o estilo já foi escolhido. Não perguntar de novo.
 
