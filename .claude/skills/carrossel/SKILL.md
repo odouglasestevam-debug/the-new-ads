@@ -140,7 +140,7 @@ O usuário fornece:
 
 5. **Briefing rápido** — perguntar ao usuário (numa mensagem só):
    > "Antes de escrever, me confirma:
-   > - Quantos slides? (padrão: 8-10)
+   > - Quantos slides? (padrão: 8-10, **máximo 10** — nunca ultrapassar. Se o conteúdo pedir mais espaço, comprimir ideias/juntar slides em vez de esticar a contagem)
    > - Vai querer imagem na capa ou dentro dos slides? Se sim, quantas imagens tu tem?
    >   - Se tiver imagens: joga na pasta `conteudo/carrosseis/[tema]/imagens/` e me diz os nomes
    >   - Se não tiver: faço um design visual que funciona bem sem foto
