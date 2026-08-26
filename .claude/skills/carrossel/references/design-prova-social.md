@@ -152,11 +152,17 @@ Esse slide é mais denso que o padrão de "1 ideia por slide" do resto do carros
 
 ## CTA final
 
-Mecânica de comentário pra desbloquear, não link solto:
+Duas mecânicas válidas, escolher pela intenção do carrossel:
+
+**Comentário pra desbloquear** (quando tem lead magnet/oferta de conteúdo):
 - Pill/botão com borda arredondada (`border-radius: 999px`), borda fina, fundo branco/transparente
 - Texto: "Comenta '[PALAVRA]' e [ação]" — a palavra-chave em bold
 - Acima do CTA, um elemento visual de "oferta": mockup de produto, foto de pessoa usando o produto/serviço, ou objeto simbólico (livro, ebook)
-- Se o usuário não tiver oferta/lead magnet, adaptar pra CTA direto do negócio (ex: "Comenta 'ORÇAMENTO' e recebe uma proposta")
+
+**Link na bio + convite direto pra conversa** (padrão da The New Ads, quando o objetivo é vender o serviço principal — gestão de tráfego): usar sempre que o carrossel não tem lead magnet, só quer gerar contato comercial.
+- Headline grande faz a pergunta que qualifica o lead (ex: "Quer [resultado] com [diferencial que o carrossel acabou de provar]?"), amarrando o gancho do carrossel na oferta, não um CTA genérico solto
+- Pill/botão: "Clica no link da bio e [ação de conversar]" — nunca só "manda mensagem", sempre reforçar a estrutura/vantagem provada no carrossel
+- Se o usuário não tiver oferta/lead magnet, esse é o padrão default pra CTA da The New Ads
 
 ---
 
