@@ -44,6 +44,7 @@ def cmd_campaign(args):
     from lib import parse_money
     budget.amount_micros = int(round(parse_money(args.budget) * 1_000_000))  # valor em reais/euro -> micros
     budget.delivery_method = client.enums.BudgetDeliveryMethodEnum.STANDARD
+    budget.explicitly_shared = False
 
     budget_response = campaign_budget_service.mutate_campaign_budgets(
         customer_id=customer_id, operations=[budget_operation]
