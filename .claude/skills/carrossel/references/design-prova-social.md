@@ -52,18 +52,29 @@ Rotacionar entre **3 tipos de fundo**, nunca dois slides seguidos iguais:
 
 A cor de destaque da marca (`marca/design-guide.md`) aparece em: palavra-chave dentro de headline, sublinhado, ou como fundo sólido de slide inteiro (não as três coisas no mesmo slide).
 
+**Exceção deliberada:** se o tema do carrossel remete a uma cor/paleta específica (ex: carrossel sobre um país, uma estação, uma marca com paleta icônica), 1 slide pode usar um fundo pastel/simbólico ligado ao tema, fora da rotação fixa de 3. É exceção pontual, não vira uma 4ª cor de rotação padrão — só usar quando o conteúdo justificar.
+
 ---
 
 ## Capa (slide 1)
 
-Estrutura fixa:
+Duas variações válidas, escolher pelo tom do carrossel:
+
+**Variação A (avatar no topo):**
 1. Barra de assinatura no topo
 2. **Avatar + @handle + badge verificado**, centralizado, logo abaixo da barra ou sobre a foto — ativa prova social antes do usuário ler qualquer coisa. Avatar circular pequeno (44-56px), pode ter anel gradiente decorativo em volta
 3. Foto full-bleed (still editorial, cor forte, alto contraste) OU fundo de cor vibrante sólida
 4. Headline em caps, peso black/900, ocupando quase a largura toda do slide. 1-3 palavras (nunca a frase inteira) na cor de destaque
 5. Linha de apoio pequena abaixo, começando com seta "→", tom mais baixo (peso regular, menor)
 
-Se não tiver foto disponível pra capa, usar fundo de cor vibrante sólida + a mesma estrutura de avatar/handle/headline. Funciona igual de bem.
+**Variação B (kicker no topo, avatar embaixo):**
+1. Barra de assinatura no topo
+2. Foto full-bleed ocupando o slide inteiro, com overlay escuro na base pra legibilidade
+3. **Kicker:** linha curta de contexto (peso regular, menor, cor secundária) posicionada ACIMA da headline, no terço inferior da foto — dá a moldura antes do impacto
+4. Headline em caps, peso black/900, logo abaixo do kicker. 1 palavra-chave na cor de destaque
+5. **Avatar + @handle + badge verificado** por último, na base do slide, abaixo da headline — fecha a composição em vez de abrir
+
+Se não tiver foto disponível pra capa, usar fundo de cor vibrante sólida + a variação A (avatar no topo). Funciona igual de bem.
 
 ---
 
@@ -72,7 +83,7 @@ Se não tiver foto disponível pra capa, usar fundo de cor vibrante sólida + a 
 - **Família:** sans-serif grotesk bold (ex: Archivo, General Sans, Inter Black, ou equivalente do design guide). Peso black/900 pra headlines, regular/500 pro corpo
 - **Headlines:** 56-96px, caps ou title case conforme o tom, sempre peso extremo (black)
 - **Corpo:** 28-36px, peso regular, altura de linha generosa (1.3-1.4)
-- **Uma exceção por carrossel:** pelo menos 1 slide pode usar fonte serifada editorial (ex: instrument serif, times) pra uma citação ou afirmação de peso — cria contraste de registro e sinaliza "isso é verdade importante"
+- **Segundo registro serifado:** fonte serifada editorial (ex: instrument serif, times) pode ser usada como registro alternado ao longo do carrossel, não só numa exceção isolada. Intercalar slides com lead-in serifado e slides com lead-in sans dá ritmo de leitura. Regra prática: quando o slide tem peso de afirmação/tese (algo que soa como conclusão), serifado. Quando o slide tem peso de argumento/explicação direta, sans bold
 
 ### Destaque de palavra-chave (escolher UMA técnica por slide, nunca combinar)
 - **Cor:** só a palavra/frase-chave na cor de destaque, resto no branco/preto padrão
@@ -112,6 +123,8 @@ Imagens em `conteudo/carrosseis/[tema]/imagens/`, referência relativa no HTML.
 - **Grade de cor:** se o usuário não tiver foto com grade de cor pronta, aplicar `filter: contrast(1.1) saturate(1.2)` no CSS pra aproximar do look editorial
 - Nem toda foto precisa de pessoa — still de objeto/ambiente também funciona se bem enquadrado e colorido
 
+**Regra de escolha da foto: mood vs prova literal.** Quando o slide é uma afirmação genérica/abstrata (sem citar um exemplo real), a foto casa pelo registro emocional do slide (mood-matching), não precisa ilustrar o texto literalmente. Quando o slide cita um case, marca ou pessoa real e nomeada, a foto vira prova literal daquele case (print de campanha real, produto real, pessoa real) — nesse caso não vale foto genérica "de clima", tem que ser a imagem do case citado.
+
 ---
 
 ## Design sem foto
@@ -121,6 +134,19 @@ Slides 100% tipográficos funcionam bem nesse estilo (metade dos exemplos de ref
 - Headline black + corpo + lista com seta/X/número
 - Linha fina horizontal (`border-top: 1px solid`, opacity baixa) como separador entre blocos de texto dentro do mesmo slide
 - Espaço em branco generoso — não precisa preencher o slide inteiro, um bloco de texto no terço superior com muito respiro embaixo é válido
+
+---
+
+## Slide institucional / vitrine (opcional)
+
+Quando o carrossel precisa de um slide de apresentação da marca/conta em algum ponto (geralmente logo após a capa, ou como slide fixo reaproveitado entre carrosséis), usar esse arquétipo de slide único com múltiplas zonas empilhadas:
+1. Barra de assinatura no topo
+2. **Zona de headline:** metade superior do slide em cor sólida (fundo da marca ou accent), com a frase de posicionamento da conta/negócio em peso black, 1-2 palavras-chave na cor de destaque
+3. **Zona de foto:** painel de imagem logo abaixo, com overlay escuro sutil, ocupando boa parte da metade inferior
+4. **Parágrafo curto** (2-3 linhas) descrevendo o que a marca/negócio faz, sobreposto ou logo abaixo da foto
+5. **CTA em pill** fechando o slide, com uma palavra ou frase na cor de destaque dentro do texto (ex: "link em nossa bio")
+
+Esse slide é mais denso que o padrão de "1 ideia por slide" do resto do carrossel — é intencional, funciona como cartão de visita compacto, não como parte do arco narrativo.
 
 ---
 
