@@ -51,9 +51,11 @@ no relatório de produtividade).
    `clickup_search`) se já não existe uma tarefa recorrente/aberta equivalente — não duplicar
    o que já está rodando.
 5. `clickup_create_task` na lista resolvida. `name` claro e acionável, `priority` só se ele
-   sinalizar urgência, `assignees` = Douglas (`270704987`) por padrão, salvo ele indicar
-   outra pessoa (Pedro Henrique `212499201`, Igor Mendes `176467453`, Danilo Patrício
-   `236528857`).
+   sinalizar urgência. `assignees` é obrigatório em toda demanda, sem exceção: padrão é
+   Douglas (`270704987`), e só usar outra pessoa (Pedro Henrique `212499201`, Igor Mendes
+   `176467453`, Danilo Patrício `236528857`) quando ele disser explicitamente pra quem é
+   ("lança uma tarefa pro Fulano"). Nunca criar tarefa sem passar `assignees` — mesmo em
+   lote/planejamento com várias tarefas de uma vez.
 6. `start_date` e `due_date` são obrigatórios em toda demanda criada. Se o Douglas passou o
    vencimento, usar `start_date` = hoje e `due_date` = o que ele falou. Se ele não passou
    nenhuma data, usar `start_date` = hoje e `due_date` = amanhã por padrão — nunca criar
