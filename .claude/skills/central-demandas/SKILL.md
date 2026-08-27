@@ -50,10 +50,14 @@ no relatório de produtividade).
 4. Antes de criar, checar rapidamente (`clickup_filter_tasks` na lista alvo, ou
    `clickup_search`) se já não existe uma tarefa recorrente/aberta equivalente — não duplicar
    o que já está rodando.
-5. `clickup_create_task` na lista resolvida. `name` claro e acionável, `due_date` se o
-   Douglas deu prazo, `priority` só se ele sinalizar urgência, `assignees` = Douglas
-   (`270704987`) por padrão, salvo ele indicar outra pessoa (Pedro Henrique `212499201`,
-   Igor Mendes `176467453`, Danilo Patrício `236528857`).
+5. `clickup_create_task` na lista resolvida. `name` claro e acionável, `priority` só se ele
+   sinalizar urgência, `assignees` = Douglas (`270704987`) por padrão, salvo ele indicar
+   outra pessoa (Pedro Henrique `212499201`, Igor Mendes `176467453`, Danilo Patrício
+   `236528857`).
+6. `start_date` e `due_date` são obrigatórios em toda demanda criada. Se o Douglas passou o
+   vencimento, usar `start_date` = hoje e `due_date` = o que ele falou. Se ele não passou
+   nenhuma data, usar `start_date` = hoje e `due_date` = amanhã por padrão — nunca criar
+   tarefa sem essas duas datas.
 
 Não pedir confirmação de cada campo — criar direto e mostrar o que foi criado, com link.
 
