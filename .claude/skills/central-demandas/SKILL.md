@@ -60,6 +60,11 @@ no relatório de produtividade).
    vencimento, usar `start_date` = hoje e `due_date` = o que ele falou. Se ele não passou
    nenhuma data, usar `start_date` = hoje e `due_date` = amanhã por padrão — nunca criar
    tarefa sem essas duas datas.
+7. **Nunca agendar tarefa para sábado ou domingo.** Se `start_date` ou `due_date` cair num
+   fim de semana, empurrar pra segunda-feira seguinte. Vale pro padrão de "amanhã" (sexta
+   vira segunda) e pro que o Douglas falar em data relativa. Se ele pedir explicitamente uma
+   data que é sábado/domingo, avisar e confirmar antes de criar. Conferir o dia da semana de
+   verdade (`date -d <data> +%A`), não assumir.
 
 Não pedir confirmação de cada campo — criar direto e mostrar o que foi criado, com link.
 
