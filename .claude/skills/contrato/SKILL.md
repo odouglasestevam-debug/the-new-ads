@@ -26,7 +26,7 @@ Essas cláusulas já refletem decisões que Douglas tomou sobre como a The New A
 - **Prazo mínimo:** 4 meses, renovação automática por prazo indeterminado depois disso.
 - **Rescisão:** aviso prévio obrigatório de 30 dias (serviço e cobrança seguem normalmente nesse período). Cancelamento imediato sem aviso gera multa de 50% do fee fixo mensal vigente.
 - **Foro:** cidade a definir por Douglas em cada contrato (não assumir cidade, mas Tubarão/SC é o padrão mais provável já que é a sede da contratada).
-- **Contratada (The New Ads):** CNPJ 49.951.219/0001-65 (MEI), Douglas Estevam Teixeira, Rua Cecília Henrique Fernandes, 581, Congonhas, Tubarão/SC. Esses dados já vêm de `_contexto/empresa.md`, não perguntar de novo.
+- **Contratada:** sempre identificada como "Douglas Estevam Teixeira (The New Ads)", nessa ordem, tanto na qualificação quanto no bloco de assinatura — nunca "The New Ads (Douglas Estevam Teixeira)" nem só "The New Ads". CNPJ 49.951.219/0001-65 (MEI), Rua Cecília Henrique Fernandes, 581, Congonhas, Tubarão/SC. Esses dados já vêm de `_contexto/empresa.md`, não perguntar de novo.
 - **Propriedade intelectual (Cláusula 8.3 e 8.4):** após rescisão, a CONTRATANTE não pode replicar/reaproveitar a estrutura de campanhas, segmentações, estratégias e a estrutura de rastreamento avançado (GTM/tags/eventos e rastreamento de conversas via WhatsApp) desenvolvidas pela CONTRATADA (know-how proprietário). Materiais entregues em overdelivery/cortesia/bônus (sem cobrança específica) não têm uso cedido e não podem ser usados sem autorização.
 
 Essas regras vêm de decisão explícita do usuário. Se ele pedir pra mudar alguma (ex: outro modelo de cobrança, outro prazo), aplicar só naquele contrato específico, sem alterar o template padrão sem confirmação.
@@ -76,7 +76,7 @@ Retornar o link do documento pro usuário (montar `https://docs.google.com/docum
 
 ### Passo 5 — Revisão
 
-Antes de considerar pronto, avisar o usuário:
+O contrato precisa sair pronto pra assinatura, sem nenhum texto interno/operacional dentro do documento (nada de rodapé tipo "documento gerado a partir do template padrão", "revisão jurídica recomendada", notas de processo, etc. — isso é conversa entre Douglas e a IA, não faz parte do que o cliente ou o assinador digital vê). O aviso abaixo é só na resposta do chat, nunca no arquivo:
 
 > "Contrato gerado e subido pro Google Docs. Isso é um template de apoio operacional, não substitui revisão jurídica profissional antes do envio pro cliente, principalmente nas cláusulas de rescisão e responsabilidade."
 
@@ -88,6 +88,7 @@ O contrato usa layout formal, impresso/PDF-friendly (fundo branco, texto preto, 
 
 ## Regras
 
+- Documento final não pode ter nenhum texto interno/de processo (rodapé "gerado a partir do template", "revisão recomendada", comentário sobre a geração, etc.) — o contrato tem que estar 100% pronto pra ir direto pro assinador digital, com só o conteúdo jurídico e a assinatura
 - Nunca inventar CNPJ, endereço, valor ou cláusula que não foi informado — deixar placeholder visível
 - Não remover ou suavizar as cláusulas de rescisão, LGPD, propriedade ou limitação de responsabilidade sem o usuário pedir explicitamente
 - Cada contrato gerado é um arquivo novo, o template em `templates/contrato-padrao.html` nunca é sobrescrito por um contrato específico
