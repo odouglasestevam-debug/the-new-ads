@@ -59,17 +59,28 @@ Se o usuário já passou parte dessas informações antes (proposta comercial ac
 - Se o usuário trouxer pontos adicionais no Passo 1, adicionar como cláusula extra numerada (ex: Cláusula 13) antes da seção de Foro/assinatura
 - Gerar número de contrato sequencial simples (ex: ano + sequencial, tipo `2026-001`) se o usuário não tiver um padrão definido
 
-### Passo 3 — Salvar
+### Passo 3 — Salvar localmente
 
-Salvar em `contratos/contrato-[nome-cliente]-[data].html`
+Salvar em `contratos/contrato-[nome-cliente]-[data].html` (registro interno, fica no repo).
 
-### Passo 4 — Revisão
+### Passo 4 — Subir pro Google Docs
+
+Usar `mcp__claude_ai_Google_Drive__create_file` com o HTML do contrato:
+- `title`: "Contrato — [Cliente] — [data]"
+- `textContent`: o HTML completo do contrato (o mesmo salvo no Passo 3)
+- `contentMimeType`: `"text/html"`
+- **Não** setar `disableConversionToGoogleType` — precisa converter automaticamente pra Google Doc editável, não ficar como HTML bruto anexado
+- Se o usuário indicar uma pasta específica do Drive, usar `parentId`; sem indicação, cria na raiz do Drive
+
+Retornar o link do documento pro usuário (montar `https://docs.google.com/document/d/[id]/edit` a partir do `id` retornado pela chamada, ou usar o link que vier na resposta).
+
+### Passo 5 — Revisão
 
 Antes de considerar pronto, avisar o usuário:
 
-> "Contrato gerado. Isso é um template de apoio operacional, não substitui revisão jurídica profissional antes do envio pro cliente, principalmente nas cláusulas de rescisão e responsabilidade."
+> "Contrato gerado e subido pro Google Docs. Isso é um template de apoio operacional, não substitui revisão jurídica profissional antes do envio pro cliente, principalmente nas cláusulas de rescisão e responsabilidade."
 
-Perguntar se quer publicar com link (`/publicar-site`) ou só o arquivo local pra assinatura (ex: Autentique, Clicksign, D4Sign).
+Perguntar o que fazer a seguir: compartilhar o Google Doc direto com o cliente (ajustar permissão de acesso), exportar como PDF pra subir numa plataforma de assinatura (Autentique, Clicksign, D4Sign), ou publicar com link (`/publicar-site`). Não presumir — o Google Doc já resolve revisão e assinatura eletrônica simples (Google permite comentário/edição), mas assinatura com validade jurídica formal ainda passa por uma dessas plataformas.
 
 ## Estilo do documento
 
