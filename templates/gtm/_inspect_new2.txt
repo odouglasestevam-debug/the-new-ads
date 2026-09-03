@@ -1,0 +1,204 @@
+=== TAG: 00 | Visitor API 📍 (type=cvt_TQDDK) ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "tagId": "13",
+  "name": "00 | Visitor API 📍",
+  "type": "cvt_TQDDK",
+  "parameter": [
+    {
+      "type": "TEMPLATE",
+      "key": "projectId",
+      "value": "{{Id-Visitor-api}}"
+    }
+  ],
+  "fingerprint": "1781614854061",
+  "firingTriggerId": [
+    "4"
+  ],
+  "tagFiringOption": "ONCE_PER_EVENT",
+  "monitoringMetadata": {
+    "type": "MAP"
+  },
+  "consentSettings": {
+    "consentStatus": "NOT_SET"
+  }
+}
+
+=== TAG: webhook (type=html) ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "tagId": "69",
+  "name": "webhook",
+  "type": "html",
+  "parameter": [
+    {
+      "type": "TEMPLATE",
+      "key": "html",
+      "value": "<script>\n(function () {\n  'use strict';\n\n  // ⚙️ TROQUE APENAS ESTA URL\n  var WEBHOOK_URL = 'https://flow-hook.neoai.systems/webhook/86e12a39-82c0-448f-b946-9fbc8b9dd31d';\n\n  // Chave única por sessão para garantir 1 único disparo\n  var chave = 'wh_enviado_' + WEBHOOK_URL.split('/').pop();\n  if (sessionStorage.getItem(chave)) return;\n  sessionStorage.setItem(chave, '1');\n\n  var payload = {\n    nome:         {{user-input-fullname}}     || '',\n    email:        {{user-input-email}}        || '',\n    telefone:     {{user-input-phone}}        || '',\n    utm_source:   {{dlv - utm_source}}        || '',\n    utm_medium:   {{dlv - utm_medium}}        || '',\n    utm_campaign: {{dlv - utm_campaign}}      || '',\n    utm_content:  {{dlv - utm_content}}       || '',\n    utm_term:     {{dlv - utm_term}}          || '',\n    lpurl:        {{Page URL}}               || '',\n    timestamp:    new Date().toISOString(),\n    user_agent:   navigator.userAgent\n  };\n\n  // Não envia se não tiver dado nenhum (Preview sem formulário)\n  if (!payload.email && !payload.telefone) {\n    sessionStorage.removeItem(chave);\n    return;\n  }\n\n  console.log('[Webhook] 🚀 Enviando:', payload);\n\n  fetch(WEBHOOK_URL, {\n    method:    'POST',\n    headers:   { 'Content-Type': 'application/json' },\n    body:      JSON.stringify(payload),\n    keepalive: true\n  })\n  .then(function (r) { console.log('[Webhook] ✅ Status:', r.status); })\n  .catch(function (e) { console.error('[Webhook] ❌ Erro:', e); });\n\n})();\n</script>"
+    },
+    {
+      "type": "BOOLEAN",
+      "key": "supportDocumentWrite",
+      "value": "false"
+    }
+  ],
+  "fingerprint": "1784667045371",
+  "firingTriggerId": [
+    "44"
+  ],
+  "tagFiringOption": "ONCE_PER_EVENT",
+  "monitoringMetadata": {
+    "type": "MAP"
+  },
+  "consentSettings": {
+    "consentStatus": "NOT_SET"
+  }
+}
+
+=== TAG: 00 | SetCookies HTML (type=html) ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "tagId": "70",
+  "name": "00 | SetCookies HTML",
+  "type": "html",
+  "parameter": [
+    {
+      "type": "TEMPLATE",
+      "key": "html",
+      "value": "<script>\n(function () {\n  function normalize(field, value) {\n    if (!value) return \"\";\n    var v = String(value).trim().toLowerCase();\n    \n    if (field === \"LeadPhone\") {\n      v = v.replace(/\\D/g, \"\");\n      if (v.length >= 10 && v.length <= 11) v = \"55\" + v;\n    }\n    \n    if (field === \"LeadFirstName\" || field === \"LeadLastName\") {\n      v = v.normalize(\"NFD\").replace(/[\\u0300-\\u036f]/g, \"\");\n      v = v.replace(/[^a-z]/g, \"\");\n    }\n    \n    return v;\n  }\n\n  var leadData = {\n    LeadFirstName: normalize(\"LeadFirstName\", \"{{user-input-firstname}}\"),\n    LeadLastName:  normalize(\"LeadLastName\",  \"{{user-input-lastname}}\"),\n    LeadEmail:     normalize(\"LeadEmail\",     \"{{user-input-email}}\"),\n    LeadPhone:     normalize(\"LeadPhone\",     \"{{user-input-phone}}\")\n  };\n\n  var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n\n  for (var name in leadData) {\n    var value = leadData[name];\n    if (value) {\n      // Para email, grava sem encode pra preservar o @\n      // Para os outros campos, mantém o encode (segurança contra caracteres especiais)\n      var cookieValue = (name === \"LeadEmail\") ? value : encodeURIComponent(value);\n      \n      document.cookie =\n        name + \"=\" + cookieValue +\n        \"; SameSite=None; Secure\" +\n        \"; expires=\" + expires +\n        \"; path=/; domain=.site.arcantcg.com.br\";\n    }\n  }\n})();\n</script>"
+    },
+    {
+      "type": "BOOLEAN",
+      "key": "supportDocumentWrite",
+      "value": "false"
+    }
+  ],
+  "fingerprint": "1781622762770",
+  "firingTriggerId": [
+    "44"
+  ],
+  "tagFiringOption": "ONCE_PER_EVENT",
+  "monitoringMetadata": {
+    "type": "MAP"
+  },
+  "consentSettings": {
+    "consentStatus": "NOT_SET"
+  }
+}
+
+=== TAG: Tag do Google AW-18043780459 (type=googtag) ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "tagId": "80",
+  "name": "Tag do Google AW-18043780459",
+  "type": "googtag",
+  "parameter": [
+    {
+      "type": "TEMPLATE",
+      "key": "tagId",
+      "value": "AW-18043780459"
+    }
+  ],
+  "fingerprint": "1781614854195",
+  "firingTriggerId": [
+    "2147479573"
+  ],
+  "tagFiringOption": "ONCE_PER_EVENT",
+  "monitoringMetadata": {
+    "type": "MAP"
+  },
+  "consentSettings": {
+    "consentStatus": "NOT_SET"
+  }
+}
+
+=== TAG: 00 | setCookie HTML GeoLoc 🍪 (type=html) ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "tagId": "82",
+  "name": "00 | setCookie HTML GeoLoc 🍪",
+  "type": "html",
+  "parameter": [
+    {
+      "type": "TEMPLATE",
+      "key": "html",
+      "value": "<script>\n (function(){\n var cookieName = \"LeadCity\"; // Nome do Cookie\n var cookieValue = {{jsc - city (fb)}}; // Valor do Cookie\n var expirationTime = 31536000; // Um ano em segundos\n expirationTime = expirationTime * 1000;\n var date = new Date(); \n var dateTimeNow = date.getTime(); \n\n date.setTime(dateTimeNow + expirationTime);\n var date = date.toUTCString();\n document.cookie = cookieName+\"=\"+cookieValue+\"; SameSite=None; Secure; expires=\"+date+\"; path=/; domain=.site.arcantcg.com.br\";  \n})();\n</script>\n\n<script>\n (function(){\n var cookieName = \"LeadState\"; // Nome do Cookie\n var cookieValue = {{dlv - visitorApiRegion}}; // Valor do Cookie\n var expirationTime = 31536000; // Um ano em segundos\n expirationTime = expirationTime * 1000;\n var date = new Date(); \n var dateTimeNow = date.getTime(); \n\n date.setTime(dateTimeNow + expirationTime);\n var date = date.toUTCString();\n document.cookie = cookieName+\"=\"+cookieValue+\"; SameSite=None; Secure; expires=\"+date+\"; path=/; domain=.site.arcantcg.com.br\";  \n})();\n</script>\n\n<script>\n (function(){\n var cookieName = \"LeadCountry\"; // Nome do Cookie\n var cookieValue = {{dlv - visitorApiCountryCode}}; // Valor do Cookie\n var expirationTime = 31536000; // Um ano em segundos\n expirationTime = expirationTime * 1000;\n var date = new Date(); \n var dateTimeNow = date.getTime(); \n\n date.setTime(dateTimeNow + expirationTime);\n var date = date.toUTCString();\n document.cookie = cookieName+\"=\"+cookieValue+\"; SameSite=None; Secure; expires=\"+date+\"; path=/; domain=.site.arcantcg.com.br\";  \n})();\n</script>"
+    },
+    {
+      "type": "BOOLEAN",
+      "key": "supportDocumentWrite",
+      "value": "false"
+    }
+  ],
+  "fingerprint": "1781615200763",
+  "firingTriggerId": [
+    "75"
+  ],
+  "tagFiringOption": "ONCE_PER_EVENT",
+  "monitoringMetadata": {
+    "type": "MAP"
+  },
+  "consentSettings": {
+    "consentStatus": "NOT_SET"
+  }
+}
+
+=== TRIGGER: All Pages + Cookie not exists 🍪 ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "triggerId": "4",
+  "name": "All Pages + Cookie not exists 🍪",
+  "type": "PAGEVIEW",
+  "filter": [
+    {
+      "type": "MATCH_REGEX",
+      "parameter": [
+        {
+          "type": "TEMPLATE",
+          "key": "arg0",
+          "value": "{{Cookie LeadCity}}"
+        },
+        {
+          "type": "TEMPLATE",
+          "key": "arg1",
+          "value": "undefined|null"
+        }
+      ]
+    }
+  ],
+  "fingerprint": "1781614854053"
+}
+
+=== TRIGGER: Lead (lp) ===
+{
+  "accountId": "6361067777",
+  "containerId": "255585505",
+  "triggerId": "44",
+  "name": "Lead (lp)",
+  "type": "CUSTOM_EVENT",
+  "customEventFilter": [
+    {
+      "type": "EQUALS",
+      "parameter": [
+        {
+          "type": "TEMPLATE",
+          "key": "arg0",
+          "value": "{{_event}}"
+        },
+        {
+          "type": "TEMPLATE",
+          "key": "arg1",
+          "value": "lead"
+        }
+      ]
+    }
+  ],
+  "fingerprint": "1781614854064"
+}
+
