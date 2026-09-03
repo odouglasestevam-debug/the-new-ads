@@ -20,6 +20,14 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 **Regra:** Ao criar campanha (create.py campaign) sem passar --bid-strategy explicitamente, o script/API assume LOWEST_COST_WITH_BID_CAP sem nenhum valor de lance definido, o que quebra a criação de QUALQUER ad set depois com erro genérico "Invalid parameter" (code 100, subcode 1815857) — sem pista nenhuma de que o problema é bid_strategy. SEMPRE passar `--bid-strategy LOWEST_COST_WITHOUT_CAP` explicitamente ao criar campanha (é o que as campanhas de sucesso da Agari usavam), ou conferir com `read.py campaign --fields bid_strategy` antes de criar o primeiro ad set se o erro "Invalid parameter" aparecer sem explicação.
 **Contexto:** Bloqueou a criação de 3 campanhas novas da Agari Drinks até isolar por eliminação (testei geo, targeting, optimization_goal, destination_type — nenhum era o problema; era a campanha em si).
 
+### 2026-09-03 — Instagram no ad set exige vínculo na Conta de Anúncio, não só na Página
+**Regra:** `instagram_positions` no targeting só funciona (sem erro genérico "Invalid parameter") se a conta do Instagram estiver atribuída à Conta de Anúncio em Configurações do Negócio > Contas > Instagram — o vínculo Instagram×Página sozinho não é suficiente e não aparece em `page.instagram_business_account`. Checar com `AdAccount.get_instagram_accounts()` antes de assumir que não tem IG vinculado. Depois de vinculado, sempre passar `--instagram-user-id` no create.py creative (já era regra, mas sem o vínculo na conta de anúncio o ID nem aparece pra usar).
+**Contexto:** Bloqueou posicionamentos de Instagram nas 3 campanhas novas da Agari até o Douglas atribuir o Instagram à conta de anúncio especificamente.
+
+### 2026-09-03 — instagram_positions "explore" e "story" quebram combinado com outros
+**Regra:** No targeting de ad set, `instagram_positions: ["explore"]` sozinho já dá erro (subcode 2490589) — parece placement descontinuado/incompatível com OFFSITE_CONVERSIONS. `"story"` funciona sozinho mas quebra ao combinar com `"reels"` ou `"stream"` nesta conta/versão de API. Combinação estável testada: `["stream","reels"]`. Se precisar de Stories do Instagram, testar isolado antes de assumir que pode somar às outras posições.
+**Contexto:** Vários ciclos de tentativa e erro pra montar o targeting das campanhas da Agari — isolar posição por posição economiza tempo da próxima vez.
+
 ### 2026-04-03 — Desligar format options em carrosséis
 **Regra:** Ao criar ads de carrossel, SEMPRE passar --degrees-of-freedom-spec com OPT_OUT pra carousel_to_video, image_touchups e standard_enhancements.
 **Contexto:** "Blocos de coleção" e "mídia única" distorcem o carrossel sequencial. Desligar pra manter ordem dos slides.
