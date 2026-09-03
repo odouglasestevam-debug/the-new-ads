@@ -10,7 +10,7 @@
             "path": "accounts/6274082692/containers/209889306",
             "accountId": "6274082692",
             "containerId": "209889306",
-            "name": "[SERVER] {{NOME_CLIENTE}}",
+            "name": "[SERVER] __NOME_CLIENTE__",
             "publicId": "GTM-M545F6TX",
             "usageContext": [
                 "SERVER"
@@ -37,7 +37,7 @@
                 "GTM-M545F6TX"
             ],
             "taggingServerUrls": [
-                "{{SERVER_SIDE_GTM_DOMAIN}}"
+                "__SERVER_SIDE_GTM_DOMAIN__"
             ]
         },
         "tag": [
@@ -320,7 +320,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{META_PIXEL_ID}}"
+                        "value": "__META_PIXEL_ID__"
                     }
                 ],
                 "fingerprint": "1743269878249",
@@ -336,7 +336,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{META_CAPI_ACCESS_TOKEN}}"
+                        "value": "__META_CAPI_ACCESS_TOKEN__"
                     }
                 ],
                 "fingerprint": "1743269888454",
@@ -352,7 +352,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{GA4_MEASUREMENT_ID}}"
+                        "value": "__GA4_MEASUREMENT_ID__"
                     }
                 ],
                 "fingerprint": "1743269939064",

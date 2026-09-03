@@ -10,7 +10,7 @@
             "path": "accounts/6202323879/containers/225073536",
             "accountId": "6202323879",
             "containerId": "225073536",
-            "name": "[WEB] - {{NOME_CLIENTE}}",
+            "name": "[WEB] - __NOME_CLIENTE__",
             "publicId": "GTM-5TG3TXV3",
             "usageContext": [
                 "WEB"
@@ -475,7 +475,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "html",
-                        "value": "<!-- First Name -->\n<script>\n(function () {\n  var cookieName  = \"LeadFirstName\";\n  var cookieValue = {{user-input-firstname}};   // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString(); // 1 ano\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain={{DOMINIO_CLIENTE}}\";\n  }\n})();\n</script>\n\n<!-- Last Name -->\n<script>\n(function () {\n  var cookieName  = \"LeadLastName\";\n  var cookieValue = {{user-input-lastname}};    // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain={{DOMINIO_CLIENTE}}\";\n  }\n})();\n</script>\n\n<!-- E‑mail -->\n<script>\n(function () {\n  var cookieName  = \"LeadEmail\";\n  var cookieValue = {{user-input-email}};        // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain={{DOMINIO_CLIENTE}}\";\n  }\n})();\n</script>\n\n<!-- Telefone -->\n<script>\n(function () {\n  var cookieName  = \"LeadPhone\";\n  var cookieValue = {{user-input-phone}};        // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain={{DOMINIO_CLIENTE}}\";\n  }\n})();\n</script>\n"
+                        "value": "<!-- First Name -->\n<script>\n(function () {\n  var cookieName  = \"LeadFirstName\";\n  var cookieValue = {{user-input-firstname}};   // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString(); // 1 ano\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain=__DOMINIO_CLIENTE__\";\n  }\n})();\n</script>\n\n<!-- Last Name -->\n<script>\n(function () {\n  var cookieName  = \"LeadLastName\";\n  var cookieValue = {{user-input-lastname}};    // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain=__DOMINIO_CLIENTE__\";\n  }\n})();\n</script>\n\n<!-- E‑mail -->\n<script>\n(function () {\n  var cookieName  = \"LeadEmail\";\n  var cookieValue = {{user-input-email}};        // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain=__DOMINIO_CLIENTE__\";\n  }\n})();\n</script>\n\n<!-- Telefone -->\n<script>\n(function () {\n  var cookieName  = \"LeadPhone\";\n  var cookieValue = {{user-input-phone}};        // substitua pela sua variável\n  if (cookieValue) {\n    var expires = new Date(Date.now() + 31536000 * 1000).toUTCString();\n    document.cookie =\n      cookieName + \"=\" + encodeURIComponent(cookieValue) +\n      \"; SameSite=None; Secure; expires=\" + expires +\n      \"; path=/; domain=__DOMINIO_CLIENTE__\";\n  }\n})();\n</script>\n"
                     },
                     {
                         "type": "BOOLEAN",
@@ -602,13 +602,13 @@
                 "accountId": "6202323879",
                 "containerId": "225073536",
                 "tagId": "122",
-                "name": "Tag do Google {{GA4_ID_EXTRA_1}}",
+                "name": "Tag do Google __GA4_ID_EXTRA_1__",
                 "type": "googtag",
                 "parameter": [
                     {
                         "type": "TEMPLATE",
                         "key": "tagId",
-                        "value": "{{GA4_ID_EXTRA_1}}"
+                        "value": "__GA4_ID_EXTRA_1__"
                     }
                 ],
                 "fingerprint": "1760983906854",
@@ -623,13 +623,13 @@
                 "accountId": "6202323879",
                 "containerId": "225073536",
                 "tagId": "123",
-                "name": "Tag do Google {{GA4_ID_EXTRA_2}}",
+                "name": "Tag do Google __GA4_ID_EXTRA_2__",
                 "type": "googtag",
                 "parameter": [
                     {
                         "type": "TEMPLATE",
                         "key": "tagId",
-                        "value": "{{GA4_ID_EXTRA_2}}"
+                        "value": "__GA4_ID_EXTRA_2__"
                     }
                 ],
                 "fingerprint": "1760983906855",
@@ -1256,7 +1256,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "html",
-                        "value": "<script>\n(function() {\n  'use strict';\n  \n  // ========================================\n  // CONFIGURAÇÕES - SUBSTITUA AQUI\n  // ========================================\n  \n  var webhookURL = '{{WEBHOOK_URL}}';\n  \n  // Substitua pelas suas variáveis do GTM\n  var utmSource = '{{dlv - utm_source}}';\n  var utmMedium = '{{dlv - utm_medium}}';\n  var utmCampaign = '{{dlv - utm_campaign}}';\n  var utmContent = '{{dlv - utm_content}}';\n  var utmTerm = '{{dlv - utm_term}}';\n  var lpurl = '{{Page URL}}';\n  \n  // ========================================\n  // CAPTURA DOS DADOS DO FORMULÁRIO\n  // ========================================\n  \n  var form = document.querySelector('form.wpcf7-form');\n  \n  if (!form) {\n    console.error('[GTM Webhook] ❌ Formulário não encontrado!');\n    return;\n  }\n  \n  // Captura os valores dos campos\n  var nome = form.querySelector('input[name=\"nome\"]');\n  var email = form.querySelector('input[name=\"email\"]');\n  var whatsapp = form.querySelector('input[name=\"whatsapp\"]');\n  \n  // Validação básica\n  if (!nome || !email || !whatsapp) {\n    console.error('[GTM Webhook] ❌ Campos do formulário não encontrados!');\n    return;\n  }\n  \n  var nomeValue = nome.value.trim();\n  var emailValue = email.value.trim();\n  var whatsappValue = whatsapp.value.trim();\n  \n  // ========================================\n  // VALIDAÇÃO DOS DADOS\n  // ========================================\n  \n  if (!nomeValue || !emailValue || !whatsappValue) {\n    console.warn('[GTM Webhook] ⚠️ Campos vazios detectados. Abortando envio.');\n    console.log('Nome:', nomeValue);\n    console.log('Email:', emailValue);\n    console.log('WhatsApp:', whatsappValue);\n    return;\n  }\n  \n  // ========================================\n  // MONTAGEM DO PAYLOAD\n  // ========================================\n  \n  var payload = {\n    // Dados do lead\n    nome: nomeValue,\n    email: emailValue,\n    telefone: whatsappValue,\n    \n    // Parâmetros de UTM\n    utm_source: utmSource || '',\n    utm_medium: utmMedium || '',\n    utm_campaign: utmCampaign || '',\n    utm_content: utmContent || '',\n    utm_term: utmTerm || '',\n    lpurl: lpurl || '',\n    \n    // Timestamp do envio\n    timestamp: new Date().toISOString(),\n    \n    // User Agent (opcional, pode ser útil)\n    user_agent: navigator.userAgent\n  };\n  \n  console.log('[GTM Webhook] 📦 Payload montado:', payload);\n  \n  // ========================================\n  // ENVIO PARA O WEBHOOK\n  // ========================================\n  \n  function enviarWebhook(tentativa) {\n    tentativa = tentativa || 1;\n    \n    console.log('[GTM Webhook] 🚀 Enviando para N8n (tentativa ' + tentativa + ')...');\n    \n    fetch(webhookURL, {\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(payload),\n      keepalive: true // Mantém a requisição mesmo se a página for fechada\n    })\n    .then(function(response) {\n      if (response.ok) {\n        console.log('[GTM Webhook] ✅ Dados enviados com sucesso!');\n        console.log('[GTM Webhook] Status:', response.status);\n        return response.text();\n      } else {\n        throw new Error('Resposta não-OK: ' + response.status);\n      }\n    })\n    .then(function(data) {\n      console.log('[GTM Webhook] 📥 Resposta do webhook:', data);\n    })\n    .catch(function(error) {\n      console.error('[GTM Webhook] ❌ Erro no envio (tentativa ' + tentativa + '):', error);\n      \n      // Sistema de retry: tenta até 3 vezes\n      if (tentativa < 3) {\n        var delay = tentativa * 1000; // 1s, 2s, 3s\n        console.log('[GTM Webhook] 🔄 Tentando novamente em ' + delay + 'ms...');\n        setTimeout(function() {\n          enviarWebhook(tentativa + 1);\n        }, delay);\n      } else {\n        console.error('[GTM Webhook] 💀 Falha após 3 tentativas. Dados perdidos.');\n        \n        // Opcional: salvar no localStorage como backup\n        try {\n          var backup = JSON.parse(localStorage.getItem('webhook_backup') || '[]');\n          backup.push(payload);\n          localStorage.setItem('webhook_backup', JSON.stringify(backup));\n          console.log('[GTM Webhook] 💾 Dados salvos no localStorage como backup');\n        } catch(e) {\n          console.error('[GTM Webhook] ❌ Erro ao salvar backup:', e);\n        }\n      }\n    });\n  }\n  \n  // Inicia o envio\n  enviarWebhook();\n  \n})();\n</script>"
+                        "value": "<script>\n(function() {\n  'use strict';\n  \n  // ========================================\n  // CONFIGURAÇÕES - SUBSTITUA AQUI\n  // ========================================\n  \n  var webhookURL = '__WEBHOOK_URL__';\n  \n  // Substitua pelas suas variáveis do GTM\n  var utmSource = '{{dlv - utm_source}}';\n  var utmMedium = '{{dlv - utm_medium}}';\n  var utmCampaign = '{{dlv - utm_campaign}}';\n  var utmContent = '{{dlv - utm_content}}';\n  var utmTerm = '{{dlv - utm_term}}';\n  var lpurl = '{{Page URL}}';\n  \n  // ========================================\n  // CAPTURA DOS DADOS DO FORMULÁRIO\n  // ========================================\n  \n  var form = document.querySelector('form.wpcf7-form');\n  \n  if (!form) {\n    console.error('[GTM Webhook] ❌ Formulário não encontrado!');\n    return;\n  }\n  \n  // Captura os valores dos campos\n  var nome = form.querySelector('input[name=\"nome\"]');\n  var email = form.querySelector('input[name=\"email\"]');\n  var whatsapp = form.querySelector('input[name=\"whatsapp\"]');\n  \n  // Validação básica\n  if (!nome || !email || !whatsapp) {\n    console.error('[GTM Webhook] ❌ Campos do formulário não encontrados!');\n    return;\n  }\n  \n  var nomeValue = nome.value.trim();\n  var emailValue = email.value.trim();\n  var whatsappValue = whatsapp.value.trim();\n  \n  // ========================================\n  // VALIDAÇÃO DOS DADOS\n  // ========================================\n  \n  if (!nomeValue || !emailValue || !whatsappValue) {\n    console.warn('[GTM Webhook] ⚠️ Campos vazios detectados. Abortando envio.');\n    console.log('Nome:', nomeValue);\n    console.log('Email:', emailValue);\n    console.log('WhatsApp:', whatsappValue);\n    return;\n  }\n  \n  // ========================================\n  // MONTAGEM DO PAYLOAD\n  // ========================================\n  \n  var payload = {\n    // Dados do lead\n    nome: nomeValue,\n    email: emailValue,\n    telefone: whatsappValue,\n    \n    // Parâmetros de UTM\n    utm_source: utmSource || '',\n    utm_medium: utmMedium || '',\n    utm_campaign: utmCampaign || '',\n    utm_content: utmContent || '',\n    utm_term: utmTerm || '',\n    lpurl: lpurl || '',\n    \n    // Timestamp do envio\n    timestamp: new Date().toISOString(),\n    \n    // User Agent (opcional, pode ser útil)\n    user_agent: navigator.userAgent\n  };\n  \n  console.log('[GTM Webhook] 📦 Payload montado:', payload);\n  \n  // ========================================\n  // ENVIO PARA O WEBHOOK\n  // ========================================\n  \n  function enviarWebhook(tentativa) {\n    tentativa = tentativa || 1;\n    \n    console.log('[GTM Webhook] 🚀 Enviando para N8n (tentativa ' + tentativa + ')...');\n    \n    fetch(webhookURL, {\n      method: 'POST',\n      headers: {\n        'Content-Type': 'application/json'\n      },\n      body: JSON.stringify(payload),\n      keepalive: true // Mantém a requisição mesmo se a página for fechada\n    })\n    .then(function(response) {\n      if (response.ok) {\n        console.log('[GTM Webhook] ✅ Dados enviados com sucesso!');\n        console.log('[GTM Webhook] Status:', response.status);\n        return response.text();\n      } else {\n        throw new Error('Resposta não-OK: ' + response.status);\n      }\n    })\n    .then(function(data) {\n      console.log('[GTM Webhook] 📥 Resposta do webhook:', data);\n    })\n    .catch(function(error) {\n      console.error('[GTM Webhook] ❌ Erro no envio (tentativa ' + tentativa + '):', error);\n      \n      // Sistema de retry: tenta até 3 vezes\n      if (tentativa < 3) {\n        var delay = tentativa * 1000; // 1s, 2s, 3s\n        console.log('[GTM Webhook] 🔄 Tentando novamente em ' + delay + 'ms...');\n        setTimeout(function() {\n          enviarWebhook(tentativa + 1);\n        }, delay);\n      } else {\n        console.error('[GTM Webhook] 💀 Falha após 3 tentativas. Dados perdidos.');\n        \n        // Opcional: salvar no localStorage como backup\n        try {\n          var backup = JSON.parse(localStorage.getItem('webhook_backup') || '[]');\n          backup.push(payload);\n          localStorage.setItem('webhook_backup', JSON.stringify(backup));\n          console.log('[GTM Webhook] 💾 Dados salvos no localStorage como backup');\n        } catch(e) {\n          console.error('[GTM Webhook] ❌ Erro ao salvar backup:', e);\n        }\n      }\n    });\n  }\n  \n  // Inicia o envio\n  enviarWebhook();\n  \n})();\n</script>"
                     },
                     {
                         "type": "BOOLEAN",
@@ -1776,7 +1776,7 @@
                             {
                                 "type": "TEMPLATE",
                                 "key": "arg1",
-                                "value": "{{PATH_PAGINA_ESPECIFICA}}"
+                                "value": "__PATH_PAGINA_ESPECIFICA__"
                             },
                             {
                                 "type": "BOOLEAN",
@@ -1908,7 +1908,7 @@
                             {
                                 "type": "TEMPLATE",
                                 "key": "arg1",
-                                "value": "{{PATH_PAGINA_ESPECIFICA}}"
+                                "value": "__PATH_PAGINA_ESPECIFICA__"
                             },
                             {
                                 "type": "BOOLEAN",
@@ -1955,7 +1955,7 @@
                             {
                                 "type": "TEMPLATE",
                                 "key": "arg1",
-                                "value": "{{PATH_PAGINA_ESPECIFICA}}"
+                                "value": "__PATH_PAGINA_ESPECIFICA__"
                             }
                         ]
                     }
@@ -1974,7 +1974,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{SERVER_SIDE_GTM_DOMAIN}}"
+                        "value": "__SERVER_SIDE_GTM_DOMAIN__"
                     }
                 ],
                 "fingerprint": "1764704517585",
@@ -2344,7 +2344,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{GA4_MEASUREMENT_ID}}"
+                        "value": "__GA4_MEASUREMENT_ID__"
                     }
                 ],
                 "fingerprint": "1760206123202",
@@ -2378,7 +2378,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{GOOGLE_ADS_LABEL_LEAD_ANTIGO}}"
+                        "value": "__GOOGLE_ADS_LABEL_LEAD_ANTIGO__"
                     }
                 ],
                 "fingerprint": "1760200521223",
@@ -2395,7 +2395,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{GOOGLE_ADS_CONVERSION_ID}}"
+                        "value": "__GOOGLE_ADS_CONVERSION_ID__"
                     }
                 ],
                 "fingerprint": "1760201788677",
@@ -2439,7 +2439,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{GOOGLE_ADS_LABEL_WHATSAPP}}"
+                        "value": "__GOOGLE_ADS_LABEL_WHATSAPP__"
                     }
                 ],
                 "fingerprint": "1760188974394",
@@ -2456,7 +2456,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{META_PIXEL_ID}}"
+                        "value": "__META_PIXEL_ID__"
                     }
                 ],
                 "fingerprint": "1764631525889",
@@ -2473,7 +2473,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{GOOGLE_ADS_LABEL_LEAD_NOVO}}"
+                        "value": "__GOOGLE_ADS_LABEL_LEAD_NOVO__"
                     }
                 ],
                 "fingerprint": "1760203569179",
@@ -2757,7 +2757,7 @@
                     {
                         "type": "TEMPLATE",
                         "key": "value",
-                        "value": "{{META_PIXEL_ID_SECUNDARIO}}"
+                        "value": "__META_PIXEL_ID_SECUNDARIO__"
                     }
                 ],
                 "fingerprint": "1765304108929",
