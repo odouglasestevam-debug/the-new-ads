@@ -1,0 +1,224 @@
+{
+    "exportFormatVersion": 2,
+    "exportTime": "2024-10-03 17:10:33",
+    "containerVersion": {
+        "path": "accounts/6250061382/containers/196659205/versions/0",
+        "accountId": "6250061382",
+        "containerId": "196659205",
+        "containerVersionId": "0",
+        "container": {
+            "path": "accounts/6250061382/containers/196659205",
+            "accountId": "6250061382",
+            "containerId": "196659205",
+            "name": "[SERVER]  Biaggioni & Silveira Advogados(Stape.io)",
+            "publicId": "GTM-NZ9KM7TW",
+            "usageContext": [
+                "SERVER"
+            ],
+            "fingerprint": "1727975313348",
+            "tagManagerUrl": "https://tagmanager.google.com/#/container/accounts/6250061382/containers/196659205/workspaces?apiLink=container",
+            "features": {
+                "supportUserPermissions": true,
+                "supportEnvironments": true,
+                "supportWorkspaces": true,
+                "supportGtagConfigs": false,
+                "supportBuiltInVariables": true,
+                "supportClients": true,
+                "supportFolders": true,
+                "supportTags": true,
+                "supportTemplates": true,
+                "supportTriggers": true,
+                "supportVariables": true,
+                "supportVersions": true,
+                "supportZones": true,
+                "supportTransformations": true
+            },
+            "tagIds": [
+                "GTM-NZ9KM7TW"
+            ],
+            "taggingServerUrls": [
+                "{{STAPE_SERVER_DOMAIN}}"
+            ]
+        },
+        "tag": [
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "tagId": "12",
+                "name": "[Meta API] Tag",
+                "type": "cvt_196659205_13",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "adStorageConsent",
+                        "value": "optional"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "logType",
+                        "value": "debug"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "pixelId",
+                        "value": "{{meta ads-pixel id}}"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "useHttpOnlyCookie",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "itemIdKey"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "generateFbp",
+                        "value": "true"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "useOptimisticScenario",
+                        "value": "false"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "accessToken",
+                        "value": "{{meta ads-token id}}"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "enableMultipixelSetup",
+                        "value": "false"
+                    },
+                    {
+                        "type": "BOOLEAN",
+                        "key": "enableEventEnhancement",
+                        "value": "true"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "inheritEventName",
+                        "value": "inherit"
+                    },
+                    {
+                        "type": "TEMPLATE",
+                        "key": "actionSource",
+                        "value": "website"
+                    }
+                ],
+                "fingerprint": "1727975406052",
+                "firingTriggerId": [
+                    "8"
+                ],
+                "parentFolderId": "6",
+                "tagFiringOption": "ONCE_PER_EVENT",
+                "monitoringMetadata": {
+                    "type": "MAP"
+                },
+                "consentSettings": {
+                    "consentStatus": "NOT_SET"
+                }
+            }
+        ],
+        "trigger": [
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "triggerId": "8",
+                "name": "Todos os Eventos",
+                "type": "ALWAYS",
+                "filter": [
+                    {
+                        "type": "MATCH_REGEX",
+                        "parameter": [
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg0",
+                                "value": "{{Event Name}}"
+                            },
+                            {
+                                "type": "TEMPLATE",
+                                "key": "arg1",
+                                "value": ".+"
+                            }
+                        ]
+                    }
+                ],
+                "fingerprint": "1727975343682",
+                "parentFolderId": "7"
+            }
+        ],
+        "variable": [
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "variableId": "10",
+                "name": "meta ads-pixel id",
+                "type": "c",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "value",
+                        "value": "{{META_PIXEL_ID}}"
+                    }
+                ],
+                "fingerprint": "1727975343683",
+                "parentFolderId": "6",
+                "formatValue": {}
+            },
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "variableId": "11",
+                "name": "meta ads-token id",
+                "type": "c",
+                "parameter": [
+                    {
+                        "type": "TEMPLATE",
+                        "key": "value",
+                        "value": "{{META_CAPI_ACCESS_TOKEN}}"
+                    }
+                ],
+                "fingerprint": "1727975343684",
+                "parentFolderId": "6",
+                "formatValue": {}
+            }
+        ],
+        "folder": [
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "folderId": "4",
+                "name": "Google",
+                "fingerprint": "1727975343678"
+            },
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "folderId": "6",
+                "name": "Meta",
+                "fingerprint": "1727975343680"
+            },
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "folderId": "7",
+                "name": "IntegraÃ§Ãµes",
+                "fingerprint": "1727975343681"
+            }
+        ],
+        "builtInVariable": [
+            {
+                "accountId": "6250061382",
+                "containerId": "196659205",
+                "type": "EVENT_NAME",
+                "name": "Event Name"
+            }
+        ],
+        "fingerprint": "1727975433893",
+        "tagManagerUrl": "https://tagmanager.google.com/#/versions/accounts/6250061382/containers/196659205/versions/0?apiLink=version",
+        "customTemplate": "__OMITIDO_NA_VERSAO_PLACEHOLDER__ (ver arquivo original: nao contem dados de cliente, apenas bibliotecas de template Facebook/Conversions API — copiar sem alteracao do arquivo fonte)"
+    }
+}
