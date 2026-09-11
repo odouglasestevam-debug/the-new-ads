@@ -213,6 +213,8 @@
   .ver-lead{margin-top:10px;width:100%;background:transparent;border:1px solid var(--linha);color:var(--nevoa);
     border-radius:7px;padding:7px;font-size:12px;cursor:pointer}
   .ver-lead:hover{border-color:var(--ambar);color:var(--branco)}
+  .ver-lead.perigo{border-color:rgba(220,80,70,.3);color:#d65a4f}
+  .ver-lead.perigo:hover{border-color:#d65a4f;color:#ff7a6c;background:rgba(220,80,70,.08)}
 
   /* lead score: barra fina no cartao, cor por faixa (estado, nao marca) */
   .score{display:flex;align-items:center;gap:9px}
@@ -2283,6 +2285,10 @@ function abrirLead(id, abaInicial) {
         <button class="ver-lead" type="button" id="editar-valor" style="margin-top:14px">
           ${l.valor_contrato ? "Alterar valor do contrato" : "Informar valor do contrato"}
         </button>
+      </div>
+
+      <div class="grupo">
+        <button class="ver-lead perigo" type="button" id="excluir-lead">Excluir lead</button>
       </div>`;
   }
 
@@ -2454,16 +2460,38 @@ function abrirLead(id, abaInicial) {
     }
 
     const botao = div.querySelector("#editar-valor");
-    if (!botao) return;
-    botao.addEventListener("click", async () => {
-      const valor = await pedirValorContrato(l);
-      if (valor === null) return;
-      const { error } = await sb.from("funil_leads").update({ valor_contrato: valor }).eq("id", l.id);
-      if (error) { alert("Não deu pra salvar: " + error.message); return; }
-      l.valor_contrato = valor;
-      desenhar();
-      if (vistaAtual === "kanban") render();
-    });
+    if (botao) {
+      botao.addEventListener("click", async () => {
+        const valor = await pedirValorContrato(l);
+        if (valor === null) return;
+        const { error } = await sb.from("funil_leads").update({ valor_contrato: valor }).eq("id", l.id);
+        if (error) { alert("Não deu pra salvar: " + error.message); return; }
+        l.valor_contrato = valor;
+        desenhar();
+        if (vistaAtual === "kanban") render();
+      });
+    }
+
+    const botaoExcluir = div.querySelector("#excluir-lead");
+    if (botaoExcluir) {
+      botaoExcluir.addEventListener("click", async () => {
+        if (!confirm(`Excluir "${l.nome || "esse lead"}" pra sempre? Apaga também as anotações e lembretes dele. Não tem como desfazer.`)) return;
+        botaoExcluir.disabled = true;
+        botaoExcluir.textContent = "Excluindo...";
+        const { error } = await sb.from("funil_leads").delete().eq("id", l.id);
+        if (error) {
+          alert("Não deu pra excluir: " + error.message);
+          botaoExcluir.disabled = false;
+          botaoExcluir.textContent = "Excluir lead";
+          return;
+        }
+        leads = leads.filter((x) => x.id !== l.id);
+        notas = notas.filter((n) => n.lead_id !== l.id);
+        lembretes = lembretes.filter((r) => r.lead_id !== l.id);
+        fechar();
+        render();
+      });
+    }
   }
 
   desenhar();
