@@ -8,13 +8,20 @@ Workspace de operação da The New Ads, agência de marketing de performance de 
 - `_contexto/` — memória do sistema (não apagar)
 - `marca/` — brand book, logos e design-guide da The New Ads
 - `clientes/` — um subdiretório por cliente (usar `_modelo-cliente/` como base pra clientes novos)
-- `briefings/` — briefings recebidos
-- `propostas/` — propostas em andamento e enviadas
+- `the-new-ads-site/` — o site publicado no Cloudflare Pages. **Cada arquivo aqui é uma URL no ar:** `trafego-pago.html` é `thenewads.com.br/trafego-pago`. Mover ou renomear arquivo aqui quebra link já enviado a cliente
+- `trackeamento/` — padrão de tracking da agência (containers GTM, fluxos n8n, scripts). Só template final
+- `contratos/` — contratos gerados (fora do Git, dados reais de cliente)
 - `conteudo/` — produção de conteúdo (copy, posts, roteiros)
-- `dados/` — relatórios, exports de campanha, CSVs pra análise
+- `briefings/` — briefings recebidos
+- `dados/` — drop zone pra CSVs e planilhas a analisar. Não é lugar de template nem de entrega
+- `ferramentas/` — scripts operacionais (ex: OAuth do Google Calendar)
 - `tarefas.md` — lista de tarefas corrente
 - `templates/skills/` — templates de skills prontos pra personalizar com `/mapear`
 - `templates/ferramentas/catalogo.md` — APIs e ferramentas disponíveis pra usar em skills
+
+**Dentro de `clientes/<cliente>/`**, o material fica separado por tipo, e a subpasta só existe quando há o que guardar nela: `assets/`, `propostas/`, `paginas/`, `dashboards/`, `relatorios/`, `treinamentos/`, `conteudo/`, `automacoes/`, `gtm/`, `docs/`. `briefing.md` fica na raiz da pasta do cliente. Versão substituída vai pra `_versoes-anteriores/` em vez de ser apagada.
+
+**O que não está no Git:** `clientes/`, `conteudo/`, `contratos/`, `briefings/` e `dados/*.json` estão no `.gitignore` por conterem dado real de cliente. Eles existem só no disco, então mover ou apagar ali não tem desfazer pelo histórico.
 
 ## Sobre o negócio
 
