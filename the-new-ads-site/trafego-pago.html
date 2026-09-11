@@ -635,40 +635,81 @@ function getCookie(n){
   if(parts.length === 2) return parts.pop().split(";").shift();
   return "";
 }
+function getCookie(nome){
+  var m = document.cookie.match('(^|;)\s*' + nome + '\s*=\s*([^;]+)');
+  return m ? m.pop() : "";
+}
+
+/* O GTM guarda as UTMs em localStorage e no cookie utm_persist por 90 dias.
+   Ler so a URL fazia a pagina ignorar tudo isso: quem voltava depois, salvava
+   o link ou navegava entre paginas chegava sem origem nenhuma.
+   Ordem: URL (visita atual, mais confiavel) -> localStorage -> cookie. */
+var UTM_PERSISTIDAS = (function(){
+  var guardadas = {};
+  try {
+    var bruto = decodeURIComponent(getCookie("utm_persist") || "");
+    if (bruto) guardadas = JSON.parse(bruto) || {};
+  } catch(e) {}
+  return guardadas;
+})();
+
+function utmPersistida(chave){
+  try {
+    var doStorage = localStorage.getItem(chave);
+    if (doStorage) return doStorage;
+  } catch(e) {}
+  return UTM_PERSISTIDAS[chave] || "";
+}
+
 function capturarTrack(){
   var p = new URLSearchParams(location.search);
   var all = {};
   p.forEach(function(v,k){ all[k] = v; });            // catch-all: todo parametro da URL
   var g = function(k){ return p.get(k) || ""; };
+  // vale pras UTMs: se nao veio na URL, procura o que o GTM persistiu
+  var u = function(k){ return p.get(k) || utmPersistida(k); };
   return {
-    // UTMs padrao (inclui os novos do GA4)
-    utm_source:           g("utm_source"),
-    utm_medium:           g("utm_medium"),
-    utm_campaign:         g("utm_campaign"),
-    utm_content:          g("utm_content"),
-    utm_term:             g("utm_term"),
+    utm_source:           u("utm_source"),
+    utm_medium:           u("utm_medium"),
+    utm_campaign:         u("utm_campaign"),
+    utm_content:          u("utm_content"),
+    utm_term:             u("utm_term"),
     utm_id:               g("utm_id"),
-    utm_placement:        g("utm_placement") || g("placement"),
+    // o padrao de UTM do Douglas manda o posicionamento no parametro "posicionamento"
+    utm_placement:        g("utm_placement") || g("posicionamento") || g("placement"),
     utm_source_platform:  g("utm_source_platform"),
     utm_creative_format:  g("utm_creative_format"),
     utm_marketing_tactic: g("utm_marketing_tactic"),
-    // click IDs
     gclid:   g("gclid"),
     gbraid:  g("gbraid"),
     wbraid:  g("wbraid"),
     fbclid:  g("fbclid"),
     ttclid:  g("ttclid"),
     msclkid: g("msclkid"),
-    // cookies do pixel (CAPI)
     fbp: getCookie("_fbp"),
     fbc: getCookie("_fbc"),
-    // contexto
     referrer:     document.referrer || "",
     landing_page: location.href,
     all_params:   all
   };
 }
 const TRACK = capturarTrack();
+
+/* Leva a origem junto pro /agendar. Sem isso a pagina de agendamento nasce
+   sem UTM nenhuma, e o evento de reuniao marcada fica orfao no GTM. */
+function comOrigem(url){
+  const t = TRACK;
+  const extra = {
+    utm_source: t.utm_source, utm_medium: t.utm_medium, utm_campaign: t.utm_campaign,
+    utm_content: t.utm_content, utm_term: t.utm_term, nicho: (typeof NICHO !== "undefined" ? NICHO : ""),
+  };
+  const partes = Object.keys(extra)
+    .filter(function(k){ return extra[k]; })
+    .map(function(k){ return k + "=" + encodeURIComponent(extra[k]); });
+  if (!partes.length) return url;
+  return url + (url.indexOf("?") === -1 ? "?" : "&") + partes.join("&");
+}
+
 /* id do lead gravado no primeiro envio, reusado no envio final pra nao duplicar linha */
 let LEAD_ID = null;
 /* momento em que o formulario abriu, pra medir se foi humano ou robo preenchendo */
@@ -838,7 +879,7 @@ function finish(){
   } else {
     dl("CompletouFormulario", {dentro_do_perfil:true, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
     enviarWebhook({evento:"formulario_completo", qualificado:true, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
-    const agendarUrl = "/agendar?nome="+encodeURIComponent(data.nome||"")+"&email="+encodeURIComponent(data.email||"")+"&telefone="+encodeURIComponent(data.telefone||"")+(LEAD_ID?"&lead_id="+encodeURIComponent(LEAD_ID):"");
+    const agendarUrl = comOrigem("/agendar?nome="+encodeURIComponent(data.nome||"")+"&email="+encodeURIComponent(data.email||"")+"&telefone="+encodeURIComponent(data.telefone||"")+(LEAD_ID?"&lead_id="+encodeURIComponent(LEAD_ID):""));
     stepwrap.innerHTML = '<div class="done"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FF6A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><h3>Tudo certo, '+nome+'!</h3><p>Vamos te levar direto pra escolher o melhor horario com o Douglas.</p><a class="btn" style="justify-content:center" href="'+agendarUrl+'">Escolher horario agora</a></div>';
     setTimeout(()=>{ window.location.href = agendarUrl; }, 1200);
   }

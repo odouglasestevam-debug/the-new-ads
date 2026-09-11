@@ -93,7 +93,9 @@
   tr:last-child td{border-bottom:none}
   tbody tr:hover{background:rgba(255,255,255,.02)}
   .nome-cel{font-weight:600;color:var(--branco)}
-  .campo-empresa{
+  .utm.nicho{border-color:var(--ambar);color:var(--ambar)}
+.utm.nicho i{color:var(--ambar);opacity:.75}
+.campo-empresa{
   background:transparent;border:1px solid var(--linha);border-radius:6px;
   color:var(--branco);font:inherit;font-size:13px;padding:4px 8px;width:100%;max-width:240px;
   transition:border-color .15s ease,background .15s ease;
@@ -1118,7 +1120,7 @@ function leadsFiltrados() {
     if (filtroQualificacao === "sim" && l.qualificado !== true) return false;
     if (filtroQualificacao === "nao" && l.qualificado !== false) return false;
     if (!termo) return true;
-    return [l.nome, l.email, l.telefone, l.empresa, l.utm_campaign]
+    return [l.nome, l.email, l.telefone, l.empresa, l.utm_campaign, rotuloNicho(l.nicho)]
       .filter(Boolean).join(" ").toLowerCase().includes(termo);
   });
 }
@@ -1195,6 +1197,7 @@ function vistaKanban() {
         ${selosScore(l)}
 
         <div class="utms">
+          ${l.nicho ? `<span class="utm nicho"><i>nicho</i>${escapar(rotuloNicho(l.nicho))}</span>` : ""}
           ${l.utm_source ? `<span class="utm"><i>origem</i>${escapar(l.utm_source)}</span>` : ""}
           ${l.utm_medium ? `<span class="utm"><i>mídia</i>${escapar(l.utm_medium)}</span>` : ""}
           ${l.utm_campaign ? `<span class="utm"><i>campanha</i>${escapar(l.utm_campaign)}</span>` : ""}
@@ -1626,6 +1629,13 @@ async function desenhar2FA() {
    Desinstalar o app apaga os dois primeiros e deixa a linha órfã, que o
    servidor aceita enviar mas nenhum aparelho exibe. Aqui a gente mostra os
    três lado a lado e conserta a diferença. */
+// Rotulo dos nichos das paginas de captacao. Slug cru no card nao ajuda ninguem.
+const NOME_NICHO = { generico: "Negócio local", vet: "Clínica pet", eventos: "Eventos" };
+function rotuloNicho(valor) {
+  if (!valor) return "";
+  return NOME_NICHO[valor] || valor;
+}
+
 const CHAVE_ENDPOINT_LOCAL = "funil_push_endpoint";
 
 async function estadoPush() {
@@ -2242,6 +2252,7 @@ function abrirLead(id, abaInicial) {
 
       <div class="grupo">
         <h3>Origem</h3>
+        ${par("Nicho da página", rotuloNicho(l.nicho))}
         ${par("utm_source", l.utm_source)}
         ${par("utm_medium", l.utm_medium)}
         ${par("utm_campaign", l.utm_campaign)}

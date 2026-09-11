@@ -154,6 +154,8 @@ export async function onRequestPost({ request, env }) {
       todos_parametros: rastreio.all_params || null,
 
       ja_investe: texto(corpo.ja_investe),
+      // qual variacao da pagina a pessoa viu, pra comparar nicho por nicho
+      nicho: texto(corpo.nicho, 40),
 
       user_agent: texto(request.headers.get("user-agent"), 500),
     };

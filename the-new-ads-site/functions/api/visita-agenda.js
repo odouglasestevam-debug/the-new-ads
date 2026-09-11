@@ -57,12 +57,18 @@ export async function onRequestPost({ request, env }) {
     const cidade = texto(geo.city, 120);
     const regiao = texto(geo.region, 120);
 
+    const origem = corpo.origem || {};
     await inserir(env, "funil_visitas_agenda", {
       lead_id: texto(corpo.leadId, 60),
       nome,
       ip,
       cidade,
       regiao,
+      utm_source: texto(origem.utm_source, 200),
+      utm_medium: texto(origem.utm_medium, 200),
+      utm_campaign: texto(origem.utm_campaign, 200),
+      utm_content: texto(origem.utm_content, 200),
+      nicho: texto(origem.nicho, 40),
       user_agent: texto(request.headers.get("user-agent"), 500),
       referrer: texto(corpo.referrer, 800),
     });

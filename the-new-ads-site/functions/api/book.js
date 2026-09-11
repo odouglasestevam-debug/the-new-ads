@@ -84,11 +84,20 @@ export async function onRequestPost({ request, env }) {
     // Registro e notificacao nao podem derrubar um agendamento ja criado
     // no Calendar: falha aqui e registrada, mas a reuniao continua marcada.
     try {
+      const origem = body.origem || {};
       await inserir(env, "funil_agendamentos", {
         lead_id: body.leadId || null,
         nome: name,
         email,
         telefone: phone || null,
+        // Origem na propria linha da reuniao: se o lead se perder, ou se a
+        // pessoa agendar por link direto, ainda da pra dizer qual anuncio pagou.
+        utm_source: origem.utm_source || null,
+        utm_medium: origem.utm_medium || null,
+        utm_campaign: origem.utm_campaign || null,
+        utm_content: origem.utm_content || null,
+        utm_term: origem.utm_term || null,
+        nicho: origem.nicho || null,
         inicio: startDate.toISOString(),
         fim: endDate.toISOString(),
         google_event_id: created.id,

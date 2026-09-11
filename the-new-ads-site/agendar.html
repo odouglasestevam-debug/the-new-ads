@@ -470,6 +470,30 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   const leadTelefone = params.get("telefone") || "";
   const leadId = params.get("lead_id") || "";
 
+  /* A origem chega pela URL vinda do formulario. Se a pessoa caiu aqui por
+     link direto, tenta o que o GTM persistiu, pela mesma ordem das outras
+     paginas: URL primeiro, storage depois, cookie por ultimo. */
+  const ORIGEM = (function(){
+    let guardadas = {};
+    try {
+      const bruto = decodeURIComponent((document.cookie.match(/(^|;)\s*utm_persist\s*=\s*([^;]+)/) || [])[2] || "");
+      if (bruto) guardadas = JSON.parse(bruto) || {};
+    } catch (e) {}
+    const buscar = (k) => {
+      if (params.get(k)) return params.get(k);
+      try { if (localStorage.getItem(k)) return localStorage.getItem(k); } catch (e) {}
+      return guardadas[k] || "";
+    };
+    return {
+      utm_source: buscar("utm_source"),
+      utm_medium: buscar("utm_medium"),
+      utm_campaign: buscar("utm_campaign"),
+      utm_content: buscar("utm_content"),
+      utm_term: buscar("utm_term"),
+      nicho: params.get("nicho") || "",
+    };
+  })();
+
   // Avisa no app do funil que tem alguem escolhendo horario agora. O servidor
   // deduplica por IP, entao recarregar a pagina nao gera aviso novo.
   (function avisarVisita() {
@@ -481,6 +505,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           nome: leadNome,
           leadId: leadId || null,
           referrer: document.referrer || null,
+          origem: ORIGEM,
         }),
         keepalive: true,
       }).catch(() => {});
