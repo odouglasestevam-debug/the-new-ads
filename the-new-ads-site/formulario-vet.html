@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta name="facebook-domain-verification" content="qv6p7sqqf3knbx82xusi80p8ldn386" />
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WPWMMR3S');</script>
+<!-- End Google Tag Manager -->
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tráfego Pago para Clínicas e Hospitais Veterinários | the new ads</title>
+<meta name="description" content="Pare de perder tutores para o concorrente. Tráfego pago para clínicas e hospitais veterinários que faturam a partir de R$ 70 mil por mês.">
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF;
+    --fg:#111111;
+    --muted:#6B6B6B;
+    --linha:#E4E4E4;
+    --ambar:#FF6A00;
+    --ambar-fraco:rgba(255,106,0,.08);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html,body{height:100%}
+  body{
+    background:var(--bg);color:var(--fg);
+    font-family:'Lato',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    -webkit-font-smoothing:antialiased;
+    overflow:hidden;
+  }
+  /* Emoji da Apple primeiro: no iPhone, de onde vem a maior parte do trafego
+     social, sai exatamente o desenho escolhido. Nos outros, cai no do sistema. */
+  .emoji{
+    font-family:'Apple Color Emoji','Segoe UI Emoji','Noto Color Emoji',sans-serif;
+    font-size:1.15em;line-height:1;flex:none;
+  }
+
+  .logo{
+    position:fixed;top:22px;left:24px;z-index:45;
+    width:auto;height:clamp(20px,5vw,26px);
+  }
+  @media(max-width:560px){ .logo{left:16px;top:18px;height:19px} }
+
+  .barra{position:fixed;top:0;left:0;right:0;height:4px;background:var(--linha);z-index:50}
+  .barra i{
+    display:block;height:100%;width:0;background:var(--ambar);
+    transition:width .45s cubic-bezier(.22,1,.36,1);
+  }
+
+  /* uma tela por vez, ocupando a altura toda */
+  .palco{position:relative;height:100dvh;width:100%}
+  .tela{
+    position:absolute;inset:0;
+    display:flex;flex-direction:column;justify-content:center;
+    padding:76px 24px calc(32px + env(safe-area-inset-bottom));
+    max-width:720px;margin:0 auto;width:100%;
+    opacity:0;transform:translateY(28px);pointer-events:none;
+    transition:opacity .38s ease,transform .38s cubic-bezier(.22,1,.36,1);
+  }
+  .tela.ativa{opacity:1;transform:none;pointer-events:auto}
+  @media(max-width:560px){
+    .tela{padding-left:16px;padding-right:16px}
+  }
+  .tela.saiu{transform:translateY(-28px)}
+
+  /* ---------- capa ---------- */
+  .kicker{
+    font-size:11px;font-weight:900;letter-spacing:.18em;text-transform:uppercase;
+    color:var(--ambar);display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
+  }
+  .kicker::before{content:"";width:22px;height:2px;background:var(--ambar)}
+  h1{
+    font-size:clamp(27px,6.8vw,42px);font-weight:900;line-height:1.14;letter-spacing:-.02em;
+    text-wrap:balance;  /* distribui as linhas em vez de deixar uma orfa embaixo */
+  }
+  h1 b{color:var(--ambar);font-weight:900}
+  /* pedacos que nunca devem ser partidos no meio */
+  .nb{white-space:nowrap}
+
+  .bullets{list-style:none;margin:26px 0 30px;display:flex;flex-direction:column;gap:12px}
+  .bullets li{
+    display:flex;align-items:center;gap:10px;
+    font-size:clamp(11px,3.6vw,17px);line-height:1.3;color:#2A2A2A;
+    white-space:nowrap;           /* bullet quebrado fica feio e perde o ritmo da lista */
+  }
+  .filtro{
+    margin-top:16px;font-size:clamp(10px,3vw,13px);color:var(--muted);font-style:italic;
+    display:flex;align-items:baseline;gap:7px;line-height:1.4;
+    white-space:nowrap;
+  }
+  /* fora do celular a headline nao precisa de balance, ja cabe com folga */
+  @media(min-width:900px){ h1{text-wrap:pretty} }
+
+  /* ---------- perguntas ---------- */
+  .conta{font-size:13px;font-weight:700;color:var(--ambar);margin-bottom:12px;letter-spacing:.04em}
+  .pergunta{
+    font-size:clamp(20px,5.2vw,31px);font-weight:700;line-height:1.25;letter-spacing:-.01em;
+    margin-bottom:22px;text-wrap:balance;
+  }
+  input{
+    width:100%;border:none;border-bottom:2px solid var(--linha);background:transparent;
+    font-family:inherit;font-size:clamp(19px,5vw,26px);color:var(--fg);
+    padding:10px 2px;outline:none;transition:border-color .2s ease;
+  }
+  input::placeholder{color:#C4C4C4}
+  input:focus{border-bottom-color:var(--ambar)}
+
+  .opcoes{display:flex;flex-direction:column;gap:9px}
+  .opt{
+    display:flex;align-items:center;gap:12px;width:100%;text-align:left;
+    border:1.5px solid var(--linha);border-radius:9px;background:#fff;
+    padding:13px 15px;cursor:pointer;
+    font-family:inherit;font-size:clamp(13px,3.7vw,16.5px);color:var(--fg);
+    transition:border-color .15s ease,background .15s ease;
+    white-space:nowrap;
+  }
+  .opt:hover{border-color:var(--ambar);background:var(--ambar-fraco)}
+  .opt.sel{border-color:var(--ambar);background:var(--ambar-fraco);font-weight:700}
+  .opt .letra{
+    flex:none;width:25px;height:25px;border:1.5px solid var(--linha);border-radius:5px;
+    display:grid;place-items:center;font-size:12px;font-weight:700;color:var(--muted);
+    transition:inherit;
+  }
+  .opt:hover .letra,.opt.sel .letra{border-color:var(--ambar);color:var(--ambar)}
+
+  /* ---------- acoes ---------- */
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:9px;
+    background:var(--ambar);color:#fff;border:none;border-radius:8px;cursor:pointer;
+    font-family:inherit;font-size:clamp(15px,4.2vw,17px);font-weight:700;
+    padding:15px clamp(20px,5.5vw,30px);
+    text-decoration:none;white-space:nowrap;
+    transition:filter .15s ease,transform .12s ease;
+  }
+  .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
+  .btn:active{transform:none}
+  .acoes{display:flex;align-items:center;gap:14px;margin-top:26px;flex-wrap:wrap}
+  .dica{font-size:12.5px;color:var(--muted)}
+  .dica kbd{
+    font-family:inherit;font-weight:700;background:#F4F4F4;border:1px solid var(--linha);
+    border-radius:4px;padding:1px 6px;font-size:11.5px;
+  }
+  @media(max-width:560px){ .dica{display:none} }
+
+  .erro{color:#D93025;font-size:13.5px;margin-top:10px;min-height:18px}
+
+  .voltar{
+    position:fixed;left:20px;bottom:calc(20px + env(safe-area-inset-bottom));
+    background:none;border:none;cursor:pointer;color:var(--muted);
+    font-family:inherit;font-size:13.5px;display:none;align-items:center;gap:6px;z-index:40;
+  }
+  .voltar:hover{color:var(--ambar)}
+  .voltar.on{display:inline-flex}
+
+  /* ---------- telas finais ---------- */
+  .final h2{font-size:clamp(23px,5.8vw,34px);font-weight:900;line-height:1.2;margin-bottom:14px;text-wrap:balance}
+  .final p{font-size:clamp(15px,4vw,16px);line-height:1.6;color:var(--muted);max-width:44ch;margin-bottom:6px;text-wrap:pretty}
+  .final p b{color:var(--fg)}
+  .selo{
+    width:56px;height:56px;border-radius:50%;display:grid;place-items:center;margin-bottom:20px;
+    background:var(--ambar-fraco);
+  }
+  .selo.neutro{background:#F1F1F1}
+
+  /* campo isca: invisivel pra gente, irresistivel pra robo */
+  .isca{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WPWMMR3S"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
+
+<div class="barra"><i id="barraFill"></i></div>
+
+<img src="/logos/tna-horizontal.png" class="logo" alt="the new ads" width="2400" height="508">
+
+<div class="palco" id="palco">
+  <section class="tela ativa" id="capa">
+    <div>
+      <h1><span class="emoji">🐾</span> <span class="nb">Dono de clínica ou hospital pet,</span> <b>pare de perder tutores</b> para o concorrente, invista em <span class="nb">Tráfego Pago</span> com <span class="nb">quem entende do seu nicho</span></h1>
+      <!-- ordem do checklist: promessa, meio 1, meio 2, autoridade.
+           Cada bullet cabe em 35 caracteres pra nunca quebrar linha. -->
+      <ul class="bullets">
+        <li><span class="emoji">📅</span> Agenda cheia de tutor da região</li>
+        <li><span class="emoji">🐶</span> Apareça para tutor quando ele mais precisa</li>
+        <li><span class="emoji">🚨</span> Topo do Google em emergência 24h</li>
+        <li><span class="emoji">✅</span> Método validado, ROI de 7,7x</li>
+      </ul>
+      <div class="acoes">
+        <button class="btn" id="comecar">Quero agendar uma reunião →</button>
+      </div>
+      <div class="filtro">
+        <span aria-hidden="true">&rarr;</span>
+        <span>Exclusivo para clínicas e hospitais veterinários que faturam a partir de R$ 70 mil por mês.</span>
+      </div>
+    </div>
+  </section>
+</div>
+
+<button class="voltar" id="voltar">↑ Voltar</button>
+<input type="text" id="empresa_site" class="isca" tabindex="-1" aria-hidden="true" autocomplete="off">
+
+<script>
+window.dataLayer = window.dataLayer || [];
+
+const WEBHOOK_URL = "/api/lead";
+const WHATSAPP = "5548996936361";
+
+/* id do lead gravado no primeiro envio, reusado no envio final pra nao duplicar linha */
+let LEAD_ID = null;
+/* momento em que o formulario comecou, pra medir se foi humano ou robo preenchendo */
+let ABERTO_EM = 0;
+
+function getCookie(nome){
+  var m = document.cookie.match('(^|;)\\s*' + nome + '\\s*=\\s*([^;]+)');
+  return m ? m.pop() : "";
+}
+
+function capturarTrack(){
+  var p = new URLSearchParams(location.search);
+  var all = {};
+  p.forEach(function(v,k){ all[k] = v; });            // catch-all: todo parametro da URL
+  var g = function(k){ return p.get(k) || ""; };
+  return {
+    utm_source:           g("utm_source"),
+    utm_medium:           g("utm_medium"),
+    utm_campaign:         g("utm_campaign"),
+    utm_content:          g("utm_content"),
+    utm_term:             g("utm_term"),
+    utm_id:               g("utm_id"),
+    // o padrao de UTM do Douglas manda o posicionamento no parametro "posicionamento"
+    utm_placement:        g("utm_placement") || g("posicionamento") || g("placement"),
+    utm_source_platform:  g("utm_source_platform"),
+    utm_creative_format:  g("utm_creative_format"),
+    utm_marketing_tactic: g("utm_marketing_tactic"),
+    gclid:   g("gclid"),
+    gbraid:  g("gbraid"),
+    wbraid:  g("wbraid"),
+    fbclid:  g("fbclid"),
+    ttclid:  g("ttclid"),
+    msclkid: g("msclkid"),
+    fbp: getCookie("_fbp"),
+    fbc: getCookie("_fbc"),
+    referrer:     document.referrer || "",
+    landing_page: location.href,
+    all_params:   all
+  };
+}
+const TRACK = capturarTrack();
+
+const EVENT_IDS = {};
+function novoEventId(nome){
+  const id = (crypto.randomUUID ? crypto.randomUUID() : String(Date.now()) + Math.random());
+  EVENT_IDS[nome] = id;
+  return id;
+}
+function dl(event, extra){
+  window.dataLayer.push(Object.assign({event:event, event_id:novoEventId(event)}, extra||{}));
+}
+
+function enviarWebhook(payload){
+  if(!WEBHOOK_URL) return;
+  try{
+    var corpo = Object.assign({
+      origem:"formulario-vet-the-new-ads",
+      url:location.href,
+      ts:new Date().toISOString(),
+      tracking:TRACK,
+      lead_id:LEAD_ID,
+      tempo_ms: ABERTO_EM ? (Date.now() - ABERTO_EM) : 0,
+      empresa_site: (document.getElementById("empresa_site")||{}).value || ""
+    }, payload);
+    fetch(WEBHOOK_URL, {
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(corpo),
+      keepalive:true
+    }).then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if(d && d.id && !LEAD_ID) LEAD_ID = d.id; })
+      .catch(function(){});
+  }catch(e){}
+}
+
+/* ---- as perguntas, iguais as da landing ---- */
+const steps = [
+  {key:"nome", type:"text", q:"Qual seu nome completo?", ph:"Nome e sobrenome"},
+  {key:"email", type:"email", q:"Qual seu melhor e-mail?", ph:"voce@empresa.com"},
+  {key:"telefone", type:"tel", q:"Seu WhatsApp com DDD", ph:"(48) 90000-0000"},
+  {key:"ja_investe", type:"select", q:"Você já investe em tráfego pago hoje?", opts:[
+    "Sim, com agencia ou gestor","Sim, eu mesmo faco","Nao, nunca investi"]},
+  // Faixas sem sobreposicao: antes quem faturava exatamente R$ 70 mil cabia em
+  // duas opcoes, e 70 mil e justamente o corte da qualificacao.
+  {key:"faturamento", type:"select", q:"Faturamento médio mensal da empresa?", opts:[
+    "Ate R$ 30 mil","R$ 30 mil a R$ 69 mil","R$ 70 mil a R$ 199 mil","R$ 200 mil a R$ 499 mil","R$ 500 mil ou mais"]},
+  {key:"verba", type:"select", q:"Desconsiderando os honorários, quanto pretende investir em mídia por mês?", opts:[
+    "Ate R$ 1 mil","R$ 1,1 mil a R$ 3 mil","R$ 3,1 mil a R$ 10 mil","R$ 10,1 mil a R$ 30 mil","Acima de R$ 30 mil"]},
+];
+const labels = {nome:"Nome",email:"E-mail",telefone:"Telefone",faturamento:"Faturamento",verba:"Verba de midia",ja_investe:"Ja investe"};
+
+const FAT_BAIXO = ["Ate R$ 30 mil","R$ 30 mil a R$ 69 mil"]; // < R$ 70 mil
+const VERBA_BAIXA = "Ate R$ 1 mil";                          // <= R$ 1 mil
+
+const data = {};
+let i = -1, leadFired = false;
+
+const palco = document.getElementById("palco");
+const barraFill = document.getElementById("barraFill");
+const btnVoltar = document.getElementById("voltar");
+
+function escapar(t){
+  return String(t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function progresso(){
+  const total = steps.length + 1;
+  barraFill.style.width = Math.round(((i + 1) / total) * 100) + "%";
+}
+
+// Troca de tela no estilo Typeform: a anterior sobe e some, a nova entra por baixo.
+function trocarTela(html){
+  const atual = palco.querySelector(".tela.ativa");
+  const nova = document.createElement("section");
+  nova.className = "tela";
+  nova.innerHTML = html;
+  palco.appendChild(nova);
+
+  if(atual){
+    atual.classList.remove("ativa");
+    atual.classList.add("saiu");
+    setTimeout(function(){ atual.remove(); }, 400);
+  }
+  requestAnimationFrame(function(){ requestAnimationFrame(function(){
+    nova.classList.add("ativa");
+    const campo = nova.querySelector("input");
+    if(campo) setTimeout(function(){ campo.focus(); }, 120);
+  }); });
+  return nova;
+}
+
+const LETRAS = ["A","B","C","D","E","F"];
+
+function render(){
+  const s = steps[i];
+  progresso();
+  btnVoltar.classList.toggle("on", i > 0);
+
+  let html = '<div><div class="conta">' + (i+1) + ' &rarr; ' + steps.length + '</div>';
+  html += '<div class="pergunta">' + escapar(s.q) + '</div>';
+
+  if(s.type === "select"){
+    html += '<div class="opcoes">' + s.opts.map(function(o,idx){
+      return '<button type="button" class="opt' + (data[s.key]===o ? " sel" : "") + '" data-val="' + escapar(o) + '">' +
+             '<span class="letra">' + LETRAS[idx] + '</span><span>' + escapar(o) + '</span></button>';
+    }).join("") + '</div>';
+    html += '<div class="erro" id="erro"></div>';
+  } else {
+    html += '<input type="' + s.type + '" id="campo" placeholder="' + escapar(s.ph) + '" value="' + escapar(data[s.key] || "") + '" autocomplete="' + (s.key==="email" ? "email" : s.key==="telefone" ? "tel" : "off") + '">';
+    html += '<div class="erro" id="erro"></div>';
+    html += '<div class="acoes"><button class="btn" id="ok">OK &check;</button>' +
+            '<span class="dica">ou aperte <kbd>Enter &crarr;</kbd></span></div>';
+  }
+  html += '</div>';
+
+  const tela = trocarTela(html);
+
+  if(s.type === "select"){
+    tela.querySelectorAll(".opt").forEach(function(b){
+      b.addEventListener("click", function(){
+        data[s.key] = b.dataset.val;
+        tela.querySelectorAll(".opt").forEach(function(x){ x.classList.remove("sel"); });
+        b.classList.add("sel");
+        setTimeout(avancar, 220);   // respiro pra pessoa ver o que marcou
+      });
+    });
+  } else {
+    tela.querySelector("#ok").addEventListener("click", avancar);
+  }
+}
+
+function valido(s, valor){
+  if(!valor) return "Preencha para continuar.";
+  if(s.key === "nome" && valor.trim().split(/\s+/).length < 2) return "Digite nome e sobrenome.";
+  if(s.type === "email" && !/^[^@\s]+@[^@\s]+\.[^@\s]{2,}$/.test(valor)) return "Digite um e-mail válido.";
+  if(s.type === "tel" && valor.replace(/\D/g,"").length < 10) return "Digite o telefone com DDD.";
+  return "";
+}
+
+function avancar(){
+  const s = steps[i];
+  const campo = document.getElementById("campo");
+  const valor = s.type === "select" ? (data[s.key] || "") : (campo ? campo.value.trim() : "");
+  const erro = valido(s, valor);
+  const alvoErro = document.getElementById("erro");
+
+  if(erro){ if(alvoErro) alvoErro.textContent = erro; return; }
+  data[s.key] = valor;
+
+  // primeiro envio assim que existe contato: o lead nao se perde se a pessoa desistir depois
+  if(!leadFired && data.nome && data.email && data.telefone){
+    leadFired = true;
+    dl("Lead", {});
+    enviarWebhook({evento:"lead", etapa:"contato", nome:data.nome, email:data.email, telefone:data.telefone, event_id:EVENT_IDS["Lead"]});
+  }
+
+  if(i < steps.length - 1){ i++; render(); }
+  else finish();
+}
+
+function msgLink(intro){
+  const corpo = Object.keys(labels).map(function(k){
+    return "*" + labels[k] + ":* " + (data[k] || "-");
+  }).join("%0A");
+  return "https://wa.me/" + WHATSAPP + "?text=" + intro + "%0A%0A" + corpo;
+}
+
+function finish(){
+  barraFill.style.width = "100%";
+  btnVoltar.classList.remove("on");
+  const desqualificado = FAT_BAIXO.includes(data.faturamento) && data.verba === VERBA_BAIXA;
+  const nome = (data.nome || "").split(" ")[0];
+
+  if(desqualificado){
+    dl("CompletouFormulario", {dentro_do_perfil:false, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
+    enviarWebhook({evento:"formulario_incompleto_perfil", qualificado:false, nome:data.nome, email:data.email, telefone:data.telefone, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
+    const url = msgLink("Ola! Vim pelo formulario de clinicas veterinarias da The New Ads. Tenho interesse em ajuda com trackeamento.");
+    trocarTela(
+      '<div class="final"><div class="selo neutro"><span class="emoji" style="font-size:26px">💬</span></div>' +
+      '<h2>Obrigado pela sinceridade, ' + escapar(nome) + '!</h2>' +
+      '<p>Pelo perfil atual da sua empresa, nossa operação completa de mídia paga ainda não é o melhor encaixe: ela rende de verdade a partir de um certo volume de investimento. Mas se o seu foco agora é organizar o <b>trackeamento</b> e a base de dados do seu funil, isso a gente resolve. Chama que a gente conversa.</p>' +
+      '<div class="acoes"><a class="btn" href="' + url + '" target="_blank" rel="noopener">Falar sobre trackeamento</a></div></div>'
+    );
+  } else {
+    dl("CompletouFormulario", {dentro_do_perfil:true, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
+    enviarWebhook({evento:"formulario_completo", qualificado:true, nome:data.nome, email:data.email, telefone:data.telefone, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
+    const agendarUrl = "/agendar?nome=" + encodeURIComponent(data.nome || "") +
+      "&email=" + encodeURIComponent(data.email || "") +
+      "&telefone=" + encodeURIComponent(data.telefone || "") +
+      (LEAD_ID ? "&lead_id=" + encodeURIComponent(LEAD_ID) : "");
+    trocarTela(
+      '<div class="final"><div class="selo"><span class="emoji" style="font-size:26px">🎉</span></div>' +
+      '<h2>Tudo certo, ' + escapar(nome) + '!</h2>' +
+      '<p>Vamos te levar direto pra escolher o melhor horário com o Douglas.</p>' +
+      '<div class="acoes"><a class="btn" href="' + agendarUrl + '">Escolher horário agora</a></div></div>'
+    );
+    setTimeout(function(){ window.location.href = agendarUrl; }, 1400);
+  }
+}
+
+document.getElementById("comecar").addEventListener("click", function(){
+  if(!ABERTO_EM) ABERTO_EM = Date.now();
+  dl("IniciouFormulario");
+  i = 0; render();
+});
+
+btnVoltar.addEventListener("click", function(){ if(i > 0){ i--; render(); } });
+
+document.addEventListener("keydown", function(e){
+  if(e.key !== "Enter") return;
+  if(i === -1){ document.getElementById("comecar").click(); return; }
+  const s = steps[i];
+  if(s && s.type !== "select"){ e.preventDefault(); avancar(); }
+});
+
+/* ---------------------------------------------------------------
+   Garante que nada com nowrap seja cortado. O clamp do CSS acerta na
+   maioria das telas, mas nao sabe o comprimento real do texto nem espera
+   a Lato carregar (a fonte de fallback tem largura diferente). Aqui a
+   pagina se mede depois que a fonte chega e encolhe so o necessario,
+   aplicando o mesmo tamanho no grupo inteiro pra lista nao ficar
+   com cada item de um tamanho.
+   Vale tambem pras versoes por nicho, que terao textos diferentes.
+--------------------------------------------------------------- */
+function caberSemQuebrar(selDoGrupo, selDosItens, minPx){
+  const grupo = document.querySelector(selDoGrupo);
+  if(!grupo) return;
+  const itens = Array.from(grupo.querySelectorAll(selDosItens));
+  if(!itens.length) return;
+
+  itens.forEach(function(el){ el.style.fontSize = ""; });
+  const base = parseFloat(getComputedStyle(itens[0]).fontSize);
+  let tamanho = base;
+
+  const estoura = function(){
+    return itens.some(function(el){ return el.scrollWidth > el.clientWidth + 1; });
+  };
+
+  while(estoura() && tamanho > minPx){
+    tamanho -= 0.5;
+    itens.forEach(function(el){ el.style.fontSize = tamanho + "px"; });
+  }
+
+  // Chegou no menor tamanho legivel e o texto ainda nao cabe: melhor deixar
+  // quebrar em duas linhas equilibradas do que entregar uma linha ilegivel.
+  if(estoura()){
+    itens.forEach(function(el){
+      el.style.whiteSpace = "normal";
+      el.style.textWrap = "balance";
+    });
+  }
+}
+
+/* A headline pode quebrar, mas tres linhas com a ultima quase vazia fica feio.
+   Encolhe a fonte ate caber no numero de linhas desejado. So desiste quando
+   chega no menor tamanho que ainda tem presenca de titulo. */
+function limitarLinhas(sel, maxLinhas, minPx){
+  const el = document.querySelector(sel);
+  if(!el) return;
+
+  el.style.fontSize = "";
+  const estilo = getComputedStyle(el);
+  let tamanho = parseFloat(estilo.fontSize);
+  const proporcaoLinha = parseFloat(estilo.lineHeight) / tamanho;
+
+  const linhas = function(){
+    const alturaLinha = parseFloat(getComputedStyle(el).fontSize) * proporcaoLinha;
+    return Math.round(el.offsetHeight / alturaLinha);
+  };
+
+  while(linhas() > maxLinhas && tamanho > minPx){
+    tamanho -= 0.5;
+    el.style.fontSize = tamanho + "px";
+  }
+}
+
+function ajustarCapa(){
+  // duas linhas e o alvo; em tela muito estreita aceita tres em vez de virar letra miuda
+  // Duas linhas continua sendo o alvo, mas com a headline nomeando o publico
+  // ela ficaria em 16px pra caber em duas no celular. La o alvo vira tres,
+  // que cai naturalmente em "publico / promessa / servico".
+  limitarLinhas("#capa h1", window.innerWidth < 560 ? 4 : 3, 22);
+  caberSemQuebrar(".bullets", "li", 10);
+  caberSemQuebrar("#capa .filtro", "span:last-child", 10);
+}
+
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(ajustarCapa);
+} else {
+  window.addEventListener("load", ajustarCapa);
+}
+// rotacionar o celular muda a largura, entao mede de novo
+let tmr;
+window.addEventListener("resize", function(){
+  clearTimeout(tmr);
+  tmr = setTimeout(ajustarCapa, 120);
+});
+
+progresso();
+</script>
+</body>
+</html>
