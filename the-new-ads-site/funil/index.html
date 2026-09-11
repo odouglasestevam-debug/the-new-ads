@@ -492,6 +492,7 @@ const ETAPAS = [
   { id: "agendou",       nome: "Agendou",           cor: "#60A5FA" },
   { id: "qualificado",   nome: "Lead qualificado",  cor: "#22D3EE", evento: "LeadQualificado" },
   { id: "reuniao",       nome: "Reunião feita",     cor: "#A78BFA" },
+  { id: "no_show",       nome: "No-show",           cor: "#F87171" },
   { id: "proposta",      nome: "Proposta enviada",  cor: "#FF6A00" },
   { id: "cliente",       nome: "Cliente",           cor: "#4ADE80", evento: "Purchase" },
   { id: "perdido",       nome: "Perdido",           cor: "#F87171" },
@@ -1901,9 +1902,29 @@ async function moverLead(id, etapa) {
   if (error) { alert("Não deu pra mover: " + error.message); return; }
 
   lead.etapa = etapa;
+  await sincronizarPresenca(id, etapa);
   if (vistaAtual === "kanban") render();
 
   if (destino?.evento) await enviarEventoMeta(lead, destino.evento, valor);
+}
+
+/* A coluna do kanban e o registro de presenca: mover pra Reuniao feita marca
+   presenca, mover pra No-show marca falta. Sem isso o no-show fica invisivel,
+   que era o maior vazamento do funil e o unico sem medicao. */
+async function sincronizarPresenca(leadId, etapa) {
+  let situacao = null;
+  if (etapa === "reuniao") situacao = "realizada";
+  else if (etapa === "no_show") situacao = "no_show";
+  else if (["agendou", "qualificado"].includes(etapa)) situacao = "agendado";
+  if (!situacao) return;
+
+  const patch = { situacao };
+  patch.compareceu_em = situacao === "realizada" ? new Date().toISOString() : null;
+
+  const { error } = await sb.from("funil_agendamentos").update(patch).eq("lead_id", leadId);
+  if (error) console.error("presenca", error.message);
+
+  for (const a of agendamentos) if (a.lead_id === leadId) Object.assign(a, patch);
 }
 
 // Campo de valor do contrato. Devolve o numero, ou null se cancelar.
