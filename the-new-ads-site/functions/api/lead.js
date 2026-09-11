@@ -78,6 +78,7 @@ export async function onRequestPost({ request, env }) {
         p_faturamento: texto(corpo.faturamento),
         p_verba: texto(corpo.verba),
         p_qualificado: typeof corpo.qualificado === "boolean" ? corpo.qualificado : null,
+        p_ja_investe: texto(corpo.ja_investe),
       });
 
       if (corpo.evento === "formulario_completo") {
@@ -151,6 +152,8 @@ export async function onRequestPost({ request, env }) {
       referrer: texto(rastreio.referrer, 800),
       landing_page: texto(rastreio.landing_page, 800),
       todos_parametros: rastreio.all_params || null,
+
+      ja_investe: texto(corpo.ja_investe),
 
       user_agent: texto(request.headers.get("user-agent"), 500),
     };

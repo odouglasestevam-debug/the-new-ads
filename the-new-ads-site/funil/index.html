@@ -93,7 +93,15 @@
   tr:last-child td{border-bottom:none}
   tbody tr:hover{background:rgba(255,255,255,.02)}
   .nome-cel{font-weight:600;color:var(--branco)}
-  .sub-cel{color:var(--nevoa);font-size:12.5px;margin-top:3px}
+  .campo-empresa{
+  background:transparent;border:1px solid var(--linha);border-radius:6px;
+  color:var(--branco);font:inherit;font-size:13px;padding:4px 8px;width:100%;max-width:240px;
+  transition:border-color .15s ease,background .15s ease;
+}
+.campo-empresa:focus{outline:none;border-color:var(--ambar)}
+.campo-empresa::placeholder{color:var(--nevoa)}
+.campo-empresa.salvo{border-color:var(--verde);background:rgba(15,157,88,.10)}
+.sub-cel{color:var(--nevoa);font-size:12.5px;margin-top:3px}
   .num{font-family:var(--mono);font-size:12.5px;color:var(--nevoa);white-space:nowrap}
 
   .selo{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
@@ -545,18 +553,28 @@ function dataHora(iso) {
    Nota de 0 a 100 montada com o que o lead declarou no formulario mais o
    comportamento dele. Comportamento pesa menos que dinheiro, mas pesa: quem
    marcou reuniao mostrou intencao, nao so preencheu campo. */
+// As faixas do formulario mudaram pra nao se sobrepor no limite (quem faturava
+// exatamente R$ 70 mil cabia em duas opcoes). Os rotulos antigos continuam na
+// tabela porque os leads ja gravados no banco guardam o texto de entao.
 const PONTOS_FATURAMENTO = [
+  ["r$ 500 mil ou mais", 40],
   ["acima de r$ 500 mil", 40],
+  ["r$ 200 mil a r$ 499 mil", 35],
   ["r$ 200 mil a r$ 500 mil", 35],
+  ["r$ 70 mil a r$ 199 mil", 25],
   ["r$ 70 mil a r$ 200 mil", 25],
+  ["r$ 30 mil a r$ 69 mil", 10],
   ["r$ 30 mil a r$ 70 mil", 10],
   ["ate r$ 30 mil", 0],
 ];
 
 const PONTOS_VERBA = [
   ["acima de r$ 30 mil", 40],
+  ["r$ 10,1 mil a r$ 30 mil", 35],
   ["r$ 10 mil a r$ 30 mil", 35],
+  ["r$ 3,1 mil a r$ 10 mil", 25],
   ["r$ 3 mil a r$ 10 mil", 25],
+  ["r$ 1,1 mil a r$ 3 mil", 10],
   ["r$ 1 mil a r$ 3 mil", 10],
   ["ate r$ 1 mil", 0],
 ];
@@ -2197,13 +2215,20 @@ function abrirLead(id, abaInicial) {
         ${par("Último nome", l.ultimo_nome)}
         ${par("E-mail", l.email)}
         ${par("Telefone", l.telefone)}
-        ${par("Empresa", l.empresa)}
+        <div class="par">
+          <span class="r">Empresa</span>
+          <span class="v">
+            <input class="campo-empresa" id="empresa-${l.id}" value="${escapar(l.empresa || "")}"
+                   placeholder="preencher" data-lead="${l.id}">
+          </span>
+        </div>
       </div>
 
       <div class="grupo">
         <h3>Perfil declarado</h3>
         ${par("Faturamento", l.faturamento)}
         ${par("Verba", l.verba)}
+        ${par("Já investe", l.ja_investe)}
         ${par("Dentro da régua", l.qualificado === true ? "sim" : l.qualificado === false ? "não" : null)}
       </div>
 
@@ -2398,6 +2423,25 @@ function abrirLead(id, abaInicial) {
   }
 
   function ligarDados() {
+    // A pergunta de empresa saiu do formulario pra tirar atrito, entao o nome
+    // e preenchido aqui, na hora de preparar a reuniao. Salva ao sair do campo.
+    const campoEmpresa = div.querySelector(".campo-empresa");
+    if (campoEmpresa) {
+      campoEmpresa.addEventListener("blur", async () => {
+        const valor = campoEmpresa.value.trim();
+        if (valor === (l.empresa || "")) return;
+        const { error } = await sb.rpc("funil_lead_editar_empresa", { p_id: l.id, p_empresa: valor });
+        if (error) { alert("Não deu pra salvar a empresa: " + error.message); return; }
+        l.empresa = valor || null;
+        const noCache = leads.find((x) => x.id === l.id);
+        if (noCache) noCache.empresa = l.empresa;
+        campoEmpresa.classList.add("salvo");
+        setTimeout(() => campoEmpresa.classList.remove("salvo"), 900);
+        if (vistaAtual === "kanban" || vistaAtual === "leads") render();
+      });
+      campoEmpresa.addEventListener("keydown", (e) => { if (e.key === "Enter") campoEmpresa.blur(); });
+    }
+
     const botao = div.querySelector("#editar-valor");
     if (!botao) return;
     botao.addEventListener("click", async () => {
