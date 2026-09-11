@@ -29,8 +29,31 @@ function chart(id, type, labels, datasets, options = {}) {
   charts.push(new Chart(canvas, { type, data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, animation: reduced ? false : { duration: 180 }, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { display: true, position: 'bottom', align: 'start', labels: { usePointStyle: true, pointStyle: 'rect', boxWidth: 7, boxHeight: 7, padding: 18, color: '#a0a3a8', font: { size: 11, family: 'Switzer, system-ui' } } }, tooltip: { backgroundColor: '#232323', borderColor: '#424242', borderWidth: 1, padding: 12, callbacks: { label: c => `${c.dataset.label}: ${c.dataset.money ? precise(c.parsed.y ?? c.parsed) : number(c.parsed.y ?? c.parsed)}` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: '#a0a3a8', maxRotation: 0, maxTicksLimit: 8, font: { size: 10 } } }, y: { beginAtZero: true, border: { display: false }, grid: { color: '#292929' }, ticks: { color: '#a0a3a8', precision: 0, maxTicksLimit: 5, font: { size: 10 } } } }, ...options } }));
 }
 function canvas(id, label, tall = false) { return `<div class="chart${tall ? ' tall' : ''}"><canvas id="${id}" role="img" aria-label="${esc(label)}">${esc(label)}. Os valores estão disponíveis na tabela da seção.</canvas></div>`; }
+let hintSeq = 0;
+// Descricao fica atras do icone, nao impressa no cartao: o painel tem 22 paineis
+// e imprimir todas as descricoes vira parede de texto. Popover nativo traz ESC,
+// fechar clicando fora e foco pelo teclado sem codigo nosso.
+function hint(text, label = 'Ver o que este número mede') {
+  if (!text) return '';
+  const id = `hint-${++hintSeq}`;
+  return `<button type="button" class="help" popovertarget="${id}" aria-label="${esc(label)}">${icon('info')}</button><div class="hint-pop" id="${id}" popover>${esc(text)}</div>`;
+}
+// O evento toggle do popover nao borbulha; a fase de captura alcanca mesmo assim.
+document.addEventListener('toggle', event => {
+  const pop = event.target;
+  if (!pop.classList || !pop.classList.contains('hint-pop') || event.newState !== 'open') return;
+  const trigger = document.querySelector(`[popovertarget="${pop.id}"]`);
+  if (!trigger) return;
+  if (window.matchMedia('(max-width: 620px)').matches) { pop.style.left = pop.style.top = ''; return; }
+  const r = trigger.getBoundingClientRect(), box = pop.getBoundingClientRect();
+  const left = Math.min(Math.max(12, r.left + r.width / 2 - box.width / 2), window.innerWidth - box.width - 12);
+  const acima = r.top > box.height + 16;
+  pop.style.left = `${left}px`;
+  pop.style.top = `${acima ? r.top - box.height - 10 : r.bottom + 10}px`;
+}, true);
+
 function panel(title, desc, content, span = 6, footer = '', action = '') {
-  return `<section class="panel span-${span}"><div class="panel-head"><div><h2>${title}</h2>${desc ? `<p>${desc}</p>` : ''}</div>${action}</div><div class="panel-body">${content}</div>${footer ? `<div class="panel-foot">${footer}</div>` : ''}</section>`;
+  return `<section class="panel span-${span}"><div class="panel-head"><div class="panel-title"><h2>${title}</h2>${hint(desc, 'Ver o que este painel mostra')}</div>${action}</div><div class="panel-body">${content}</div>${footer ? `<div class="panel-foot">${footer}</div>` : ''}</section>`;
 }
 function table(headers, rows, label, { rawRows = false } = {}) {
   return `<div class="table-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table><caption class="sr-only">${esc(label)}</caption><thead><tr>${headers.map(h => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.map(row => rawRows ? row : `<tr>${row.map(v => `<td>${v}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${headers.length}">Nenhum registro neste recorte.</td></tr>`}</tbody></table></div>`;
@@ -46,7 +69,7 @@ function delta(value, previous, lower = false, eligible = true) {
   const tone = Math.abs(v) < .005 ? '' : (lower ? v < 0 : v > 0) ? 'good' : 'bad';
   return `<div class="metric-delta"><b class="${tone}">${v > 0 ? '+' : ''}${percent(v)}</b> vs. período anterior</div>`;
 }
-function metric(label, value, sub, detail = '', change = '') { return `<div class="metric"><div class="metric-label"><span>${label}</span>${detail ? `<span class="help" tabindex="0" title="${esc(detail)}" aria-label="${esc(detail)}">${icon('info')}</span>` : ''}</div><div class="metric-value">${value}</div><div class="metric-sub">${sub}</div>${change}</div>`; }
+function metric(label, value, sub, detail = '', change = '') { return `<div class="metric"><div class="metric-label"><span>${label}</span>${hint(detail)}</div><div class="metric-value">${value}</div><div class="metric-sub">${sub}</div>${change}</div>`; }
 function badgeNiche(n) { return `<span class="niche-identity"><i class="swatch" style="--series:${BI.COLORS[n] || BI.COLORS.desconhecido}"></i>${esc(BI.NICHES[n] || n)}</span>`; }
 function go(view, label) { return `<button class="text-button" data-go="${view}">${label}</button>`; }
 function emptyNotice(m) { return !m.leads && !m.spend && !current.d.eventos.length ? `<div class="empty"><h2>${state.mode === 'real' ? 'Seu próximo lead começa esta história.' : 'Nenhuma simulação neste recorte.'}</h2><p>${state.mode === 'real' ? 'Ainda não há aquisição registrada nos filtros selecionados. Os indicadores serão preenchidos com a operação. Você pode explorar a simulação existente no banco.' : 'Amplie o período ou limpe os filtros para encontrar os dados simulados.'}</p><button class="button" data-action="${state.mode === 'real' ? 'simulation' : 'clear'}">${state.mode === 'real' ? 'Explorar dados simulados' : 'Limpar filtros'}</button></div>` : ''; }
@@ -206,6 +229,7 @@ function render() {
   const focused = document.activeElement;
   const focusId = focused?.id;
   charts.forEach(c => c.destroy()); charts = [];
+  hintSeq = 0;
   const data = BI.prepare(raw, state.mode, loadedAt);
   if (state.range === 'custom' && (!validDate(state.start) || !validDate(state.end) || state.start > state.end)) { state.start = BI.addDays(data.today, -55); state.end = data.today; }
   const p = BI.period(data, state.range, state.start, state.end), d = BI.slice(data, p, state.niche, state.ad);
