@@ -75,7 +75,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     font-size:clamp(14.5px,4vw,17px);line-height:1.35;color:#2A2A2A;
   }
   .filtro{
-    margin-top:18px;font-size:13px;color:var(--muted);
+    margin-top:18px;font-size:13px;color:var(--muted);font-style:italic;
     display:flex;align-items:flex-start;gap:8px;line-height:1.45;
   }
 
@@ -163,7 +163,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="palco" id="palco">
   <section class="tela ativa" id="capa">
     <div>
-      <span class="kicker">Diagnóstico sem custo</span>
       <h1>Venda <b>30% mais</b> com Tráfego Pago e inteligência de dados.</h1>
       <ul class="bullets">
         <li><span class="emoji">📈</span> Gestão de tráfego especializada em performance</li>
@@ -174,10 +173,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </ul>
       <div class="acoes">
         <button class="btn" id="comecar">Quero agendar uma reunião →</button>
-        <span class="dica">leva menos de 1 minuto</span>
       </div>
       <div class="filtro">
-        <span class="emoji">🔒</span>
+        <span aria-hidden="true">&rarr;</span>
         <span>Exclusivo para empresas que faturam a partir de R$ 70 mil por mês.</span>
       </div>
     </div>
