@@ -38,10 +38,17 @@ Cada deploy do Cloudflare Pages **substitui todo o conteúdo do deployment anter
 1. Confirmar que o arquivo existe e é `.html`.
 2. Ler as três variáveis do `.env`.
 3. Montar a pasta temporária conforme a regra crítica acima (site completo + arquivo novo).
-4. Rodar o deploy:
+4. Rodar o deploy **de dentro da pasta temporária** (`cd` antes), nunca da raiz do repositório:
    ```
-   CLOUDFLARE_API_TOKEN=<token> CLOUDFLARE_ACCOUNT_ID=<account_id> npx wrangler pages deploy <pasta_temporaria> --project-name=<project_name> --branch=main --commit-dirty=true
+   cd <pasta_temporaria>
+   CLOUDFLARE_API_TOKEN=<token> CLOUDFLARE_ACCOUNT_ID=<account_id> npx wrangler pages deploy . --project-name=<project_name> --branch=main --commit-dirty=true
    ```
+   ⚠️ **Regra crítica das Functions:** o Wrangler procura a pasta `functions/` no
+   diretório onde o comando roda, não dentro da pasta que está sendo publicada.
+   Rodando da raiz do repositório, o site sobe mas as rotas `/api/*` ficam de fora
+   **sem erro nenhum**, e passam a devolver o HTML de 404 em vez de JSON.
+   Confirme na saída que apareceram as linhas `✨ Compiled Worker successfully` e
+   `✨ Uploading Functions bundle`. Se não apareceram, as Functions não subiram.
 5. O Wrangler retorna a URL do deployment (formato `https://<hash>.<project_name>.pages.dev`). Extrair essa URL da saída.
 6. Montar a URL final: se o domínio customizado (`thenewads.com.br`) estiver conectado, usar ele; senão usar `<project_name>.pages.dev`. Caminho é `/<nome-do-arquivo-sem-extensão>`.
 7. Retornar o link pro usuário.

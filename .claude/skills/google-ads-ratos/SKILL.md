@@ -253,6 +253,7 @@ O Claude DEVE seguir estas regras ao executar operacoes:
 8. **Nunca assumir origem de dados** — ao mostrar insights no nivel da conta, SEMPRE quebrar por campanha antes de atribuir resultados a uma campanha especifica
 9. **cost_micros** — todos os scripts convertem automaticamente cost_micros / 1_000_000 para reais na saida
 10. **NUNCA usar MCPs** — esta skill usa SOMENTE os scripts Python locais, NUNCA tools de MCP (adloop, google-ads-mcp, etc)
+11. **Segmentacao geografica e idioma sao obrigatorios** — campanha sem criterio de LOCATION roda para o mundo inteiro em silencio, e o Google nao avisa. ANTES de ativar qualquer campanha (inclusive uma que ja existia pausada) e SEMPRE ao criar uma nova, rodar a checagem abaixo. Se a campanha estiver sem LOCATION, herdar a segmentacao das outras campanhas ativas da conta quando todas usarem a mesma, e avisar o usuario do que foi aplicado. Se as campanhas ativas divergirem entre si, PERGUNTAR ao usuario qual usar em vez de adivinhar. Mesma regra para LANGUAGE.
 
 ## Fluxos comuns
 
@@ -266,6 +267,35 @@ O Claude DEVE seguir estas regras ao executar operacoes:
 6. `create.py callout` — adiciona callouts (opcional)
 7. Validar: `read.py campaigns`, `read.py ads`, `read.py keywords`
 8. Ativar quando pronto (todos os niveis)
+
+### Checagem de segmentacao (LOCATION / LANGUAGE)
+
+Rodar SEMPRE antes de ativar campanha e depois de criar campanha nova. GAQL:
+
+```sql
+SELECT campaign.id, campaign.name, campaign_criterion.type,
+       campaign_criterion.location.geo_target_constant,
+       campaign_criterion.language.language_constant
+FROM campaign_criterion WHERE campaign.status = 'ENABLED'
+```
+
+Agrupar por campanha e contar quantos criterios de LOCATION cada uma tem. Campanha com zero e o alerta: ela nao esta restrita a lugar nenhum.
+
+Para descobrir o padrao da conta, olhar qual geo_target_constant as demais campanhas ativas usam. Se todas convergirem para o mesmo, aplicar ele. Se houver mais de um, perguntar.
+
+Aplicar via CampaignCriterionService (nao ha subcomando pronto em `create.py`):
+
+```python
+op = client.get_type("CampaignCriterionOperation")
+cc = op.create
+cc.campaign = client.get_service("CampaignService").campaign_path(CID, CAMP)
+cc.location.geo_target_constant = "geoTargetConstants/20106"  # State of Sao Paulo
+# idioma: cc.language.language_constant = "languageConstants/1014"  # Portugues
+client.get_service("CampaignCriterionService").mutate_campaign_criteria(
+    customer_id=CID, operations=[op])
+```
+
+Incidente que originou a regra: em 09/09/2026, na Entretec, a campanha `SEARCH_AGOSTO_26_CONQUISTA_CONCORRENTES_SP` foi ativada com estrategia de parcela de impressao sem nenhum criterio de LOCATION nem LANGUAGE, enquanto as outras nove campanhas ativas miravam Estado de Sao Paulo. O `_SP` no nome escondia o problema.
 
 ### Auditoria de conta
 

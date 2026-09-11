@@ -1,0 +1,55 @@
+﻿tipo;id;nome_anterior;nome_padronizado
+folder;5;Cookies;🍪 Cookies
+folder;8;API;🧠 API
+folder;9;User;👤 User
+folder;35;Integrações;🔨 Tools
+folder;37;Google Analytics 4;🟧 GA4
+folder;38;Identificação;🆔 Identificacao
+folder;47;Google;🎯 Google Ads
+tag;13;00 | Visitor API 📍;00 | Visitor API
+tag;40;[GA4] 1 | PageView;00 | Tag de Configuracao
+tag;45;[GA4] 2 | Lead;03 | GA4 | generate_lead
+tag;50;[Google Ads] 2 | Lead;03 | Google Ads | Lead
+tag;51;[Google Ads] 0 | Vinculador de conversões;00 | Google Ads | Vinculador de conversoes
+tag;58;[Google Ads] 1 | PageView;01 | Google Ads | PageView
+tag;64;[API] 2 | Lead;03 | API | generate_lead
+tag;67;[Meta Ads] 2 | Lead;03 | FB | Lead
+tag;69;webhook;00 | Webhook
+tag;70;00 | SetCookies HTML;00 | setCookie DataUsers
+tag;74;[Meta Ads] 2 | PageView;01 | FB | PageView
+tag;78;[API] 2 | PageView;01 | API | page_view
+tag;79;Utm Persist;00 | UTM Persist
+tag;80;Tag do Google AW-18043780459;00 | Google Ads | Configuracao
+tag;82;00 | setCookie HTML GeoLoc 🍪;00 | setCookie GeoLoc
+tag;91;[Meta Ads] 3 | ViewContent;02 | FB | ViewContent
+tag;92;[API] 3 | ViewContent;02 | API | form_start
+tag;93;[GA4] 3 | form_start;02 | GA4 | form_start
+tag;95;[Meta Ads] 4 | CompleteRegistration;04 | FB | CompleteRegistration
+tag;96;[API] 4 | CompleteRegistration;04 | API | form_submit
+tag;97;[GA4] 4 | form_submit;04 | GA4 | form_submit
+tag;99;[Meta Ads] 5 | SchedulerView;05 | FB | SchedulerView
+tag;100;[API] 5 | SchedulerView;05 | API | scheduler_view
+tag;101;[GA4] 5 | scheduler_view;05 | GA4 | scheduler_view
+tag;103;[Meta Ads] 6 | SlotSelected;06 | FB | SlotSelected
+tag;104;[API] 6 | SlotSelected;06 | API | slot_selected
+tag;105;[GA4] 6 | slot_selected;06 | GA4 | slot_selected
+tag;107;[Meta Ads] 7 | Schedule;07 | FB | Schedule
+tag;108;[API] 7 | Schedule;07 | API | schedule
+tag;109;[GA4] 7 | schedule;07 | GA4 | schedule
+trigger;4;All Pages + Cookie not exists 🍪;00 | PV | All Pages + Cookie not exists
+trigger;29;Evento personalizado Lead;00 | CE | Evento personalizado Lead (legado)
+trigger;36;Evento Lead;00 | FS | Evento Lead (legado)
+trigger;43;Cliques Todos Elementos;00 | CL | Cliques Todos Elementos (legado)
+trigger;44;Lead (lp);03 | CE | Lead
+trigger;46;Evento personalizado Lead (contato);00 | CE | Evento personalizado Lead (contato) (legado)
+trigger;53;Lead (corrigido);00 | CL | Lead (corrigido) (legado)
+trigger;56;Evento VideoView;00 | YT | Evento VideoView (legado)
+trigger;59;Evento Whatsapp;00 | JL | Evento Whatsapp (legado)
+trigger;75;Visitor-api;00 | CE | visitor-api-success
+trigger;76;Acionador Lead Falling Sticks;00 | CE | Acionador Lead Falling Sticks (legado)
+trigger;77;Evento Scroll;00 | SC | Evento Scroll (legado)
+trigger;90;Evento IniciouFormulario;02 | CE | IniciouFormulario
+trigger;94;Evento CompletouFormulario;04 | CE | CompletouFormulario
+trigger;98;Evento scheduler_view;05 | CE | scheduler_view
+trigger;102;Evento scheduler_slot_selected;06 | CE | scheduler_slot_selected
+trigger;106;Evento Schedule;07 | CE | Schedule

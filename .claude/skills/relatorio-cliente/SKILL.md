@@ -46,14 +46,24 @@ Só é necessário sair do Supabase pra Graph API quando o usuário pedir **link
 
 1. Carregar as skills `artifact-design` e `dataviz` antes de escrever HTML (guidance de tokens de tema claro/escuro e de forma de gráfico).
 2. Seguir `marca/design-guide.md` pra cores/tipografia/tom. Fundo preto `#0A0A0A` / grafite `#171717`, âmbar `#FF6A00` só como sinal pontual (5%), cantos vivos, sem sombra pesada. Logo inline via `marca/logo-SVG/tna-mono-branco.svg` (usar `style="fill:var(--text)"` pra herdar o tema).
-3. Estrutura recomendada: header (marca + período) → hero com 1-2 KPIs principais em destaque (**Leads = tracking, não Meta** — ver "Padrão de métricas" acima) → métricas gerais **divididas em subgrupos temáticos pequenos** (ex: visão geral / leads e CPL / cliques e engajamento / perfil), nunca um grid único de 15+ células → gráficos de evolução diária → top criativos → tabela de campanhas (com gap Meta×CRM se fizer sentido pro período) → footer com fonte.
-4. **Gráficos de evolução diária**: nunca dual-axis (métricas de escala diferente = gráficos separados). Marcar fins de semana com faixa de fundo sutil (`opacity ~.10`, cor `--muted`) e uma linha tracejada no início de cada semana, pra permitir leitura por dia da semana. Calcular o dia da semana de cada data com Python (`datetime.date(...).weekday()`) antes de montar o array, nunca assumir de cabeça.
-5. **Top criativos**: pegar o top 4-5 por métrica de resultado relevante (a que o usuário indicar — segurança maior é usar o que ele já trouxe pronto, tipo print de seguidores por anúncio). Pra cada um:
+3. Estrutura recomendada: header (marca + período) → **seletor de datas (obrigatório, ver item 4)** → hero com 1-2 KPIs principais em destaque (**Leads = tracking, não Meta** — ver "Padrão de métricas" acima) → métricas gerais **divididas em subgrupos temáticos pequenos** (ex: visão geral / leads e CPL / cliques e engajamento / perfil), nunca um grid único de 15+ células → gráficos de evolução diária → top criativos → tabela de campanhas (com gap Meta×CRM se fizer sentido pro período).
+
+4. **Seletor de datas: obrigatório em todo relatório, sem exceção.** Nenhum relatório sai com período fixo travado no HTML. Regras:
+   - Fica logo abaixo do header, antes do primeiro bloco de números.
+   - **Usar o mesmo componente dos dashboards, não inventar outro.** Copiar o padrão de `the-new-ads-site/dashboard-confianca.html` (busque por `date-picker`): botão-gatilho mostrando o período atual com chevron que gira, painel dropdown com a lista de presets, e um bloco "Personalizado" no rodapé do painel com `de` / `até` e botão "Aplicar". É o mesmo formato do gerenciador da Meta, e o Douglas já espera esse comportamento. Fecha com clique fora e com `Escape`.
+   - Presets do relatório histórico são mês a mês do período coberto mais "Tudo" (no dashboard vivo são "Últimos N dias"). Preset ativo em âmbar; `color-scheme:dark` nos inputs pra o date picker nativo não vir branco.
+   - **Cuidado com regra de `svg` global.** Se o CSS tiver `svg{width:100%}` pros gráficos, ela estoura o chevron do dropdown. Escopar sempre como `.chart svg` (ou equivalente) e dar `width`/`height` explícitos no ícone do gatilho.
+   - **Tem que filtrar de verdade.** Embutir as séries diárias como objeto JS no próprio HTML (`{"2026-08-01":[...], ...}`) e recalcular os KPIs no clique. Seletor que só troca rótulo não conta.
+   - Marcar explicitamente o que **não** responde ao seletor. Bloco de comparação fixa (ex: janela sazonal A contra B) ou série histórica completa levam um selo `fixo` / `série completa` ao lado do título, senão o cliente acha que o número está errado.
+   - Tratar período vazio: sem venda, sem investimento ou divisão por zero mostram `n/d` e um pé de apoio explicando ("sem mídia no período", "sem venda lançada no período"), nunca `0,0x` ou `NaN`.
+   - Testar todos os presets antes de publicar, inclusive um mês sem dado e um intervalo custom.
+5. **Gráficos de evolução diária**: nunca dual-axis (métricas de escala diferente = gráficos separados). Marcar fins de semana com faixa de fundo sutil (`opacity ~.10`, cor `--muted`) e uma linha tracejada no início de cada semana, pra permitir leitura por dia da semana. Calcular o dia da semana de cada data com Python (`datetime.date(...).weekday()`) antes de montar o array, nunca assumir de cabeça.
+6. **Top criativos**: pegar o top 4-5 por métrica de resultado relevante (a que o usuário indicar — segurança maior é usar o que ele já trouxe pronto, tipo print de seguidores por anúncio). Pra cada um:
    - Ler `url_anuncio` da linha com maior `investimento` pro `source_id` daquele nome de anúncio no período.
    - Baixar a imagem (`curl`/`Bash`), redimensionar com PIL pra ~480px de largura (`Image.LANCZOS`, quality ~80-82) — mantém nitidez com poucos KB.
    - **Embutir como base64 data URI** no HTML. Artifacts têm CSP estrita, imagem externa não carrega — nunca deixar `<img src="https://...">` apontando pra CDN da Meta (URL assinada expira de qualquer forma).
    - Se o usuário quiser link clicável pro original, envolver o card num `<a href="{permalink}" target="_blank">` (ver seção acima de como montar o permalink) — card inteiro clicável, com overlay "Ver original ↗" no hover.
-6. Publicar com `Artifact` (favicon consistente entre redeploys do mesmo relatório, description curta).
+7. Publicar com `Artifact` (favicon consistente entre redeploys do mesmo relatório, description curta).
 
 ## Coisas que já foram perguntadas e não precisam ser perguntadas de novo
 

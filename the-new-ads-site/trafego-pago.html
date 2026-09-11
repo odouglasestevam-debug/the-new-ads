@@ -10,8 +10,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
 <!-- End Google Tag Manager -->
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The New Ads — O novo padrão de mídia paga</title>
-<meta name="description" content="Tráfego pago não é sorte. É sistema. A The New Ads transforma mídia paga em máquina de venda previsível: dado, criativo e atribuição real.">
+<title>The New Ads · Tráfego pago com inteligência de dados</title>
+<meta name="description" content="Venda 30% mais com tráfego pago e inteligência de dados. Método validado e base de dados própria pra Meta e Google aprenderem quem realmente comprou. Exclusivo para empresas que faturam a partir de R$ 70 mil por mês.">
 <link rel="icon" type="image/svg+xml" href="/favicon.svg">
 <link rel="icon" type="image/png" href="/favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,9 +52,32 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
                radial-gradient(700px 520px at 5% 108%, rgba(255,106,0,.06), transparent 60%);}
   .hero h1{font-size:clamp(32px,5.4vw,56px);margin:22px 0 0;line-height:1.04}
   .hero .sub{font-size:clamp(17px,2.2vw,21px);color:#cfcfcf;max-width:44ch;margin:28px 0 38px}
+  /* Bullets do hero: nunca quebram linha. Em tela estreita a fonte encolhe
+     junto com a largura, calibrada pela frase mais longa da lista. */
+  .hero .bullets{list-style:none;display:flex;flex-direction:column;gap:12px;margin:30px 0 36px}
+  .hero .bullets li{
+    display:flex;align-items:center;gap:10px;white-space:nowrap;
+    color:#e4e4e4;font-size:clamp(10.5px,3.3vw,18px);letter-spacing:-.005em;line-height:1.35;
+  }
+  /* Icones no traco da marca: cor da paleta e escala junto com a fonte,
+     entao ficam iguais em qualquer aparelho, ao contrario de emoji. */
+  .hero .bullets .ico{
+    flex:none;width:1.25em;height:1.25em;
+    fill:none;stroke:var(--ambar);stroke-width:1.9;
+    stroke-linecap:round;stroke-linejoin:round;
+  }
+  @media(max-width:430px){
+    .wrap{padding:0 16px}
+    .hero .bullets{gap:10px}
+    .hero .bullets li{gap:8px}
+  }
   .hero .actions{display:flex;gap:14px;flex-wrap:wrap;align-items:center}
   .hero .micro{font-family:var(--mono);font-size:12.5px;color:var(--nevoa);margin-top:22px;display:flex;align-items:center;gap:9px}
   .hero .micro::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ambar);box-shadow:0 0 0 4px rgba(255,106,0,.18)}
+  .hero .micro.filtro::before{display:none}
+  /* O checklist do formulario pede o filtro de qualificacao sempre em italico. */
+  .hero .micro.filtro{color:#cfcfcf;font-style:italic}
+  .cta-final .micro{font-style:italic}
 
   .logos{border-top:1px solid var(--linha);border-bottom:1px solid var(--linha);padding:30px 0;background:#0c0c0c;overflow:hidden}
   .logos .lbl{font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--nevoa);text-align:center;margin-bottom:22px}
@@ -136,7 +159,10 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .stats .s .num{font-family:var(--display);font-weight:700;font-size:clamp(34px,4.6vw,52px);color:var(--branco);letter-spacing:-.015em}
   .stats .s .num em{color:var(--ambar);font-style:normal}
   .stats .s .cap{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--nevoa);margin-top:12px}
-  @media(max-width:720px){.stats .grid{grid-template-columns:1fr 1fr}}
+  .stats .grid-2{grid-template-columns:repeat(2,1fr)}
+  /* Legenda em uma linha so, mesmo em tela estreita. */
+  .stats .s .cap{white-space:nowrap}
+  @media(max-width:720px){.stats .grid{grid-template-columns:1fr 1fr}.stats .s{padding:32px 14px}.stats .s .cap{font-size:10px;letter-spacing:.06em}}
 
   .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;margin-top:46px}
   .steps-4{grid-template-columns:repeat(4,1fr)}
@@ -183,6 +209,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .cta-final{text-align:center;background:radial-gradient(760px 420px at 50% 30%, rgba(255,106,0,.14), transparent 62%)}
   .cta-final h2{font-size:clamp(26px,4vw,42px);max-width:16ch;margin:20px auto 0}
   .cta-final .sub{color:#cfcfcf;font-size:16px;max-width:46ch;margin:22px auto 32px}
+  .cta-final .micro{font-family:var(--mono);font-size:12.5px;color:#cfcfcf;letter-spacing:.04em}
 
   footer{border-top:1px solid var(--linha);padding:50px 0;background:#0c0c0c}
   footer .row{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
@@ -197,19 +224,20 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     opacity:1;transform:none;
   }
   .hero h1{opacity:0;animation:heroRise .6s ease .05s forwards}
-  .hero .sub{opacity:0;animation:heroRise .6s ease .15s forwards}
+  .hero .sub,.hero .bullets{opacity:0;animation:heroRise .6s ease .15s forwards}
   .hero .actions{opacity:0;animation:heroRise .6s ease .28s forwards}
   .hero .micro{opacity:0;animation:heroRise .6s ease .4s forwards}
   @keyframes heroRise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 
   @media (prefers-reduced-motion: reduce){
     .compare .col, .cards .c, .stats .s, .steps .step, .quotes .q, .who-grid .w, .lead, .sobre .grid > div{opacity:1;transform:none;transition:none}
-    .hero h1,.hero .sub,.hero .actions,.hero .micro{opacity:1;animation:none}
+    .hero h1,.hero .sub,.hero .bullets,.hero .actions,.hero .micro{opacity:1;animation:none}
   }
 
   .overlay{position:fixed;inset:0;z-index:100;background:rgba(5,5,5,.72);backdrop-filter:blur(6px);display:none;align-items:center;justify-content:center;padding:20px}
   .overlay.open{display:flex}
-  .modal{width:100%;max-width:520px;background:var(--grafite);border:1px solid var(--linha);border-radius:16px;padding:34px 34px 30px;position:relative;animation:pop .25s ease}
+  .modal{width:100%;max-width:640px;background:var(--grafite);border:1px solid var(--linha);border-radius:16px;padding:42px 42px 36px;position:relative;animation:pop .25s ease}
+  @media(max-width:680px){.modal{max-width:520px;padding:34px 34px 30px}}
   @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
   .modal .close{position:absolute;top:18px;right:18px;background:none;border:none;color:var(--nevoa);font-size:22px;cursor:pointer;line-height:1;padding:4px}
   .modal .close:hover{color:var(--branco)}
@@ -234,10 +262,13 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .modal .back.hidden{visibility:hidden}
   .modal .next{flex:1;justify-content:center}
   .err{color:var(--ambar);font-family:var(--mono);font-size:12px;margin-top:10px;min-height:14px}
+  /* Fora da tela em vez de display:none, porque robo ignora campo escondido. */
+  .isca{position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none}
   .done{text-align:center;padding:16px 0}
   .done .ic{width:60px;height:60px;border-radius:50%;background:rgba(255,106,0,.12);display:flex;align-items:center;justify-content:center;margin:0 auto 18px}
   .done h3{font-size:24px;margin-bottom:10px}
   .done p{color:var(--nevoa);font-size:15px;max-width:34ch;margin:0 auto 24px}
+
 </style>
 </head>
 <body>
@@ -256,10 +287,6 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       <svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg>
       <span>the new ads</span>
     </a>
-    <button class="btn" data-open-form>
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 4.7 4.8-1.2A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 .9-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l1.8.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
-      <span class="cta-txt">Falar no WhatsApp</span>
-    </button>
   </div>
 </header>
 
@@ -267,23 +294,42 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 
 <div class="hero">
   <div class="wrap">
-    <span class="kicker">Gestão de mídia paga · Meta &amp; Google Ads</span>
-    <h1>Tráfego Pago não é sorte.<br>É <span class="ambar">sistema.</span></h1>
-    <p class="sub">the new ads vai além de subir campanha e vigiar gerenciador. Entregamos o funil de vendas inteiro em número: lead qualificado, conversão comercial e quanto cada real investido volta em receita e lucro.</p>
+    <h1>Venda <span class="ambar">30% mais</span> com Tráfego Pago e inteligência de dados.</h1>
+    <ul class="bullets">
+      <li>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="16 7 21 7 21 12"/></svg>
+        Gestão de tráfego especializada em performance
+      </li>
+      <li>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><polyline points="8.2 12.3 10.8 14.9 15.8 9.4"/></svg>
+        Método validado em mais de 60 contas
+      </li>
+      <li>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/></svg>
+        Apareça para o público comprador
+      </li>
+      <li>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.8"/><line x1="15.6" y1="15.6" x2="20.5" y2="20.5"/></svg>
+        Sua empresa no topo do Google
+      </li>
+      <li>
+        <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="14" rx="2"/><circle cx="8.5" cy="10.5" r="1.5" fill="currentColor" stroke="none"/><polyline points="21 15 16 10 5 19"/></svg>
+        Criativo por minha conta
+      </li>
+    </ul>
     <div class="actions">
       <button class="btn" data-open-form>
-        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 4.7 4.8-1.2A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 .9-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l1.8.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
-        Quero um diagnóstico
+        Quero agendar uma reunião
+        <span aria-hidden="true">→</span>
       </button>
-      <a class="btn btn-ghost" href="#metodo">Ver como funciona</a>
     </div>
-    <div class="micro">Diagnóstico sem custo. Resposta em até 24h.</div>
+    <div class="micro filtro">→ Exclusivo para empresas que faturam a partir de R$ 70 mil por mês</div>
   </div>
 </div>
 
 <div class="logos">
   <div class="wrap">
-    <div class="lbl">Negócios que pararam de apostar</div>
+    <div class="lbl">Empresas que já operam nesse modelo</div>
     <div class="marquee">
       <div class="track">
         <div class="cli"><img src="logos/entretec.png" alt="Entretec"></div>
@@ -312,28 +358,28 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="dor on-grafite">
   <div class="glow tl"></div>
   <div class="wrap">
-    <span class="kicker">O que a maioria não vê</span>
-    <h2 class="lead" style="margin-top:22px;max-width:26ch">O gerenciador mostra ROAS bonito. Seu caixa mostra outra coisa.</h2>
-    <p class="p muted" style="margin-top:20px;max-width:62ch">A plataforma de anúncio conta clique, alcance e curtida como se fossem venda. Isso não sustenta uma empresa: campanha que parece boa no relatório e some assim que você aumenta o orçamento é sintoma de quem só olhou o clique, nunca o funil inteiro até o dinheiro cair na conta.</p>
+    <span class="kicker">De onde vem o número</span>
+    <h2 class="lead" style="margin-top:22px;max-width:26ch">Os 30% não vêm só do anúncio. Vêm da informação que ele devolve pra plataforma.</h2>
+    <p class="p muted" style="margin-top:20px;max-width:62ch">Quando o Meta e o Google só sabem quem clicou, eles procuram mais gente que clica. Quando passam a saber quem comprou, procuram mais gente que compra. Mesma verba, mesmo anúncio, atrás de outra pessoa. É essa troca que derruba seu custo por venda, e é ela que quase nenhuma conta faz.</p>
     <div class="compare">
       <div class="col raso">
-        <div class="tag">O que a plataforma mostra</div>
-        <div class="h">Métrica de anúncio</div>
+        <div class="tag">Como quase toda conta opera</div>
+        <div class="h">A plataforma aprende com clique</div>
         <ul>
-          <li>CTR, CPM e CPC tratados como se fossem resultado</li>
-          <li>ROAS da plataforma isolado do caixa real</li>
-          <li>Alcance e curtida no lugar de venda</li>
-          <li>Otimização que para no clique e ignora o funil</li>
+          <li>Meta e Google recebem clique e conversa iniciada</li>
+          <li>Passam a buscar mais gente que clica, não que compra</li>
+          <li>A verba escorre pro lead mais barato</li>
+          <li>Ninguém sabe qual anúncio gerou venda</li>
         </ul>
       </div>
       <div class="col fundo">
-        <div class="tag">O que a the new ads mostra</div>
-        <div class="h">Resultado de negócio</div>
+        <div class="tag">Como sua conta passa a operar</div>
+        <div class="h">A plataforma aprende com venda</div>
         <ul>
-          <li>Quanto custa ganhar um cliente contra quanto ele te devolve</li>
-          <li>Onde o lead trava e morre em cada etapa do funil</li>
-          <li>Qual canal traz comprador, não só lead barato</li>
-          <li>Margem que sobra no fim do mês, não relatório de vaidade</li>
+          <li>Cada venda fechada volta pro Meta e pro Google</li>
+          <li>Eles passam a buscar mais gente parecida com quem comprou</li>
+          <li>A verba se concentra no anúncio que fecha venda</li>
+          <li>Cada venda com origem identificada no painel</li>
         </ul>
       </div>
     </div>
@@ -343,62 +389,66 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="on-black">
   <div class="glow br"></div>
   <div class="wrap">
-    <span class="kicker">O que ninguém te mostra</span>
-    <h2 class="lead" style="margin-top:22px;max-width:26ch">Você sabe quantos leads o seu anúncio gerou de verdade?</h2>
-    <p class="p muted" style="margin-top:20px;max-width:62ch">O gerenciador de anúncio marca "conversa iniciada" quando alguém abre o WhatsApp. Só isso. Do que acontece depois, gestor e agência não fazem ideia: se a pessoa mandou mensagem, se foi atendida, se comprou. A decisão de manter ou pausar um anúncio acaba sendo tomada no escuro.</p>
+    <span class="kicker">O buraco que quase toda conta tem</span>
+    <h2 class="lead" style="margin-top:22px;max-width:26ch">Seu gerenciador chama de resultado quem só abriu o WhatsApp.</h2>
+    <p class="p muted" style="margin-top:20px;max-width:62ch">"Conversa iniciada" dispara no instante em que a pessoa toca no botão do anúncio, antes de escrever qualquer coisa. Boa parte some ali mesmo. Quando esse número vira a base pra pausar ou escalar anúncio, a decisão já nasce errada, e é por isso que tanta conta boa parece que parou de funcionar do nada.</p>
     <div class="compare">
       <div class="col raso">
-        <div class="tag">O que a maioria vê</div>
+        <div class="tag">O que a maioria mede</div>
         <div class="h">Conversa iniciada</div>
         <ul>
-          <li>Quem abriu o WhatsApp já conta como lead</li>
-          <li>Zero visão do que acontece depois do clique</li>
-          <li>Ninguém sabe quantos são leads de verdade</li>
-          <li>Anúncio pausado ou mantido sem dado nenhum</li>
+          <li>Quem tocou no botão já entra na conta como lead</li>
+          <li>Ninguém sabe quem escreveu, foi atendido ou comprou</li>
+          <li>Anúncio pausado com base num número inflado</li>
+          <li>Mídia e comercial olhando planilhas diferentes</li>
         </ul>
       </div>
       <div class="col fundo">
-        <div class="tag">O que a the new ads rastreia</div>
-        <div class="h">Venda de verdade</div>
+        <div class="tag">O que a gente mede</div>
+        <div class="h">Venda fechada</div>
         <ul>
-          <li>Lead é quem clicou, chamou e mandou mensagem</li>
-          <li>Equipe acompanha o atendimento e sugere ajuste de conversão</li>
-          <li>Banco de dados próprio, atualizado pelo próprio vendedor no WhatsApp</li>
-          <li>Métrica real por anúncio, não estimativa de plataforma</li>
+          <li>Lead é quem chegou e conversou de verdade</li>
+          <li>O vendedor marca o que virou venda no próprio WhatsApp</li>
+          <li>Cada venda ligada ao anúncio que trouxe ela</li>
+          <li>Mídia e comercial olhando o mesmo painel</li>
         </ul>
       </div>
     </div>
     <div class="cards" style="margin-top:24px">
-      <div class="c"><div class="n">Custo</div><h3>CAC real</h3><p>Quanto custa ganhar um cliente, por anúncio, não por conta.</p></div>
-      <div class="c"><div class="n">Comercial</div><h3>Taxa de conversão</h3><p>Quantos leads seu time transforma em venda, e onde ele perde.</p></div>
-      <div class="c"><div class="n">Criativo</div><h3>Anúncio que vende</h3><p>Qual anúncio traz mais venda, não só mais lead barato.</p></div>
-      <div class="c"><div class="n">Volume</div><h3>Lead qualificado</h3><p>Qual anúncio traz mais lead qualificado, e qual só enche número.</p></div>
+      <div class="c"><div class="n">Custo</div><h3>Custo por venda</h3><p>Quanto custa fechar uma venda em cada anúncio, não o preço do clique.</p></div>
+      <div class="c"><div class="n">Comercial</div><h3>Onde o lead morre</h3><p>Quantos leads seu time atende, responde e fecha, e em que etapa perde.</p></div>
+      <div class="c"><div class="n">Criativo</div><h3>Anúncio que fecha</h3><p>Qual criativo traz cliente que paga, e qual só traz lead barato.</p></div>
+      <div class="c"><div class="n">Verba</div><h3>Onde investir</h3><p>Quanto colocar em cada campanha no mês seguinte, com base no que já vendeu.</p></div>
     </div>
-    <p class="p muted" style="margin-top:32px;max-width:62ch">Sem plataforma de terceiro. O banco de dados é seu, pra usar como quiser depois, inclusive disparo via API oficial do WhatsApp.</p>
+    <p class="p muted" style="margin-top:32px;max-width:62ch">A base é sua, não de uma plataforma alugada. Se a gente parar de trabalhar junto amanhã, o histórico de lead e venda continua com você.</p>
   </div>
 </section>
 
 <section class="on-grafite">
   <div class="glow tl"></div>
   <div class="wrap">
-    <span class="kicker">Como o dado volta pro Meta</span>
-    <h2 class="lead" style="margin-top:22px;max-width:26ch">"A Meta tá louca" costuma ser sintoma, não causa.</h2>
-    <p class="p muted" style="margin-top:20px;max-width:62ch">Quando a plataforma só recebe "conversa iniciada", ela otimiza com base em nada — e o resultado oscila. A gente usa Advanced Matching pra enviar de volta os eventos de lead, lead qualificado e compra, direto da campanha de mensagens, que é a que mais performa pra negócio local e conversão de site. É assim que o gerenciador passa a marcar o que realmente é resultado.</p>
-    <p class="p muted" style="margin-top:16px;max-width:62ch">A maioria das agências não consegue fazer essa informação voltar. Por isso otimizam no escuro, tomam decisão errada e pausam anúncio que talvez estivesse trazendo venda.</p>
-    <p class="p" style="margin-top:16px;max-width:62ch;color:#e4e4e4">A gente não promete que o resultado nunca vai oscilar — toda estratégia oscila. A gente garante que o Meta recebe o dado que precisa pra otimizar de verdade.</p>
+    <span class="kicker">O que você passa a ter</span>
+    <h2 class="lead" style="margin-top:22px;max-width:26ch">Um gestor de tráfego e uma operação de dados, no mesmo contrato.</h2>
+    <p class="p muted" style="margin-top:20px;max-width:62ch">A maioria das agências não devolve venda pra plataforma porque isso exige montar a estrutura de dados da empresa, não só mexer no gerenciador. É esse trabalho que coloca sua conta do mesmo lado do algoritmo.</p>
+    <div class="cards">
+      <div class="c"><div class="n">01 · Base de dados própria</div><h3>O histórico é seu</h3><p>Cada lead e cada venda gravados num banco de dados da sua empresa. Se a gente parar amanhã, você continua com tudo.</p></div>
+      <div class="c"><div class="n">02 · Painel ao vivo</div><h3>Você abre e sabe onde está</h3><p>Dashboard atualizado todos os dias com lead, venda, custo por venda e retorno por campanha, direto no celular.</p></div>
+      <div class="c"><div class="n">03 · Venda de volta pra plataforma</div><h3>O algoritmo do seu lado</h3><p>Cada venda fechada é devolvida pro Meta e pro Google, que passam a procurar mais gente parecida com quem já comprou de você.</p></div>
+      <div class="c"><div class="n">04 · Reunião mensal</div><h3>Decisão com número na mesa</h3><p>Uma vez por mês a gente senta em cima do resultado e define o que escalar, o que cortar e quanto investir.</p></div>
+    </div>
   </div>
 </section>
 
 <section id="metodo" class="on-black">
   <div class="glow br"></div>
   <div class="wrap">
-    <span class="kicker">O novo padrão</span>
-    <h2 class="lead" style="margin-top:22px;max-width:24ch">Anúncio tratado como engenharia de vendas, não como aposta.</h2>
+    <span class="kicker">Como a gente opera</span>
+    <h2 class="lead" style="margin-top:22px;max-width:24ch">Quatro frentes rodando ao mesmo tempo, todo mês.</h2>
     <div class="cards">
-      <div class="c"><div class="n">01 · Estrutura &amp; tracking</div><h3>A verdade dos números</h3><p>CAPI, eventos e tracking montados do jeito certo. Toda decisão nasce de dado rastreável, não de achismo de dashboard.</p></div>
-      <div class="c"><div class="n">02 · Criativo de performance</div><h3>Criativo tem função</h3><p>Não é arte pra ganhar prêmio. É ângulo, dor e oferta testados até achar o que faz o clique virar venda.</p></div>
-      <div class="c"><div class="n">03 · Atribuição real</div><h3>Cada venda tem dono</h3><p>Advanced Matching e eventos de lead, lead qualificado e compra enviados de volta pro gerenciador. Ele passa a saber o que realmente vendeu, não só quem abriu conversa.</p></div>
-      <div class="c"><div class="n">04 · Escala previsível</div><h3>Crescer sem quebrar</h3><p>O que funciona recebe mais verba, de forma controlada. Escala é consequência do sistema, não de sorte.</p></div>
+      <div class="c"><div class="n">01 · Rastreio</div><h3>Do clique até a venda</h3><p>O caminho inteiro registrado: quem clicou, quem conversou, quem foi atendido e quem comprou. Nada depende de estimativa da plataforma.</p></div>
+      <div class="c"><div class="n">02 · Criativo</div><h3>Criativo que traz comprador</h3><p>Ângulo, oferta e prova testados até achar o que faz o lead virar cliente pagante, não o que rende mais curtida.</p></div>
+      <div class="c"><div class="n">03 · Verba</div><h3>Dinheiro no que vende</h3><p>Realocação semanal de orçamento pro que está fechando venda, com o resto cortado sem dó.</p></div>
+      <div class="c"><div class="n">04 · Escala</div><h3>Crescer sem quebrar</h3><p>Aumento de investimento em cima do que já provou retorno, no ritmo que sua operação aguenta atender.</p></div>
     </div>
   </div>
 </section>
@@ -406,12 +456,9 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="stats">
   <div class="wrap">
     <span class="kicker">Resultados</span>
-    <p class="muted" style="margin:14px 0 34px;font-family:var(--mono);font-size:12px">Números ilustrativos · substitua pelos seus reais</p>
-    <div class="grid">
-      <div class="s"><div class="num edit">R$ <em data-count="18">0</em>mi+</div><div class="cap">Em mídia gerida</div></div>
-      <div class="s"><div class="num edit"><em data-count="6.2" data-decimais="1">0</em>x</div><div class="cap">ROAS médio</div></div>
-      <div class="s"><div class="num edit">+<em data-count="40">0</em></div><div class="cap">Contas escaladas</div></div>
-      <div class="s"><div class="num edit"><em data-count="12">0</em>k</div><div class="cap">Leads/mês gerados</div></div>
+    <div class="grid grid-2" style="margin-top:34px">
+      <div class="s"><div class="num">R$ <em data-count="2">0</em>mi+</div><div class="cap">Em mídia gerida</div></div>
+      <div class="s"><div class="num">+<em data-count="60">0</em></div><div class="cap">Contas atendidas</div></div>
     </div>
   </div>
 </section>
@@ -420,12 +467,12 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="glow tl"></div>
   <div class="wrap">
     <span class="kicker">Como começa</span>
-    <h2 class="lead" style="margin-top:22px">Quatro passos. Zero achismo.</h2>
+    <h2 class="lead" style="margin-top:22px">Do primeiro contato ao primeiro mês.</h2>
     <div class="steps steps-4">
-      <div class="step on"><div class="idx">01</div><h3>Pesquisa</h3><p>Concorrência, termo de busca, portfólio de criativo e o mercado da sua empresa. Estratégia começa com base, não com palpite.</p></div>
-      <div class="step"><div class="idx">02</div><h3>Diagnóstico</h3><p>A gente olha seus números e sua operação antes de prometer qualquer coisa. Você já sai sabendo onde está perdendo dinheiro.</p></div>
-      <div class="step"><div class="idx">03</div><h3>Estrutura</h3><p>Tracking, campanhas e criativo montados como um sistema único, ligado direto ao seu funil de vendas.</p></div>
-      <div class="step"><div class="idx">04</div><h3>Escala</h3><p>Otimização contínua e verba direcionada pro que performa. Previsibilidade de resultado, mês após mês.</p></div>
+      <div class="step on"><div class="idx">01</div><h3>Reunião</h3><p>A gente olha seus números antes de prometer qualquer coisa. Você sai da conversa sabendo onde sua conta perde venda hoje.</p></div>
+      <div class="step"><div class="idx">02</div><h3>Estrutura</h3><p>Campanhas, rastreio de venda e sua base de dados montados nos primeiros 30 dias, ligados ao seu WhatsApp e ao seu comercial.</p></div>
+      <div class="step"><div class="idx">03</div><h3>Operação</h3><p>Criativo, teste e otimização toda semana, com contato direto no seu grupo de WhatsApp, sem atendimento repassado.</p></div>
+      <div class="step"><div class="idx">04</div><h3>Escala</h3><p>Verba aumentada em cima do que já provou retorno, com reunião mensal pra decidir o próximo passo junto com você.</p></div>
     </div>
   </div>
 </section>
@@ -441,15 +488,15 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       </div>
       <div>
         <h2>Prazer, eu sou o <span class="ambar">Douglas</span>.</h2>
-        <p>Sou gestor de tráfego, passo o dia dentro de conta de anúncio, planilha de funil e tracking. Abri a the new ads depois de ver empresa boa queimando verba com quem trata mídia paga como aposta, sem tracking, sem estrutura, só torcendo pra funcionar.</p>
-        <p>Aqui não tem equipe terceirizada nem atendimento repassado. Sou eu que penso, executo e respondo, com contato direto no seu grupo de WhatsApp e reunião mensal de diagnóstico pra olhar resultado e decidir o próximo passo junto com você.</p>
-        <p>Aqui não tem relatório de vaidade nem promessa mágica de resultado. Tem dado na frente e um número só de obsessão: o seu faturamento.</p>
+        <p>Sou gestor de tráfego e passo o dia dentro de conta de anúncio, painel de venda e base de dados de cliente. Abri a the new ads depois de perceber uma coisa simples: quase toda empresa que anuncia está ensinando a plataforma a caçar a pessoa errada.</p>
+        <p>Aqui não tem equipe terceirizada nem atendimento repassado. Sou eu que penso, executo e respondo, com contato direto no seu grupo de WhatsApp e reunião mensal em cima do número.</p>
+        <p>Não vendo relatório bonito. Vendo uma operação em que você sabe, todos os dias, de onde veio cada venda.</p>
         <div class="sign">
           <svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg>
           <div><div class="nm">Douglas</div><div class="rl">Gestor de tráfego · Santa Catarina, BR</div></div>
         </div>
         <div class="actions" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:28px">
-          <button class="btn" data-open-form>Falar comigo</button>
+          <button class="btn" data-open-form>Quero agendar uma reunião <span aria-hidden="true">→</span></button>
         </div>
       </div>
     </div>
@@ -459,7 +506,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="on-grafite">
   <div class="glow center"></div>
   <div class="wrap">
-    <span class="kicker">Quem já opera no novo padrão</span>
+    <span class="kicker">Quem já opera assim</span>
     <h2 class="lead" style="margin-top:22px">Prova, não promessa.</h2>
     <div class="quotes">
       <div class="q edit"><div class="stars">★★★★★</div><p>"Pela primeira vez eu sei exatamente quanto cada real investido me devolve. Saímos do escuro."</p><div class="who"><div class="av">A</div><div><div class="nm">Nome do cliente</div><div class="rl">Cargo · Empresa</div></div></div></div>
@@ -472,13 +519,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <section class="on-black">
   <div class="glow tl"></div>
   <div class="wrap">
-    <span class="kicker">Para quem é</span>
-    <h2 class="lead" style="margin-top:22px">Verticais diferentes. O mesmo cansaço do achismo.</h2>
+    <span class="kicker">Filtro</span>
+    <h2 class="lead" style="margin-top:22px">Pra quem é, e pra quem não é.</h2>
     <div class="who-grid">
-      <div class="w on"><div class="t">Local</div><h3>Negócio de serviço</h3><p>Clínicas, advogados e outros serviços locais que atendem por WhatsApp. Lead qualificado no lugar de curtida, CAC visível desde o primeiro mês.</p></div>
-      <div class="w"><div class="t">B2B</div><h3>Empresas maiores</h3><p>Ticket alto, decisão mais longa. Gestão com cara de consultoria, não de agência que só empurra anúncio.</p></div>
-      <div class="w"><div class="t">Expert</div><h3>Infoprodutores</h3><p>Lançamento e perpétuo, com quem entende de tráfego e cobra resultado rápido.</p></div>
-      <div class="w"><div class="t">Ecom</div><h3>E-commerce</h3><p>Venda direta e escala de catálogo como única métrica que importa de verdade.</p></div>
+      <div class="w on"><div class="t">É pra você</div><h3>Fatura R$ 70 mil ou mais</h3><p>Montar e operar a estrutura de dados custa tempo, e só se paga a partir desse volume. Abaixo disso a conta não fecha pro seu lado.</p></div>
+      <div class="w on"><div class="t">É pra você</div><h3>Já investe em anúncio</h3><p>Meta, Google ou os dois. A gente entra pra corrigir e escalar o que já roda, não pra descobrir do zero se anúncio funciona.</p></div>
+      <div class="w"><div class="t">Não é pra você</div><h3>Não tem processo comercial</h3><p>Se ninguém atende o lead com consistência, o problema não está na mídia, e nenhum anúncio resolve isso.</p></div>
+      <div class="w"><div class="t">Não é pra você</div><h3>Procura o mais barato</h3><p>Existe gestor cobrando menos. Não existe gestor cobrando menos e montando uma base de dados própria da sua operação.</p></div>
     </div>
   </div>
 </section>
@@ -487,13 +534,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="glow center"></div>
   <div class="wrap">
     <span class="kicker" style="justify-content:center">O próximo passo</span>
-    <h2>Pronto pra sair do achismo?</h2>
-    <p class="sub">Responda 6 perguntas rápidas e receba um diagnóstico da sua operação de mídia paga. Sem custo, sem enrolação.</p>
+    <h2>Vamos olhar sua operação juntos.</h2>
+    <p class="sub">Responda 6 perguntas rápidas e escolha um horário na agenda. Na reunião você já sai sabendo onde sua conta está perdendo venda hoje.</p>
     <button class="btn" data-open-form style="font-size:17px;padding:17px 32px">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 4.7 4.8-1.2A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 .9-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l1.8.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>
-      Quero meu diagnóstico
+      Quero agendar uma reunião
+      <span aria-hidden="true">→</span>
     </button>
-    <div class="micro" style="justify-content:center;margin-top:20px">Vagas limitadas por mês para garantir profundidade.</div>
+    <div class="micro filtro-final" style="justify-content:center;margin-top:20px">→ Exclusivo para empresas que faturam a partir de R$ 70 mil por mês</div>
   </div>
 </section>
 
@@ -510,6 +557,11 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <div class="head"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg> Diagnóstico The New Ads</div>
     <div class="progress"><div class="fill" id="fill"></div></div>
     <div class="stepwrap" id="stepwrap"></div>
+    <!-- Campo isca: invisivel pra quem enxerga, preenchido por robo que varre formulario. -->
+    <input type="text" id="empresa_site" name="empresa_site" class="isca" tabindex="-1" autocomplete="off" aria-hidden="true">
+    <!-- Guarda as respostas ja dadas, pra que nome, email e telefone continuem
+         no DOM com o id proprio depois que o passo sai da tela. -->
+    <div id="respondidos" hidden></div>
     <div class="nav" id="nav">
       <button class="back" id="back">← Voltar</button>
       <button class="btn next" id="next">Continuar</button>
@@ -574,8 +626,8 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 /* ==== CONFIG ==== */
 const WHATSAPP = "5548996936361"; // numero oficial (DDI+DDD, so digitos)
 
-/* ==== WEBHOOK n8n ==== cole a URL do seu webhook abaixo (recebe POST JSON) */
-const WEBHOOK_URL = "COLE_A_URL_DO_SEU_WEBHOOK_N8N";
+/* ==== GRAVACAO DO LEAD ==== Function do proprio site, grava no Supabase */
+const WEBHOOK_URL = "/api/lead";
 
 /* ==== captura de parametros de trafego (UTM, click IDs, cookies do pixel) ==== */
 function getCookie(n){
@@ -617,27 +669,53 @@ function capturarTrack(){
   };
 }
 const TRACK = capturarTrack();
+/* id do lead gravado no primeiro envio, reusado no envio final pra nao duplicar linha */
+let LEAD_ID = null;
+/* momento em que o formulario abriu, pra medir se foi humano ou robo preenchendo */
+let ABERTO_EM = 0;
 function enviarWebhook(payload){
   if(!WEBHOOK_URL || WEBHOOK_URL.indexOf("COLE_A_URL")===0) return; // sem URL configurada, ignora
   try{
+    var corpo = Object.assign({
+      origem:"landing-the-new-ads",
+      url:location.href,
+      ts:new Date().toISOString(),
+      tracking:TRACK,
+      lead_id:LEAD_ID,
+      tempo_ms: ABERTO_EM ? (Date.now() - ABERTO_EM) : 0,
+      empresa_site: (document.getElementById("empresa_site")||{}).value || ""
+    }, payload);
     fetch(WEBHOOK_URL, {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body:JSON.stringify(Object.assign({origem:"landing-the-new-ads", url:location.href, ts:new Date().toISOString(), tracking:TRACK}, payload)),
+      body:JSON.stringify(corpo),
       keepalive:true
-    }).catch(function(){});
+    }).then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if(d && d.id && !LEAD_ID) LEAD_ID = d.id; })
+      .catch(function(){});
   }catch(e){}
 }
 
-/* dataLayer p/ GTM. Eventos:
-   - 'Lead'                -> apos nome + email + telefone
-   - 'lead_qualificado'    -> ao concluir dentro do ICP (segue pro WhatsApp)
-   - 'lead_desqualificado' -> ao concluir fora do ICP (tela de trackeamento) */
+/* dataLayer p/ GTM. Eventos do navegador:
+   - 'IniciouFormulario'    -> abriu o pop-up
+   - 'Lead'                 -> preencheu nome, email e telefone
+   - 'CompletouFormulario'  -> respondeu as 6 perguntas
+   Os eventos 'LeadQualificado' e 'Purchase' NAO saem daqui: sao disparados
+   pelo painel do funil, quando o card muda de coluna.
+   Cada evento leva um event_id proprio, pra deduplicar com o envio do servidor. */
 window.dataLayer = window.dataLayer || [];
-function dl(event, extra){ window.dataLayer.push(Object.assign({event:event}, extra||{})); }
+const EVENT_IDS = {};
+function novoEventId(nome){
+  var id = nome + "." + Date.now() + "." + Math.random().toString(36).slice(2,10);
+  EVENT_IDS[nome] = id;
+  return id;
+}
+function dl(event, extra){
+  window.dataLayer.push(Object.assign({event:event, event_id:novoEventId(event)}, extra||{}));
+}
 
 const steps = [
-  {key:"nome", type:"text", q:"Como podemos te chamar?", ph:"Seu nome"},
+  {key:"nome", type:"text", q:"Qual seu nome completo?", ph:"Nome e sobrenome"},
   {key:"email", type:"email", q:"Qual seu melhor e-mail?", ph:"voce@empresa.com"},
   {key:"telefone", type:"tel", q:"Seu WhatsApp com DDD", ph:"(48) 90000-0000"},
   {key:"empresa", type:"text", q:"Qual o nome da sua empresa?", ph:"Nome da empresa"},
@@ -665,7 +743,12 @@ document.getElementById("closeModal").addEventListener("click",closeForm);
 overlay.addEventListener("click",e=>{if(e.target===overlay)closeForm();});
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&overlay.classList.contains("open"))closeForm();});
 
-function openForm(){overlay.classList.add("open");i=0;render();}
+function openForm(){
+  overlay.classList.add("open");
+  if(!ABERTO_EM) ABERTO_EM = Date.now();
+  dl("IniciouFormulario");
+  i=0; render();
+}
 function closeForm(){overlay.classList.remove("open");}
 
 function render(){
@@ -679,32 +762,57 @@ function render(){
     stepwrap.querySelectorAll(".opt").forEach(op=>op.addEventListener("click",()=>{ data[s.key]=op.dataset.val; i++; step(); }));
     next.style.display = "none";
   } else {
-    html += '<input id="inp" type="'+s.type+'" placeholder="'+s.ph+'" value="'+(data[s.key]||"")+'" autocomplete="off"><div class="err" id="err"></div>';
+    html += '<input id="'+s.key+'" type="'+s.type+'" placeholder="'+s.ph+'" value="'+(data[s.key]||"")+'" autocomplete="off"><div class="err" id="err"></div>';
     stepwrap.innerHTML = html;
     next.style.display = "";
     next.textContent = i===steps.length-1 ? "Concluir" : "Continuar";
-    const inp = document.getElementById("inp");
+    const inp = document.getElementById(s.key);
     inp.focus();
     inp.addEventListener("keydown",e=>{if(e.key==="Enter")advance();});
   }
   back.classList.toggle("hidden", i===0);
+  sincronizarCampos(s.key);
 }
 
 function step(){ if(i>=steps.length){ finish(); } else { render(); } }
 
+/* Mantem nome, email e telefone sempre presentes no DOM com id proprio.
+   O campo que esta na tela ja tem o seu id, entao fica de fora daqui pra
+   nao existir id repetido. Os outros viram input oculto com o mesmo id. */
+function sincronizarCampos(visivel){
+  const box = document.getElementById("respondidos");
+  if(!box) return;
+  box.innerHTML = "";
+  ["nome","email","telefone"].forEach(function(k){
+    if(k === visivel || !data[k]) return;
+    const el = document.createElement("input");
+    el.type = "hidden";
+    el.id = k;
+    el.name = k;
+    el.value = data[k];
+    box.appendChild(el);
+  });
+}
+
 function advance(){
   const s = steps[i];
-  const inp = document.getElementById("inp");
+  const inp = document.getElementById(s.key);
   const err = document.getElementById("err");
-  const v = (inp.value||"").trim();
+  const v = (inp.value||"").trim().replace(/\s+/g," ");
   if(!v){ err.textContent="Preencha pra continuar."; return; }
+  if(s.key==="nome"){
+    // Precisa de nome e sobrenome: o Meta e o GA4 recebem first_name e last_name separados.
+    const partes = v.split(" ").filter(function(x){ return x.length > 1; });
+    if(partes.length < 2){ err.textContent="Escreve o nome completo, com sobrenome."; return; }
+  }
   if(s.type==="email" && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(v)){ err.textContent="E-mail invalido."; return; }
   if(s.type==="tel" && v.replace(/\D/g,"").length<10){ err.textContent="Telefone invalido."; return; }
   data[s.key]=v;
+  sincronizarCampos(s.key);
   if(s.key==="telefone" && !leadFired){
     leadFired = true;
     dl("Lead", {nome:data.nome, email:data.email, telefone:data.telefone});
-    enviarWebhook({evento:"lead", etapa:"contato", nome:data.nome, email:data.email, telefone:data.telefone});
+    enviarWebhook({evento:"lead", etapa:"contato", nome:data.nome, email:data.email, telefone:data.telefone, event_id:EVENT_IDS["Lead"]});
   }
   i++; step();
 }
@@ -723,16 +831,16 @@ function finish(){
   const desqualificado = FAT_BAIXO.includes(data.faturamento) && data.verba===VERBA_BAIXA;
   const nome = (data.nome||"").split(" ")[0];
   if(desqualificado){
-    dl("lead_desqualificado", {empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
-    enviarWebhook({evento:"lead_desqualificado", qualificado:false, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
+    dl("CompletouFormulario", {dentro_do_perfil:false, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
+    enviarWebhook({evento:"formulario_incompleto_perfil", qualificado:false, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
     const url = msgLink("Ola! Vim pela landing page da The New Ads. Tenho interesse em ajuda com trackeamento.");
     stepwrap.innerHTML = '<div class="done"><div class="ic" style="background:rgba(138,138,138,.12)"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#8A8A8A" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8v5"/><circle cx="12" cy="16.3" r=".7" fill="#8A8A8A" stroke="none"/></svg></div><h3>Obrigado pela sinceridade, '+nome+'!</h3><p style="max-width:40ch">Pelo perfil atual da sua empresa, nossa operacao completa de midia paga ainda nao e o melhor encaixe: ela rende de verdade a partir de um certo volume de investimento. Mas se o seu foco agora e organizar o <b style="color:#FAFAFA">trackeamento</b> e a base de dados do seu funil, isso a gente resolve. Chama que a gente conversa.</p><a class="btn" style="justify-content:center" href="'+url+'" target="_blank" rel="noopener">Falar sobre trackeamento</a></div>';
   } else {
-    dl("lead_qualificado", {empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
-    enviarWebhook({evento:"lead_qualificado", qualificado:true, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
-    const url = msgLink("Ola! Vim pela landing page da The New Ads e quero um diagnostico da minha operacao.");
-    stepwrap.innerHTML = '<div class="done"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FF6A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><h3>Tudo certo, '+nome+'!</h3><p>Vamos te levar pro WhatsApp com suas respostas ja preenchidas. E so enviar e a gente segue de la.</p><a class="btn" style="justify-content:center" href="'+url+'" target="_blank" rel="noopener">Abrir WhatsApp agora</a></div>';
-    setTimeout(()=>{ window.open(url,"_blank"); }, 1000);
+    dl("CompletouFormulario", {dentro_do_perfil:true, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
+    enviarWebhook({evento:"formulario_completo", qualificado:true, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
+    const agendarUrl = "/agendar?nome="+encodeURIComponent(data.nome||"")+"&email="+encodeURIComponent(data.email||"")+"&telefone="+encodeURIComponent(data.telefone||"")+(LEAD_ID?"&lead_id="+encodeURIComponent(LEAD_ID):"");
+    stepwrap.innerHTML = '<div class="done"><div class="ic"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#FF6A00" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div><h3>Tudo certo, '+nome+'!</h3><p>Vamos te levar direto pra escolher o melhor horario com o Douglas.</p><a class="btn" style="justify-content:center" href="'+agendarUrl+'">Escolher horario agora</a></div>';
+    setTimeout(()=>{ window.location.href = agendarUrl; }, 1200);
   }
 }
 </script>

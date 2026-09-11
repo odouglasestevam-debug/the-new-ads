@@ -3,10 +3,15 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>The New Ads — Painel</title>
-<meta name="description" content="Painel central com todos os links: dashboards, treinamentos, relatórios e ferramentas" />
+<title>The New Ads — Central</title>
+<meta name="description" content="Central interna: clientes ativos, dashboards, relatórios e ferramentas da The New Ads" />
+<meta name="robots" content="noindex, nofollow" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 <link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet" />
 <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <style>
   :root {
     --bg: #0A0A0A;
@@ -17,222 +22,696 @@
     --text: #FAFAFA;
     --muted: #8A8A8A;
     --line: rgba(255,255,255,.09);
+    --line-strong: rgba(255,255,255,.16);
+    --ok: #4ADE80;
+    --erro: #F87171;
+    --display: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    --body: 'Switzer','Inter',system-ui,sans-serif;
+    --mono: 'JetBrains Mono',ui-monospace,monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
+  [hidden] { display: none !important; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    font-family: var(--body);
     min-height: 100vh;
-    padding: 48px 20px 80px;
     -webkit-font-smoothing: antialiased;
+    line-height: 1.55;
   }
-  .wrap { max-width: 980px; margin: 0 auto; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 22px 90px; }
 
-  header { margin-bottom: 40px; }
-  header .eyebrow {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: .08em;
-    text-transform: uppercase;
-    color: var(--amber);
-    margin-bottom: 10px;
+  /* ---------- login ---------- */
+  .login { min-height: 100dvh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .login .caixa { width: 100%; max-width: 370px; }
+  .login .marca {
+    display: flex; align-items: center; gap: 11px;
+    font-family: var(--display); font-weight: 600; font-size: 19px; margin-bottom: 28px;
   }
-  header h1 {
-    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
-    font-weight: 700;
-    font-size: 32px;
-    letter-spacing: -0.5%;
+  .login .marca svg { width: 25px; height: 25px; }
+  .login h1 { font-family: var(--display); font-weight: 700; font-size: 27px; letter-spacing: -.01em; }
+  .login .sub { color: var(--muted); font-size: 14px; margin: 7px 0 24px; }
+  .campo { display: flex; flex-direction: column; gap: 6px; margin-bottom: 15px; }
+  .campo label {
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .12em;
+    text-transform: uppercase; color: var(--muted);
   }
-  header p {
-    color: var(--muted);
-    font-size: 14px;
-    margin-top: 8px;
+  .campo input {
+    background: var(--surface); border: 1px solid var(--line-strong); color: var(--text);
+    font-family: var(--body); font-size: 14px; padding: 11px 13px; border-radius: 0; width: 100%;
   }
+  .campo input:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+  .btn {
+    width: 100%; background: var(--amber); border: 1px solid var(--amber); color: #0A0A0A;
+    font-family: var(--body); font-weight: 600; font-size: 14px; padding: 12px;
+    cursor: pointer; border-radius: 0; margin-top: 6px;
+  }
+  .btn:hover:not(:disabled) { background: var(--amber-glow); border-color: var(--amber-glow); }
+  .btn:disabled { opacity: .55; cursor: default; }
+  .btn:focus-visible { outline: 2px solid var(--amber-glow); outline-offset: 2px; }
+  .msg { font-size: 13px; color: var(--muted); margin-top: 13px; min-height: 19px; }
+  .msg.erro { color: var(--erro); }
 
-  .group { margin-bottom: 36px; }
-  .group-head {
-    display: flex;
-    align-items: baseline;
-    gap: 10px;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
+  /* ---------- header ---------- */
+  header {
+    padding: 40px 0 24px;
+    display: flex; justify-content: space-between; align-items: flex-end;
+    gap: 28px; flex-wrap: wrap;
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .eyebrow {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .16em;
+    text-transform: uppercase; color: var(--amber); margin-bottom: 9px;
+  }
+  header h1 { font-family: var(--display); font-weight: 700; font-size: 34px; letter-spacing: -.01em; line-height: 1.1; }
+  .sessao { display: flex; align-items: center; gap: 12px; margin-top: 9px; }
+  .sessao .quem { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+  .sair {
+    background: transparent; border: 1px solid var(--line-strong); color: var(--muted);
+    font-family: var(--mono); font-size: 10.5px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 6px 11px; cursor: pointer; border-radius: 0;
+  }
+  .sair:hover { color: var(--text); border-color: var(--muted); }
+  .sair:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+  .stats { display: flex; gap: 1px; background: var(--line-strong); border: 1px solid var(--line-strong); }
+  .stat { background: var(--bg); padding: 13px 18px; display: flex; flex-direction: column; gap: 2px; min-width: 96px; }
+  .stat b { font-family: var(--display); font-weight: 600; font-size: 22px; line-height: 1.1; font-variant-numeric: tabular-nums; }
+  .stat span { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+
+  /* ---------- barra ---------- */
+  .barra {
+    position: sticky; top: 0; z-index: 20;
+    background: rgba(10,10,10,.92); backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--line);
+    padding: 14px 0; display: flex; gap: 14px; align-items: center; flex-wrap: wrap;
   }
-  .group-head h2 {
-    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
-    font-weight: 600;
-    font-size: 15px;
-    text-transform: uppercase;
-    letter-spacing: .04em;
+  .busca { position: relative; flex: 1; min-width: 230px; }
+  .busca input {
+    width: 100%; background: var(--surface); border: 1px solid var(--line-strong); color: var(--text);
+    font-family: var(--body); font-size: 14px; padding: 11px 42px 11px 14px; border-radius: 0;
   }
-  .group-head .count {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
+  .busca input::placeholder { color: var(--muted); }
+  .busca input:focus-visible { outline: 2px solid var(--amber); outline-offset: 1px; }
+  .busca kbd {
+    position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+    font-family: var(--mono); font-size: 10px; color: var(--muted);
+    border: 1px solid var(--line-strong); padding: 2px 6px; pointer-events: none;
   }
+  .filtros { display: flex; gap: 7px; flex-wrap: wrap; }
+  .chip {
+    background: transparent; border: 1px solid var(--line-strong); color: var(--muted);
+    font-family: var(--mono); font-size: 11px; letter-spacing: .06em; text-transform: uppercase;
+    padding: 9px 13px; cursor: pointer; border-radius: 0;
+  }
+  .chip:hover { color: var(--text); border-color: var(--muted); }
+  .chip[aria-pressed="true"] { background: var(--amber); border-color: var(--amber); color: #0A0A0A; }
+  .chip:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
-    gap: 10px;
+  /* ---------- secoes ---------- */
+  section { margin-top: 42px; }
+  .sec-hd { display: flex; align-items: baseline; gap: 14px; margin-bottom: 18px; }
+  .sec-hd h2 {
+    font-family: var(--mono); font-weight: 500; font-size: 12px;
+    letter-spacing: .18em; text-transform: uppercase; color: var(--muted);
   }
+  .sec-hd .ln { flex: 1; height: 1px; background: var(--line); }
+  .sec-hd .count { font-family: var(--mono); font-size: 11px; color: var(--muted); }
 
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 12px; }
+  .grid-2 { grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); }
+
+  /* ---------- card de cliente ---------- */
+  .cli {
+    background: var(--surface); border: 1px solid var(--line);
+    padding: 16px 17px 15px; display: flex; flex-direction: column; gap: 11px;
+  }
+  .cli.vazio { background: transparent; border-style: dashed; }
+  .cli-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
+  .cli-nome { font-size: 15px; font-weight: 600; line-height: 1.3; }
+  .cli-slug { font-family: var(--mono); font-size: 10.5px; color: var(--muted); margin-top: 3px; word-break: break-all; }
+  .sync {
+    font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em; text-transform: uppercase;
+    padding: 3px 7px; border: 1px solid var(--line-strong); color: var(--muted);
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .sync.on { color: var(--ok); border-color: rgba(74,222,128,.32); }
+  .links { display: flex; gap: 7px; flex-wrap: wrap; }
+  .lk {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--surface2); border: 1px solid var(--line-strong);
+    color: var(--text); text-decoration: none; font-size: 12.5px; padding: 7px 11px;
+    transition: border-color .15s ease, color .15s ease;
+  }
+  .lk:hover { border-color: var(--amber); color: var(--amber-glow); }
+  .lk:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  .lk::after { content: '↗'; font-size: 10px; color: var(--muted); }
+  .lk:hover::after { color: var(--amber-glow); }
+  .semlink { font-family: var(--mono); font-size: 11.5px; color: var(--muted); }
+
+  /* ---------- card simples ---------- */
   .card {
-    background: var(--surface);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    text-decoration: none;
-    color: inherit;
+    background: var(--surface); border: 1px solid var(--line); padding: 16px 17px;
+    display: flex; flex-direction: column; gap: 4px;
+    text-decoration: none; color: inherit;
     transition: border-color .15s ease, transform .15s ease;
   }
-  .card:hover {
-    border-color: var(--amber);
-    transform: translateY(-1px);
-  }
+  .card:hover { border-color: var(--amber); transform: translateY(-1px); }
+  .card:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
   .card-nome { font-size: 15px; font-weight: 500; line-height: 1.35; }
-  .card-desc { font-size: 12.5px; color: var(--muted); line-height: 1.4; }
-  .card-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10.5px;
-    color: var(--amber-glow);
-    margin-top: 6px;
-  }
+  .card-desc { font-size: 12.5px; color: var(--muted); line-height: 1.45; }
+  .card-tag { font-family: var(--mono); font-size: 10.5px; color: var(--amber-glow); margin-top: 7px; }
 
-  footer {
-    margin-top: 50px;
-    padding-top: 20px;
-    border-top: 1px solid var(--line);
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--muted);
+  /* ---------- estados ---------- */
+  .skel {
+    background: linear-gradient(90deg, var(--surface) 0%, var(--surface2) 50%, var(--surface) 100%);
+    background-size: 200% 100%; animation: shimmer 1.4s infinite; height: 104px;
   }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  .aviso {
+    background: var(--surface); border: 1px solid var(--line-strong);
+    padding: 14px 16px; font-size: 13px; color: var(--muted); margin-bottom: 18px;
+    display: flex; gap: 11px; align-items: flex-start;
+  }
+  .aviso::before { content: ''; width: 7px; height: 7px; background: var(--amber); flex: none; margin-top: 6px; }
+  .aviso b { color: var(--text); font-weight: 500; }
+  .vazio-busca { font-family: var(--mono); font-size: 12.5px; color: var(--muted); padding: 26px 0; }
+
+  @media (max-width: 720px) {
+    header { padding-top: 32px; }
+    header h1 { font-size: 28px; }
+    .busca kbd { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
 </style>
 </head>
 <body>
-  <div class="wrap">
-    <header>
-      <div class="eyebrow">The New Ads</div>
-      <h1>Painel</h1>
-      <p>Todos os links num lugar só, organizados por tipo.</p>
-    </header>
 
-    <div class="group">
-      <div class="group-head"><h2>Dashboards</h2><span class="count">5</span></div>
-      <div class="grid">
-        <a class="card" href="/central">
-          <div class="card-nome">Central de Contas</div>
-          <div class="card-desc">Lista dinâmica de todos os clientes ativos</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/dashboard-fatima">
-          <div class="card-nome">Fátima Esportes</div>
-          <div class="card-desc">Tráfego pago e leads</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/dashboard-confianca">
-          <div class="card-nome">Grupo Confiança</div>
-          <div class="card-desc">Tráfego pago e leads</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/dashboard-confianca-criativos">
-          <div class="card-nome">Grupo Confiança — Criativos</div>
-          <div class="card-desc">Performance de criativos ativos</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/dashboard-fabioli">
-          <div class="card-nome">Fabioli Ferreira</div>
-          <div class="card-desc">Tráfego pago e leads</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <g id="tna-sym"><path d="M24 78 L48 26 L48 58 L78 24" fill="none" stroke="#FF6A00" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+</defs></svg>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="tela-login">
+  <div class="caixa">
+    <div class="marca"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg><span>the new ads</span></div>
+    <h1>Central</h1>
+    <p class="sub">Clientes, dashboards e ferramentas internas.</p>
+
+    <form id="form-login">
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" autocomplete="username" required />
       </div>
-    </div>
-
-    <div class="group">
-      <div class="group-head"><h2>Treinamentos</h2><span class="count">1</span></div>
-      <div class="grid">
-        <a class="card" href="/treinamento-fatima">
-          <div class="card-nome">Atender vídeos WhatsApp</div>
-          <div class="card-desc">Slides do treinamento de vendas, WhatsApp e loja</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" autocomplete="current-password" required />
       </div>
-    </div>
+      <button class="btn" type="submit" id="btn-entrar">Entrar</button>
+      <div class="msg" id="msg-login"></div>
+    </form>
 
-    <div class="group">
-      <div class="group-head"><h2>Relatórios</h2><span class="count">2</span></div>
-      <div class="grid">
-        <a class="card" href="/relatorio-dedalos-moveis">
-          <div class="card-nome">Dédalos Móveis</div>
-          <div class="card-desc">Relatório de performance</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/relatorio-vetpet-google-ads">
-          <div class="card-nome">VetPet — Google Ads</div>
-          <div class="card-desc">Relatório de performance</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
+    <!-- Segunda etapa: so aparece pra quem tem verificacao em duas etapas ligada -->
+    <form id="form-codigo" hidden>
+      <p class="sub">Abra o Duo Mobile e digite o código de 6 dígitos.</p>
+      <div class="campo">
+        <label for="codigo-2fa">Código de verificação</label>
+        <input type="text" id="codigo-2fa" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="6" placeholder="000000"
+               style="letter-spacing:.4em;font-family:var(--mono);text-align:center" />
       </div>
-    </div>
+      <button class="btn" type="submit" id="btn-verificar">Verificar</button>
+      <div class="msg" id="msg-codigo"></div>
+    </form>
 
-    <div class="group">
-      <div class="group-head"><h2>Estratégias</h2><span class="count">1</span></div>
-      <div class="grid">
-        <a class="card" href="/estrategia-agari">
-          <div class="card-nome">Agari Drinks — Estratégia</div>
-          <div class="card-desc">Tráfego pago, tracking e conversão</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
+    <!-- Bloqueio por excesso de tentativas: sai daqui com o codigo do Duo -->
+    <form id="form-desbloqueio" hidden>
+      <p class="sub" id="txt-bloqueio"></p>
+      <div class="campo">
+        <label for="codigo-desbloqueio">Código do autenticador</label>
+        <input type="text" id="codigo-desbloqueio" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="6" placeholder="000000"
+               style="letter-spacing:.4em;font-family:var(--mono);text-align:center" />
       </div>
-    </div>
-
-    <div class="group">
-      <div class="group-head"><h2>Ferramentas</h2><span class="count">2</span></div>
-      <div class="grid">
-        <a class="card" href="/alertas">
-          <div class="card-nome">TNA Alertas</div>
-          <div class="card-desc">PWA de notificação push</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/trackeamento">
-          <div class="card-nome">Trackeamento</div>
-          <div class="card-desc">Documentação de tracking</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-      </div>
-    </div>
-
-    <div class="group">
-      <div class="group-head"><h2>Site institucional</h2><span class="count">4</span></div>
-      <div class="grid">
-        <a class="card" href="/">
-          <div class="card-nome">Home</div>
-          <div class="card-desc">thenewads.com.br</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/trafego-pago">
-          <div class="card-nome">Tráfego pago</div>
-          <div class="card-desc">Landing page de serviço</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/manual-da-marca">
-          <div class="card-nome">Manual da marca</div>
-          <div class="card-desc">Brand book oficial</div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-        <a class="card" href="/politica-de-privacidade">
-          <div class="card-nome">Política de privacidade</div>
-          <div class="card-desc"></div>
-          <span class="card-tag">Abrir →</span>
-        </a>
-      </div>
-    </div>
-
-    <footer>Atualizado manualmente. Novo link publicado deve ser adicionado aqui também.</footer>
+      <button class="btn" type="submit" id="btn-desbloquear">Desbloquear</button>
+      <div class="msg" id="msg-desbloqueio"></div>
+    </form>
   </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="wrap" id="app" hidden>
+
+  <header>
+    <div>
+      <div class="eyebrow">The New Ads</div>
+      <h1>Central</h1>
+      <div class="sessao">
+        <span class="quem" id="quem"></span>
+        <button class="sair" type="button" id="btn-sair">Sair</button>
+      </div>
+    </div>
+    <div class="stats" id="stats">
+      <div class="stat"><b>—</b><span>Clientes</span></div>
+      <div class="stat"><b>—</b><span>Com página</span></div>
+      <div class="stat"><b>—</b><span>Páginas</span></div>
+    </div>
+  </header>
+
+  <div class="barra">
+    <div class="busca">
+      <input type="search" id="busca" placeholder="Buscar cliente, dashboard, relatório…" autocomplete="off" aria-label="Buscar" />
+      <kbd>/</kbd>
+    </div>
+    <div class="filtros">
+      <button class="chip" type="button" data-filtro="tudo" aria-pressed="true">Tudo</button>
+      <button class="chip" type="button" data-filtro="clientes" aria-pressed="false">Clientes</button>
+      <button class="chip" type="button" data-filtro="ferramentas" aria-pressed="false">Ferramentas</button>
+      <button class="chip" type="button" data-filtro="site" aria-pressed="false">Site</button>
+    </div>
+  </div>
+
+  <section id="sec-clientes" data-secao="clientes">
+    <div class="sec-hd"><h2>Clientes</h2><div class="ln"></div><span class="count" id="c-clientes"></span></div>
+    <div id="aviso-clientes"></div>
+    <div class="grid" id="grid-clientes">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div>
+    </div>
+  </section>
+
+  <section id="sec-ferramentas" data-secao="ferramentas">
+    <div class="sec-hd"><h2>Ferramentas internas</h2><div class="ln"></div><span class="count" id="c-ferramentas"></span></div>
+    <div class="grid grid-2" id="grid-ferramentas"></div>
+  </section>
+
+  <section id="sec-site" data-secao="site">
+    <div class="sec-hd"><h2>Site institucional</h2><div class="ln"></div><span class="count" id="c-site"></span></div>
+    <div class="grid grid-2" id="grid-site"></div>
+  </section>
+
+  <p class="vazio-busca" id="vazio-busca" hidden>Nada encontrado com esse termo.</p>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = "https://iklynyncffneuvutvgxa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* Páginas já publicadas, por slug do cliente.
+   Toda página nova que subir precisa ser registrada aqui. */
+const PAGINAS = {
+  "fatima-esportes": [
+    { t: "Dashboard", h: "/dashboard-fatima" },
+    { t: "Treinamento", h: "/treinamento-fatima" },
+    { t: "Roteiro", h: "/treinamento-fatima-roteiro" }
+  ],
+  "grupo-confianca": [
+    { t: "Dashboard", h: "/dashboard-confianca" },
+    { t: "Criativos", h: "/dashboard-confianca-criativos" }
+  ],
+  "fabioli-ferreira": [{ t: "Dashboard", h: "/dashboard-fabioli" }],
+  "grupo-murana": [{ t: "Relatório", h: "/relatorio-grupo-murana" }],
+  "dedalos-moveis": [{ t: "Relatório", h: "/relatorio-dedalos-moveis" }]
+};
+
+/* Clientes com página publicada que não estão em clientes_meta_contas */
+const FORA_DO_BANCO = [
+  { slug: "vetpet", nome: "VetPet", sync: null, paginas: [{ t: "Relatório Google Ads", h: "/relatorio-vetpet-google-ads" }] },
+  { slug: "agari-drinks", nome: "Agari Drinks", sync: null, paginas: [{ t: "Estratégia", h: "/estrategia-agari" }] }
+];
+
+const FERRAMENTAS = [
+  { nome: "Painel do funil", desc: "Leads, agendamentos e etapas do comercial", href: "/funil/" },
+  { nome: "TNA Alertas", desc: "PWA de notificação push", href: "/alertas" },
+  { nome: "Agendar reunião", desc: "Agenda pública de reunião", href: "/agendar" },
+  { nome: "Trackeamento", desc: "Documentação de tracking", href: "/trackeamento" }
+];
+
+const SITE = [
+  { nome: "Home", desc: "thenewads.com.br", href: "/" },
+  { nome: "Tráfego pago", desc: "Landing page de serviço", href: "/trafego-pago" },
+  { nome: "Manual da marca", desc: "Brand book oficial", href: "/manual-da-marca" },
+  { nome: "Política de privacidade", desc: "Página legal", href: "/politica-de-privacidade" }
+];
+
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const el = id => document.getElementById(id);
+
+let clientes = [];
+
+/* ---------------- limite de tentativas ---------------- */
+// O contador mora no banco. Esta tela só reflete o que o servidor responde,
+// então limpar o storage do navegador não devolve tentativa nenhuma.
+const GUARD = "/api/painel-acesso";
+let cronometro = null;
+
+async function estadoAcesso() {
+  try {
+    const r = await fetch(GUARD, { cache: "no-store" });
+    return await r.json();
+  } catch {
+    return { bloqueado: false, restantes: 3, segundos: 0, degradado: true };
+  }
+}
+
+async function marcarAcesso(acao, extra = {}) {
+  try {
+    const r = await fetch(GUARD, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ acao, ...extra })
+    });
+    return await r.json();
+  } catch {
+    return { bloqueado: false, restantes: 3, segundos: 0, degradado: true };
+  }
+}
+
+function relogio(segundos) {
+  const m = Math.floor(segundos / 60), s = segundos % 60;
+  return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+function mostrarBloqueio(estado) {
+  el("form-login").hidden = true;
+  el("form-codigo").hidden = true;
+  el("form-desbloqueio").hidden = false;
+  el("msg-desbloqueio").textContent = estado.codigo_esgotado
+    ? "Códigos demais errados. Agora só liberando pelo tempo."
+    : "";
+  el("msg-desbloqueio").className = estado.codigo_esgotado ? "msg erro" : "msg";
+
+  let restam = estado.segundos || 0;
+  const texto = el("txt-bloqueio");
+  const pintarTempo = () => {
+    texto.textContent = restam > 0
+      ? `Tentativas esgotadas. Digite o código do autenticador para liberar agora, ou espere ${relogio(restam)}.`
+      : "Bloqueio liberado. Pode tentar de novo.";
+  };
+  pintarTempo();
+
+  clearInterval(cronometro);
+  cronometro = setInterval(() => {
+    restam -= 1;
+    if (restam <= 0) { clearInterval(cronometro); liberarLogin(); return; }
+    pintarTempo();
+  }, 1000);
+
+  el("codigo-desbloqueio").focus();
+}
+
+function liberarLogin() {
+  clearInterval(cronometro);
+  el("form-desbloqueio").hidden = true;
+  el("codigo-desbloqueio").value = "";
+  el("form-login").hidden = false;
+  el("msg-login").className = "msg";
+  el("msg-login").textContent = "";
+}
+
+el("form-desbloqueio").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = el("msg-desbloqueio"), btn = el("btn-desbloquear");
+  const codigo = el("codigo-desbloqueio").value.replace(/\D/g, "");
+
+  if (codigo.length !== 6) {
+    msg.className = "msg erro";
+    msg.textContent = "O código tem 6 dígitos.";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.className = "msg";
+  msg.textContent = "Verificando...";
+
+  const r = await marcarAcesso("desbloquear", { codigo });
+  btn.disabled = false;
+
+  if (r.ok) { liberarLogin(); return; }
+
+  msg.className = "msg erro";
+  msg.textContent = r.motivo === "codigo_esgotado"
+    ? "Códigos demais errados. Agora só liberando pelo tempo."
+    : "Código incorreto ou expirado. O Duo troca o código a cada 30 segundos.";
+  el("codigo-desbloqueio").value = "";
+});
+
+/* ---------------- autenticação ---------------- */
+async function iniciar() {
+  const { data } = await sb.auth.getSession();
+  if (data.session) {
+    if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+    entrarNoApp(data.session);
+    return;
+  }
+  const estado = await estadoAcesso();
+  if (estado.bloqueado) mostrarBloqueio(estado);
+}
+
+// Verdadeiro quando o usuario tem fator cadastrado mas a sessao ainda nao subiu de nivel.
+async function precisaSegundaEtapa() {
+  const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (error || !data) return false;
+  return data.nextLevel === "aal2" && data.currentLevel !== "aal2";
+}
+
+function pedirCodigo() {
+  el("form-login").hidden = true;
+  el("form-codigo").hidden = false;
+  el("codigo-2fa").focus();
+}
+
+async function verificarCodigo(codigo) {
+  const { data: fatores, error: erroFatores } = await sb.auth.mfa.listFactors();
+  if (erroFatores) return { erro: erroFatores.message };
+
+  const fator = (fatores?.totp || []).find(f => f.status === "verified");
+  if (!fator) return { erro: "Nenhum aplicativo autenticador cadastrado." };
+
+  const { data: desafio, error: erroDesafio } = await sb.auth.mfa.challenge({ factorId: fator.id });
+  if (erroDesafio) return { erro: erroDesafio.message };
+
+  const { error: erroVerificacao } = await sb.auth.mfa.verify({
+    factorId: fator.id, challengeId: desafio.id, code: codigo
+  });
+  if (erroVerificacao) return { erro: erroVerificacao.message };
+  return { ok: true };
+}
+
+function entrarNoApp(sessao) {
+  el("tela-login").hidden = true;
+  el("app").hidden = false;
+  el("quem").textContent = sessao.user.email;
+  carregar();
+}
+
+el("form-login").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = el("msg-login"), btn = el("btn-entrar");
+  btn.disabled = true;
+  msg.className = "msg";
+  msg.textContent = "Entrando...";
+
+  // Confere o bloqueio no servidor na hora do envio, não só ao abrir a página.
+  const antes = await estadoAcesso();
+  if (antes.bloqueado) {
+    btn.disabled = false;
+    mostrarBloqueio(antes);
+    return;
+  }
+
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: el("email").value.trim(),
+    password: el("senha").value
+  });
+
+  if (error) {
+    const estado = await marcarAcesso("erro");
+    btn.disabled = false;
+    el("senha").value = "";
+
+    if (estado.bloqueado) { mostrarBloqueio(estado); return; }
+
+    const base = error.message === "Invalid login credentials"
+      ? "E-mail ou senha incorretos."
+      : "Não deu pra entrar: " + error.message;
+    msg.className = "msg erro";
+    msg.textContent = estado.degradado
+      ? base
+      : `${base} ${estado.restantes === 1 ? "Resta 1 tentativa" : `Restam ${estado.restantes} tentativas`} antes de bloquear.`;
+    return;
+  }
+
+  await marcarAcesso("sucesso");
+  msg.textContent = "";
+  btn.disabled = false;
+  if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+  entrarNoApp(data.session);
+});
+
+el("form-codigo").addEventListener("submit", async e => {
+  e.preventDefault();
+  const msg = el("msg-codigo"), btn = el("btn-verificar");
+  const codigo = el("codigo-2fa").value.replace(/\D/g, "");
+
+  if (codigo.length !== 6) {
+    msg.className = "msg erro";
+    msg.textContent = "O código tem 6 dígitos.";
+    return;
+  }
+
+  btn.disabled = true;
+  msg.className = "msg";
+  msg.textContent = "Verificando...";
+
+  const resultado = await verificarCodigo(codigo);
+  btn.disabled = false;
+
+  if (resultado.erro) {
+    msg.className = "msg erro";
+    msg.textContent = resultado.erro.includes("Invalid")
+      ? "Código incorreto ou expirado. O Duo troca o código a cada 30 segundos."
+      : resultado.erro;
+    el("codigo-2fa").value = "";
+    return;
+  }
+
+  const { data } = await sb.auth.getSession();
+  el("form-codigo").hidden = true;
+  entrarNoApp(data.session);
+});
+
+el("btn-sair").addEventListener("click", async () => {
+  await sb.auth.signOut();
+  location.reload();
+});
+
+/* ---------------- conteúdo ---------------- */
+function cardCliente(c) {
+  const pgs = c.paginas || [];
+  const busca = [c.nome, c.slug, ...pgs.map(p => p.t)].join(" ").toLowerCase();
+  const selo = c.sync === null
+    ? ""
+    : `<span class="sync ${c.sync ? "on" : ""}">${c.sync ? "sync ativo" : "sem sync"}</span>`;
+  const links = pgs.length
+    ? pgs.map(p => `<a class="lk" href="${esc(p.h)}">${esc(p.t)}</a>`).join("")
+    : `<span class="semlink">Sem página publicada</span>`;
+  return `<article class="cli ${pgs.length ? "" : "vazio"}" data-busca="${esc(busca)}">
+    <div class="cli-top">
+      <div>
+        <div class="cli-nome">${esc(c.nome)}</div>
+        <div class="cli-slug">${esc(c.slug)}</div>
+      </div>${selo}
+    </div>
+    <div class="links">${links}</div>
+  </article>`;
+}
+
+function cardSimples(x) {
+  const busca = [x.nome, x.desc].join(" ").toLowerCase();
+  return `<a class="card" href="${esc(x.href)}" data-busca="${esc(busca)}">
+    <div class="card-nome">${esc(x.nome)}</div>
+    <div class="card-desc">${esc(x.desc)}</div>
+    <span class="card-tag">Abrir →</span>
+  </a>`;
+}
+
+function pintar() {
+  const ordenados = [...clientes].sort((a, b) => {
+    const pa = (a.paginas || []).length ? 0 : 1;
+    const pb = (b.paginas || []).length ? 0 : 1;
+    return pa - pb || a.nome.localeCompare(b.nome, "pt-BR");
+  });
+  el("grid-clientes").innerHTML = ordenados.map(cardCliente).join("");
+  el("grid-ferramentas").innerHTML = FERRAMENTAS.map(cardSimples).join("");
+  el("grid-site").innerHTML = SITE.map(cardSimples).join("");
+
+  const comPagina = clientes.filter(c => (c.paginas || []).length).length;
+  const totalPaginas = clientes.reduce((s, c) => s + (c.paginas || []).length, 0)
+    + FERRAMENTAS.length + SITE.length;
+  el("stats").innerHTML =
+    `<div class="stat"><b>${clientes.length}</b><span>Clientes</span></div>
+     <div class="stat"><b>${comPagina}</b><span>Com página</span></div>
+     <div class="stat"><b>${totalPaginas}</b><span>Páginas</span></div>`;
+  filtrar();
+}
+
+function filtrar() {
+  const termo = el("busca").value.trim().toLowerCase();
+  const ativo = document.querySelector(".chip[aria-pressed='true']").dataset.filtro;
+  let visiveis = 0;
+
+  document.querySelectorAll("section[data-secao]").forEach(sec => {
+    const naSecao = ativo === "tudo" || ativo === sec.dataset.secao;
+    let n = 0;
+    sec.querySelectorAll("[data-busca]").forEach(card => {
+      const bate = naSecao && (!termo || card.dataset.busca.includes(termo));
+      card.hidden = !bate;
+      if (bate) n++;
+    });
+    sec.hidden = !naSecao || n === 0;
+    sec.querySelector(".count").textContent = n;
+    visiveis += n;
+  });
+
+  el("vazio-busca").hidden = visiveis > 0;
+}
+
+async function carregar() {
+  let base = [];
+  const { data, error } = await sb
+    .from("clientes_meta_contas")
+    .select("slug, nome, sincronizar_metricas")
+    .eq("ativo", true);
+
+  if (error) {
+    el("aviso-clientes").innerHTML =
+      `<p class="aviso"><span><b>Não deu para carregar a lista de clientes.</b>
+       Abaixo estão só os clientes com página publicada, a partir do registro local.</span></p>`;
+    base = Object.entries(PAGINAS).map(([slug, paginas]) => ({ slug, nome: slug, sync: null, paginas }));
+  } else if (!data.length) {
+    el("aviso-clientes").innerHTML =
+      `<p class="aviso"><span><b>Esta conta não está na lista de acesso interno.</b>
+       A leitura da tabela de clientes exige estar em <code>funil_acesso</code>. Abaixo,
+       só os clientes com página publicada.</span></p>`;
+    base = Object.entries(PAGINAS).map(([slug, paginas]) => ({ slug, nome: slug, sync: null, paginas }));
+  } else {
+    el("aviso-clientes").innerHTML = "";
+    base = data.map(c => ({
+      slug: c.slug,
+      nome: c.nome,
+      sync: !!c.sincronizar_metricas,
+      paginas: PAGINAS[c.slug] || []
+    }));
+  }
+
+  clientes = [...base, ...FORA_DO_BANCO];
+  pintar();
+}
+
+el("busca").addEventListener("input", filtrar);
+document.querySelectorAll(".chip").forEach(chip => {
+  chip.addEventListener("click", () => {
+    document.querySelectorAll(".chip").forEach(c => c.setAttribute("aria-pressed", String(c === chip)));
+    filtrar();
+  });
+});
+document.addEventListener("keydown", e => {
+  if (el("app").hidden) return;
+  if (e.key === "/" && document.activeElement !== el("busca")) {
+    e.preventDefault();
+    el("busca").focus();
+  }
+  if (e.key === "Escape" && document.activeElement === el("busca")) {
+    el("busca").value = "";
+    filtrar();
+  }
+});
+
+iniciar();
+</script>
 </body>
 </html>

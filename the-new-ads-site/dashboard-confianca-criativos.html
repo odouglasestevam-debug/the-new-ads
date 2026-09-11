@@ -162,7 +162,10 @@
 <script>
 const sb = window.supabase.createClient(
   'https://iklynyncffneuvutvgxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4',
+  // pagina publica: nao herdar sessao de login do /painel ou /funil no mesmo dominio,
+  // senao as queries vao como 'authenticated' e o RLS (policies so pra 'anon') devolve zero linha
+  { auth: { persistSession: false, autoRefreshToken: false } }
 );
 
 function fmtDateTime() {

@@ -1,0 +1,53 @@
+﻿tag;evento;campo_anterior;campo_stape;variavel_preservada
+03 | FB | Lead;Lead;fn;fn;{{user-input-firstname}}
+03 | FB | Lead;Lead;ln;ln;{{user-input-lastname}}
+03 | FB | Lead;Lead;em;em;{{user-input-email}}
+03 | FB | Lead;Lead;ph;ph;{{user-input-phone}}
+03 | FB | Lead;Lead;external_id;external_id;{{cookie-ga}}
+03 | FB | Lead;Lead;st;st;{{Cookie LeadState}}
+03 | FB | Lead;Lead;ct;ct;{{Cookie LeadCity}}
+03 | FB | Lead;Lead;cn;country;{{Cookie LeadCountry}}
+01 | FB | PageView;PageView;ph;ph;{{cookie-LeadPhone}}
+01 | FB | PageView;PageView;ln;ln;{{cookie-LeadLastName}}
+01 | FB | PageView;PageView;fn;fn;{{cookie-LeadFirstName}}
+01 | FB | PageView;PageView;em;em;{{cookie-LeadEmail}}
+01 | FB | PageView;PageView;external_id;external_id;{{cookie-ga}}
+01 | FB | PageView;PageView;ct;ct;{{Cookie LeadCity}}
+01 | FB | PageView;PageView;cn;country;{{Cookie LeadCountry}}
+01 | FB | PageView;PageView;st;st;{{Cookie LeadState}}
+02 | FB | ViewContent;ViewContent;cn;country;{{jsc - Country (dlv|cookie)}}
+02 | FB | ViewContent;ViewContent;ct;ct;{{jsc - city (dlv|cookie)}}
+02 | FB | ViewContent;ViewContent;st;st;{{jsc - state (dlv|cookie)}}
+02 | FB | ViewContent;ViewContent;external_id;external_id;{{cookie-ga}}
+04 | FB | CompleteRegistration;CompleteRegistration;ct;ct;{{jsc - city (dlv|cookie)}}
+04 | FB | CompleteRegistration;CompleteRegistration;cn;country;{{jsc - Country (dlv|cookie)}}
+04 | FB | CompleteRegistration;CompleteRegistration;st;st;{{jsc - state (dlv|cookie)}}
+04 | FB | CompleteRegistration;CompleteRegistration;fn;fn;{{user-input-firstname}}
+04 | FB | CompleteRegistration;CompleteRegistration;ln;ln;{{user-input-lastname}}
+04 | FB | CompleteRegistration;CompleteRegistration;ph;ph;{{user-input-phone}}
+04 | FB | CompleteRegistration;CompleteRegistration;em;em;{{user-input-email}}
+04 | FB | CompleteRegistration;CompleteRegistration;external_id;external_id;{{cookie-ga}}
+05 | FB | SchedulerView;SchedulerView;ct;ct;{{jsc - city (dlv|cookie)}}
+05 | FB | SchedulerView;SchedulerView;cn;country;{{jsc - Country (dlv|cookie)}}
+05 | FB | SchedulerView;SchedulerView;st;st;{{jsc - state (dlv|cookie)}}
+05 | FB | SchedulerView;SchedulerView;fn;fn;{{cookie-LeadFirstName}}
+05 | FB | SchedulerView;SchedulerView;ln;ln;{{cookie-LeadLastName}}
+05 | FB | SchedulerView;SchedulerView;ph;ph;{{cookie-LeadPhone}}
+05 | FB | SchedulerView;SchedulerView;em;em;{{cookie-LeadEmail-ajustado}}
+05 | FB | SchedulerView;SchedulerView;external_id;external_id;{{cookie-ga}}
+06 | FB | SlotSelected;SlotSelected;ct;ct;{{jsc - city (dlv|cookie)}}
+06 | FB | SlotSelected;SlotSelected;cn;country;{{jsc - Country (dlv|cookie)}}
+06 | FB | SlotSelected;SlotSelected;st;st;{{jsc - state (dlv|cookie)}}
+06 | FB | SlotSelected;SlotSelected;fn;fn;{{user-input-firstname}}
+06 | FB | SlotSelected;SlotSelected;ln;ln;{{user-input-lastname}}
+06 | FB | SlotSelected;SlotSelected;ph;ph;{{user-input-phone}}
+06 | FB | SlotSelected;SlotSelected;em;em;{{user-input-email}}
+06 | FB | SlotSelected;SlotSelected;external_id;external_id;{{cookie-ga}}
+07 | FB | Schedule;Schedule;ct;ct;{{jsc - city (dlv|cookie)}}
+07 | FB | Schedule;Schedule;cn;country;{{jsc - Country (dlv|cookie)}}
+07 | FB | Schedule;Schedule;st;st;{{jsc - state (dlv|cookie)}}
+07 | FB | Schedule;Schedule;fn;fn;{{cookie-LeadFirstName}}
+07 | FB | Schedule;Schedule;ln;ln;{{cookie-LeadLastName}}
+07 | FB | Schedule;Schedule;ph;ph;{{cookie-LeadPhone}}
+07 | FB | Schedule;Schedule;em;em;{{cookie-LeadEmail-ajustado}}
+07 | FB | Schedule;Schedule;external_id;external_id;{{cookie-ga}}

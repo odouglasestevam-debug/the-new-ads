@@ -1,0 +1,4 @@
+# O relatorio da Fatima virou parte do dashboard (secao "Vendas e retorno").
+# Mantem o link antigo funcionando pra quem ja recebeu a URL.
+/relatorio-fatima-esportes /dashboard-fatima 301
+/relatorio-fatima-esportes.html /dashboard-fatima 301

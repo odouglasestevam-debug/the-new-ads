@@ -113,8 +113,8 @@ Padrão pra exibir logo de cliente em seção de prova social (ex: marquee "neg�
 > Usado no estilo "tweet" do carrossel.
 
 - **Nome:** Douglas Estevam
-- **Handle:** @thenewads *(ajustar se o handle real for outro)*
-- **Foto:** *(adicionar em `marca/` quando disponível)*
+- **Handle:** @doug_estevam (handle real, confirmado 2026-09-08)
+- **Foto:** `marca/douglas-estevam.jpg`
 - **Badge verificado:** não
 
 ---

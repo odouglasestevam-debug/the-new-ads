@@ -1,0 +1,42 @@
+﻿tipo;id;nome_anterior;nome_novo
+folder;4;🔨 Tools;00 | Ferramentas
+folder;5;🟧 GA4;01 | GA4
+folder;22;🟦 FB;02 | Meta Ads
+folder;25;🧠 API;03 | API
+folder;50;🍪 Cookies;04 | Cookies
+tag;88;01 | FB | PageView;[Meta Ads] 01 | PageView
+tag;94;00 | setCookie DataUsers;[Cookies] 00 | Dados do lead
+tag;97;04 | GA4 | form_submit;[GA4] 04 | form_submit
+tag;98;00 | Tag de Configuracao;[GA4] 00 | Configuracao
+tag;99;04 | FB | CompleteRegistration;[Meta Ads] 04 | CompleteRegistration
+tag;102;00 | UTM Persist;[Ferramentas] 00 | Persistencia de UTM
+tag;104;02 | GA4 | form_start;[GA4] 02 | form_start
+tag;106;05 | FB | SchedulerView;[Meta Ads] 05 | SchedulerView
+tag;108;06 | GA4 | slot_selected;[GA4] 06 | slot_selected
+tag;110;04 | API | form_submit;[API] 04 | form_submit
+tag;112;07 | FB | Schedule;[Meta Ads] 07 | Schedule
+tag;113;02 | API | form_start;[API] 02 | form_start
+tag;114;07 | API | schedule;[API] 07 | schedule
+tag;115;02 | FB | ViewContent;[Meta Ads] 02 | ViewContent
+tag;116;01 | API | page_view;[API] 01 | page_view
+tag;117;07 | GA4 | schedule;[GA4] 07 | schedule
+tag;118;05 | GA4 | scheduler_view;[GA4] 05 | scheduler_view
+tag;119;06 | FB | SlotSelected;[Meta Ads] 06 | SlotSelected
+tag;120;06 | API | slot_selected;[API] 06 | slot_selected
+tag;122;03 | GA4 | generate_lead;[GA4] 03 | generate_lead
+tag;124;00 | Visitor API;[Ferramentas] 00 | Visitor API
+tag;126;01 | GA4 | page_view;[GA4] 01 | page_view
+tag;127;03 | API | generate_lead;[API] 03 | generate_lead
+tag;128;05 | API | scheduler_view;[API] 05 | scheduler_view
+tag;129;03 | FB | Lead;[Meta Ads] 03 | Lead
+tag;130;00 | setCookie GeoLoc;[Cookies] 00 | Geolocalizacao
+trigger;87;01 | CE | gtm.dom OU visitor-api-success;[Evento] 01 | gtm.dom OU visitor-api-success
+trigger;92;04 | CE | CompletouFormulario;[Evento] 04 | CompletouFormulario
+trigger;101;00 | PV | All Pages;[Pagina] 00 | Todas as paginas
+trigger;103;02 | CE | IniciouFormulario;[Evento] 02 | IniciouFormulario
+trigger;105;05 | CE | scheduler_view;[Evento] 05 | scheduler_view
+trigger;107;06 | CE | scheduler_slot_selected;[Evento] 06 | scheduler_slot_selected
+trigger;111;07 | CE | Schedule;[Evento] 07 | Schedule
+trigger;121;03 | CE | Lead;[Evento] 03 | Lead
+trigger;123;00 | PV | All Pages + Cookie not exists;[Pagina] 00 | Todas as paginas | Cookie ausente
+trigger;125;00 | CE | visitor-api-success;[Evento] 00 | visitor-api-success

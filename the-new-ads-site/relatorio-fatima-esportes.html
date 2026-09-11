@@ -1,0 +1,509 @@
+<title>Fátima Esportes · Maio contra Agosto</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap">
+<link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap">
+<style>
+  :root{
+    color-scheme:dark;
+    --preto:#0A0A0A; --grafite:#171717; --grafite2:#212121;
+    --ambar:#FF6A00; --ambar-glow:#FFA24D;
+    --branco:#FAFAFA; --nevoa:#8A8A8A; --linha:rgba(255,255,255,.09);
+    --frio:#5B6470; --frio-claro:#7C8794;
+    --display:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    --corpo:'Switzer','Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',ui-monospace,monospace;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--preto);color:var(--branco);font-family:var(--corpo);-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px 72px;}
+
+  .rot{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--nevoa);}
+  .num{font-family:var(--display);font-weight:600;letter-spacing:-.008em;font-variant-numeric:tabular-nums;line-height:.95;}
+  .amb{color:var(--ambar);}
+  .cinza{color:var(--frio-claro);}
+
+  /* topo */
+  header{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:20px;padding:38px 0 22px;border-bottom:1px solid var(--linha);}
+  header h1{font-family:var(--display);font-weight:700;font-size:30px;letter-spacing:-.005em;margin:8px 0 0;}
+  header .tag{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ambar);}
+  header .direita{display:flex;gap:26px;font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--nevoa);text-align:right;}
+  header .direita b{display:block;color:var(--branco);font-weight:500;font-size:12px;margin-top:4px;}
+
+  /* faixa de secao */
+  .faixa{display:flex;align-items:baseline;gap:14px;margin:38px 0 14px;}
+  .faixa .n{font-family:var(--mono);font-size:10px;color:var(--ambar);letter-spacing:.16em;}
+  .faixa .t{font-family:var(--display);font-weight:600;font-size:17px;letter-spacing:0;}
+  .faixa .obs{font-family:var(--mono);font-size:10.5px;color:var(--nevoa);margin-left:auto;letter-spacing:.04em;}
+
+  /* grade de tiles */
+  .grade{display:grid;gap:1px;background:var(--linha);border:1px solid var(--linha);}
+  .g4{grid-template-columns:repeat(4,1fr);}
+  .g5{grid-template-columns:repeat(5,1fr);}
+  .g3{grid-template-columns:repeat(3,1fr);}
+  .g2{grid-template-columns:repeat(2,1fr);}
+  .cel{background:var(--grafite);padding:20px 18px;}
+  .cel .rot{margin-bottom:12px;}
+  .cel .num{font-size:34px;}
+  .cel .pe{font-family:var(--mono);font-size:11px;color:var(--nevoa);margin-top:10px;}
+  .cel .pe.up{color:var(--ambar-glow);}
+
+  /* bloco prova */
+  .prova{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--linha);border:1px solid var(--linha);margin-top:1px;}
+  .painel{background:var(--grafite);padding:26px 24px 24px;}
+  .painel.destaque{background:#1C1206;}
+  .painel .cab{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:22px;}
+  .painel .cab .rot{color:#B0B0B0;}
+  .duo{display:flex;align-items:flex-end;gap:28px;}
+  .duo .lado{flex:1;}
+  .duo .lado .rot{font-size:9.5px;margin-bottom:9px;}
+  .duo .lado .v{font-family:var(--display);font-weight:600;font-size:27px;letter-spacing:-.008em;font-variant-numeric:tabular-nums;}
+  .duo .lado .q{font-family:var(--mono);font-size:10.5px;color:var(--nevoa);margin-top:6px;}
+  .duo .delta{text-align:right;}
+  .duo .delta .d{font-family:var(--display);font-weight:700;font-size:40px;letter-spacing:-.012em;line-height:1;}
+  .barra{height:6px;background:var(--grafite2);margin-top:16px;display:flex;}
+  .barra i{display:block;height:6px;}
+
+  /* graficos */
+  .chart{background:var(--grafite);border:1px solid var(--linha);padding:22px 22px 14px;overflow-x:auto;}
+  .chart svg{display:block;width:100%;height:auto;min-width:560px;}
+  .g-grid{stroke:rgba(255,255,255,.07);stroke-width:1;}
+  .g-base{stroke:rgba(255,255,255,.22);stroke-width:1;}
+  .g-tick{fill:var(--nevoa);font-family:'JetBrains Mono',monospace;font-size:10px;}
+  .g-lab{fill:#B8B8B8;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.08em;}
+  .g-val{fill:var(--branco);font-family:'Clash Display','Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
+  .g-val-amb{fill:var(--ambar);font-family:'Clash Display','Space Grotesk',sans-serif;font-size:13px;font-weight:600;}
+  .legenda{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:16px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--nevoa);}
+  .legenda i{display:inline-block;width:10px;height:10px;margin-right:7px;vertical-align:-1px;}
+
+  /* tabela */
+  .tab{overflow-x:auto;border:1px solid var(--linha);}
+  table{border-collapse:collapse;width:100%;min-width:620px;background:var(--grafite);}
+  th,td{padding:12px 16px;text-align:right;border-bottom:1px solid var(--linha);font-variant-numeric:tabular-nums;}
+  th:first-child,td:first-child{text-align:left;}
+  thead th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa);font-weight:400;background:var(--grafite2);}
+  tbody td{font-family:var(--mono);font-size:13px;}
+  tbody tr:last-child td{border-bottom:none;}
+  tr.marcada td{background:rgba(255,106,0,.08);color:var(--branco);}
+  tr.marcada td:first-child{color:var(--ambar);font-weight:700;box-shadow:inset 3px 0 0 var(--ambar);}
+
+  /* rodape */
+  .ressalvas{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:1px;background:var(--linha);border:1px solid var(--linha);margin-top:14px;}
+  .ressalvas div{background:var(--grafite);padding:16px 18px;}
+  .ressalvas .k{font-family:var(--display);font-weight:600;font-size:20px;letter-spacing:-.005em;}
+  .ressalvas .v{font-family:var(--mono);font-size:10.5px;color:var(--nevoa);line-height:1.55;margin-top:7px;}
+  footer{margin-top:26px;font-family:var(--mono);font-size:10px;letter-spacing:.05em;color:#666;line-height:1.9;}
+
+  /* seletor de periodo: mesmo padrao dos dashboards (dropdown estilo Meta Ads) */
+  .date-picker{position:relative;display:inline-block;margin:18px 0 4px;}
+  .date-picker-trigger{
+    display:flex;align-items:center;gap:10px;
+    background:var(--grafite);border:1px solid var(--linha);color:var(--branco);
+    font-family:var(--corpo);font-size:13px;font-weight:500;
+    padding:9px 14px;cursor:pointer;
+  }
+  .date-picker-trigger:hover{border-color:rgba(255,255,255,.2);}
+  .date-picker-trigger svg{color:var(--nevoa);flex:none;width:10px;height:6px;min-width:0;transition:transform .15s ease;}
+  .date-picker[data-open="true"] .date-picker-trigger svg{transform:rotate(180deg);}
+  .date-picker[data-open="true"] .date-picker-trigger{border-color:var(--ambar);}
+  .date-picker-trigger:focus-visible{outline:2px solid var(--ambar-glow);outline-offset:2px;}
+  .date-picker-panel{
+    position:absolute;top:calc(100% + 6px);left:0;z-index:20;
+    width:240px;background:var(--grafite);border:1px solid var(--linha);
+    box-shadow:0 12px 32px rgba(0,0,0,.5);
+    flex-direction:column;padding:6px;
+  }
+  .date-picker-panel[hidden]{display:none;}
+  .date-picker-panel:not([hidden]){display:flex;}
+  .date-picker-option{
+    text-align:left;background:transparent;border:none;color:var(--branco);
+    font-family:var(--corpo);font-size:13px;padding:9px 10px;cursor:pointer;
+  }
+  .date-picker-option:hover{background:var(--grafite2);}
+  .date-picker-option.active{color:var(--ambar);font-weight:600;}
+  .date-picker-custom{border-top:1px solid var(--linha);margin-top:6px;padding:10px;}
+  .date-picker-custom-label{font-size:11px;color:var(--nevoa);text-transform:uppercase;letter-spacing:.04em;margin-bottom:8px;}
+  .date-picker-custom-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  .date-picker-custom-row span{color:var(--nevoa);font-size:12px;}
+  .date-picker-custom-row input{
+    background:var(--grafite2);border:1px solid var(--linha);color:var(--branco);
+    font-family:var(--mono);font-size:12px;padding:6px 8px;
+    color-scheme:dark;width:0;flex:1;min-width:118px;
+  }
+  .date-picker-apply{
+    width:100%;background:var(--ambar);border:none;color:#0A0A0A;
+    font-family:var(--corpo);font-size:12px;font-weight:600;
+    padding:8px;cursor:pointer;
+  }
+  .date-picker-apply:hover{filter:brightness(1.08);}
+  .fixo{
+    font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--nevoa);border:1px solid var(--linha);padding:2px 6px;margin-left:10px;vertical-align:2px;
+  }
+  @media (max-width:900px){
+    .g4,.g5{grid-template-columns:repeat(2,1fr);}
+    .g3{grid-template-columns:1fr;}
+    .prova{grid-template-columns:1fr;}
+  }
+  @media (max-width:560px){
+    .wrap{padding:0 14px 56px;}
+    .cel .num{font-size:27px;}
+    header .direita{gap:16px;}
+  }
+</style>
+
+<div class="wrap">
+
+<header>
+  <div>
+    <div class="tag">The New Ads · Fátima Esportes</div>
+    <h1>Maio contra Agosto</h1>
+  </div>
+</header>
+
+<div class="date-picker" id="date-picker">
+  <button class="date-picker-trigger" id="date-picker-trigger" aria-expanded="false" aria-haspopup="true">
+    <span id="date-picker-label">Agosto 2026</span>
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none" aria-hidden="true"><path d="M1 1L5 5L9 1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </button>
+  <div class="date-picker-panel" id="date-picker-panel" hidden>
+    <button class="date-picker-option" data-de="2026-05-01" data-ate="2026-05-31">Maio 2026</button>
+    <button class="date-picker-option" data-de="2026-06-01" data-ate="2026-06-30">Junho 2026</button>
+    <button class="date-picker-option" data-de="2026-07-01" data-ate="2026-07-31">Julho 2026</button>
+    <button class="date-picker-option active" data-de="2026-08-01" data-ate="2026-08-31">Agosto 2026</button>
+    <button class="date-picker-option" data-de="2026-09-01" data-ate="2026-09-30">Setembro 2026</button>
+    <button class="date-picker-option" data-de="2026-05-01" data-ate="2026-09-30">Tudo</button>
+    <div class="date-picker-custom">
+      <div class="date-picker-custom-label">Personalizado</div>
+      <div class="date-picker-custom-row">
+        <span>de</span><input type="date" id="de" min="2026-05-01" max="2026-09-30" value="2026-08-01" />
+        <span>até</span><input type="date" id="ate" min="2026-05-01" max="2026-09-30" value="2026-08-31" />
+      </div>
+      <button class="date-picker-apply" id="btn-custom">Aplicar</button>
+    </div>
+  </div>
+</div>
+
+<div class="faixa">
+  <span class="n">01</span><span class="t" id="tit-periodo">Agosto</span>
+  <span class="obs">comparado a maio, melhor mês sem mídia</span>
+</div>
+<div class="grade g4">
+  <div class="cel"><div class="rot">Faturamento</div><div class="num amb" id="k-fat">R$ 23.953</div><div class="pe up" id="k-fat-pe">+30,8% vs maio</div></div>
+  <div class="cel"><div class="rot">Vendas</div><div class="num" id="k-vendas">47</div><div class="pe up" id="k-vendas-pe">+20,5% vs maio</div></div>
+  <div class="cel"><div class="rot">Ticket médio</div><div class="num" id="k-ticket">R$ 510</div><div class="pe up" id="k-ticket-pe">+8,5% vs maio</div></div>
+  <div class="cel"><div class="rot">Investido em mídia</div><div class="num" id="k-inv">R$ 488</div><div class="pe" id="k-inv-pe">2,0% do faturamento</div></div>
+</div>
+
+<div class="faixa">
+  <span class="n">02</span><span class="t">Mesma janela sazonal, com e sem mídia</span><span class="fixo">série completa</span>
+  <span class="obs">Dia das Mães 10/05 · Dia dos Pais 09/08</span>
+</div>
+<div class="prova">
+  <div class="painel destaque">
+    <div class="cab"><span class="rot">7 dias até a data</span><span class="rot">janela da campanha</span></div>
+    <div class="duo">
+      <div class="lado">
+        <div class="rot">Maio · sem mídia</div>
+        <div class="v cinza">R$ 2.941</div>
+        <div class="q">6 vendas</div>
+      </div>
+      <div class="lado">
+        <div class="rot">Agosto · com mídia</div>
+        <div class="v amb">R$ 9.236</div>
+        <div class="q">20 vendas</div>
+      </div>
+      <div class="delta"><div class="d amb">+214%</div></div>
+    </div>
+    <div class="barra"><i style="width:24.2%;background:var(--frio)"></i><i style="width:75.8%;background:var(--ambar)"></i></div>
+  </div>
+  <div class="painel">
+    <div class="cab"><span class="rot">21 dias depois</span><span class="rot">fora da campanha</span></div>
+    <div class="duo">
+      <div class="lado">
+        <div class="rot">Maio · sem mídia</div>
+        <div class="v cinza">R$ 13.984</div>
+        <div class="q">30 vendas</div>
+      </div>
+      <div class="lado">
+        <div class="rot">Agosto · com mídia</div>
+        <div class="v cinza">R$ 14.027</div>
+        <div class="q">25 vendas</div>
+      </div>
+      <div class="delta"><div class="d" style="color:var(--nevoa)">+0,3%</div></div>
+    </div>
+    <div class="barra"><i style="width:49.9%;background:var(--frio)"></i><i style="width:50.1%;background:var(--frio-claro)"></i></div>
+  </div>
+</div>
+
+<div class="faixa">
+  <span class="n">03</span><span class="t">Faturamento mês a mês</span><span class="fixo">série completa</span>
+  <span class="obs">canal WhatsApp</span>
+</div>
+<div class="chart">
+  <div class="legenda">
+    <span><i style="background:var(--frio)"></i>SEM MÍDIA PAGA</span>
+    <span><i style="background:var(--ambar)"></i>COM MÍDIA PAGA</span>
+  </div>
+  <svg viewBox="0 0 700 288" role="img" aria-label="Faturamento mensal: maio 18.315, junho 14.508, julho 2.476, agosto 23.953 reais">
+    <line class="g-grid" x1="70" y1="20"  x2="660" y2="20"/>
+    <line class="g-grid" x1="70" y1="60"  x2="660" y2="60"/>
+    <line class="g-grid" x1="70" y1="100" x2="660" y2="100"/>
+    <line class="g-grid" x1="70" y1="140" x2="660" y2="140"/>
+    <line class="g-grid" x1="70" y1="180" x2="660" y2="180"/>
+    <text class="g-tick" x="62" y="24"  text-anchor="end">25 mil</text>
+    <text class="g-tick" x="62" y="64"  text-anchor="end">20 mil</text>
+    <text class="g-tick" x="62" y="104" text-anchor="end">15 mil</text>
+    <text class="g-tick" x="62" y="144" text-anchor="end">10 mil</text>
+    <text class="g-tick" x="62" y="184" text-anchor="end">5 mil</text>
+    <line class="g-base" x1="70" y1="220" x2="660" y2="220"/>
+    <rect x="90"  y="73.5"  width="100" height="146.5" fill="var(--frio)"/>
+    <rect x="230" y="103.9" width="100" height="116.1" fill="var(--frio)"/>
+    <rect x="370" y="200.2" width="100" height="19.8"  fill="var(--frio)"/>
+    <rect x="510" y="28.4"  width="100" height="191.6" fill="var(--ambar)"/>
+    <text class="g-val"     x="140" y="65"  text-anchor="middle">R$ 18.315</text>
+    <text class="g-val"     x="280" y="95"  text-anchor="middle">R$ 14.508</text>
+    <text class="g-val"     x="420" y="192" text-anchor="middle">R$ 2.476</text>
+    <text class="g-val-amb" x="560" y="20"  text-anchor="middle">R$ 23.953</text>
+    <text class="g-lab"  x="140" y="240" text-anchor="middle">MAIO</text>
+    <text class="g-lab"  x="280" y="240" text-anchor="middle">JUNHO</text>
+    <text class="g-lab"  x="420" y="240" text-anchor="middle">JULHO</text>
+    <text class="g-lab"  x="560" y="240" text-anchor="middle">AGOSTO</text>
+    <text class="g-tick" x="140" y="256" text-anchor="middle">39 vendas</text>
+    <text class="g-tick" x="280" y="256" text-anchor="middle">34 vendas</text>
+    <text class="g-tick" x="420" y="256" text-anchor="middle">8 vendas</text>
+    <text class="g-tick" x="560" y="256" text-anchor="middle">47 vendas</text>
+    <line x1="490" y1="14" x2="490" y2="228" stroke="var(--ambar)" stroke-width="1" stroke-dasharray="3 3" opacity=".65"/>
+    <text class="g-tick" x="484" y="278" text-anchor="end" fill="#FFA24D">mídia paga começa 29/07</text>
+  </svg>
+</div>
+
+<div class="faixa">
+  <span class="n">04</span><span class="t">Faturamento diário</span><span class="fixo">série completa</span>
+  <span class="obs">mesma escala nos dois meses</span>
+</div>
+<div class="chart">
+  <svg viewBox="0 0 700 330" role="img" aria-label="Série diária. Maio distribuído, maior dia 2.859 reais em 21 de maio. Agosto concentrado na semana do Dia dos Pais, maior dia 5.200 reais em 18 de agosto.">
+    <text class="g-lab" x="0" y="14" fill="#7C8794">MAIO · SEM MÍDIA · R$ 18.315</text>
+    <line class="g-base" x1="0" y1="130" x2="660" y2="130"/>
+    <rect x="0"   y="116.2" width="15" height="13.8" fill="var(--frio)"/>
+    <rect x="21"  y="111.8" width="15" height="18.2" fill="var(--frio)"/>
+    <rect x="63"  y="119.2" width="15" height="10.8" fill="var(--frio)"/>
+    <rect x="105" y="114.3" width="15" height="15.7" fill="var(--frio)"/>
+    <rect x="126" y="121.4" width="15" height="8.6"  fill="var(--frio)"/>
+    <rect x="147" y="110.0" width="15" height="20.0" fill="var(--frio)"/>
+    <rect x="168" y="117.1" width="15" height="12.9" fill="var(--frio)"/>
+    <rect x="210" y="116.2" width="15" height="13.8" fill="var(--frio)"/>
+    <rect x="252" y="125.1" width="15" height="4.9"  fill="var(--frio)"/>
+    <rect x="294" y="100.6" width="15" height="29.4" fill="var(--frio)"/>
+    <rect x="315" y="124.8" width="15" height="5.2"  fill="var(--frio)"/>
+    <rect x="357" y="74.3"  width="15" height="55.7" fill="var(--frio-claro)"/>
+    <rect x="378" y="120.8" width="15" height="9.2"  fill="var(--frio)"/>
+    <rect x="420" y="63.9"  width="15" height="66.1" fill="var(--frio-claro)"/>
+    <rect x="441" y="110.9" width="15" height="19.1" fill="var(--frio)"/>
+    <rect x="504" y="119.6" width="15" height="10.4" fill="var(--frio)"/>
+    <rect x="525" y="118.6" width="15" height="11.4" fill="var(--frio)"/>
+    <rect x="546" y="101.6" width="15" height="28.4" fill="var(--frio)"/>
+    <rect x="567" y="103.2" width="15" height="26.8" fill="var(--frio)"/>
+    <rect x="588" y="115.0" width="15" height="15.0" fill="var(--frio)"/>
+    <rect x="609" y="102.3" width="15" height="27.7" fill="var(--frio)"/>
+    <line x1="189" y1="46" x2="189" y2="130" stroke="#7C8794" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="g-tick" x="194" y="52" fill="#7C8794">DIA DAS MÃES 10/05</text>
+    <text class="g-tick" x="420" y="60" text-anchor="middle" fill="#7C8794">R$ 2.859</text>
+    <text class="g-tick" x="0" y="146">dia 1</text>
+    <text class="g-tick" x="660" y="146" text-anchor="end">dia 31</text>
+
+    <text class="g-lab" x="0" y="196" fill="var(--ambar-glow)">AGOSTO · COM MÍDIA · R$ 23.953</text>
+    <line class="g-base" x1="0" y1="312" x2="660" y2="312"/>
+    <rect x="0"   y="296.1" width="15" height="15.9"  fill="var(--ambar)"/>
+    <rect x="63"  y="304.5" width="15" height="7.5"   fill="var(--ambar)"/>
+    <rect x="84"  y="300.9" width="15" height="11.1"  fill="var(--ambar)"/>
+    <rect x="105" y="233.2" width="15" height="78.8"  fill="var(--ambar)"/>
+    <rect x="126" y="235.9" width="15" height="76.1"  fill="var(--ambar)"/>
+    <rect x="147" y="272.3" width="15" height="39.7"  fill="var(--ambar)"/>
+    <rect x="189" y="307.9" width="15" height="4.1"   fill="var(--ambar)"/>
+    <rect x="210" y="293.0" width="15" height="19.0"  fill="var(--ambar)"/>
+    <rect x="231" y="306.8" width="15" height="5.2"   fill="var(--ambar)"/>
+    <rect x="273" y="299.2" width="15" height="12.8"  fill="var(--ambar)"/>
+    <rect x="294" y="291.3" width="15" height="20.7"  fill="var(--ambar)"/>
+    <rect x="315" y="288.9" width="15" height="23.1"  fill="var(--ambar)"/>
+    <rect x="336" y="301.7" width="15" height="10.3"  fill="var(--ambar)"/>
+    <rect x="357" y="192.0" width="15" height="120.0" fill="var(--ambar)"/>
+    <rect x="399" y="284.4" width="15" height="27.6"  fill="var(--ambar)"/>
+    <rect x="420" y="287.8" width="15" height="24.2"  fill="var(--ambar)"/>
+    <rect x="483" y="302.8" width="15" height="9.2"   fill="var(--ambar)"/>
+    <rect x="567" y="273.1" width="15" height="38.9"  fill="var(--ambar)"/>
+    <rect x="588" y="303.7" width="15" height="8.3"   fill="var(--ambar)"/>
+    <line x1="168" y1="228" x2="168" y2="312" stroke="var(--ambar)" stroke-width="1" stroke-dasharray="3 3"/>
+    <text class="g-tick" x="173" y="234" fill="var(--ambar-glow)">DIA DOS PAIS 09/08</text>
+    <text class="g-tick" x="357" y="186" fill="var(--ambar-glow)">R$ 5.200</text>
+    <text class="g-tick" x="0" y="328">dia 1</text>
+    <text class="g-tick" x="660" y="328" text-anchor="end">dia 31</text>
+  </svg>
+</div>
+
+<div class="faixa">
+  <span class="n">05</span><span class="t">Série completa</span><span class="fixo">série completa</span>
+  <span class="obs">julho recebeu só 3 dias de campanha (29 a 31/07)</span>
+</div>
+<div class="tab">
+  <table>
+    <thead>
+      <tr><th>Mês</th><th>Vendas</th><th>Faturamento</th><th>Ticket médio</th><th>Investido</th><th>Var. faturamento</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Maio 2026</td><td>39</td><td>R$ 18.315,33</td><td>R$ 469,62</td><td>R$ 0,00</td><td>base</td></tr>
+      <tr><td>Junho 2026</td><td>34</td><td>R$ 14.507,60</td><td>R$ 426,69</td><td>R$ 0,00</td><td style="color:var(--frio-claro)">-20,8%</td></tr>
+      <tr><td>Julho 2026</td><td>8</td><td>R$ 2.476,42</td><td>R$ 309,55</td><td>R$ 104,67</td><td style="color:var(--frio-claro)">-82,9%</td></tr>
+      <tr class="marcada"><td>Agosto 2026</td><td>47</td><td>R$ 23.953,46</td><td>R$ 509,65</td><td>R$ 487,75</td><td>+30,8%</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<div class="faixa">
+  <span class="n">06</span><span class="t">Entrega da mídia</span>
+  <span class="obs">Criciúma e região</span>
+</div>
+<div class="grade g5">
+  <div class="cel"><div class="rot">Conversas iniciadas</div><div class="num" id="k-msg">278</div><div class="pe">via anúncio</div></div>
+  <div class="cel"><div class="rot">Custo por conversa</div><div class="num amb" id="k-cpc">R$ 1,75</div><div class="pe" id="k-cpc-pe">ticket médio R$ 510</div></div>
+  <div class="cel"><div class="rot">Alcance somado</div><div class="num" id="k-alc">52.831</div><div class="pe">soma diária, não únicos</div></div>
+  <div class="cel"><div class="rot">Impressões</div><div class="num" id="k-imp">58.516</div><div class="pe" id="k-imp-pe">662 cliques</div></div>
+  <div class="cel"><div class="rot">Investimento/dia</div><div class="num" id="k-dia">R$ 15,73</div><div class="pe" id="k-dia-pe">31 dias no ar</div></div>
+</div>
+
+<div class="faixa">
+  <span class="n">07</span><span class="t">Retorno sobre a mídia</span>
+  <span class="obs" id="obs-retorno">período selecionado</span>
+</div>
+<div class="grade g2">
+  <div class="cel" style="background:#1C1206;">
+    <div class="rot">Incremento sazonal <span class="fixo">fixo</span></div>
+    <div class="num amb">12,9x</div>
+    <div class="pe up">R$ 6.294,86 a mais que a semana do Dia das Mães, sobre R$ 487,75</div>
+  </div>
+  <div class="cel">
+    <div class="rot">Canal inteiro no período</div>
+    <div class="num cinza" id="k-roas">49,1x</div>
+    <div class="pe" id="k-roas-pe">R$ 23.953,46 sobre R$ 487,75</div>
+  </div>
+</div>
+
+<div class="faixa">
+  <span class="n">08</span><span class="t">Ressalvas de medição</span>
+  <span class="obs">limites conhecidos deste período</span>
+</div>
+<div class="ressalvas">
+  <div><div class="k">28 de 47</div><div class="v">vendas de agosto sem telefone anotado, fora de qualquer cruzamento</div></div>
+  <div><div class="k">6 dias</div><div class="v">captura de leads fora do ar, 20 a 25/08, com anúncio rodando</div></div>
+  <div><div class="k">R$ 2.529,94</div><div class="v">em 5 vendas caem nessa janela cega e não puderam ser testadas</div></div>
+  <div><div class="k">8 vendas</div><div class="v">julho sob suspeita de sub-registro, por isso a base de comparação é maio</div></div>
+</div>
+
+<script>
+// Series diarias reais. Vendas: planilha do canal WhatsApp. Midia: tabela fatima_meta (Supabase).
+const VENDAS={"2026-05-01":[1,599.99],"2026-05-02":[2,789.98],"2026-05-04":[1,466.99],"2026-05-06":[1,679.99],"2026-05-07":[1,372.49],"2026-05-08":[2,864.97],"2026-05-09":[1,556.99],"2026-05-11":[2,595.89],"2026-05-13":[1,212.99],"2026-05-15":[3,1272.98],"2026-05-16":[2,224.8],"2026-05-18":[5,2408.94],"2026-05-19":[1,399.99],"2026-05-21":[4,2858.95],"2026-05-22":[2,824.48],"2026-05-25":[1,449.99],"2026-05-26":[1,494.98],"2026-05-27":[1,1230.0],"2026-05-28":[3,1159.97],"2026-05-29":[2,649.98],"2026-05-30":[2,1199.99],"2026-06-01":[2,899.98],"2026-06-02":[4,1977.89],"2026-06-03":[1,449.99],"2026-06-04":[1,299.99],"2026-06-05":[2,1217.98],"2026-06-06":[1,427.49],"2026-06-08":[3,1029.98],"2026-06-09":[2,1349.98],"2026-06-10":[2,764.98],"2026-06-12":[3,1869.97],"2026-06-13":[2,384.48],"2026-06-14":[2,822.99],"2026-06-17":[2,612.98],"2026-06-18":[2,549.98],"2026-06-19":[1,237.49],"2026-06-23":[2,702.97],"2026-06-28":[1,499.99],"2026-06-29":[1,408.49],"2026-07-02":[1,310.99],"2026-07-08":[1,499.99],"2026-07-10":[1,113.99],"2026-07-13":[1,502.49],"2026-07-20":[1,338.99],"2026-07-23":[1,112.99],"2026-07-27":[1,396.99],"2026-07-28":[1,199.99],"2026-08-01":[2,689.98],"2026-08-04":[2,326.98],"2026-08-05":[2,479.98],"2026-08-06":[5,3413.94],"2026-08-07":[7,3295.44],"2026-08-08":[4,1719.95],"2026-08-10":[1,178.99],"2026-08-11":[2,822.48],"2026-08-12":[1,224.99],"2026-08-14":[3,553.98],"2026-08-15":[2,894.98],"2026-08-16":[1,999.99],"2026-08-17":[2,446.99],"2026-08-18":[3,5199.9],"2026-08-20":[2,1196.97],"2026-08-21":[3,1049.97],"2026-08-24":[1,399.99],"2026-08-28":[3,1697.97],"2026-08-29":[1,359.99]};
+// [investimento, mensagens iniciadas, impressoes, alcance, cliques no link]
+const MIDIA={"2026-07-27":[8.72,0,1681,1593,26],"2026-07-28":[8.28,0,1283,1196,35],"2026-07-29":[29.00,15,3308,2968,61],"2026-07-30":[29.68,17,3321,2875,51],"2026-07-31":[28.99,14,3335,2871,58],"2026-08-01":[24.78,12,3085,2683,41],"2026-08-02":[30.72,9,3884,3499,48],"2026-08-03":[33.86,16,3435,2999,40],"2026-08-04":[29.59,15,3165,2737,30],"2026-08-05":[26.65,12,2789,2397,28],"2026-08-06":[21.05,15,2235,2014,30],"2026-08-07":[12.85,5,1499,1325,11],"2026-08-08":[23.42,9,2481,2080,21],"2026-08-09":[17.10,3,2147,1883,12],"2026-08-10":[17.47,11,1840,1697,27],"2026-08-11":[15.54,8,1994,1836,22],"2026-08-12":[12.66,5,1662,1533,13],"2026-08-13":[10.38,7,1374,1282,21],"2026-08-14":[10.11,14,1415,1307,21],"2026-08-15":[9.33,7,1426,1341,16],"2026-08-16":[10.99,9,1711,1606,18],"2026-08-17":[13.11,4,1905,1792,17],"2026-08-18":[15.88,13,2182,2028,35],"2026-08-19":[12.49,11,1633,1551,13],"2026-08-20":[12.53,9,1647,1526,20],"2026-08-21":[8.75,3,1173,1095,4],"2026-08-22":[9.99,6,1218,1093,16],"2026-08-23":[9.74,0,1248,1163,13],"2026-08-24":[14.74,5,1485,1338,17],"2026-08-25":[17.05,10,1602,1444,15],"2026-08-26":[13.05,11,1536,1417,25],"2026-08-27":[11.10,8,1266,1173,13],"2026-08-28":[9.35,4,1165,1072,15],"2026-08-29":[8.47,11,952,839,22],"2026-08-30":[11.98,7,1686,1553,15],"2026-08-31":[13.02,19,1676,1528,23],"2026-09-01":[14.06,6,1521,1334,13],"2026-09-02":[14.04,7,1674,1557,12],"2026-09-03":[13.83,5,1476,1300,18],"2026-09-04":[7.95,4,962,864,6],"2026-09-05":[8.67,5,1015,944,9],"2026-09-06":[12.12,7,1735,1575,12],"2026-09-07":[12.87,13,1958,1772,29],"2026-09-08":[12.07,8,1176,1058,12],"2026-09-09":[0.30,0,31,28,0]};
+
+// maio e a referencia pre-midia, usada como base de comparacao dos deltas
+const BASE_MAIO={fat:18315.33,vendas:39,ticket:469.62};
+const MESES=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+
+const brl=(v,d=2)=>'R$ '+v.toLocaleString('pt-BR',{minimumFractionDigits:d,maximumFractionDigits:d});
+const int=(v)=>v.toLocaleString('pt-BR');
+const el=(id)=>document.getElementById(id);
+const pct1=(v)=>v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1});
+
+function delta(atual,base){
+  if(!base||!atual) return {txt:'n/d',cls:''};
+  const p=(atual/base-1)*100;
+  return {txt:(p>=0?'+':'')+pct1(p)+'% vs maio',cls:p>=0?'up':''};
+}
+
+function rotulo(de,ate){
+  const [ay,am,ad]=de.split('-').map(Number);
+  const [by,bm,bd]=ate.split('-').map(Number);
+  const ultimoDia=new Date(by,bm,0).getDate();
+  if(ay===by&&am===bm&&ad===1&&bd>=ultimoDia){
+    const m=MESES[am-1];
+    return m.charAt(0).toUpperCase()+m.slice(1);
+  }
+  if(am===5&&ad===1&&bm===9&&bd>=30) return 'Série completa';
+  return de.split('-').reverse().join('/')+' a '+ate.split('-').reverse().join('/');
+}
+
+function aplicar(de,ate){
+  let fat=0,vendas=0,inv=0,msg=0,imp=0,alc=0,cli=0,diasMidia=0;
+  for(const d in VENDAS){ if(d>=de&&d<=ate){ vendas+=VENDAS[d][0]; fat+=VENDAS[d][1]; } }
+  for(const d in MIDIA){ if(d>=de&&d<=ate){ const v=MIDIA[d]; inv+=v[0]; msg+=v[1]; imp+=v[2]; alc+=v[3]; cli+=v[4]; diasMidia++; } }
+  const ticket=vendas?fat/vendas:0;
+
+  el('tit-periodo').textContent=rotulo(de,ate);
+
+  el('k-fat').textContent=vendas?brl(fat,0):'n/d';
+  el('k-vendas').textContent=vendas?int(vendas):'n/d';
+  el('k-ticket').textContent=vendas?brl(ticket,0):'n/d';
+  el('k-inv').textContent=brl(inv,0);
+
+  const df=delta(fat,BASE_MAIO.fat),dv=delta(vendas,BASE_MAIO.vendas),dt=delta(ticket,BASE_MAIO.ticket);
+  el('k-fat-pe').textContent=df.txt;    el('k-fat-pe').className='pe '+df.cls;
+  el('k-vendas-pe').textContent=dv.txt; el('k-vendas-pe').className='pe '+dv.cls;
+  el('k-ticket-pe').textContent=dt.txt; el('k-ticket-pe').className='pe '+dt.cls;
+  el('k-inv-pe').textContent=fat?pct1(inv/fat*100)+'% do faturamento':'sem venda no período';
+
+  el('k-msg').textContent=msg?int(msg):'n/d';
+  el('k-cpc').textContent=msg?brl(inv/msg):'n/d';
+  el('k-cpc-pe').textContent=vendas?'ticket médio '+brl(ticket,0):'sem venda no período';
+  el('k-alc').textContent=alc?int(alc):'n/d';
+  el('k-imp').textContent=imp?int(imp):'n/d';
+  el('k-imp-pe').textContent=int(cli)+' cliques';
+  el('k-dia').textContent=diasMidia?brl(inv/diasMidia):'n/d';
+  el('k-dia-pe').textContent=diasMidia?diasMidia+(diasMidia===1?' dia no ar':' dias no ar'):'sem mídia no período';
+
+  el('k-roas').textContent=(inv&&fat)?pct1(fat/inv)+'x':'n/d';
+  el('k-roas-pe').textContent=!inv?'sem mídia no período':(!fat?'sem venda lançada no período':brl(fat)+' sobre '+brl(inv));
+  el('obs-retorno').textContent=rotulo(de,ate).toLowerCase();
+}
+
+const picker=el('date-picker');
+const trigger=el('date-picker-trigger');
+const panel=el('date-picker-panel');
+const rotuloBtn=el('date-picker-label');
+const opcoes=document.querySelectorAll('.date-picker-option');
+
+function abrir(){ panel.hidden=false; picker.dataset.open='true'; trigger.setAttribute('aria-expanded','true'); }
+function fechar(){ panel.hidden=true; picker.dataset.open='false'; trigger.setAttribute('aria-expanded','false'); }
+
+trigger.addEventListener('click',function(e){ e.stopPropagation(); panel.hidden?abrir():fechar(); });
+document.addEventListener('click',function(e){ if(!picker.contains(e.target)) fechar(); });
+document.addEventListener('keydown',function(e){ if(e.key==='Escape') fechar(); });
+
+opcoes.forEach(function(b){
+  b.addEventListener('click',function(){
+    opcoes.forEach(function(o){o.classList.remove('active');});
+    b.classList.add('active');
+    rotuloBtn.textContent=b.textContent;
+    el('de').value=b.dataset.de;
+    el('ate').value=b.dataset.ate;
+    fechar();
+    aplicar(b.dataset.de,b.dataset.ate);
+  });
+});
+
+el('btn-custom').addEventListener('click',function(){
+  const de=el('de').value,ate=el('ate').value;
+  if(!de||!ate||de>ate) return;
+  opcoes.forEach(function(o){o.classList.remove('active');});
+  rotuloBtn.textContent=de.split('-').reverse().join('/')+' a '+ate.split('-').reverse().join('/');
+  fechar();
+  aplicar(de,ate);
+});
+
+aplicar('2026-08-01','2026-08-31');
+</script>
+
+</div>

@@ -1,0 +1,51 @@
+﻿tipo;item;alteracao
+variavel;Cookie LeadCountry;Definicao/valor substituido pelo correspondente de meu.json
+variavel;Cookie - __gtm_campaign_url;Incluida de meu.json
+variavel;Cookie LeadState;Definicao/valor substituido pelo correspondente de meu.json
+variavel;dlv - visitorApiRegion;Definicao/valor substituido pelo correspondente de meu.json
+variavel;jsc - state (dlv|cookie);Incluida de meu.json
+variavel;dlv - visitorApiCountryCode;Definicao/valor substituido pelo correspondente de meu.json
+variavel;jsc - Country (dlv|cookie);Incluida de meu.json
+variavel;cookie-LeadLastName;Definicao/valor substituido pelo correspondente de meu.json
+variavel;cookie-LeadPhone;Definicao/valor substituido pelo correspondente de meu.json
+variavel;dlv - visitorApiCity;Definicao/valor substituido pelo correspondente de meu.json
+variavel;jsc - city (fb);Definicao/valor substituido pelo correspondente de meu.json
+variavel;Cookie LeadCity;Definicao/valor substituido pelo correspondente de meu.json
+variavel;jsc - city (dlv|cookie);Incluida de meu.json
+variavel;UTM'S;Incluida de meu.json
+variavel;cookie-LeadFirstName;Definicao/valor substituido pelo correspondente de meu.json
+variavel;cookie-LeadEmail;Definicao/valor substituido pelo correspondente de meu.json
+variavel;cookie-ga;Definicao/valor substituido pelo correspondente de meu.json
+variavel;cookie-LeadEmail-ajustado;Incluida de meu.json
+variavel;id-meta ads;Definicao/valor substituido pelo correspondente de meu.json
+variavel;user-input-phone;Definicao/valor substituido pelo correspondente de meu.json
+variavel;user-input-firstname;Definicao/valor substituido pelo correspondente de meu.json
+variavel;user-input-email;Definicao/valor substituido pelo correspondente de meu.json
+variavel;user-input-lastname;Definicao/valor substituido pelo correspondente de meu.json
+variavel;Id-Visitor-api;Definicao/valor substituido pelo correspondente de meu.json
+variavel;id-ga4;Definicao/valor substituido pelo correspondente de meu.json
+variavel;api-transport_url;Definicao/valor substituido pelo correspondente de meu.json
+variavel;user-input-fullname;Seletor inputNome substituido por nome
+html;00 | SetCookies HTML;"HTML de meu.json; cookies no dominio .thenewads.com.br"
+html;00 | setCookie HTML GeoLoc 🍪;"HTML de meu.json; cookies no dominio .thenewads.com.br"
+acionador;Lead (lp);Evento lead substituido por Lead (maiusculo), como no site de destino
+tag;[Meta Ads] 3 | ViewContent;"Criada por copia da tag [Meta Ads] 2 | Lead; acionador IniciouFormulario"
+tag;[API] 3 | ViewContent;"Criada por copia da tag [API] 2 | Lead; acionador IniciouFormulario"
+tag;[GA4] 3 | form_start;"Criada por copia da tag [GA4] 2 | Lead; acionador IniciouFormulario"
+tag;[Meta Ads] 4 | CompleteRegistration;"Criada por copia da tag [Meta Ads] 2 | Lead; acionador CompletouFormulario"
+tag;[API] 4 | CompleteRegistration;"Criada por copia da tag [API] 2 | Lead; acionador CompletouFormulario"
+tag;[GA4] 4 | form_submit;"Criada por copia da tag [GA4] 2 | Lead; acionador CompletouFormulario"
+tag;[Meta Ads] 5 | SchedulerView;"Criada por copia da tag [Meta Ads] 2 | Lead; acionador scheduler_view"
+tag;[API] 5 | SchedulerView;"Criada por copia da tag [API] 2 | Lead; acionador scheduler_view"
+tag;[GA4] 5 | scheduler_view;"Criada por copia da tag [GA4] 2 | Lead; acionador scheduler_view"
+tag;[Meta Ads] 6 | SlotSelected;"Criada por copia da tag [Meta Ads] 2 | Lead; acionador scheduler_slot_selected"
+tag;[API] 6 | SlotSelected;"Criada por copia da tag [API] 2 | Lead; acionador scheduler_slot_selected"
+tag;[GA4] 6 | slot_selected;"Criada por copia da tag [GA4] 2 | Lead; acionador scheduler_slot_selected"
+tag;[Meta Ads] 7 | Schedule;"Criada por copia da tag [Meta Ads] 2 | Lead; acionador Schedule"
+tag;[API] 7 | Schedule;"Criada por copia da tag [API] 2 | Lead; acionador Schedule"
+tag;[GA4] 7 | schedule;"Criada por copia da tag [GA4] 2 | Lead; acionador Schedule"
+tag;[Google Ads] 2 | Lead;Preservada e pausada: integracao sem equivalente em meu.json
+tag;[Google Ads] 0 | Vinculador de conversões;Preservada e pausada: integracao sem equivalente em meu.json
+tag;[Google Ads] 1 | PageView;Preservada e pausada: integracao sem equivalente em meu.json
+tag;webhook;Preservada e pausada: integracao sem equivalente em meu.json
+tag;Tag do Google AW-18043780459;Preservada e pausada: integracao sem equivalente em meu.json

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#0A0A0A"/>
+  <!-- funil: boca larga estreitando ate o bico -->
+  <path d="M116 132 H396 L282 296 V400 H230 V296 Z" fill="#FF6A00"/>
+  <!-- gota saindo do bico: o lead que passou pelo filtro -->
+  <circle cx="256" cy="446" r="20" fill="#FF6A00" opacity=".55"/>
+</svg>

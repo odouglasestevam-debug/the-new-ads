@@ -1,0 +1,19 @@
+{
+  "status": "OK - validacao estatica; importacao e envio real nao executados",
+  "modelo": "Facebook Pixel by Stape",
+  "versao_galeria": "c94461ee086c1a458cd43d0135d24d41485b8ec3",
+  "tags_convertidas": [
+    "03 | FB | Lead",
+    "01 | FB | PageView",
+    "02 | FB | ViewContent",
+    "04 | FB | CompleteRegistration",
+    "05 | FB | SchedulerView",
+    "06 | FB | SlotSelected",
+    "07 | FB | Schedule"
+  ],
+  "campos_user_data_preservados": 52,
+  "ajuste_de_chave": "cn -> country",
+  "demais_tags_variaveis_acionadores_pastas_e_modelos_inalterados": true,
+  "arquivo_original_preservado": true,
+  "sha256": "f63ba824cc2f4c9b04b9b27e0a7a574b19e042de0611d9cf655c758c9bca2ecd"
+}

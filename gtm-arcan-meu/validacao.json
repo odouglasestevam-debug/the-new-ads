@@ -1,0 +1,18 @@
+{
+  "validacao": "OK - verificacao estatica; importacao no GTM e envio real nao executados",
+  "quantidades": {
+    "tag": 26,
+    "variable": 32,
+    "trigger": 10,
+    "folder": 5,
+    "customTemplate": 6
+  },
+  "tags_meta_com_modelo_arcan": 7,
+  "variaveis_parametros_condicoes_ids_e_referencias_preservados": true,
+  "codigo_permissoes_e_campos_do_modelo_identicos_a_arcan": true,
+  "fontes_sha256": {
+    "meu.json": "319a29a12c3174e88d4f0d2a5e7dae802ece9b109241c1401978c02747624e12",
+    "arcan.json": "6211c029b163a55edb06a7bab0b4e289c25d7a84b980092489d72ff5ea22f74f"
+  },
+  "saida_sha256": "be347ea72728b3b76c45344f2375c45d59a1bab2bd96cf11e6ce1a6a6cb0e9c0"
+}

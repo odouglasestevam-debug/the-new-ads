@@ -207,6 +207,28 @@
 
     const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    const CHAVE_ENDPOINT_LOCAL = "alertas_push_endpoint";
+    const CHAVE_LIMPEZA = "alertas_escopo_limpo";
+
+    // Este app foi instalado com escopo "/", entao capturava o site inteiro,
+    // inclusive /funil. Remove o registro antigo de escopo raiz uma unica vez.
+    // Rodar isso a cada abertura destruia a inscricao de push junto com o
+    // registro, e por isso nenhuma notificacao chegava no celular.
+    async function limparEscopoAntigo() {
+      if (!("serviceWorker" in navigator)) return;
+      if (localStorage.getItem(CHAVE_LIMPEZA)) return;
+      try {
+        const registros = await navigator.serviceWorker.getRegistrations();
+        for (const reg of registros) {
+          const ehRaiz = new URL(reg.scope).pathname === "/";
+          if (ehRaiz) await reg.unregister();
+        }
+        localStorage.setItem(CHAVE_LIMPEZA, "1");
+      } catch (e) {
+        // sem permissao ou navegador antigo: segue o fluxo normal
+      }
+    }
+
     function urlBase64ToUint8Array(base64String) {
       const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
       const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
@@ -269,7 +291,7 @@
           return;
         }
 
-        const reg = await navigator.serviceWorker.register("/sw.js");
+        const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/alertas" });
         await navigator.serviceWorker.ready;
 
         const permission = await Notification.requestPermission();
@@ -288,19 +310,23 @@
         }
 
         const raw = sub.toJSON();
-        const { error } = await sb.from("push_subscriptions").insert({
-          endpoint: raw.endpoint,
-          p256dh: raw.keys.p256dh,
-          auth: raw.keys.auth,
-          user_agent: navigator.userAgent,
+        // Escrita via funcao: o anon nao tem UPDATE/DELETE na tabela, senao
+        // qualquer visitante poderia apagar as inscricoes dos aparelhos.
+        const { error } = await sb.rpc("salvar_push_subscription", {
+          p_endpoint: raw.endpoint,
+          p_p256dh: raw.keys.p256dh,
+          p_auth: raw.keys.auth,
+          p_user_agent: navigator.userAgent,
+          p_endpoint_anterior: localStorage.getItem(CHAVE_ENDPOINT_LOCAL),
         });
 
-        if (error && !String(error.message).includes("duplicate")) {
+        if (error) {
           statusEl.textContent = "Erro ao salvar inscricao: " + error.message;
           btn.disabled = false;
           return;
         }
 
+        localStorage.setItem(CHAVE_ENDPOINT_LOCAL, raw.endpoint);
         btn.textContent = "Notificacoes ativas";
         statusEl.textContent = "Voce vai receber um alerta aqui assim que algo mudar.";
       } catch (err) {
@@ -394,15 +420,43 @@
       });
     });
 
+    // Reinscreve o aparelho a cada abertura e confirma no banco. Antes o app
+    // dizia "ativas" so olhando o navegador, enquanto a tabela estava vazia.
+    async function sincronizarPush() {
+      if (!("serviceWorker" in navigator) || Notification.permission !== "granted") return false;
+      try {
+        const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/alertas" });
+        await navigator.serviceWorker.ready;
+
+        let sub = await reg.pushManager.getSubscription();
+        if (!sub) {
+          sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+          });
+        }
+
+        const raw = sub.toJSON();
+        const { error } = await sb.rpc("salvar_push_subscription", {
+          p_endpoint: raw.endpoint,
+          p_p256dh: raw.keys.p256dh,
+          p_auth: raw.keys.auth,
+          p_user_agent: navigator.userAgent,
+          p_endpoint_anterior: localStorage.getItem(CHAVE_ENDPOINT_LOCAL),
+        });
+        if (error) return false;
+
+        localStorage.setItem(CHAVE_ENDPOINT_LOCAL, raw.endpoint);
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
     (async () => {
-      if ("serviceWorker" in navigator) {
-        try {
-          const reg = await navigator.serviceWorker.register("/sw.js");
-          const sub = await reg.pushManager.getSubscription();
-          if (sub && Notification.permission === "granted") {
-            document.getElementById("btn-subscribe").textContent = "Notificacoes ativas";
-          }
-        } catch (e) {}
+      await limparEscopoAntigo();
+      if (await sincronizarPush()) {
+        document.getElementById("btn-subscribe").textContent = "Notificacoes ativas";
       }
       loadContas();
       loadTracking();

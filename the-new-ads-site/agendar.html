@@ -1,6 +1,14 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
+<!-- Google Tag Manager -->
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-WPWMMR3S');</script>
+<!-- End Google Tag Manager -->
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Agende sua reunião | The New Ads</title>
@@ -9,18 +17,18 @@
 <link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --preto:#0A0A0A;
-    --grafite:#171717;
-    --grafite2:#212121;
+    --bg:#F3F1EC;
+    --grafite:#FFFFFF;
+    --grafite2:#F6F4F0;
     --ambar:#FF6A00;
-    --ambar-glow:#FFA24D;
-    --branco:#FAFAFA;
-    --nevoa:#8A8A8A;
-    --linha:rgba(255,255,255,.09);
+    --ambar-glow:#E85F00;
+    --branco:#0A0A0A;
+    --nevoa:#6E6E6E;
+    --linha:rgba(10,10,10,.10);
   }
   *{box-sizing:border-box;margin:0;padding:0;}
   body{
-    background:var(--preto);
+    background:var(--bg);
     color:var(--branco);
     font-family:'Switzer','Inter',system-ui,sans-serif;
     min-height:100vh;
@@ -29,73 +37,297 @@
     justify-content:center;
     padding:24px;
   }
-  .card{
+  .painel{
     width:100%;
-    max-width:520px;
+    max-width:980px;
     background:var(--grafite);
     border:1px solid var(--linha);
-    padding:40px;
+    display:flex;
+  }
+
+  /* ---------- coluna 1: identidade + oferta ---------- */
+  .lado{
+    width:260px;
+    flex:none;
+    padding:40px 30px;
+    border-right:1px solid var(--linha);
+    display:flex;
+    flex-direction:column;
+  }
+  .foto{
+    width:68px;
+    height:68px;
+    border-radius:50%;
+    object-fit:cover;
+    border:2px solid var(--ambar);
+    padding:2px;
+    margin-bottom:16px;
+  }
+  .nome{
+    font-size:.8125rem;
+    color:var(--nevoa);
+    margin-bottom:6px;
+  }
+  .eyebrow{
+    display:inline-block;
+    font-size:.6875rem;
+    font-weight:600;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:var(--ambar);
+    margin-bottom:10px;
   }
   h1{
     font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
     font-weight:600;
-    font-size:1.75rem;
-    margin-bottom:8px;
+    font-size:1.375rem;
+    line-height:1.25;
     letter-spacing:-0.01em;
+    margin-bottom:12px;
   }
-  .sub{
+  .subheadline{
     color:var(--nevoa);
     font-size:1rem;
-    margin-bottom:28px;
+    line-height:1.55;
+    margin-bottom:22px;
   }
-  .dias{
+  .pauta{
+    list-style:none;
     display:grid;
-    gap:20px;
+    gap:10px;
+    margin-bottom:auto;
+    padding-bottom:22px;
   }
-  .dia-label{
+  .pauta li{
+    font-size:.8125rem;
+    color:var(--branco);
+    padding-left:16px;
+    position:relative;
+    line-height:1.4;
+  }
+  .pauta li::before{
+    content:"";
+    position:absolute;
+    left:0;
+    top:.5em;
+    width:6px;
+    height:6px;
+    background:var(--ambar);
+  }
+  .meta{
+    display:grid;
+    gap:10px;
+    padding-top:20px;
+    border-top:1px solid var(--linha);
+  }
+  .meta-item{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    font-size:.8125rem;
+    color:var(--nevoa);
+  }
+  .meta-item svg{ flex:none; color:var(--ambar); }
+
+  /* ---------- coluna 2: calendario do mes ---------- */
+  .calendario{
+    width:320px;
+    flex:none;
+    padding:40px 28px;
+    border-right:1px solid var(--linha);
+  }
+  .cal-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    margin-bottom:18px;
+  }
+  .cal-mes{
     font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
     font-weight:600;
-    font-size:.8125rem;
-    text-transform:uppercase;
-    letter-spacing:.04em;
-    color:var(--nevoa);
-    margin-bottom:10px;
+    font-size:1rem;
+    text-transform:capitalize;
   }
-  .horarios{
+  .cal-nav{
     display:flex;
-    gap:10px;
-    flex-wrap:wrap;
+    gap:6px;
   }
-  .slot-btn{
-    flex:1;
-    min-width:110px;
+  .cal-nav button{
+    width:26px;
+    height:26px;
     background:var(--grafite2);
     border:1px solid var(--linha);
     color:var(--branco);
+    cursor:pointer;
+    font-size:.75rem;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .cal-nav button:hover{ border-color:var(--ambar); }
+  .cal-nav button:disabled{ opacity:.3; cursor:not-allowed; }
+  .cal-nav button:disabled:hover{ border-color:var(--linha); }
+
+  .cal-semana{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    margin-bottom:6px;
+  }
+  .cal-semana span{
+    text-align:center;
+    font-size:.6875rem;
+    color:var(--nevoa);
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .cal-grid{
+    display:grid;
+    grid-template-columns:repeat(7,1fr);
+    gap:3px;
+  }
+  .cal-dia{
+    aspect-ratio:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:3px;
+    background:none;
+    border:none;
+    color:var(--nevoa);
+    font-size:.8125rem;
     font-family:'Switzer',system-ui,sans-serif;
-    font-weight:500;
+    cursor:default;
+  }
+  .cal-dia::after{
+    content:"";
+    width:4px;
+    height:4px;
+    background:transparent;
+  }
+  .cal-dia.livre{
+    color:var(--branco);
+    cursor:pointer;
+    font-weight:600;
+  }
+  .cal-dia.livre::after{ background:var(--ambar); }
+  .cal-dia.livre:hover{
+    background:rgba(255,106,0,.10);
+  }
+  .cal-dia.selecionado{
+    background:var(--ambar);
+    color:#0A0A0A;
+    font-weight:600;
+  }
+  .cal-dia.selecionado::after{ background:#0A0A0A; }
+  .cal-dia.selecionado:hover{ background:var(--ambar); }
+  .cal-dia.vazio{ visibility:hidden; }
+  .cal-legenda{
+    margin-top:16px;
+    font-size:.75rem;
+    color:var(--nevoa);
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .cal-legenda .ponto{
+    width:6px;
+    height:6px;
+    background:var(--ambar);
+    flex:none;
+  }
+
+  /* ---------- coluna 3: horarios do dia ---------- */
+  .direita{
+    flex:1;
+    padding:40px 32px;
+    min-width:0;
+  }
+  .direita-titulo{
+    font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight:600;
+    font-size:1.25rem;
+    margin-bottom:4px;
+    text-transform:capitalize;
+  }
+  .fuso{
+    font-size:.8125rem;
+    color:var(--nevoa);
+    margin-bottom:22px;
+  }
+
+  .lista-horarios{
+    display:flex;
+    flex-direction:column;
+    gap:8px;
+  }
+  .slot-row{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    background:rgba(255,106,0,.06);
+    border:1px solid rgba(255,106,0,.35);
+    color:var(--branco);
+    font-family:'Switzer',system-ui,sans-serif;
+    font-weight:600;
     font-size:1rem;
-    padding:14px 12px;
+    padding:13px 16px;
     cursor:pointer;
     transition:border-color .15s, background .15s;
   }
-  .slot-btn:hover{
+  .slot-row:hover{
     border-color:var(--ambar);
-    background:#262626;
+    background:rgba(255,106,0,.13);
   }
-  .slot-btn.selected{
-    background:var(--ambar);
-    color:#0A0A0A;
-    border-color:var(--ambar);
-    font-weight:600;
+  .slot-row .seta{
+    color:var(--ambar);
+    font-size:.8125rem;
+    opacity:0;
+    transition:opacity .15s;
   }
-  .form{
-    display:none;
-    margin-top:28px;
-    border-top:1px solid var(--linha);
-    padding-top:24px;
+  .slot-row:hover .seta{ opacity:1; }
+
+  .slot-row.ocupado{
+    cursor:not-allowed;
+    opacity:.6;
+    background:var(--grafite2);
+    border-color:var(--linha);
+    color:var(--nevoa);
+    font-weight:500;
+    text-decoration:line-through;
   }
-  .form.ativo{ display:block; }
+  .slot-row.ocupado:hover{ border-color:var(--linha); background:var(--grafite2); }
+
+  .placeholder{
+    color:var(--nevoa);
+    font-size:.9375rem;
+    padding-top:8px;
+  }
+
+  .voltar{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:none;
+    border:none;
+    color:var(--nevoa);
+    font-family:'Switzer',system-ui,sans-serif;
+    font-size:.8125rem;
+    cursor:pointer;
+    margin-bottom:18px;
+    padding:0;
+  }
+  .voltar:hover{ color:var(--branco); }
+
+  .slot-escolhido{
+    font-size:1rem;
+    color:var(--branco);
+    margin-bottom:22px;
+    padding-bottom:18px;
+    border-bottom:1px solid var(--linha);
+  }
+  .slot-escolhido strong{ color:var(--ambar); }
+
   .field{ margin-bottom:14px; }
   label{
     display:block;
@@ -134,8 +366,8 @@
     margin-top:12px;
     color:var(--nevoa);
   }
-  .msg.erro{ color:#FF6A6A; }
-  .sucesso{ text-align:center; padding:20px 0; }
+  .msg.erro{ color:#C6362B; }
+  .sucesso{ text-align:center; padding:40px 0; }
   .sucesso h2{
     font-family:'Clash Display','Space Grotesk',system-ui,sans-serif;
     color:var(--ambar);
@@ -143,34 +375,147 @@
     margin-bottom:10px;
   }
   .sucesso p{ color:var(--nevoa); font-size:1rem; line-height:1.5; }
+  .conf-quando{
+    color:#FAFAFA !important;
+    font-weight:600;
+    font-size:1.0625rem !important;
+    margin-bottom:10px;
+  }
+  .conf-quando::first-letter{ text-transform:uppercase; }
+  .conf-acoes{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    margin:22px auto 0;
+    max-width:320px;
+  }
+  .conf-acoes .btn{
+    display:block;
+    text-align:center;
+    text-decoration:none;
+    margin-top:0;
+  }
+  .btn-secundario{
+    background:transparent;
+    color:#FAFAFA;
+    border:1px solid rgba(255,255,255,.18);
+    box-shadow:none;
+  }
+  .btn-secundario:hover{ background:rgba(255,255,255,.06); }
+  .conf-obs{ font-size:.8125rem !important; margin-top:20px; }
   .loading{ color:var(--nevoa); font-size:.8125rem; }
+
+  @media (max-width: 880px){
+    .painel{ flex-direction:column; }
+    .lado, .calendario{ width:100%; border-right:none; border-bottom:1px solid var(--linha); }
+    .pauta{ margin-bottom:0; padding-bottom:18px; }
+  }
 </style>
 </head>
 <body>
+<!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-WPWMMR3S"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<!-- End Google Tag Manager (noscript) -->
 
-<div class="card" id="card">
-  <h1>Escolha o melhor horário</h1>
-  <p class="sub">Reunião de 1 hora, com Douglas, direto no Google Meet.</p>
 
-  <div id="conteudo">
-    <p class="loading">Carregando horários disponíveis...</p>
+<div class="painel" id="painel">
+
+  <div class="lado">
+    <img class="foto" src="douglas-estevam.jpg" alt="Douglas Estevam">
+    <div class="nome">Douglas Estevam · The New Ads</div>
+    <span class="eyebrow">Reunião gratuita · 1 hora</span>
+    <h1>Diagnóstico da sua operação de tráfego pago</h1>
+    <p class="subheadline">Reunião direta comigo, sem SDR no meio. Você me conta o cenário atual e eu te mostro, na hora, o que dá pra melhorar.</p>
+
+    <ul class="pauta">
+      <li>Diagnóstico rápido da conta ativa hoje</li>
+      <li>Pontos de perda identificados na chamada</li>
+      <li>Próximos passos claros, sem enrolação</li>
+    </ul>
+
+    <div class="meta">
+      <div class="meta-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
+        1 hora
+      </div>
+      <div class="meta-item">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="14" height="12" rx="1"/><path d="M16 10l6-3v10l-6-3"/></svg>
+        Google Meet
+      </div>
+    </div>
   </div>
+
+  <div class="calendario" id="calendario">
+    <p class="loading">Carregando calendário...</p>
+  </div>
+
+  <div class="direita" id="direita">
+    <div class="direita-titulo">Selecione um dia</div>
+    <p class="placeholder">Escolha uma data disponível no calendário ao lado.</p>
+  </div>
+
 </div>
 
 <script>
   window.dataLayer = window.dataLayer || [];
 
-  const API_SLOTS = "/api/slots";
+  const API_MONTH = "/api/month";
+  const API_DAY = "/api/day";
   const API_BOOK = "/api/book";
 
   const params = new URLSearchParams(window.location.search);
   const leadNome = params.get("nome") || "";
   const leadEmail = params.get("email") || "";
   const leadTelefone = params.get("telefone") || "";
+  const leadId = params.get("lead_id") || "";
 
+  // Avisa no app do funil que tem alguem escolhendo horario agora. O servidor
+  // deduplica por IP, entao recarregar a pagina nao gera aviso novo.
+  (function avisarVisita() {
+    try {
+      fetch("/api/visita-agenda", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          nome: leadNome,
+          leadId: leadId || null,
+          referrer: document.referrer || null,
+        }),
+        keepalive: true,
+      }).catch(() => {});
+    } catch (e) {}
+  })();
+
+  // Dados do lead pra camada de dados. Le o campo se ele ja estiver na tela,
+  // senao usa o que veio na URL vindo da landing.
+  function leadAtual() {
+    const val = (id) => {
+      const el = document.getElementById(id);
+      return el && el.value ? el.value.trim() : "";
+    };
+    return {
+      nome: val("nome") || leadNome,
+      email: val("email") || leadEmail,
+      telefone: val("telefone") || leadTelefone,
+    };
+  }
+
+  const hoje = new Date();
+  let mesAtual = hoje.getUTCFullYear();
+  let mesAtualIdx = hoje.getUTCMonth(); // 0-11
+  let diasDisponiveis = {};
+  let dataSelecionada = null;
   let slotEscolhido = null;
+  let navEstado = { canGoBack: false, canGoForward: true };
 
-  function formatarData(iso) {
+  const NOMES_MES = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+
+  function pad(n){ return String(n).padStart(2, "0"); }
+
+  function chaveMonth(ano, mesIdx){ return `${ano}-${pad(mesIdx + 1)}`; }
+
+  function formatarDiaCompleto(iso) {
     const d = new Date(iso + "T00:00:00-03:00");
     return d.toLocaleDateString("pt-BR", { weekday: "long", day: "2-digit", month: "long" });
   }
@@ -179,73 +524,204 @@
     return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit", timeZone: "America/Sao_Paulo" });
   }
 
-  async function carregarSlots() {
-    const conteudo = document.getElementById("conteudo");
+  async function carregarMes() {
+    const cal = document.getElementById("calendario");
     try {
-      const res = await fetch(API_SLOTS);
+      const res = await fetch(`${API_MONTH}?month=${chaveMonth(mesAtual, mesAtualIdx)}`);
       const data = await res.json();
 
-      if (!data.days || data.days.length === 0) {
-        conteudo.innerHTML = '<p class="msg erro">Nenhum horário disponível nos próximos dias. Tenta de novo mais tarde.</p>';
+      if (data.error) {
+        cal.innerHTML = '<p class="msg erro">Erro ao carregar calendário.</p>';
         return;
       }
 
-      dataLayer.push({ event: "scheduler_view", scheduler_days: data.days.map(d => d.date) });
+      diasDisponiveis = data.days || {};
+      navEstado = { canGoBack: data.canGoBack, canGoForward: data.canGoForward };
+      renderCalendario(navEstado.canGoBack, navEstado.canGoForward);
 
-      let html = '<div class="dias">';
-      data.days.forEach((dia) => {
-        html += `<div><div class="dia-label">${formatarData(dia.date)}</div><div class="horarios">`;
-        dia.slots.forEach((slot) => {
-          html += `<button class="slot-btn" data-start="${slot.start}" data-end="${slot.end}">${formatarHora(slot.start)}</button>`;
-        });
-        html += `</div></div>`;
-      });
-      html += '</div>';
-
-      html += `
-        <form class="form" id="form-agendamento">
-          <div class="field">
-            <label for="nome">Nome</label>
-            <input type="text" id="nome" required value="${leadNome}">
-          </div>
-          <div class="field">
-            <label for="email">E-mail</label>
-            <input type="email" id="email" required value="${leadEmail}">
-          </div>
-          <div class="field">
-            <label for="telefone">WhatsApp</label>
-            <input type="tel" id="telefone" value="${leadTelefone}">
-          </div>
-          <button type="submit" class="btn" id="btn-confirmar">Confirmar reunião</button>
-          <p class="msg" id="msg"></p>
-        </form>
-      `;
-
-      conteudo.innerHTML = html;
-      ligarEventos();
+      dataLayer.push(Object.assign({ event: "scheduler_view", scheduler_month: data.month }, leadAtual()));
     } catch (err) {
-      conteudo.innerHTML = '<p class="msg erro">Erro ao carregar horários. Recarrega a página.</p>';
+      cal.innerHTML = '<p class="msg erro">Erro ao carregar calendário. Recarrega a página.</p>';
     }
   }
 
-  function ligarEventos() {
-    document.querySelectorAll(".slot-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".slot-btn").forEach((b) => b.classList.remove("selected"));
-        btn.classList.add("selected");
-        slotEscolhido = { start: btn.dataset.start, end: btn.dataset.end };
+  function renderCalendario(canGoBack, canGoForward) {
+    const cal = document.getElementById("calendario");
+    const primeiroDiaMes = new Date(Date.UTC(mesAtual, mesAtualIdx, 1));
+    const ultimoDiaMes = new Date(Date.UTC(mesAtual, mesAtualIdx + 1, 0));
+    const totalDias = ultimoDiaMes.getUTCDate();
 
-        dataLayer.push({
-          event: "scheduler_slot_selected",
-          scheduler_slot_start: slotEscolhido.start,
-        });
+    // getUTCDay: 0=domingo..6=sabado. Queremos semana comecando segunda.
+    const offsetSemana = (primeiroDiaMes.getUTCDay() + 6) % 7;
 
-        document.getElementById("form-agendamento").classList.add("ativo");
-        document.getElementById("form-agendamento").scrollIntoView({ behavior: "smooth", block: "end" });
+    let gridHtml = "";
+    for (let i = 0; i < offsetSemana; i++) {
+      gridHtml += '<span class="cal-dia vazio"></span>';
+    }
+    for (let dia = 1; dia <= totalDias; dia++) {
+      const iso = `${mesAtual}-${pad(mesAtualIdx + 1)}-${pad(dia)}`;
+      const livre = !!diasDisponiveis[iso];
+      const selecionado = iso === dataSelecionada;
+      const classes = ["cal-dia"];
+      if (livre) classes.push("livre");
+      if (selecionado) classes.push("selecionado");
+      gridHtml += `<button class="${classes.join(" ")}" ${livre ? `data-date="${iso}"` : "disabled"}>${dia}</button>`;
+    }
+
+    cal.innerHTML = `
+      <div class="cal-header">
+        <div class="cal-mes">${NOMES_MES[mesAtualIdx]} de ${mesAtual}</div>
+        <div class="cal-nav">
+          <button id="cal-prev" ${canGoBack ? "" : "disabled"}>‹</button>
+          <button id="cal-next" ${canGoForward ? "" : "disabled"}>›</button>
+        </div>
+      </div>
+      <div class="cal-semana"><span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SAB</span><span>DOM</span></div>
+      <div class="cal-grid">${gridHtml}</div>
+      <div class="cal-legenda"><span class="ponto"></span> Dias com horário disponível</div>
+    `;
+
+    document.getElementById("cal-prev").addEventListener("click", () => mudarMes(-1));
+    document.getElementById("cal-next").addEventListener("click", () => mudarMes(1));
+
+    cal.querySelectorAll(".cal-dia.livre").forEach((btn) => {
+      btn.addEventListener("click", () => selecionarDia(btn.dataset.date));
+    });
+  }
+
+  function mudarMes(delta) {
+    mesAtualIdx += delta;
+    if (mesAtualIdx < 0) { mesAtualIdx = 11; mesAtual -= 1; }
+    if (mesAtualIdx > 11) { mesAtualIdx = 0; mesAtual += 1; }
+    dataSelecionada = null;
+    slotEscolhido = null;
+    document.getElementById("direita").innerHTML = '<div class="direita-titulo">Selecione um dia</div><p class="placeholder">Escolha uma data disponível no calendário ao lado.</p>';
+    carregarMes();
+  }
+
+  async function selecionarDia(iso) {
+    dataSelecionada = iso;
+    slotEscolhido = null;
+    renderCalendario(navEstado.canGoBack, navEstado.canGoForward);
+
+    const direita = document.getElementById("direita");
+    direita.innerHTML = '<p class="loading">Carregando horários...</p>';
+
+    try {
+      const res = await fetch(`${API_DAY}?date=${iso}`);
+      const data = await res.json();
+
+      if (data.error) {
+        direita.innerHTML = '<p class="msg erro">Erro ao carregar horários desse dia.</p>';
+        return;
+      }
+
+      renderHorariosDoDia(data);
+    } catch (err) {
+      direita.innerHTML = '<p class="msg erro">Erro ao carregar horários. Tenta de novo.</p>';
+    }
+  }
+
+  function renderHorariosDoDia(data) {
+    const direita = document.getElementById("direita");
+
+    let html = `<div class="direita-titulo">${formatarDiaCompleto(data.date)}</div>`;
+    html += `<div class="fuso">Fuso horário: América/São Paulo (UTC-3)</div>`;
+    html += `<div class="lista-horarios">`;
+    data.slots.forEach((slot) => {
+      const disponivel = slot.status === "available";
+      html += `<button class="slot-row ${disponivel ? "" : "ocupado"}" ${disponivel ? `data-start="${slot.start}" data-end="${slot.end}"` : "disabled"}>
+        <span>${formatarHora(slot.start)}</span>
+        <span class="seta">${disponivel ? "Selecionar →" : "Indisponível"}</span>
+      </button>`;
+    });
+    html += `</div>`;
+
+    direita.innerHTML = html;
+
+    direita.querySelectorAll(".slot-row:not(.ocupado)").forEach((row) => {
+      row.addEventListener("click", () => {
+        slotEscolhido = { start: row.dataset.start, end: row.dataset.end };
+        dataLayer.push(Object.assign({ event: "scheduler_slot_selected", scheduler_slot_start: slotEscolhido.start }, leadAtual()));
+        renderPassoConfirmacao();
       });
+    });
+  }
+
+  function renderPassoConfirmacao() {
+    const direita = document.getElementById("direita");
+
+    direita.innerHTML = `
+      <button class="voltar" id="btn-voltar">← Voltar pros horários</button>
+      <div class="slot-escolhido">${formatarDiaCompleto(slotEscolhido.start.slice(0,10))} às <strong>${formatarHora(slotEscolhido.start)}</strong></div>
+      <form id="form-agendamento">
+        <div class="field">
+          <label for="nome">Nome</label>
+          <input type="text" id="nome" required value="${leadNome}">
+        </div>
+        <div class="field">
+          <label for="email">E-mail</label>
+          <input type="email" id="email" required value="${leadEmail}">
+        </div>
+        <div class="field">
+          <label for="telefone">WhatsApp</label>
+          <input type="tel" id="telefone" value="${leadTelefone}">
+        </div>
+        <button type="submit" class="btn" id="btn-confirmar">Confirmar reunião</button>
+        <p class="msg" id="msg"></p>
+      </form>
+    `;
+
+    document.getElementById("btn-voltar").addEventListener("click", () => {
+      selecionarDia(dataSelecionada);
     });
 
     document.getElementById("form-agendamento").addEventListener("submit", confirmarAgendamento);
+  }
+
+  // Formata "quinta-feira, 11 de setembro, das 14:00 as 14:30"
+  function descreverHorario(inicioIso, fimIso) {
+    const inicio = new Date(inicioIso);
+    const fim = new Date(fimIso);
+    const fuso = "America/Sao_Paulo";
+    const dia = inicio.toLocaleDateString("pt-BR", {
+      timeZone: fuso, weekday: "long", day: "2-digit", month: "long",
+    });
+    const hora = (d) => d.toLocaleTimeString("pt-BR", { timeZone: fuso, hour: "2-digit", minute: "2-digit" });
+    return `${dia}, das ${hora(inicio)} às ${hora(fim)}`;
+  }
+
+  // Link "adicionar na agenda" que funciona em qualquer calendário.
+  function linkGoogleAgenda(nome, inicioIso, fimIso, meet) {
+    const compacta = (iso) => new Date(iso).toISOString().replace(/[-:]|\.\d{3}/g, "");
+    const p = new URLSearchParams({
+      action: "TEMPLATE",
+      text: `Reunião com the new ads`,
+      dates: `${compacta(inicioIso)}/${compacta(fimIso)}`,
+      details: meet ? `Link da reunião: ${meet}` : "Reunião de diagnóstico com a the new ads.",
+    });
+    if (meet) p.set("location", meet);
+    return `https://calendar.google.com/calendar/render?${p.toString()}`;
+  }
+
+  function mostrarConfirmacao(payload, data) {
+    const quando = descreverHorario(payload.start, payload.end);
+    const meet = data && data.meetLink ? data.meetLink : "";
+    const agenda = linkGoogleAgenda(payload.name, payload.start, payload.end, meet);
+    const primeiroNome = (payload.name || "").trim().split(" ")[0];
+
+    document.getElementById("painel").innerHTML = `
+      <div class="sucesso" style="width:100%;">
+        <h2>Reunião confirmada${primeiroNome ? `, ${primeiroNome}` : ""}</h2>
+        <p class="conf-quando">${quando}</p>
+        <p>Enviamos o convite para <strong>${payload.email}</strong>. Confirme a presença pra reservar o horário na sua agenda.</p>
+        <div class="conf-acoes">
+          <a class="btn" href="${agenda}" target="_blank" rel="noopener">Confirmar na minha agenda</a>
+        </div>
+        <p class="conf-obs">O link da reunião estará no convite, e você entra na hora marcada.${meet ? ` Se preferir guardar agora: <a href="${meet}" target="_blank" rel="noopener" style="color:var(--ambar)">link do Meet</a>.` : ""}</p>
+        <p class="conf-obs">Precisa remarcar? Responda o convite pelo e-mail e a gente ajusta.</p>
+      </div>
+    `;
   }
 
   async function confirmarAgendamento(e) {
@@ -265,6 +741,7 @@
       phone: document.getElementById("telefone").value,
       start: slotEscolhido.start,
       end: slotEscolhido.end,
+      leadId: leadId || null,
     };
 
     try {
@@ -277,7 +754,7 @@
 
       if (!res.ok) {
         if (res.status === 409) {
-          msg.textContent = "Esse horário acabou de ser ocupado. Recarrega a página e escolhe outro.";
+          msg.textContent = "Esse horário acabou de ser ocupado. Volta e escolhe outro.";
         } else {
           msg.textContent = "Não deu pra agendar agora. Tenta de novo em instantes.";
         }
@@ -287,18 +764,14 @@
         return;
       }
 
-      dataLayer.push({
-        event: "scheduler_booking_confirmed",
+      dataLayer.push(Object.assign({
+        event: "Schedule",
+        event_id: "Schedule." + Date.now() + "." + Math.random().toString(36).slice(2, 10),
         scheduler_slot_start: payload.start,
         scheduler_lead_email: payload.email,
-      });
+      }, leadAtual()));
 
-      document.getElementById("card").innerHTML = `
-        <div class="sucesso">
-          <h2>Reunião confirmada</h2>
-          <p>Você vai receber o convite no e-mail <strong>${payload.email}</strong> com o link do Google Meet.</p>
-        </div>
-      `;
+      mostrarConfirmacao(payload, data);
     } catch (err) {
       msg.textContent = "Erro de conexão. Tenta de novo.";
       msg.classList.add("erro");
@@ -307,7 +780,7 @@
     }
   }
 
-  carregarSlots();
+  carregarMes();
 </script>
 
 </body>

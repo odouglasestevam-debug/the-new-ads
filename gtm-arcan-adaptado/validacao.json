@@ -1,0 +1,26 @@
+{
+  "base": "arcan.json",
+  "status": "OK - validacao estatica, sem importar/publicar ou disparar eventos",
+  "quantidades": {
+    "tag": 30,
+    "variable": 49,
+    "trigger": 17,
+    "folder": 9,
+    "customTemplate": 4
+  },
+  "modelos_builtins_iguais_a_arcan": true,
+  "todos_itens_originais_preservados": true,
+  "tipos_disparos_das_tags_originais_preservados": true,
+  "nomes_padronizados_e_todos_itens_em_pastas": true,
+  "organizacao_alterou_apenas_nomes_e_pastas": true,
+  "gerador_event_id_da_arcan_preservado": true,
+  "referencias_nao_resolvidas": [],
+  "tags_pausadas_sem_equivalente": [
+    "03 | Google Ads | Lead",
+    "00 | Google Ads | Vinculador de conversoes",
+    "01 | Google Ads | PageView",
+    "00 | Webhook",
+    "00 | Google Ads | Configuracao"
+  ],
+  "sha256": "8c6351e86b50ab2883ece0514821d6e09a8bfc0c50a6090149867a398fda1431"
+}

@@ -412,7 +412,7 @@
           <div class="section-title">Origem do lead</div>
           <div class="card"><div class="pie-wrap" id="pie-origem"><div class="loading">Carregando…</div></div></div>
         </div>
-        <div>
+        <div id="followers-block">
           <div class="section-title">Seguidores no Instagram <span class="hint" id="followers-hint"></span></div>
           <div class="card trend-wrap" id="trend-card"><div class="loading">Carregando…</div></div>
         </div>
@@ -476,7 +476,10 @@
 <script>
 const sb = window.supabase.createClient(
   'https://iklynyncffneuvutvgxa.supabase.co',
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4'
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4',
+  // pagina publica: nao herdar sessao de login do /painel ou /funil no mesmo dominio,
+  // senao as queries vao como 'authenticated' e o RLS (policies so pra 'anon') devolve zero linha
+  { auth: { persistSession: false, autoRefreshToken: false } }
 );
 
 const fmtMoney = (v) => 'R$ ' + Number(v || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -775,10 +778,15 @@ async function loadFollowers() {
     .order('data', { ascending: true });
 
   const card = document.getElementById('trend-card');
+  const bloco = document.getElementById('followers-block');
   if (error || !data || data.length === 0) {
-    card.innerHTML = '<div class="trend-empty">Ainda sem histórico de seguidores.</div>';
+    // cliente sem coleta de seguidores: esconde a secao inteira em vez de mostrar card vazio,
+    // e devolve a coluna irma pra largura toda
+    bloco.hidden = true;
+    bloco.parentElement.style.gridTemplateColumns = '1fr';
     return;
   }
+  bloco.hidden = false;
 
   if (data.length === 1) {
     document.getElementById('followers-hint').textContent = 'histórico inicia em ' + fmtDate(data[0].data);

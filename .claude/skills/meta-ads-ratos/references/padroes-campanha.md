@@ -123,13 +123,33 @@ create.py ad --account act_XXX --name "carrossel-NOME" \
 
 > TODO: documentar quando tivermos padroes validados
 
-## Geracao de Leads (Lead Generation)
+## Geracao de Leads (Lead Generation) e Conversoes/Vendas (Sales)
 
-> TODO: documentar quando tivermos padroes validados
+### Padrao de UTM (url_tags) — SEMPRE usar em toda campanha de Lead ou Vendas
 
-## Conversoes/Vendas (Sales)
+Definido pelo Douglas em 2026-09-04. Aplicar em qualquer campanha nova de
+Lead (OFFSITE_CONVERSIONS + custom_event_type LEAD) ou Vendas
+(OFFSITE_CONVERSIONS + custom_event_type PURCHASE, ou OUTCOME_SALES), pra
+qualquer cliente, salvo instrucao contraria:
 
-> TODO: documentar quando tivermos padroes validados
+```
+utm_source=Meta_ads&utm_medium={{adset.name}}&utm_campaign={{campaign.name}}&utm_content={{ad.name}}&posicionamento={{placement}}&ad_id={{ad.id}}
+```
+
+Distribuicao:
+- `utm_source` = `Meta_ads` (fixo, nao muda)
+- `utm_medium` = `{{adset.name}}` (nome do conjunto)
+- `utm_campaign` = `{{campaign.name}}` (nome da campanha)
+- `utm_content` = `{{ad.name}}` (nome do anuncio)
+- `utm_term` = nao usar
+- 2 parametros customizados (fora do padrao UTM): `posicionamento={{placement}}` e `ad_id={{ad.id}}`
+
+Passar via `create.py creative --url-tags "..."` na criacao. Como criativo e
+imutavel, pra corrigir um ad ja existente usar `advanced.py swap-url-tags`
+(ver secao "Corrigir url_tags de ads existentes" no SKILL.md).
+
+> TODO: documentar o resto da config (objective, optimization_goal, promoted_object)
+> quando tivermos mais campanhas validadas alem da Agari Drinks.
 
 ---
 

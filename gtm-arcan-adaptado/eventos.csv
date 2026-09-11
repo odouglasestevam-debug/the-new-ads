@@ -1,0 +1,8 @@
+﻿etapa;evento_dataLayer;evento_GA4;evento_API_ao_servidor;evento_Meta_navegador
+PageView;Inicializacao (Arcan);page_view (automatico da tag Google);PageView;PageView
+Lead;Lead;generate_lead;Lead;Lead
+ViewContent;IniciouFormulario;form_start;ViewContent;ViewContent
+CompleteRegistration;CompletouFormulario;form_submit;CompleteRegistration;CompleteRegistration
+SchedulerView;scheduler_view;scheduler_view;SchedulerView;SchedulerView
+SlotSelected;scheduler_slot_selected;slot_selected;SlotSelected;SlotSelected
+Schedule;Schedule;schedule;Schedule;Schedule

@@ -18,6 +18,11 @@ import sys
 import webbrowser
 from urllib.parse import unquote
 
+# O Google pode devolver escopos ja concedidos antes (ex: adwords) junto do
+# escopo pedido agora, quando e o mesmo OAuth client/conta. Isso nao e um
+# problema de seguranca, so precisa desligar a checagem estrita da lib.
+os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
+
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 TOOL_DIR = os.path.dirname(SCRIPT_DIR)
 ROOT_ENV_PATH = os.path.join(TOOL_DIR, "..", "..", ".env")
