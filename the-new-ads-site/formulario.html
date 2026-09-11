@@ -295,13 +295,12 @@ const steps = [
   {key:"nome", type:"text", q:"Qual seu nome completo?", ph:"Nome e sobrenome"},
   {key:"email", type:"email", q:"Qual seu melhor e-mail?", ph:"voce@empresa.com"},
   {key:"telefone", type:"tel", q:"Seu WhatsApp com DDD", ph:"(48) 90000-0000"},
-  {key:"empresa", type:"text", q:"Qual o nome da sua empresa?", ph:"Nome da empresa"},
   {key:"faturamento", type:"select", q:"Faturamento médio mensal da empresa?", opts:[
     "Ate R$ 30 mil","R$ 30 mil a R$ 70 mil","R$ 70 mil a R$ 200 mil","R$ 200 mil a R$ 500 mil","Acima de R$ 500 mil"]},
   {key:"verba", type:"select", q:"Desconsiderando os honorários, quanto pretende investir em mídia por mês?", opts:[
     "Ate R$ 1 mil","R$ 1 mil a R$ 3 mil","R$ 3 mil a R$ 10 mil","R$ 10 mil a R$ 30 mil","Acima de R$ 30 mil"]},
 ];
-const labels = {nome:"Nome",email:"E-mail",telefone:"Telefone",empresa:"Empresa",faturamento:"Faturamento",verba:"Verba de midia"};
+const labels = {nome:"Nome",email:"E-mail",telefone:"Telefone",faturamento:"Faturamento",verba:"Verba de midia"};
 
 const FAT_BAIXO = ["Ate R$ 30 mil","R$ 30 mil a R$ 70 mil"]; // < R$ 70 mil
 const VERBA_BAIXA = "Ate R$ 1 mil";                          // <= R$ 1 mil
@@ -426,8 +425,8 @@ function finish(){
   const nome = (data.nome || "").split(" ")[0];
 
   if(desqualificado){
-    dl("CompletouFormulario", {dentro_do_perfil:false, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
-    enviarWebhook({evento:"formulario_incompleto_perfil", qualificado:false, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
+    dl("CompletouFormulario", {dentro_do_perfil:false, faturamento:data.faturamento, verba:data.verba});
+    enviarWebhook({evento:"formulario_incompleto_perfil", qualificado:false, nome:data.nome, email:data.email, telefone:data.telefone, faturamento:data.faturamento, verba:data.verba});
     const url = msgLink("Ola! Vim pela landing page da The New Ads. Tenho interesse em ajuda com trackeamento.");
     trocarTela(
       '<div class="final"><div class="selo neutro"><span class="emoji" style="font-size:26px">💬</span></div>' +
@@ -436,8 +435,8 @@ function finish(){
       '<div class="acoes"><a class="btn" href="' + url + '" target="_blank" rel="noopener">Falar sobre trackeamento</a></div></div>'
     );
   } else {
-    dl("CompletouFormulario", {dentro_do_perfil:true, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
-    enviarWebhook({evento:"formulario_completo", qualificado:true, nome:data.nome, email:data.email, telefone:data.telefone, empresa:data.empresa, faturamento:data.faturamento, verba:data.verba});
+    dl("CompletouFormulario", {dentro_do_perfil:true, faturamento:data.faturamento, verba:data.verba});
+    enviarWebhook({evento:"formulario_completo", qualificado:true, nome:data.nome, email:data.email, telefone:data.telefone, faturamento:data.faturamento, verba:data.verba});
     const agendarUrl = "/agendar?nome=" + encodeURIComponent(data.nome || "") +
       "&email=" + encodeURIComponent(data.email || "") +
       "&telefone=" + encodeURIComponent(data.telefone || "") +
