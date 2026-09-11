@@ -268,20 +268,15 @@ const NICHOS = {
 
 const CHAVE_NICHO = "tna_nicho";
 
-/* O nicho vem do link do anuncio. Fica guardado pra quem voltar depois pelo
-   historico ou por um link sem parametro continuar vendo a pagina certa. */
+/* O nicho vem sempre do link do anuncio, e so dele. Ja guardamos o ultimo
+   nicho no navegador pra quem voltasse por um link sem parametro, mas isso
+   fazia quem tinha visto o anuncio de vet cair na pagina de vet ao clicar
+   num anuncio generico. Criativo e pagina tem que bater, entao a URL decide. */
 const NICHO = (function(){
+  try { localStorage.removeItem(CHAVE_NICHO); } catch(e) {}
   const p = new URLSearchParams(location.search);
   const pedido = (p.get("nicho") || "").toLowerCase().trim();
-  if (NICHOS[pedido]) {
-    try { localStorage.setItem(CHAVE_NICHO, pedido); } catch(e) {}
-    return pedido;
-  }
-  try {
-    const guardado = localStorage.getItem(CHAVE_NICHO);
-    if (guardado && NICHOS[guardado]) return guardado;
-  } catch(e) {}
-  return "generico";
+  return NICHOS[pedido] ? pedido : "generico";
 })();
 
 const CONTEUDO = NICHOS[NICHO];

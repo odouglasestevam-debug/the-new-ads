@@ -141,6 +141,7 @@ export async function onRequestPost({ request, env }) {
       utm_content: texto(rastreio.utm_content),
       utm_term: texto(rastreio.utm_term),
       utm_id: texto(rastreio.utm_id),
+      utm_placement: texto(rastreio.utm_placement),
       gclid: texto(rastreio.gclid),
       gbraid: texto(rastreio.gbraid),
       wbraid: texto(rastreio.wbraid),
