@@ -194,6 +194,7 @@
   .cartao:hover{border-color:rgba(255,255,255,.2)}
   .cartao.arrastando{opacity:.4}
   .c-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .c-acoes{display:flex;align-items:center;gap:2px;flex:none}
   .c-ident{min-width:0}
   .cartao .n{font-weight:600;font-size:14.5px;margin-bottom:3px;line-height:1.25}
   .cartao .e{color:var(--nevoa);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -213,8 +214,10 @@
   .ver-lead{margin-top:10px;width:100%;background:transparent;border:1px solid var(--linha);color:var(--nevoa);
     border-radius:7px;padding:7px;font-size:12px;cursor:pointer}
   .ver-lead:hover{border-color:var(--ambar);color:var(--branco)}
-  .ver-lead.perigo{border-color:rgba(220,80,70,.3);color:#d65a4f}
-  .ver-lead.perigo:hover{border-color:#d65a4f;color:#ff7a6c;background:rgba(220,80,70,.08)}
+  .ver-lead.perigo{border-color:rgba(248,113,113,.3);color:var(--vermelho)}
+  .ver-lead.perigo:hover{border-color:var(--vermelho);background:rgba(248,113,113,.08)}
+  .cartao-excluir{background:none;border:none;color:#4b4b4b;cursor:pointer;font-size:13px;padding:2px 5px;flex:none}
+  .cartao-excluir:hover{color:var(--vermelho)}
 
   /* lead score: barra fina no cartao, cor por faixa (estado, nao marca) */
   .score{display:flex;align-items:center;gap:9px}
@@ -530,7 +533,7 @@ function proximoLembrete(leadId) {
 function dataHoraCurta(iso) {
   return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
 }
-let vistaAtual = "agendamentos";
+let vistaAtual = "kanban";
 let abaAjustes = "seguranca";
 let busca = "";
 let filtroQualificacao = "todos";
@@ -1193,7 +1196,10 @@ function vistaKanban() {
             <div class="n">${escapar(l.nome || "sem nome")}</div>
             <div class="e">${escapar(l.empresa || l.email || l.telefone || "")}</div>
           </div>
-          ${botaoWhatsApp(l)}
+          <div class="c-acoes">
+            ${botaoWhatsApp(l)}
+            <button class="cartao-excluir" data-excluir="${l.id}" type="button" title="Excluir lead">✕</button>
+          </div>
         </div>
 
         ${selosScore(l)}
@@ -1835,6 +1841,16 @@ function ligarEventos() {
     b.addEventListener("click", (e) => { e.stopPropagation(); abrirLead(b.dataset.id, "dados"); });
   });
 
+  document.querySelectorAll("[data-excluir]").forEach((b) => {
+    b.addEventListener("click", async (e) => {
+      e.stopPropagation();
+      const id = b.dataset.excluir;
+      const lead = leads.find((x) => x.id === id);
+      const ok = await excluirLead(id, lead?.nome);
+      if (ok) render();
+    });
+  });
+
   // Clique em qualquer area livre do cartao abre o lead. Controles internos
   // (seletor de etapa, WhatsApp) param a propagacao e seguem funcionando.
   document.querySelectorAll(".cartao").forEach((cartao) => {
@@ -2112,6 +2128,19 @@ async function enviarEventoMeta(lead, evento, valor) {
 }
 
 /* ---------------- detalhe do lead ---------------- */
+// Apaga o lead pra sempre (anotacoes e lembretes vao junto por cascade no
+// banco). Usado tanto pelo card do kanban quanto pela aba "Dados" da gaveta.
+// Devolve true se apagou, false se cancelou ou deu erro.
+async function excluirLead(id, nome) {
+  if (!confirm(`Excluir "${nome || "esse lead"}" pra sempre? Apaga também as anotações e lembretes dele. Não tem como desfazer.`)) return false;
+  const { error } = await sb.from("funil_leads").delete().eq("id", id);
+  if (error) { alert("Não deu pra excluir: " + error.message); return false; }
+  leads = leads.filter((x) => x.id !== id);
+  notas = notas.filter((n) => n.lead_id !== id);
+  lembretes = lembretes.filter((r) => r.lead_id !== id);
+  return true;
+}
+
 function abrirLead(id, abaInicial) {
   const l = leads.find((x) => x.id === id);
   if (!l) return;
@@ -2476,19 +2505,14 @@ function abrirLead(id, abaInicial) {
     const botaoExcluir = div.querySelector("#excluir-lead");
     if (botaoExcluir) {
       botaoExcluir.addEventListener("click", async () => {
-        if (!confirm(`Excluir "${l.nome || "esse lead"}" pra sempre? Apaga também as anotações e lembretes dele. Não tem como desfazer.`)) return;
         botaoExcluir.disabled = true;
         botaoExcluir.textContent = "Excluindo...";
-        const { error } = await sb.from("funil_leads").delete().eq("id", l.id);
-        if (error) {
-          alert("Não deu pra excluir: " + error.message);
+        const ok = await excluirLead(l.id, l.nome);
+        if (!ok) {
           botaoExcluir.disabled = false;
           botaoExcluir.textContent = "Excluir lead";
           return;
         }
-        leads = leads.filter((x) => x.id !== l.id);
-        notas = notas.filter((n) => n.lead_id !== l.id);
-        lembretes = lembretes.filter((r) => r.lead_id !== l.id);
         fechar();
         render();
       });
