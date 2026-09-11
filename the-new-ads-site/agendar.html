@@ -490,9 +490,45 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       utm_campaign: buscar("utm_campaign"),
       utm_content: buscar("utm_content"),
       utm_term: buscar("utm_term"),
+      utm_placement: buscar("utm_placement") || buscar("posicionamento"),
+      ad_id: buscar("ad_id"),
       nicho: params.get("nicho") || "",
     };
   })();
+
+  /* Mesmo visitante do formulario: a chave e a mesma, entao a escada fecha de
+     ponta a ponta mesmo o agendamento sendo em outra pagina. */
+  const CHAVE_VISITOR = "tna_visitor";
+  const VISITOR_ID = (function(){
+    function novo(){
+      return (crypto.randomUUID ? crypto.randomUUID()
+        : String(Date.now()) + Math.random().toString(36).slice(2));
+    }
+    try {
+      let id = localStorage.getItem(CHAVE_VISITOR);
+      if (id) return id;
+      id = novo();
+      localStorage.setItem(CHAVE_VISITOR, id);
+      return id;
+    } catch (e) { return novo(); }
+  })();
+
+  function pingEvento(tipo){
+    try {
+      const corpo = JSON.stringify(Object.assign({
+        visitor_id: VISITOR_ID,
+        lead_id: leadId || null,
+        tipo: tipo,
+        pagina: location.pathname,
+      }, ORIGEM));
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon("/api/evento", new Blob([corpo], { type: "application/json" }));
+      } else {
+        fetch("/api/evento", { method: "POST", headers: { "Content-Type": "application/json" },
+          body: corpo, keepalive: true }).catch(() => {});
+      }
+    } catch (e) {}
+  }
 
   // Avisa no app do funil que tem alguem escolhendo horario agora. O servidor
   // deduplica por IP, entao recarregar a pagina nao gera aviso novo.
@@ -565,6 +601,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       renderCalendario(navEstado.canGoBack, navEstado.canGoForward);
 
       dataLayer.push(Object.assign({ event: "scheduler_view", scheduler_month: data.month }, leadAtual()));
+      pingEvento("scheduler_view");
     } catch (err) {
       cal.innerHTML = '<p class="msg erro">Erro ao carregar calendário. Recarrega a página.</p>';
     }
@@ -668,6 +705,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
       row.addEventListener("click", () => {
         slotEscolhido = { start: row.dataset.start, end: row.dataset.end };
         dataLayer.push(Object.assign({ event: "scheduler_slot_selected", scheduler_slot_start: slotEscolhido.start }, leadAtual()));
+        pingEvento("slot_selected");
         renderPassoConfirmacao();
       });
     });
@@ -795,6 +833,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
         scheduler_slot_start: payload.start,
         scheduler_lead_email: payload.email,
       }, leadAtual()));
+      pingEvento("schedule");
 
       mostrarConfirmacao(payload, data);
     } catch (err) {

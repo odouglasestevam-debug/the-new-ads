@@ -376,6 +376,52 @@ function capturarTrack(){
 }
 const TRACK = capturarTrack();
 
+/* Escada do funil gravada no Supabase. O GTM segue alimentando Meta e Google;
+   isso aqui e a fonte de decisao. Misturar as duas no mesmo funil da taxa de
+   passagem acima de 100%, porque bloqueador e consentimento derrubam so uma. */
+const CHAVE_VISITOR = "tna_visitor";
+const VISITOR_ID = (function(){
+  function novo(){
+    return (crypto.randomUUID ? crypto.randomUUID()
+      : String(Date.now()) + Math.random().toString(36).slice(2));
+  }
+  try {
+    var id = localStorage.getItem(CHAVE_VISITOR);
+    if (id) return id;
+    id = novo();
+    localStorage.setItem(CHAVE_VISITOR, id);
+    return id;
+  } catch(e) { return novo(); }
+})();
+
+function pingEvento(tipo, passo){
+  try{
+    var corpo = JSON.stringify({
+      visitor_id: VISITOR_ID,
+      lead_id: LEAD_ID,
+      tipo: tipo,
+      passo: passo || null,
+      nicho: NICHO,
+      pagina: location.pathname,
+      utm_source: TRACK.utm_source,
+      utm_medium: TRACK.utm_medium,
+      utm_campaign: TRACK.utm_campaign,
+      utm_content: TRACK.utm_content,
+      utm_term: TRACK.utm_term,
+      utm_placement: TRACK.utm_placement,
+      ad_id: (TRACK.all_params && TRACK.all_params.ad_id) || ""
+    });
+    if (navigator.sendBeacon) {
+      navigator.sendBeacon("/api/evento", new Blob([corpo], {type:"application/json"}));
+    } else {
+      fetch("/api/evento", {method:"POST", headers:{"Content-Type":"application/json"},
+        body:corpo, keepalive:true}).catch(function(){});
+    }
+  }catch(e){}
+}
+
+pingEvento("form_view");
+
 /* Leva a origem junto pro /agendar. Sem isso a pagina de agendamento nasce
    sem UTM nenhuma, e o evento de reuniao marcada fica orfao no GTM. */
 function comOrigem(url){
@@ -487,6 +533,7 @@ const LETRAS = ["A","B","C","D","E","F"];
 function render(){
   const s = steps[i];
   progresso();
+  pingEvento("form_step", i + 1);
   btnVoltar.classList.toggle("on", i > 0);
 
   let html = '<div>';
@@ -544,6 +591,7 @@ function avancar(){
   if(!leadFired && data.nome && data.email && data.telefone){
     leadFired = true;
     dl("Lead", {});
+    pingEvento("lead");
     enviarWebhook({evento:"lead", etapa:"contato", nome:data.nome, email:data.email, telefone:data.telefone, event_id:EVENT_IDS["Lead"]});
   }
 
@@ -559,6 +607,7 @@ function msgLink(intro){
 }
 
 function finish(){
+  pingEvento("form_complete");
   barraFill.style.width = "100%";
   btnVoltar.classList.remove("on");
   const desqualificado = FAT_BAIXO.includes(data.faturamento) && data.verba === VERBA_BAIXA;
@@ -594,6 +643,7 @@ function finish(){
 document.getElementById("comecar").addEventListener("click", function(){
   if(!ABERTO_EM) ABERTO_EM = Date.now();
   dl("IniciouFormulario");
+  pingEvento("form_start");
   i = 0; render();
 });
 

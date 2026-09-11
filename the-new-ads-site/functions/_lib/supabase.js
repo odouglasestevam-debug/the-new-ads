@@ -100,3 +100,26 @@ export async function notificar(env, titulo, corpo, url) {
     return { ok: false, erro: String(err) };
   }
 }
+
+// Insere varias linhas de uma vez ignorando duplicata. A escada de eventos tem
+// indice unico por visitante/degrau/dia: recarregar a pagina nao pode contar de
+// novo, e tambem nao pode derrubar a requisicao inteira com erro de conflito.
+export async function inserirIgnorandoDuplicata(env, tabela, linhas, chaveConflito) {
+  if (!Array.isArray(linhas) || !linhas.length) return;
+  const chave = chaveDeEscrita(env);
+  const alvo = chaveConflito ? `?on_conflict=${encodeURIComponent(chaveConflito)}` : "";
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${tabela}${alvo}`, {
+    method: "POST",
+    headers: {
+      apikey: chave,
+      Authorization: `Bearer ${chave}`,
+      "Content-Type": "application/json",
+      Prefer: "resolution=ignore-duplicates,return=minimal",
+    },
+    body: JSON.stringify(linhas),
+  });
+
+  if (!res.ok) {
+    throw new Error(`supabase ${res.status}: ${await res.text()}`);
+  }
+}

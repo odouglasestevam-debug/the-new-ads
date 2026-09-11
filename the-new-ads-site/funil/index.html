@@ -820,6 +820,9 @@ async function carregarTudo() {
 /* ---------------- navegação ---------------- */
 document.querySelectorAll("#nav button").forEach((b) => {
   b.addEventListener("click", () => {
+    // Analytics virou pagina propria: tem carga e calculo pesados demais
+    // pra dividir estado com o kanban.
+    if (b.dataset.vista === "analytics") { window.location.href = "/funil/analytics"; return; }
     vistaAtual = b.dataset.vista;
     render();
   });
@@ -832,7 +835,6 @@ function render() {
   const alvo = document.getElementById("conteudo");
   if (vistaAtual === "agendamentos") alvo.innerHTML = vistaAgendamentos();
   if (vistaAtual === "leads") alvo.innerHTML = vistaLeads();
-  if (vistaAtual === "analytics") alvo.innerHTML = vistaAnalytics();
   if (vistaAtual === "kanban") alvo.innerHTML = vistaKanban();
   if (vistaAtual === "config") alvo.innerHTML = vistaConfig();
   ligarEventos();
@@ -1256,54 +1258,8 @@ function vistaKanban() {
   `;
 }
 
-/* ---------------- analytics ---------------- */
-const DINHEIRO = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
 
-// Etapas do funil na ordem em que o lead avanca (as de saida ficam de fora).
-const ETAPAS_FUNIL = ["novo", "agendou", "qualificado", "reuniao", "proposta", "cliente"];
 
-function contarPorEtapa() {
-  // Cada etapa acumula quem passou por ela: quem chegou em Cliente
-  // tambem passou por Agendou, senao a leitura do funil mente.
-  const indice = Object.fromEntries(ETAPAS_FUNIL.map((e, i) => [e, i]));
-  return ETAPAS_FUNIL.map((etapa, i) => {
-    const total = leads.filter((l) => {
-      const atual = l.etapa || "novo";
-      if (atual === "perdido" || atual === "desqualificado") return i === 0;
-      const pos = indice[atual];
-      return pos !== undefined && pos >= i;
-    }).length;
-    return { etapa, nome: NOME_ETAPA[etapa], total };
-  });
-}
-
-function ultimosDias(dias) {
-  const hoje = new Date();
-  const serie = [];
-  for (let i = dias - 1; i >= 0; i--) {
-    const d = new Date(hoje);
-    d.setDate(d.getDate() - i);
-    const chave = d.toISOString().slice(0, 10);
-    serie.push({
-      chave,
-      rotulo: d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }),
-      total: leads.filter((l) => (l.created_at || "").slice(0, 10) === chave).length,
-    });
-  }
-  return serie;
-}
-
-function porOrigem() {
-  const mapa = new Map();
-  for (const l of leads) {
-    const chave = origemDoLead(l);
-    mapa.set(chave, (mapa.get(chave) || 0) + 1);
-  }
-  return [...mapa.entries()]
-    .map(([nome, total]) => ({ nome, total }))
-    .sort((a, b) => b.total - a.total)
-    .slice(0, 6);
-}
 
 function tile(rotulo, valor, apoio) {
   return `
@@ -1314,93 +1270,6 @@ function tile(rotulo, valor, apoio) {
     </div>`;
 }
 
-function vistaAnalytics() {
-  if (leads.length === 0) {
-    return `
-      <div class="topo"><div><h1>Analytics</h1><div class="desc">Funil, evolução e origem dos leads.</div></div></div>
-      <div class="tabela-caixa"><div class="vazio-geral">Nenhum lead gravado ainda. Os gráficos aparecem assim que o primeiro entrar pelo formulário.</div></div>`;
-  }
-
-  const funil = contarPorEtapa();
-  const totalLeads = leads.length;
-  const noPerfil = leads.filter((l) => l.qualificado === true).length;
-  const clientes = leads.filter((l) => l.etapa === "cliente");
-  const receita = clientes.reduce((soma, l) => soma + Number(l.valor_contrato || 0), 0);
-  const ticket = clientes.length ? receita / clientes.length : 0;
-  const reunioes = agendamentos.length;
-
-  // --- funil ---
-  const maiorFunil = Math.max(...funil.map((f) => f.total), 1);
-  const barrasFunil = funil.map((f, i) => {
-    const anterior = i === 0 ? null : funil[i - 1].total;
-    const taxa = anterior ? (anterior === 0 ? 0 : (f.total / anterior) * 100) : null;
-    return `
-      <div class="linha-funil" title="${escapar(f.nome)}: ${f.total} lead(s)">
-        <div class="lf-rot">${escapar(f.nome)}</div>
-        <div class="lf-trilho">
-          <div class="lf-barra" style="width:${Math.max((f.total / maiorFunil) * 100, f.total ? 2 : 0)}%"></div>
-        </div>
-        <div class="lf-val">${f.total}</div>
-        <div class="lf-taxa">${taxa === null ? "" : taxa.toFixed(0) + "%"}</div>
-      </div>`;
-  }).join("");
-
-  // --- evolucao diaria ---
-  const serie = ultimosDias(30);
-  const maiorDia = Math.max(...serie.map((d) => d.total), 1);
-  const colunas = serie.map((d, i) => `
-    <div class="col-dia" title="${d.rotulo}: ${d.total} lead(s)">
-      <div class="cd-barra" style="height:${d.total ? Math.max((d.total / maiorDia) * 100, 6) : 0}%"></div>
-      <div class="cd-rot">${i % 7 === 0 || i === serie.length - 1 ? d.rotulo : ""}</div>
-    </div>`).join("");
-
-  // --- origem ---
-  const origens = porOrigem();
-  const maiorOrigem = Math.max(...origens.map((o) => o.total), 1);
-  const barrasOrigem = origens.map((o) => `
-    <div class="linha-funil" title="${escapar(o.nome)}: ${o.total} lead(s)">
-      <div class="lf-rot">${escapar(o.nome)}</div>
-      <div class="lf-trilho">
-        <div class="lf-barra" style="width:${Math.max((o.total / maiorOrigem) * 100, 2)}%"></div>
-      </div>
-      <div class="lf-val">${o.total}</div>
-      <div class="lf-taxa">${((o.total / totalLeads) * 100).toFixed(0)}%</div>
-    </div>`).join("");
-
-  return `
-    <div class="topo"><div><h1>Analytics</h1><div class="desc">Funil, evolução e origem dos leads.</div></div></div>
-
-    <div class="tiles">
-      ${tile("Leads", totalLeads, `${noPerfil} dentro do perfil`)}
-      ${tile("Reuniões", reunioes, reunioes ? `${((reunioes / totalLeads) * 100).toFixed(0)}% dos leads` : "nenhuma ainda")}
-      ${tile("Clientes", clientes.length, clientes.length ? `${((clientes.length / totalLeads) * 100).toFixed(0)}% dos leads` : "nenhum ainda")}
-      ${tile("Receita fechada", DINHEIRO.format(receita), clientes.length ? `ticket ${DINHEIRO.format(ticket)}` : "sem contrato fechado")}
-    </div>
-
-    <div class="painel-grafico">
-      <div class="pg-cabeca">
-        <h2>Funil por etapa</h2>
-        <p>Quantos leads passaram por cada etapa, e a taxa de passagem da etapa anterior.</p>
-      </div>
-      <div class="funil">${barrasFunil}</div>
-    </div>
-
-    <div class="painel-grafico">
-      <div class="pg-cabeca">
-        <h2>Leads por dia</h2>
-        <p>Últimos 30 dias. Passe o dedo ou o mouse numa coluna pra ver o número.</p>
-      </div>
-      <div class="grafico-dias">${colunas}</div>
-    </div>
-
-    <div class="painel-grafico">
-      <div class="pg-cabeca">
-        <h2>Origem</h2>
-        <p>De onde vieram os leads, pela UTM de origem ou pelo identificador de clique.</p>
-      </div>
-      <div class="funil">${barrasOrigem}</div>
-    </div>`;
-}
 
 /* ---------------- ajustes ---------------- */
 function vistaConfig() {

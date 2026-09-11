@@ -1,0 +1,770 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>The New Ads — Analytics do Funil</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" type="image/svg+xml" href="/funil/icone.svg?v=2">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --preto:#0A0A0A; --grafite:#141414; --grafite-2:#1c1c1c; --nevoa:#8A8A8A;
+    --branco:#FAFAFA; --ambar:#FF6A00; --linha:rgba(255,255,255,.09);
+    --verde:#4ADE80; --vermelho:#F87171; --azul:#60A5FA; --roxo:#A78BFA; --ciano:#22D3EE;
+    --display:'Clash Display',system-ui,sans-serif;
+    --texto:'Switzer','Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',monospace;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--preto);color:var(--branco);font-family:var(--texto);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);letter-spacing:-.015em;line-height:1.15}
+  a{color:inherit;text-decoration:none}
+  button,select{font-family:inherit;font-size:inherit;color:inherit}
+
+  .envelope{max-width:1120px;margin:0 auto;padding:26px 20px 90px}
+
+  .topo{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+  .topo h1{font-size:26px}
+  .topo .desc{color:var(--nevoa);font-size:14px;margin-top:4px}
+  .voltar{display:inline-flex;align-items:center;gap:7px;color:var(--nevoa);font-size:13.5px;margin-bottom:14px}
+  .voltar:hover{color:var(--branco)}
+
+  .controles{display:flex;flex-wrap:wrap;gap:9px;align-items:center}
+  .seg{display:flex;background:var(--grafite);border:1px solid var(--linha);border-radius:9px;overflow:hidden}
+  .seg button{background:transparent;border:none;padding:9px 13px;font-size:13px;color:var(--nevoa);cursor:pointer;white-space:nowrap}
+  .seg button.ativo{background:var(--ambar);color:#0A0A0A;font-weight:600}
+  .alterna{display:inline-flex;align-items:center;gap:8px;background:var(--grafite);border:1px solid var(--linha);
+    border-radius:9px;padding:9px 13px;font-size:13px;color:var(--nevoa);cursor:pointer}
+  .alterna.on{border-color:var(--ambar);color:var(--branco)}
+  .ponto{width:8px;height:8px;border-radius:50%;background:var(--nevoa)}
+  .alterna.on .ponto{background:var(--ambar)}
+
+  .cartao{background:var(--grafite);border:1px solid var(--linha);border-radius:14px;padding:20px;margin-bottom:18px}
+  .cartao h2{font-size:17px;margin-bottom:3px}
+  .cartao .sub{color:var(--nevoa);font-size:13px;margin-bottom:16px}
+
+  /* ---- veredito ---- */
+  .veredito{border-color:rgba(255,106,0,.35);background:linear-gradient(180deg,rgba(255,106,0,.07),transparent 70%)}
+  .veredito .marca-v{display:flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;
+    letter-spacing:.14em;text-transform:uppercase;color:var(--ambar);margin-bottom:14px}
+  .bloco-v{padding:13px 0;border-top:1px solid var(--linha)}
+  .bloco-v:first-of-type{border-top:none;padding-top:0}
+  .bloco-v .rot{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa);margin-bottom:6px}
+  .bloco-v .txt{font-size:15px}
+  .bloco-v .txt b{color:var(--ambar)}
+  .bloco-v.alerta .txt b{color:var(--vermelho)}
+
+  /* ---- tiles ---- */
+  .tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(178px,1fr));gap:12px;margin-bottom:18px}
+  .tile{background:var(--grafite);border:1px solid var(--linha);border-radius:13px;padding:15px 16px}
+  .t-rot{font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;text-transform:uppercase;color:var(--nevoa);margin-bottom:8px}
+  .t-val{font-family:var(--display);font-size:25px;font-weight:600;line-height:1.05}
+  .t-apoio{font-size:12.5px;color:var(--nevoa);margin-top:6px}
+  .t-apoio.bom{color:var(--verde)}
+  .t-apoio.ruim{color:var(--vermelho)}
+
+  /* ---- escada ---- */
+  .degrau{display:grid;grid-template-columns:150px 1fr 58px 116px;gap:11px;align-items:center;padding:7px 0;font-size:13.5px}
+  .d-rot{color:var(--nevoa);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .d-trilho{height:22px;background:var(--grafite-2);border-radius:6px;overflow:hidden}
+  .d-barra{height:100%;background:linear-gradient(90deg,var(--ambar),#ff9040);border-radius:6px}
+  .d-val{font-family:var(--mono);font-size:13px;text-align:right}
+  .d-taxa{font-family:var(--mono);font-size:11.5px;color:var(--nevoa);text-align:right;white-space:nowrap}
+  .d-taxa b{color:var(--branco);font-weight:500}
+  .d-taxa.fraco b{color:var(--vermelho)}
+
+  /* ---- tabelas ---- */
+  .rolagem{overflow-x:auto;margin:0 -20px;padding:0 20px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px;min-width:560px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--nevoa);
+    text-align:right;padding:0 0 10px;font-weight:400;white-space:nowrap}
+  th:first-child,td:first-child{text-align:left}
+  td{padding:10px 0;border-top:1px solid var(--linha);text-align:right;font-family:var(--mono);font-size:13px;white-space:nowrap}
+  td:first-child{font-family:var(--texto);white-space:normal}
+  td.bom{color:var(--verde)} td.ruim{color:var(--vermelho)}
+  th+th,td+td{padding-left:14px}
+
+  .selo{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+    padding:3px 7px;border-radius:5px;border:1px solid var(--linha);color:var(--nevoa)}
+  .selo.vet{color:var(--ciano);border-color:rgba(34,211,238,.35)}
+  .selo.eventos{color:var(--roxo);border-color:rgba(167,139,250,.35)}
+  .selo.generico{color:var(--ambar);border-color:rgba(255,106,0,.35)}
+
+  .nota{font-size:12.5px;color:var(--nevoa);margin-top:14px;padding-top:13px;border-top:1px solid var(--linha)}
+  .carregando{text-align:center;color:var(--nevoa);padding:60px 20px;font-size:14.5px}
+  .vazio{color:var(--nevoa);font-size:14px;padding:8px 0}
+
+  @media(max-width:640px){
+    .envelope{padding:18px 14px 80px}
+    .degrau{grid-template-columns:104px 1fr 42px;gap:8px;font-size:12.5px}
+    .d-taxa{grid-column:1 / -1;text-align:left;padding-left:112px;margin-top:-4px}
+    .tiles{grid-template-columns:repeat(auto-fit,minmax(142px,1fr))}
+    .t-val{font-size:22px}
+  }
+</style>
+</head>
+<body>
+
+<div class="envelope">
+  <a class="voltar" href="/funil/">&larr; Voltar pro painel</a>
+  <div id="raiz"><div class="carregando">Carregando...</div></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = "https://iklynyncffneuvutvgxa.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const DINHEIRO = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+const DINHEIRO2 = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
+
+const NOME_NICHO = { generico: "Negócio local", vet: "Clínica pet", eventos: "Eventos" };
+
+/* Referencias de mercado pra funil de captacao B2B com formulario e agenda.
+   Servem so pra ordenar o vazamento por impacto enquanto nao existe historico
+   proprio. Assim que houver 3 meses de dado, troca por media movel da casa. */
+const REFERENCIA = {
+  clique_view:      0.85,
+  view_start:       0.35,
+  start_lead:       0.55,
+  lead_completo:    0.75,
+  qualif_agenda:    0.90,
+  agenda_marcou:    0.65,
+  marcou_compareceu:0.75,
+  compareceu_prop:  0.70,
+  prop_cliente:     0.30,
+};
+
+let estado = { janela: 28, simulado: true, dados: null };
+
+/* ====================== matematica ====================== */
+
+// Intervalo de Wilson: com amostra pequena, o intervalo normal chega a passar de
+// 100% ou ficar negativo. Wilson se comporta bem ate com 5 observacoes.
+function wilson(k, n, z = 1.96) {
+  if (!n) return [0, 0];
+  const p = k / n;
+  const d = 1 + (z * z) / n;
+  const centro = p + (z * z) / (2 * n);
+  const raiz = z * Math.sqrt((p * (1 - p)) / n + (z * z) / (4 * n * n));
+  return [Math.max(0, (centro - raiz) / d), Math.min(1, (centro + raiz) / d)];
+}
+
+function fdpNormal(x) {
+  // aproximacao de Abramowitz e Stegun pra funcao de distribuicao acumulada
+  const t = 1 / (1 + 0.2316419 * Math.abs(x));
+  const d = 0.3989423 * Math.exp((-x * x) / 2);
+  let p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))));
+  return x > 0 ? 1 - p : p;
+}
+
+// Teste z de duas proporcoes. Devolve o valor-p bilateral.
+function testeZ(k1, n1, k2, n2) {
+  if (!n1 || !n2) return 1;
+  const p1 = k1 / n1, p2 = k2 / n2;
+  const pool = (k1 + k2) / (n1 + n2);
+  const se = Math.sqrt(pool * (1 - pool) * (1 / n1 + 1 / n2));
+  if (!se) return 1;
+  const z = (p1 - p2) / se;
+  return 2 * (1 - fdpNormal(Math.abs(z)));
+}
+
+// Quantas observacoes por grupo seriam necessarias pra detectar essa diferenca
+// com 80% de poder e 5% de significancia.
+function amostraNecessaria(p1, p2) {
+  if (p1 === p2) return Infinity;
+  const pbar = (p1 + p2) / 2;
+  const num = Math.pow(1.96 * Math.sqrt(2 * pbar * (1 - pbar)) + 0.84 * Math.sqrt(p1 * (1 - p1) + p2 * (1 - p2)), 2);
+  return Math.ceil(num / Math.pow(p1 - p2, 2));
+}
+
+function normalAleatoria() {
+  let u = 0, v = 0;
+  while (u === 0) u = Math.random();
+  while (v === 0) v = Math.random();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+
+// Marsaglia e Tsang. Como o prior e Beta(1,1), a e b nunca ficam abaixo de 1.
+function gamaAleatoria(a) {
+  const d = a - 1 / 3;
+  const c = 1 / Math.sqrt(9 * d);
+  for (;;) {
+    let x, v;
+    do { x = normalAleatoria(); v = 1 + c * x; } while (v <= 0);
+    v = v * v * v;
+    const u = Math.random();
+    if (u < 1 - 0.0331 * x * x * x * x) return d * v;
+    if (Math.log(u) < 0.5 * x * x + d * (1 - v + Math.log(v))) return d * v;
+  }
+}
+
+function betaAleatoria(a, b) {
+  const x = gamaAleatoria(a), y = gamaAleatoria(b);
+  return x / (x + y);
+}
+
+/* Probabilidade de cada grupo ser o melhor, com prior uniforme. Com volume
+   baixo essa e a leitura honesta: "vet tem 71% de chance de ser o melhor" diz
+   muito mais que "vet converte 22%", que some dentro da margem de erro. */
+function probabilidadeDeSerMelhor(grupos, sorteios = 20000) {
+  const vitorias = grupos.map(() => 0);
+  for (let s = 0; s < sorteios; s++) {
+    let melhor = -1, valorMelhor = -1;
+    for (let g = 0; g < grupos.length; g++) {
+      const amostra = betaAleatoria(grupos[g].k + 1, grupos[g].n - grupos[g].k + 1);
+      if (amostra > valorMelhor) { valorMelhor = amostra; melhor = g; }
+    }
+    vitorias[melhor]++;
+  }
+  return vitorias.map((v) => v / sorteios);
+}
+
+function mediana(lista) {
+  if (!lista.length) return null;
+  const ord = [...lista].sort((a, b) => a - b);
+  const meio = Math.floor(ord.length / 2);
+  return ord.length % 2 ? ord[meio] : (ord[meio - 1] + ord[meio]) / 2;
+}
+
+/* ====================== carga ====================== */
+
+async function carregarTabela(tabela, colunas) {
+  const linhas = [];
+  const tamanho = 1000;
+  for (let inicio = 0; ; inicio += tamanho) {
+    const { data, error } = await sb.from(tabela).select(colunas).range(inicio, inicio + tamanho - 1);
+    if (error) throw new Error(tabela + ": " + error.message);
+    linhas.push(...(data || []));
+    if (!data || data.length < tamanho) break;
+  }
+  return linhas;
+}
+
+async function carregarTudo() {
+  const [leads, agendamentos, eventos, etapas, midia] = await Promise.all([
+    carregarTabela("funil_leads", "id,created_at,etapa,qualificado,nicho,ad_id,utm_content,utm_placement,fee_mensal,meses_previstos,valor_contrato,fechado_em,simulado"),
+    carregarTabela("funil_agendamentos", "id,lead_id,created_at,inicio,situacao,nicho,ad_id,simulado"),
+    carregarTabela("funil_eventos", "visitor_id,tipo,passo,nicho,ad_id,utm_content,created_at,simulado"),
+    carregarTabela("funil_etapas_log", "lead_id,de,para,em,simulado"),
+    carregarTabela("tna_meta", "data,anuncio,source_id,investimento,impressoes,cliques_no_link,frequencia,simulado"),
+  ]);
+  return { leads, agendamentos, eventos, etapas, midia };
+}
+
+/* ====================== recorte ====================== */
+
+function corte() {
+  if (estado.janela === 0) return null;
+  const d = new Date();
+  d.setDate(d.getDate() - estado.janela);
+  return d;
+}
+
+function recortar(dados) {
+  const limite = corte();
+  const ok = (simulado) => estado.simulado || simulado !== true;
+  const dentro = (iso) => !limite || new Date(iso) >= limite;
+
+  const leads = dados.leads.filter((l) => ok(l.simulado) && dentro(l.created_at));
+  const idsLead = new Set(leads.map((l) => l.id));
+
+  return {
+    leads,
+    // coorte pela criacao do lead: reuniao de hoje de um lead do mes passado
+    // e desempenho do mes passado, nao de hoje.
+    agendamentos: dados.agendamentos.filter((a) => ok(a.simulado) && idsLead.has(a.lead_id)),
+    etapas: dados.etapas.filter((e) => ok(e.simulado) && idsLead.has(e.lead_id)),
+    eventos: dados.eventos.filter((e) => ok(e.simulado) && dentro(e.created_at)),
+    midia: dados.midia.filter((m) => ok(m.simulado) && dentro(m.data + "T12:00:00")),
+  };
+}
+
+function unicos(eventos, tipo, passo) {
+  const s = new Set();
+  for (const e of eventos) {
+    if (e.tipo !== tipo) continue;
+    if (passo !== undefined && e.passo !== passo) continue;
+    s.add(e.visitor_id);
+  }
+  return s.size;
+}
+
+/* ====================== calculo ====================== */
+
+function etapasAlcancadas(d) {
+  const mapa = new Map();
+  for (const e of d.etapas) {
+    if (!mapa.has(e.lead_id)) mapa.set(e.lead_id, new Set());
+    mapa.get(e.lead_id).add(e.para);
+  }
+  return mapa;
+}
+
+function calcular(d, filtroNicho) {
+  const alcancados = etapasAlcancadas(d);
+  const nicho = (x) => !filtroNicho || x.nicho === filtroNicho;
+  const leads = d.leads.filter(nicho);
+  const eventos = d.eventos.filter(nicho);
+  const idsLead = new Set(leads.map((l) => l.id));
+  const agendamentos = d.agendamentos.filter((a) => idsLead.has(a.lead_id));
+
+  const anunciosDoNicho = new Set(eventos.map((e) => e.utm_content).filter(Boolean));
+  const midia = filtroNicho ? d.midia.filter((m) => anunciosDoNicho.has(m.anuncio)) : d.midia;
+
+  const investimento = midia.reduce((s, m) => s + Number(m.investimento || 0), 0);
+  const cliques = midia.reduce((s, m) => s + Number(m.cliques_no_link || 0), 0);
+  const impressoes = midia.reduce((s, m) => s + Number(m.impressoes || 0), 0);
+
+  const escada = {
+    clique: cliques,
+    form_view: unicos(eventos, "form_view"),
+    form_start: unicos(eventos, "form_start"),
+    lead: unicos(eventos, "lead"),
+    form_complete: unicos(eventos, "form_complete"),
+    scheduler_view: unicos(eventos, "scheduler_view"),
+    schedule: unicos(eventos, "schedule"),
+  };
+
+  const qualificados = leads.filter((l) => l.qualificado === true).length;
+  const compareceu = agendamentos.filter((a) => a.situacao === "compareceu").length;
+  const noShow = agendamentos.filter((a) => a.situacao === "nao_compareceu").length;
+  const marcadas = agendamentos.length;
+  const clientes = leads.filter((l) => l.etapa === "cliente");
+  // Pelo historico, nao pela etapa atual: quem chegou na proposta e depois virou
+  // perdido passou pela proposta do mesmo jeito.
+  const propostas = leads.filter((l) => {
+    const passou = alcancados.get(l.id);
+    return (passou && (passou.has("proposta") || passou.has("cliente"))) ||
+           ["proposta", "cliente"].includes(l.etapa);
+  }).length;
+
+  const receita = clientes.reduce((s, l) => {
+    const fee = Number(l.fee_mensal || 0), meses = Number(l.meses_previstos || 0);
+    return s + (fee && meses ? fee * meses : Number(l.valor_contrato || 0));
+  }, 0);
+
+  return {
+    investimento, cliques, impressoes, escada,
+    leads: leads.length, qualificados, marcadas, compareceu, noShow,
+    propostas, clientes: clientes.length, receita,
+    cpl: leads.length ? investimento / leads.length : null,
+    cplQualificado: qualificados ? investimento / qualificados : null,
+    custoReuniao: compareceu ? investimento / compareceu : null,
+    cac: clientes.length ? investimento / clientes.length : null,
+    taxaAgendamento: qualificados ? marcadas / qualificados : null,
+    taxaNoShow: marcadas ? noShow / marcadas : null,
+  };
+}
+
+/* Vazamento ordenado por dinheiro. Um degrau com queda enorme mas que recebe
+   4 pessoas vale menos que um com queda pequena que recebe 300. */
+function vazamentos(m, valorCliente) {
+  const e = m.escada;
+  const passos = [
+    { nome: "Clique não vira visita", de: e.clique, para: e.form_view, ref: REFERENCIA.clique_view,
+      causa: "Perda no carregamento. Página lenta ou clique acidental." },
+    { nome: "Visita não começa o form", de: e.form_view, para: e.form_start, ref: REFERENCIA.view_start,
+      causa: "A promessa do criativo não bate com a headline. Problema de anúncio." },
+    { nome: "Começa e não dá o telefone", de: e.form_start, para: e.lead, ref: REFERENCIA.start_lead,
+      causa: "Atrito nas três primeiras perguntas." },
+    { nome: "Dá o telefone e abandona", de: e.lead, para: e.form_complete, ref: REFERENCIA.lead_completo,
+      causa: "As perguntas de faturamento e verba estão espantando." },
+    // Filtro de publico, nao vazamento: sem ref, nunca e acusado. Entra na lista
+    // so porque a cadeia de conversao ate o contrato precisa dele, senao o valor
+    // dos degraus de cima sai inflado.
+    { nome: "Completou mas fora do perfil", de: e.form_complete, para: m.qualificados, ref: null,
+      causa: "Filtro de faturamento fazendo o trabalho dele." },
+    { nome: "Qualificado não abre a agenda", de: m.qualificados, para: e.scheduler_view, ref: REFERENCIA.qualif_agenda,
+      causa: "Quebra no redirecionamento do formulário para o /agendar." },
+    { nome: "Abre a agenda e não marca", de: e.scheduler_view, para: e.schedule, ref: REFERENCIA.agenda_marcou,
+      causa: "Falta de horário disponível, não falta de interesse." },
+    { nome: "Marca e não aparece", de: m.marcadas, para: m.compareceu, ref: REFERENCIA.marcou_compareceu,
+      causa: "Sem lembrete entre a marcação e a reunião." },
+    { nome: "Reunião sem proposta", de: m.compareceu, para: m.propostas, ref: REFERENCIA.compareceu_prop,
+      causa: "Reunião não está terminando com próximo passo definido." },
+    { nome: "Proposta sem contrato", de: m.propostas, para: m.clientes, ref: REFERENCIA.prop_cliente,
+      causa: "Preço, prazo ou follow-up." },
+  ];
+
+  // conversao real de cada degrau ate o contrato, pra saber quanto vale a perda
+  const taxas = passos.map((p) => (p.de ? p.para / p.de : 0));
+  return passos.map((p, i) => {
+    const taxa = p.de ? p.para / p.de : null;
+    const perdidos = p.de && taxa !== null && p.ref ? Math.max(0, p.de * p.ref - p.para) : 0;
+    let ateOFim = 1;
+    for (let j = i + 1; j < taxas.length; j++) ateOFim *= taxas[j];
+    return {
+      ...p, taxa,
+      perdidos,
+      impacto: perdidos * ateOFim * valorCliente,
+      abaixo: p.ref !== null && taxa !== null && taxa < p.ref,
+    };
+  }).sort((a, b) => b.impacto - a.impacto);
+}
+
+function temposDeFunil(d) {
+  const porLead = new Map();
+  for (const e of d.etapas) {
+    if (!porLead.has(e.lead_id)) porLead.set(e.lead_id, {});
+    const m = porLead.get(e.lead_id);
+    if (!m[e.para]) m[e.para] = new Date(e.em);
+  }
+  const dias = (a, b) => (b - a) / 86400000;
+  const juntar = (de, para) => {
+    const v = [];
+    for (const m of porLead.values()) if (m[de] && m[para]) v.push(dias(m[de], m[para]));
+    return v;
+  };
+
+  const ateCliente = juntar("novo", "cliente");
+  const med = mediana(ateCliente);
+
+  // Medir so quem fechou enviesa pra baixo: quem demora ainda nao apareceu na
+  // conta. Por isso vai junto quantos seguem abertos alem dessa mediana.
+  let abertosAlem = 0;
+  if (med !== null) {
+    const agora = new Date();
+    for (const m of porLead.values()) {
+      if (m.cliente || !m.novo) continue;
+      if (dias(m.novo, agora) > med) abertosAlem++;
+    }
+  }
+
+  return {
+    novoAgendou: mediana(juntar("novo", "agendou")),
+    agendouReuniao: mediana(juntar("agendou", "reuniao")),
+    reuniaoProposta: mediana(juntar("reuniao", "proposta")),
+    propostaCliente: mediana(juntar("proposta", "cliente")),
+    novoCliente: med,
+    fechados: ateCliente.length,
+    abertosAlem,
+  };
+}
+
+/* ====================== texto do veredito ====================== */
+
+function pct(x, casas = 0) { return x === null || x === undefined ? "n/d" : (x * 100).toFixed(casas) + "%"; }
+function num(x) { return x === null || x === undefined ? "n/d" : x.toString(); }
+
+function montarVeredito(geral, porNicho, vaz, tempos, valorCliente) {
+  const blocos = [];
+
+  const janela = estado.janela === 0 ? "Desde o início" : `Nos últimos ${estado.janela} dias`;
+  blocos.push({
+    rot: "Situação",
+    txt: `${janela}: <b>${DINHEIRO.format(geral.investimento)}</b> investidos, <b>${geral.leads}</b> leads, ` +
+      `<b>${geral.qualificados}</b> dentro do perfil, <b>${geral.compareceu}</b> reuniões feitas e ` +
+      `<b>${geral.clientes}</b> ${geral.clientes === 1 ? "contrato" : "contratos"}. ` +
+      (geral.cplQualificado
+        ? `Cada lead que presta está custando <b>${DINHEIRO.format(geral.cplQualificado)}</b>.`
+        : `Ainda não houve lead dentro do perfil.`),
+  });
+
+  const pior = vaz.filter((v) => v.abaixo && v.impacto > 0)[0];
+  if (pior) {
+    blocos.push({
+      rot: "Vazamento mais caro",
+      alerta: true,
+      txt: `<b>${pior.nome}</b>: passam ${pct(pior.taxa)} quando a referência é ${pct(pior.ref)}. ` +
+        `São cerca de <b>${Math.round(pior.perdidos)}</b> pessoas perdidas nesse degrau, o equivalente a ` +
+        `<b>${DINHEIRO.format(pior.impacto)}</b> em contrato. ${pior.causa}`,
+    });
+  } else {
+    blocos.push({ rot: "Vazamento mais caro", txt: "Nenhum degrau está abaixo da referência de mercado. O funil não é o gargalo agora, o volume é." });
+  }
+
+  // comparacao entre nichos na qualificacao, que e onde ha volume pra afirmar
+  const comVolume = porNicho.filter((n) => n.m.leads >= 5);
+  if (comVolume.length >= 2) {
+    const ord = [...comVolume].sort((a, b) => (b.m.qualificados / b.m.leads) - (a.m.qualificados / a.m.leads));
+    const melhor = ord[0], pior2 = ord[ord.length - 1];
+    const p = testeZ(melhor.m.qualificados, melhor.m.leads, pior2.m.qualificados, pior2.m.leads);
+    const probs = probabilidadeDeSerMelhor(comVolume.map((n) => ({ k: n.m.qualificados, n: n.m.leads })));
+    const iMelhor = comVolume.findIndex((n) => n.chave === melhor.chave);
+
+    if (p < 0.05) {
+      blocos.push({
+        rot: "Decisão da semana",
+        txt: `<b>${NOME_NICHO[melhor.chave]}</b> qualifica ${pct(melhor.m.qualificados / melhor.m.leads)} contra ` +
+          `${pct(pior2.m.qualificados / pior2.m.leads)} de ${NOME_NICHO[pior2.chave]}, e a diferença já é estatisticamente sólida ` +
+          `(p = ${p.toFixed(3)}). Tem <b>${pct(probs[iMelhor])}</b> de chance de ser o melhor dos ativos. ` +
+          `Move verba de ${NOME_NICHO[pior2.chave]} para ${NOME_NICHO[melhor.chave]}, sem desligar o terceiro.`,
+      });
+    } else {
+      const faltam = amostraNecessaria(melhor.m.qualificados / melhor.m.leads, pior2.m.qualificados / pior2.m.leads);
+      blocos.push({
+        rot: "Decisão da semana",
+        txt: `Nenhuma diferença entre nichos é conclusiva ainda (p = ${p.toFixed(3)}). ` +
+          `<b>Não mexe na verba.</b> Para afirmar que ${NOME_NICHO[melhor.chave]} é melhor, precisa de cerca de ` +
+          `<b>${isFinite(faltam) ? faltam : "muitos"}</b> leads por nicho.`,
+      });
+    }
+  } else {
+    blocos.push({ rot: "Decisão da semana", txt: "<b>Não mexe na verba.</b> Ainda não há 5 leads em pelo menos dois nichos, então qualquer comparação é sorte." });
+  }
+
+  const naoDaPra = [];
+  if (geral.clientes < 5) {
+    naoDaPra.push(`CAC por nicho, porque são só ${geral.clientes} ${geral.clientes === 1 ? "contrato" : "contratos"} no total. ` +
+      `Um CAC bonito com 2 contratos vira outro número completamente com o terceiro.`);
+  }
+  if (geral.marcadas < 10) {
+    naoDaPra.push(`taxa de no-show confiável, com ${geral.marcadas} ${geral.marcadas === 1 ? "reunião marcada" : "reuniões marcadas"}. ` +
+      `A margem hoje é larga demais para servir de meta.`);
+  }
+  if (tempos.novoCliente === null) {
+    naoDaPra.push("tempo até o fechamento, porque nenhum lead percorreu o ciclo inteiro ainda.");
+  } else if (tempos.fechados < 5) {
+    naoDaPra.push(`tempo médio de fechamento, porque só ${tempos.fechados} lead(s) fecharam e ${tempos.abertosAlem} seguem abertos além dessa mediana.`);
+  }
+  blocos.push({
+    rot: "O que ainda não dá para decidir",
+    txt: naoDaPra.length
+      ? "Não conclua sobre " + naoDaPra.join(" Também não conclua sobre ")
+      : "Nada relevante está travado por falta de amostra. Os números já sustentam decisão.",
+  });
+
+  return blocos;
+}
+
+/* ====================== desenho ====================== */
+
+function selo(n) { return `<span class="selo ${n}">${NOME_NICHO[n] || n}</span>`; }
+
+function linhaEscada(rot, valor, anterior, ref) {
+  const taxa = anterior ? valor / anterior : null;
+  const [lo, hi] = anterior ? wilson(valor, anterior) : [null, null];
+  const largura = anterior ? Math.max((valor / anterior) * 100, valor ? 2 : 0) : 100;
+  const fraco = taxa !== null && ref && taxa < ref;
+  return `
+    <div class="degrau">
+      <div class="d-rot">${rot}</div>
+      <div class="d-trilho"><div class="d-barra" style="width:${largura}%"></div></div>
+      <div class="d-val">${valor}</div>
+      <div class="d-taxa ${fraco ? "fraco" : ""}">${
+        taxa === null ? "" : `<b>${pct(taxa, 1)}</b> <span style="opacity:.6">(${pct(lo)} a ${pct(hi)})</span>`
+      }</div>
+    </div>`;
+}
+
+function tile(rot, val, apoio, classe) {
+  return `<div class="tile"><div class="t-rot">${rot}</div><div class="t-val">${val}</div>` +
+    (apoio ? `<div class="t-apoio ${classe || ""}">${apoio}</div>` : "") + `</div>`;
+}
+
+function desenhar() {
+  const d = recortar(estado.dados);
+  const geral = calcular(d);
+  const valorCliente = 1500 * 4;
+
+  const chaves = ["vet", "eventos", "generico"];
+  const porNicho = chaves.map((c) => ({ chave: c, m: calcular(d, c) })).filter((n) => n.m.leads > 0 || n.m.investimento > 0);
+  const vaz = vazamentos(geral, valorCliente);
+  const tempos = temposDeFunil(d);
+  const blocos = montarVeredito(geral, porNicho, vaz, tempos, valorCliente);
+
+  const e = geral.escada;
+
+  const escadaHtml =
+    linhaEscada("Cliques no anúncio", e.clique, null, null) +
+    linhaEscada("Viu a página", e.form_view, e.clique, REFERENCIA.clique_view) +
+    linhaEscada("Começou o form", e.form_start, e.form_view, REFERENCIA.view_start) +
+    linhaEscada("Deu o telefone", e.lead, e.form_start, REFERENCIA.start_lead) +
+    linhaEscada("Completou", e.form_complete, e.lead, REFERENCIA.lead_completo) +
+    linhaEscada("Dentro do perfil", geral.qualificados, e.form_complete, null) +
+    linhaEscada("Abriu a agenda", e.scheduler_view, geral.qualificados, REFERENCIA.qualif_agenda) +
+    linhaEscada("Marcou reunião", geral.marcadas, e.scheduler_view, REFERENCIA.agenda_marcou) +
+    linhaEscada("Compareceu", geral.compareceu, geral.marcadas, REFERENCIA.marcou_compareceu) +
+    linhaEscada("Proposta", geral.propostas, geral.compareceu, REFERENCIA.compareceu_prop) +
+    linhaEscada("Contrato", geral.clientes, geral.propostas, REFERENCIA.prop_cliente);
+
+  const probs = porNicho.length >= 2
+    ? probabilidadeDeSerMelhor(porNicho.map((n) => ({ k: n.m.qualificados, n: Math.max(n.m.leads, 1) })))
+    : porNicho.map(() => null);
+
+  const tabelaNichos = porNicho.map((n, i) => {
+    const m = n.m;
+    const taxaQ = m.leads ? m.qualificados / m.leads : null;
+    return `<tr>
+      <td>${selo(n.chave)}</td>
+      <td>${DINHEIRO.format(m.investimento)}</td>
+      <td>${m.leads}</td>
+      <td>${m.cpl ? DINHEIRO.format(m.cpl) : "n/d"}</td>
+      <td>${m.qualificados}</td>
+      <td class="${taxaQ !== null && taxaQ >= 0.3 ? "bom" : taxaQ !== null && taxaQ < 0.15 ? "ruim" : ""}">${pct(taxaQ)}</td>
+      <td>${m.cplQualificado ? DINHEIRO.format(m.cplQualificado) : "n/d"}</td>
+      <td>${m.compareceu}</td>
+      <td>${m.custoReuniao ? DINHEIRO.format(m.custoReuniao) : "n/d"}</td>
+      <td>${m.clientes}</td>
+      <td>${probs[i] === null ? "n/d" : pct(probs[i])}</td>
+    </tr>`;
+  }).join("");
+
+  // por criativo, casando pelo ad_id, que sobrevive a renomear anuncio
+  const porAd = new Map();
+  for (const m of d.midia) {
+    const chave = m.source_id || m.anuncio;
+    if (!porAd.has(chave)) porAd.set(chave, { nome: m.anuncio, investimento: 0, cliques: 0, impressoes: 0, leads: 0, qualificados: 0, clientes: 0 });
+    const r = porAd.get(chave);
+    r.investimento += Number(m.investimento || 0);
+    r.cliques += Number(m.cliques_no_link || 0);
+    r.impressoes += Number(m.impressoes || 0);
+  }
+  for (const l of d.leads) {
+    const chave = l.ad_id || l.utm_content;
+    if (!chave || !porAd.has(chave)) continue;
+    const r = porAd.get(chave);
+    r.leads++;
+    if (l.qualificado === true) r.qualificados++;
+    if (l.etapa === "cliente") r.clientes++;
+  }
+  const linhasAds = [...porAd.values()].sort((a, b) => b.investimento - a.investimento).map((r) => `
+    <tr>
+      <td>${r.nome}</td>
+      <td>${DINHEIRO.format(r.investimento)}</td>
+      <td>${r.impressoes ? ((r.cliques / r.impressoes) * 100).toFixed(2) + "%" : "n/d"}</td>
+      <td>${r.leads}</td>
+      <td>${r.leads ? DINHEIRO.format(r.investimento / r.leads) : "n/d"}</td>
+      <td>${r.qualificados}</td>
+      <td>${r.qualificados ? DINHEIRO.format(r.investimento / r.qualificados) : "n/d"}</td>
+      <td>${r.clientes}</td>
+    </tr>`).join("");
+
+  const dia = (x) => (x === null ? "n/d" : x < 1 ? Math.round(x * 24) + " h" : x.toFixed(1) + " dias");
+
+  const raiz = document.getElementById("raiz");
+  raiz.innerHTML = `
+    <div class="topo">
+      <div>
+        <h1>Analytics do Funil</h1>
+        <div class="desc">Fonte única: o que as páginas gravaram. O GTM continua alimentando Meta e Google em separado.</div>
+      </div>
+      <div class="controles">
+        <div class="seg" id="seg-janela">
+          <button data-janela="28" class="${estado.janela === 28 ? "ativo" : ""}">28 dias</button>
+          <button data-janela="56" class="${estado.janela === 56 ? "ativo" : ""}">56 dias</button>
+          <button data-janela="0" class="${estado.janela === 0 ? "ativo" : ""}">Tudo</button>
+        </div>
+        <button class="alterna ${estado.simulado ? "on" : ""}" id="btn-simulado">
+          <span class="ponto"></span> Dados simulados
+        </button>
+      </div>
+    </div>
+
+    <div class="cartao veredito">
+      <div class="marca-v">Leitura automática</div>
+      ${blocos.map((b) => `
+        <div class="bloco-v ${b.alerta ? "alerta" : ""}">
+          <div class="rot">${b.rot}</div>
+          <div class="txt">${b.txt}</div>
+        </div>`).join("")}
+    </div>
+
+    <div class="tiles">
+      ${tile("CPL qualificado", geral.cplQualificado ? DINHEIRO.format(geral.cplQualificado) : "n/d",
+        `${geral.qualificados} de ${geral.leads} leads`)}
+      ${tile("Taxa de agendamento", pct(geral.taxaAgendamento),
+        `${geral.marcadas} marcadas`)}
+      ${tile("Custo por reunião feita", geral.custoReuniao ? DINHEIRO.format(geral.custoReuniao) : "n/d",
+        `${geral.compareceu} realizadas`)}
+      ${tile("No-show", pct(geral.taxaNoShow), `${geral.noShow} faltas`,
+        geral.taxaNoShow !== null && geral.taxaNoShow > 0.3 ? "ruim" : "bom")}
+      ${tile("CAC", geral.cac ? DINHEIRO.format(geral.cac) : "n/d",
+        geral.cac ? `retorno em ${(geral.cac / 1500).toFixed(1)} ${geral.cac / 1500 < 2 ? "mês" : "meses"}` : "sem contrato")}
+      ${tile("LTV / CAC", geral.cac ? (valorCliente / geral.cac).toFixed(1) + "x" : "n/d",
+        `contrato de ${DINHEIRO.format(valorCliente)}`,
+        geral.cac && valorCliente / geral.cac >= 3 ? "bom" : geral.cac ? "ruim" : "")}
+    </div>
+
+    <div class="cartao">
+      <h2>A escada</h2>
+      <div class="sub">Cada degrau com a taxa de passagem e, entre parênteses, o intervalo real dela. Vermelho é abaixo da referência de mercado.</div>
+      ${escadaHtml}
+      <div class="nota">O intervalo é o que importa com volume baixo. Uma taxa de 20% com 15 pessoas pode ser qualquer coisa entre 7% e 45%, então não vale mudar campanha por causa dela.</div>
+    </div>
+
+    <div class="cartao">
+      <h2>Por nicho</h2>
+      <div class="sub">A última coluna é a probabilidade de o nicho ser o melhor em qualificação, não a taxa em si.</div>
+      <div class="rolagem"><table>
+        <thead><tr>
+          <th>Nicho</th><th>Investido</th><th>Leads</th><th>CPL</th><th>Qualif.</th><th>Taxa</th>
+          <th>CPL qualif.</th><th>Reuniões</th><th>Custo/reunião</th><th>Contratos</th><th>Chance de ser o melhor</th>
+        </tr></thead>
+        <tbody>${tabelaNichos || `<tr><td colspan="11" class="vazio">Sem dado no período.</td></tr>`}</tbody>
+      </table></div>
+    </div>
+
+    <div class="cartao">
+      <h2>Onde está o dinheiro vazando</h2>
+      <div class="sub">Ordenado por impacto em reais, não por porcentagem: queda grande num degrau de pouca gente vale menos que queda pequena num degrau cheio.</div>
+      <div class="rolagem"><table>
+        <thead><tr><th>Degrau</th><th>Passa</th><th>Referência</th><th>Pessoas perdidas</th><th>Vale</th></tr></thead>
+        <tbody>${vaz.map((v) => `
+          <tr>
+            <td>${v.nome}</td>
+            <td class="${v.abaixo ? "ruim" : "bom"}">${pct(v.taxa, 1)}</td>
+            <td>${v.ref === null ? "filtro" : pct(v.ref)}</td>
+            <td>${v.perdidos > 0 ? Math.round(v.perdidos) : "0"}</td>
+            <td>${v.impacto > 0 ? DINHEIRO.format(v.impacto) : "-"}</td>
+          </tr>`).join("")}</tbody>
+      </table></div>
+    </div>
+
+    <div class="cartao">
+      <h2>Por criativo</h2>
+      <div class="sub">Casamento pelo ID do anúncio. Renomear criativo no gerenciador não quebra o histórico.</div>
+      <div class="rolagem"><table>
+        <thead><tr><th>Anúncio</th><th>Investido</th><th>CTR</th><th>Leads</th><th>CPL</th><th>Qualif.</th><th>CPL qualif.</th><th>Contratos</th></tr></thead>
+        <tbody>${linhasAds || `<tr><td colspan="8" class="vazio">Sem dado de mídia no período.</td></tr>`}</tbody>
+      </table></div>
+    </div>
+
+    <div class="cartao">
+      <h2>Quanto tempo leva</h2>
+      <div class="sub">Sempre mediana, nunca média: um negócio que demorou seis meses distorce a média inteira.</div>
+      <div class="tiles" style="margin:0">
+        ${tile("Lead até agendar", dia(tempos.novoAgendou))}
+        ${tile("Agendar até reunir", dia(tempos.agendouReuniao))}
+        ${tile("Reunião até proposta", dia(tempos.reuniaoProposta))}
+        ${tile("Proposta até contrato", dia(tempos.propostaCliente))}
+        ${tile("Lead até contrato", dia(tempos.novoCliente), `${tempos.fechados} fechados`)}
+      </div>
+      ${tempos.novoCliente !== null ? `<div class="nota">${tempos.abertosAlem} lead(s) já passaram desse tempo e continuam abertos. Medir só quem fechou puxa o número para baixo, então trate essa mediana como piso, não como previsão.</div>` : ""}
+    </div>
+  `;
+
+  document.querySelectorAll("#seg-janela button").forEach((b) => {
+    b.addEventListener("click", () => { estado.janela = Number(b.dataset.janela); desenhar(); });
+  });
+  document.getElementById("btn-simulado").addEventListener("click", () => {
+    estado.simulado = !estado.simulado; desenhar();
+  });
+}
+
+/* ====================== entrada ====================== */
+
+(async function iniciar() {
+  const raiz = document.getElementById("raiz");
+  try {
+    const { data } = await sb.auth.getSession();
+    if (!data.session) {
+      raiz.innerHTML = `<div class="carregando">Sessão expirada. <a href="/funil/" style="color:var(--ambar)">Entrar no painel</a> e voltar aqui.</div>`;
+      return;
+    }
+    estado.dados = await carregarTudo();
+    desenhar();
+  } catch (erro) {
+    raiz.innerHTML = `<div class="carregando">Não consegui carregar: ${erro.message}</div>`;
+  }
+})();
+</script>
+</body>
+</html>
