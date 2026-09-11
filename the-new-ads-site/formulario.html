@@ -54,11 +54,14 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     position:absolute;inset:0;
     display:flex;flex-direction:column;justify-content:center;
     padding:32px 24px calc(32px + env(safe-area-inset-bottom));
-    max-width:720px;margin:0 auto;
+    max-width:720px;margin:0 auto;width:100%;
     opacity:0;transform:translateY(28px);pointer-events:none;
     transition:opacity .38s ease,transform .38s cubic-bezier(.22,1,.36,1);
   }
   .tela.ativa{opacity:1;transform:none;pointer-events:auto}
+  @media(max-width:560px){
+    .tela{padding-left:16px;padding-right:16px}
+  }
   .tela.saiu{transform:translateY(-28px)}
 
   /* ---------- capa ---------- */
@@ -68,7 +71,7 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   }
   .kicker::before{content:"";width:22px;height:2px;background:var(--ambar)}
   h1{
-    font-size:clamp(27px,6.8vw,46px);font-weight:900;line-height:1.12;letter-spacing:-.02em;
+    font-size:clamp(27px,6.8vw,42px);font-weight:900;line-height:1.14;letter-spacing:-.02em;
     text-wrap:balance;  /* distribui as linhas em vez de deixar uma orfa embaixo */
   }
   h1 b{color:var(--ambar);font-weight:900}
@@ -493,7 +496,34 @@ function caberSemQuebrar(selDoGrupo, selDosItens, minPx){
   }
 }
 
+/* A headline pode quebrar, mas tres linhas com a ultima quase vazia fica feio.
+   Encolhe a fonte ate caber no numero de linhas desejado. So desiste quando
+   chega no menor tamanho que ainda tem presenca de titulo. */
+function limitarLinhas(sel, maxLinhas, minPx){
+  const el = document.querySelector(sel);
+  if(!el) return;
+
+  el.style.fontSize = "";
+  const estilo = getComputedStyle(el);
+  let tamanho = parseFloat(estilo.fontSize);
+  const proporcaoLinha = parseFloat(estilo.lineHeight) / tamanho;
+
+  const linhas = function(){
+    const alturaLinha = parseFloat(getComputedStyle(el).fontSize) * proporcaoLinha;
+    return Math.round(el.offsetHeight / alturaLinha);
+  };
+
+  while(linhas() > maxLinhas && tamanho > minPx){
+    tamanho -= 0.5;
+    el.style.fontSize = tamanho + "px";
+  }
+}
+
 function ajustarCapa(){
+  // duas linhas e o alvo; em tela muito estreita aceita tres em vez de virar letra miuda
+  // piso unico: em tela grande a fonte nunca chega perto disso, e sem degrau
+  // nao existe largura em que a headline volte pra tres linhas sem motivo
+  limitarLinhas("#capa h1", 2, 20);
   caberSemQuebrar(".bullets", "li", 10);
   caberSemQuebrar("#capa .filtro", "span:last-child", 10);
 }
