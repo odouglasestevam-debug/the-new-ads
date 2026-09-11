@@ -67,23 +67,33 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     color:var(--ambar);display:inline-flex;align-items:center;gap:10px;margin-bottom:18px;
   }
   .kicker::before{content:"";width:22px;height:2px;background:var(--ambar)}
-  h1{font-size:clamp(30px,7.2vw,46px);font-weight:900;line-height:1.1;letter-spacing:-.02em}
+  h1{
+    font-size:clamp(27px,6.8vw,46px);font-weight:900;line-height:1.12;letter-spacing:-.02em;
+    text-wrap:balance;  /* distribui as linhas em vez de deixar uma orfa embaixo */
+  }
   h1 b{color:var(--ambar);font-weight:900}
-  .bullets{list-style:none;margin:26px 0 32px;display:flex;flex-direction:column;gap:13px}
+  /* pedacos que nunca devem ser partidos no meio */
+  .nb{white-space:nowrap}
+
+  .bullets{list-style:none;margin:26px 0 30px;display:flex;flex-direction:column;gap:12px}
   .bullets li{
-    display:flex;align-items:center;gap:11px;
-    font-size:clamp(14.5px,4vw,17px);line-height:1.35;color:#2A2A2A;
+    display:flex;align-items:center;gap:10px;
+    font-size:clamp(11px,3.6vw,17px);line-height:1.3;color:#2A2A2A;
+    white-space:nowrap;           /* bullet quebrado fica feio e perde o ritmo da lista */
   }
   .filtro{
-    margin-top:18px;font-size:13px;color:var(--muted);font-style:italic;
-    display:flex;align-items:flex-start;gap:8px;line-height:1.45;
+    margin-top:16px;font-size:clamp(10px,3vw,13px);color:var(--muted);font-style:italic;
+    display:flex;align-items:baseline;gap:7px;line-height:1.4;
+    white-space:nowrap;
   }
+  /* fora do celular a headline nao precisa de balance, ja cabe com folga */
+  @media(min-width:900px){ h1{text-wrap:pretty} }
 
   /* ---------- perguntas ---------- */
   .conta{font-size:13px;font-weight:700;color:var(--ambar);margin-bottom:12px;letter-spacing:.04em}
   .pergunta{
-    font-size:clamp(21px,5.4vw,31px);font-weight:700;line-height:1.25;letter-spacing:-.01em;
-    margin-bottom:22px;
+    font-size:clamp(20px,5.2vw,31px);font-weight:700;line-height:1.25;letter-spacing:-.01em;
+    margin-bottom:22px;text-wrap:balance;
   }
   input{
     width:100%;border:none;border-bottom:2px solid var(--linha);background:transparent;
@@ -98,8 +108,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
     display:flex;align-items:center;gap:12px;width:100%;text-align:left;
     border:1.5px solid var(--linha);border-radius:9px;background:#fff;
     padding:13px 15px;cursor:pointer;
-    font-family:inherit;font-size:clamp(14.5px,3.9vw,16.5px);color:var(--fg);
+    font-family:inherit;font-size:clamp(13px,3.7vw,16.5px);color:var(--fg);
     transition:border-color .15s ease,background .15s ease;
+    white-space:nowrap;
   }
   .opt:hover{border-color:var(--ambar);background:var(--ambar-fraco)}
   .opt.sel{border-color:var(--ambar);background:var(--ambar-fraco);font-weight:700}
@@ -114,8 +125,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:9px;
     background:var(--ambar);color:#fff;border:none;border-radius:8px;cursor:pointer;
-    font-family:inherit;font-size:17px;font-weight:700;padding:15px 30px;
-    text-decoration:none;
+    font-family:inherit;font-size:clamp(15px,4.2vw,17px);font-weight:700;
+    padding:15px clamp(20px,5.5vw,30px);
+    text-decoration:none;white-space:nowrap;
     transition:filter .15s ease,transform .12s ease;
   }
   .btn:hover{filter:brightness(1.06);transform:translateY(-1px)}
@@ -139,8 +151,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   .voltar.on{display:inline-flex}
 
   /* ---------- telas finais ---------- */
-  .final h2{font-size:clamp(24px,6vw,34px);font-weight:900;line-height:1.2;margin-bottom:14px}
-  .final p{font-size:16px;line-height:1.6;color:var(--muted);max-width:44ch;margin-bottom:6px}
+  .final h2{font-size:clamp(23px,5.8vw,34px);font-weight:900;line-height:1.2;margin-bottom:14px;text-wrap:balance}
+  .final p{font-size:clamp(15px,4vw,16px);line-height:1.6;color:var(--muted);max-width:44ch;margin-bottom:6px;text-wrap:pretty}
   .final p b{color:var(--fg)}
   .selo{
     width:56px;height:56px;border-radius:50%;display:grid;place-items:center;margin-bottom:20px;
@@ -163,7 +175,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
 <div class="palco" id="palco">
   <section class="tela ativa" id="capa">
     <div>
-      <h1>Venda <b>30% mais</b> com Tráfego Pago e inteligência de dados.</h1>
+      <h1>Venda <b class="nb">30% mais</b> com <span class="nb">Tráfego Pago</span> e <span class="nb">inteligência de dados.</span></h1>
       <ul class="bullets">
         <li><span class="emoji">📈</span> Gestão de tráfego especializada em performance</li>
         <li><span class="emoji">✅</span> Método validado em mais de 60 contas</li>
@@ -441,6 +453,61 @@ document.addEventListener("keydown", function(e){
   if(i === -1){ document.getElementById("comecar").click(); return; }
   const s = steps[i];
   if(s && s.type !== "select"){ e.preventDefault(); avancar(); }
+});
+
+/* ---------------------------------------------------------------
+   Garante que nada com nowrap seja cortado. O clamp do CSS acerta na
+   maioria das telas, mas nao sabe o comprimento real do texto nem espera
+   a Lato carregar (a fonte de fallback tem largura diferente). Aqui a
+   pagina se mede depois que a fonte chega e encolhe so o necessario,
+   aplicando o mesmo tamanho no grupo inteiro pra lista nao ficar
+   com cada item de um tamanho.
+   Vale tambem pras versoes por nicho, que terao textos diferentes.
+--------------------------------------------------------------- */
+function caberSemQuebrar(selDoGrupo, selDosItens, minPx){
+  const grupo = document.querySelector(selDoGrupo);
+  if(!grupo) return;
+  const itens = Array.from(grupo.querySelectorAll(selDosItens));
+  if(!itens.length) return;
+
+  itens.forEach(function(el){ el.style.fontSize = ""; });
+  const base = parseFloat(getComputedStyle(itens[0]).fontSize);
+  let tamanho = base;
+
+  const estoura = function(){
+    return itens.some(function(el){ return el.scrollWidth > el.clientWidth + 1; });
+  };
+
+  while(estoura() && tamanho > minPx){
+    tamanho -= 0.5;
+    itens.forEach(function(el){ el.style.fontSize = tamanho + "px"; });
+  }
+
+  // Chegou no menor tamanho legivel e o texto ainda nao cabe: melhor deixar
+  // quebrar em duas linhas equilibradas do que entregar uma linha ilegivel.
+  if(estoura()){
+    itens.forEach(function(el){
+      el.style.whiteSpace = "normal";
+      el.style.textWrap = "balance";
+    });
+  }
+}
+
+function ajustarCapa(){
+  caberSemQuebrar(".bullets", "li", 10);
+  caberSemQuebrar("#capa .filtro", "span:last-child", 10);
+}
+
+if(document.fonts && document.fonts.ready){
+  document.fonts.ready.then(ajustarCapa);
+} else {
+  window.addEventListener("load", ajustarCapa);
+}
+// rotacionar o celular muda a largura, entao mede de novo
+let tmr;
+window.addEventListener("resize", function(){
+  clearTimeout(tmr);
+  tmr = setTimeout(ajustarCapa, 120);
 });
 
 progresso();
