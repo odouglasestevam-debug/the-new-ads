@@ -101,7 +101,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   @media(min-width:900px){ h1{text-wrap:pretty} }
 
   /* ---------- perguntas ---------- */
-  .conta{font-size:13px;font-weight:700;color:var(--ambar);margin-bottom:12px;letter-spacing:.04em}
   .pergunta{
     font-size:clamp(20px,5.2vw,31px);font-weight:700;line-height:1.25;letter-spacing:-.01em;
     margin-bottom:22px;text-wrap:balance;
@@ -490,7 +489,7 @@ function render(){
   progresso();
   btnVoltar.classList.toggle("on", i > 0);
 
-  let html = '<div><div class="conta">' + (i+1) + ' &rarr; ' + steps.length + '</div>';
+  let html = '<div>';
   html += '<div class="pergunta">' + escapar(s.q) + '</div>';
 
   if(s.type === "select"){
