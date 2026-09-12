@@ -218,49 +218,52 @@ window.dataLayer = window.dataLayer || [];
 const NICHOS = {
   generico: {
     titulo: "Diagnóstico de Tráfego Pago | the new ads",
-    descricao: "Venda 30% a mais com Tráfego Pago e Marketing de performance. Exclusivo para empresas que faturam a partir de R$ 70 mil por mês.",
+    descricao: "Descubra como vender até 30% a mais com Tráfego Pago e Marketing de Performance. Exclusivo para empresas que faturam a partir de R$ 70 mil por mês.",
     cor: "#FF6A00", corFraca: "rgba(255,106,0,.08)", textoBotao: "#0A0A0A",
     emoji: "🤝",
-    h1: '<span class="nb">Dono de empresa,</span> venda <b class="nb">30% a mais</b> com <span class="nb">Tráfego Pago</span> e <span class="nb">Marketing de performance</span>',
+    h1: '<span class="nb">Dono de empresa,</span> descubra como vender <b class="nb">até 30% a mais</b> com <span class="nb">Tráfego Pago</span> e <span class="nb">Marketing de Performance</span>',
     bullets: [
-      ["📈", "Venda sem depender de indicação"],
-      ["🎯", "Apareça para o público comprador"],
-      ["🔎", "Sua empresa no topo do Google"],
-      ["✅", "Método validado, +R$ 2mi geridos"],
+      ["📈", "Venda sem depender só de indicação"],
+      ["🎯", "Apareça para quem já quer comprar"],
+      ["🔎", "Sua empresa nas buscas do Google"],
+      ["✅", "Validado em +R$ 2 milhões geridos"],
     ],
     filtro: "Exclusivo para empresas que faturam a partir de R$ 70 mil por mês.",
+    botao: "Quero vender mais",
     whatsapp: "Ola! Vim pela landing page da The New Ads. Tenho interesse em ajuda com trackeamento.",
   },
 
   vet: {
     titulo: "Tráfego Pago para Clínicas e Hospitais Veterinários | the new ads",
-    descricao: "Apareça para o tutor quando ele mais precisa. Exclusivo para clínicas e hospitais veterinários que faturam a partir de R$ 70 mil por mês.",
+    descricao: "Atraia mais tutores e lote sua agenda com Tráfego Pago. Exclusivo para clínicas e hospitais veterinários que faturam a partir de R$ 70 mil por mês.",
     cor: "#0E7C7B", corFraca: "rgba(14,124,123,.09)", textoBotao: "#FFFFFF",
     emoji: "🐾",
-    h1: '<span class="nb">Clínica pet,</span> <b>apareça para tutor quando ele mais precisa</b> com <span class="nb">Tráfego Pago especializado</span>',
+    h1: '<span class="nb">Clínica veterinária,</span> <b>atraia mais tutores</b> e <span class="nb">lote sua agenda</span> com <span class="nb">Tráfego Pago</span>',
     bullets: [
-      ["📅", "Agenda cheia de tutor da região"],
-      ["💰", "Mais cirurgias e casos complexos"],
-      ["🚨", "Sua clínica no topo do Google"],
-      ["✅", "Método validado, ROI de 7,7x"],
+      ["📅", "Mais consultas pedidas no WhatsApp"],
+      ["🩺", "Exames, cirurgias e especialidades"],
+      ["📍", "Alcance o tutor perto da clínica"],
+      ["✅", "Método validado, retorno de 7x"],
     ],
     filtro: "Exclusivo para clínicas e hospitais veterinários que faturam a partir de R$ 70 mil por mês.",
+    botao: "Quero atrair mais tutores",
     whatsapp: "Ola! Vim pelo formulario de clinicas veterinarias da The New Ads. Tenho interesse em ajuda com trackeamento.",
   },
 
   eventos: {
     titulo: "Tráfego Pago para Empresas de Eventos | the new ads",
-    descricao: "Feche muito mais datas com tráfego pago especializado. Exclusivo para empresas de eventos que faturam a partir de R$ 70 mil por mês.",
+    descricao: "Receba mais pedidos de orçamento e feche mais datas com Tráfego Pago. Exclusivo para empresas de eventos que faturam a partir de R$ 70 mil por mês.",
     cor: "#7C3AED", corFraca: "rgba(124,58,237,.09)", textoBotao: "#FFFFFF",
     emoji: "🎉",
-    h1: '<span class="nb">Empresa de eventos,</span> <b>feche muito mais datas</b> com <span class="nb">Tráfego Pago especializado</span>',
+    h1: '<span class="nb">Empresa de eventos,</span> receba mais <b class="nb">pedidos de orçamento</b> e <span class="nb">feche mais datas</span> com <span class="nb">Tráfego Pago</span>',
     bullets: [
-      ["📅", "Sua agenda lotada todos os meses"],
-      ["🥂", "Chegue antes do orçamento rival"],
-      ["🔎", "Sua empresa no topo do Google"],
-      ["✅", "Método validado, +R$ 2mi geridos"],
+      ["📅", "Datas livres viram oportunidade"],
+      ["🎯", "Apareça para quem está planejando"],
+      ["💬", "Receba orçamentos no WhatsApp"],
+      ["✅", "Método validado, R$ 2mi geridos"],
     ],
     filtro: "Exclusivo para empresas de eventos que faturam a partir de R$ 70 mil por mês.",
+    botao: "Quero fechar mais eventos",
     whatsapp: "Ola! Vim pelo formulario de empresas de eventos da The New Ads. Tenho interesse em ajuda com trackeamento.",
   },
 };
@@ -301,6 +304,9 @@ const CONTEUDO = NICHOS[NICHO];
       return '<li><span class="emoji">' + b[0] + '</span> ' + b[1] + '</li>';
     }).join("");
   }
+
+  const botao = document.getElementById("comecar");
+  if (botao && CONTEUDO.botao) botao.textContent = CONTEUDO.botao + " →";
 
   const filtro = document.getElementById("capa-filtro");
   if (filtro) filtro.textContent = CONTEUDO.filtro;
