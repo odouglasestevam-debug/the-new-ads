@@ -12,9 +12,7 @@ import {
   proximosDiasUteis,
   isoDate,
 } from "../_lib/google-calendar.js";
-import { buscarPorId, inserir, notificar, rpc } from "../_lib/supabase.js";
-
-const NOVA_LINHA = String.fromCharCode(10);
+import { inserir, notificar, rpc } from "../_lib/supabase.js";
 
 const DIAS_AGENDAVEIS = 2;
 
@@ -112,40 +110,22 @@ export async function onRequestPost({ request, env }) {
       console.error("falha ao gravar agendamento:", String(err));
     }
 
-    const quando = startDate.toLocaleString("pt-BR", {
-      timeZone: env.TIMEZONE || "America/Sao_Paulo",
-      weekday: "short",
-      day: "2-digit",
-      month: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-
-    // Puxa as respostas do formulario pra notificacao chegar com o contexto
-    // todo: da pra decidir se vale a reuniao sem abrir o painel.
-    let lead = null;
-    try {
-      lead = await buscarPorId(env, "funil_leads", body.leadId, "empresa,faturamento,verba,utm_source,utm_campaign");
-    } catch (err) {
-      console.error("falha ao ler lead do agendamento:", String(err));
-    }
-
-    const origem = [lead?.utm_source, lead?.utm_campaign].filter(Boolean).join(" / ");
-    const detalhes = [
-      quando,
-      name,
-      email,
-      phone || null,
-      lead?.empresa ? `Empresa: ${lead.empresa}` : null,
-      lead?.faturamento ? `Faturamento: ${lead.faturamento}` : null,
-      lead?.verba ? `Verba: ${lead.verba}` : null,
-      origem ? `Origem: ${origem}` : null,
-    ].filter(Boolean);
+    // Notificacao curta, no padrao "Fulano marcou quarta as 17h": os detalhes
+    // completos (empresa, faturamento, origem) ficam no painel, a um toque
+    // de distancia, sem lotar a notificacao no aparelho.
+    const fuso = env.TIMEZONE || "America/Sao_Paulo";
+    const primeiroNome = String(name || "").trim().split(/\s+/)[0] || "Alguém";
+    const diaSemana = startDate
+      .toLocaleDateString("pt-BR", { timeZone: fuso, weekday: "long" })
+      .replace("-feira", "");
+    const horaNum = Number(startDate.toLocaleString("pt-BR", { timeZone: fuso, hour: "2-digit", hour12: false }));
+    const minNum = Number(startDate.toLocaleString("pt-BR", { timeZone: fuso, minute: "2-digit" }));
+    const horaTexto = minNum === 0 ? `${horaNum}h` : `${horaNum}h${String(minNum).padStart(2, "0")}`;
 
     await notificar(
       env,
-      "🚨 NOVA REUNIÃO AGENDADA",
-      detalhes.join(NOVA_LINHA),
+      "Novo agendamento",
+      `${primeiroNome} marcou ${diaSemana} às ${horaTexto}`,
       "https://thenewads.com.br/funil/",
     );
 
