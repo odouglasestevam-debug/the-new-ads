@@ -31,3 +31,15 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 ### 2026-04-03 — Desligar format options em carrosséis
 **Regra:** Ao criar ads de carrossel, SEMPRE passar --degrees-of-freedom-spec com OPT_OUT pra carousel_to_video, image_touchups e standard_enhancements.
 **Contexto:** "Blocos de coleção" e "mídia única" distorcem o carrossel sequencial. Desligar pra manter ordem dos slides.
+
+### 2026-09-12 — Evento LEAD não existe sob o objetivo Vendas
+**Regra:** Se a meta de desempenho for o evento `LEAD` (promoted_object com `custom_event_type: LEAD`), a campanha PRECISA ser `OUTCOME_LEADS`. Com `OUTCOME_SALES` a API recusa o ad set com "Invalid parameter" code 100 subcode 2446814, e a mensagem real só aparece em `error_user_msg`: "Este evento de conversão não está disponível com o objetivo selecionado". Objetivo não é editável depois de criado, então a campanha inteira precisa ser refeita. Conferir a dupla objetivo × evento ANTES de criar a campanha.
+**Contexto:** Campanha multinicho da Funil Shark foi criada como OUTCOME_SALES e teve que ser apagada e refeita como OUTCOME_LEADS.
+
+### 2026-09-12 — instagram_actor_id dentro de object_story_spec foi descontinuado
+**Regra:** Na v21 a API recusa `instagram_actor_id` dentro do `object_story_spec` com "(#100) Param instagram_actor_id must be a valid Instagram account id", mesmo passando o ID correto vindo de `act_X/instagram_accounts` ou de `page.instagram_business_account`. O campo certo agora é `instagram_user_id` **no nível de cima do adcreative**, com o mesmo ID. Criativo sem Instagram também é aceito, mas aí a entrega no Instagram fica por conta do vínculo da página.
+**Contexto:** As 13 criações da campanha multinicho falharam em bloco até isolar o campo testando as duas variantes numa peça descartável.
+
+### 2026-09-12 — Opt-out de "anúncios com vários anunciantes" não está exposto na API
+**Regra:** Não existe campo para desativar multi-advertiser ads em adset, ad ou adcreative na v21 (testado por introspecção com `?metadata=1`: nenhum campo com "multi", "contextual" ou "enroll"). É ajuste manual no Gerenciador. Avisar o usuário em vez de prometer via API.
+**Contexto:** Douglas pediu para desativar na criação da campanha multinicho da Funil Shark.
