@@ -29,48 +29,8 @@ function chart(id, type, labels, datasets, options = {}) {
   charts.push(new Chart(canvas, { type, data: { labels, datasets }, options: { responsive: true, maintainAspectRatio: false, animation: reduced ? false : { duration: 180 }, interaction: { intersect: false, mode: 'index' }, plugins: { legend: { display: true, position: 'bottom', align: 'start', labels: { usePointStyle: true, pointStyle: 'rect', boxWidth: 7, boxHeight: 7, padding: 18, color: '#a0a3a8', font: { size: 11, family: 'Switzer, system-ui' } } }, tooltip: { backgroundColor: '#232323', borderColor: '#424242', borderWidth: 1, padding: 12, callbacks: { label: c => `${c.dataset.label}: ${c.dataset.money ? precise(c.parsed.y ?? c.parsed) : number(c.parsed.y ?? c.parsed)}` } } }, scales: { x: { grid: { display: false }, border: { display: false }, ticks: { color: '#a0a3a8', maxRotation: 0, maxTicksLimit: 8, font: { size: 10 } } }, y: { beginAtZero: true, border: { display: false }, grid: { color: '#292929' }, ticks: { color: '#a0a3a8', precision: 0, maxTicksLimit: 5, font: { size: 10 } } } }, ...options } }));
 }
 function canvas(id, label, tall = false) { return `<div class="chart${tall ? ' tall' : ''}"><canvas id="${id}" role="img" aria-label="${esc(label)}">${esc(label)}. Os valores estão disponíveis na tabela da seção.</canvas></div>`; }
-const PERIODOS = [['7', 'Últimos 7 dias'], ['28', 'Últimos 28 dias'], ['56', 'Últimos 56 dias'], ['90', 'Últimos 90 dias'], ['all', 'Todo o histórico'], ['custom', 'Personalizado']];
-let hintSeq = 0;
-// Descricao fica atras do icone, nao impressa no cartao: o painel tem 22 paineis
-// e imprimir todas as descricoes vira parede de texto. Popover nativo traz ESC,
-// fechar clicando fora e foco pelo teclado sem codigo nosso.
-function hint(text, label = 'Ver o que este número mede') {
-  if (!text) return '';
-  const id = `hint-${++hintSeq}`;
-  return `<button type="button" class="help" popovertarget="${id}" aria-label="${esc(label)}">${icon('info')}</button><div class="hint-pop" id="${id}" popover>${esc(text)}</div>`;
-}
-// O evento toggle do popover nao borbulha; a fase de captura alcanca mesmo assim.
-document.addEventListener('toggle', event => {
-  const pop = event.target;
-  const dica = pop.classList && pop.classList.contains('hint-pop');
-  const periodo = pop.classList && pop.classList.contains('period-pop');
-  if ((!dica && !periodo) || event.newState !== 'open') return;
-  const trigger = document.querySelector(`[popovertarget="${pop.id}"]`);
-  if (!trigger) return;
-  if (window.matchMedia('(max-width: 620px)').matches) { pop.style.left = pop.style.top = ''; return; }
-  const r = trigger.getBoundingClientRect(), box = pop.getBoundingClientRect();
-  // dica centra no icone; o seletor de periodo alinha pela borda esquerda do botao
-  const bruto = periodo ? r.left : r.left + r.width / 2 - box.width / 2;
-  const left = Math.min(Math.max(12, bruto), window.innerWidth - box.width - 12);
-  const acima = r.top > box.height + 16 && window.innerHeight - r.bottom < box.height + 16;
-  pop.style.left = `${left}px`;
-  pop.style.top = `${acima ? r.top - box.height - 8 : r.bottom + 8}px`;
-}, true);
-
-/* Nestes quatro, a descricao muda como se le o numero (taxa sequencial, referencia
-   que e hipotese, probabilidade que nao e taxa, cenario que nao e previsao), entao
-   fica impressa. No resto vai pro icone, senao o painel vira parede de texto. */
-const DESC_FIXA = new Set([
-  'Da chegada ao formulário completo',
-  'Referências para investigação',
-  'Qualificação com incerteza visível',
-  'Cenário de viabilidade',
-]);
 function panel(title, desc, content, span = 6, footer = '', action = '') {
-  const cabeca = desc && DESC_FIXA.has(title)
-    ? `<div><h2>${title}</h2><p>${desc}</p></div>`
-    : `<div class="panel-title"><h2>${title}</h2>${hint(desc, 'Ver o que este painel mostra')}</div>`;
-  return `<section class="panel span-${span}"><div class="panel-head">${cabeca}${action}</div><div class="panel-body">${content}</div>${footer ? `<div class="panel-foot">${footer}</div>` : ''}</section>`;
+  return `<section class="panel span-${span}"><div class="panel-head"><div><h2>${title}</h2>${desc ? `<p>${desc}</p>` : ''}</div>${action}</div><div class="panel-body">${content}</div>${footer ? `<div class="panel-foot">${footer}</div>` : ''}</section>`;
 }
 function table(headers, rows, label, { rawRows = false } = {}) {
   return `<div class="table-scroll" tabindex="0" role="region" aria-label="${esc(label)}"><table><caption class="sr-only">${esc(label)}</caption><thead><tr>${headers.map(h => `<th scope="col">${h}</th>`).join('')}</tr></thead><tbody>${rows.length ? rows.map(row => rawRows ? row : `<tr>${row.map(v => `<td>${v}</td>`).join('')}</tr>`).join('') : `<tr><td colspan="${headers.length}">Nenhum registro neste recorte.</td></tr>`}</tbody></table></div>`;
@@ -86,7 +46,7 @@ function delta(value, previous, lower = false, eligible = true) {
   const tone = Math.abs(v) < .005 ? '' : (lower ? v < 0 : v > 0) ? 'good' : 'bad';
   return `<div class="metric-delta"><b class="${tone}">${v > 0 ? '+' : ''}${percent(v)}</b> vs. período anterior</div>`;
 }
-function metric(label, value, sub, detail = '', change = '') { return `<div class="metric"><div class="metric-label"><span>${label}</span>${hint(detail)}</div><div class="metric-value">${value}</div><div class="metric-sub">${sub}</div>${change}</div>`; }
+function metric(label, value, sub, detail = '', change = '') { return `<div class="metric"><div class="metric-label"><span>${label}</span>${detail ? `<span class="help" tabindex="0" title="${esc(detail)}" aria-label="${esc(detail)}">${icon('info')}</span>` : ''}</div><div class="metric-value">${value}</div><div class="metric-sub">${sub}</div>${change}</div>`; }
 function badgeNiche(n) { return `<span class="niche-identity"><i class="swatch" style="--series:${BI.COLORS[n] || BI.COLORS.desconhecido}"></i>${esc(BI.NICHES[n] || n)}</span>`; }
 function go(view, label) { return `<button class="text-button" data-go="${view}">${label}</button>`; }
 function emptyNotice(m) { return !m.leads && !m.spend && !current.d.eventos.length ? `<div class="empty"><h2>${state.mode === 'real' ? 'Seu próximo lead começa esta história.' : 'Nenhuma simulação neste recorte.'}</h2><p>${state.mode === 'real' ? 'Ainda não há aquisição registrada nos filtros selecionados. Os indicadores serão preenchidos com a operação. Você pode explorar a simulação existente no banco.' : 'Amplie o período ou limpe os filtros para encontrar os dados simulados.'}</p><button class="button" data-action="${state.mode === 'real' ? 'simulation' : 'clear'}">${state.mode === 'real' ? 'Explorar dados simulados' : 'Limpar filtros'}</button></div>` : ''; }
@@ -232,15 +192,9 @@ function shell(content) {
   <div class="workspace"><header class="topbar"><div class="breadcrumb"><a href="/funil/">Funil</a>${icon('chevron')}<span>Analytics</span></div><div class="toolbar"><button class="button plain" data-action="refresh" ${updating ? 'disabled' : ''} aria-label="Atualizar dados">${icon('refresh')}<span>${updating ? 'Atualizando…' : 'Atualizar'}</span></button><button class="button" data-action="export" aria-label="Exportar dados desta seção em CSV">${icon('download')}<span>Exportar CSV</span></button></div></header>
   <main class="main" id="content" tabindex="-1"><div class="heading"><div><h1>${title[0]}</h1><p>${title[1]}</p></div><span class="tag ${state.mode === 'simulado' ? 'simulation' : ''}">${icon(state.mode === 'simulado' ? 'info' : 'check')}${state.mode === 'simulado' ? 'Simulação' : 'Dados reais'}</span></div>
   <div class="filters"><div class="field"><label for="filter-niche">Nicho</label><select id="filter-niche"><option value="">Todos os nichos</option>${Object.entries(BI.NICHES).map(([k, label]) => `<option value="${k}" ${state.niche === k ? 'selected' : ''}>${label}</option>`).join('')}</select></div>
-  <div class="field range-field"><span class="field-label">Período de captação</span>
-    <button type="button" class="period-trigger" popovertarget="period-pop" aria-label="Alterar o período de captação">
-      <span class="period-trigger-text"><strong>${PERIODOS.find(([k]) => k === state.range)?.[1] || 'Período'}</strong><small>${fullDate(p.start)} a ${fullDate(p.end)}</small></span>${icon('chevron')}</button>
-    <div class="period-pop" id="period-pop" popover>
-      <div class="period-list" role="group" aria-label="Períodos">${PERIODOS.map(([k, l]) => `<button type="button" data-range="${k}" class="${state.range === k ? 'ativo' : ''}" aria-pressed="${state.range === k}">${l}${state.range === k ? icon('check') : ''}</button>`).join('')}</div>
-      ${state.range === 'custom' ? `<div class="period-custom"><div class="field"><label for="date-start">De</label><input id="date-start" type="date" min="2020-01-01" max="${current.data.today}" value="${p.start}"></div><div class="field"><label for="date-end">Até</label><input id="date-end" type="date" min="2020-01-01" max="${current.data.today}" value="${p.end}"></div><button class="button primary" data-action="dates">Aplicar datas</button></div>` : ''}
-    </div></div>
+  <div class="field range-field"><label>Período de captação</label><div class="segmented" role="group" aria-label="Período de captação">${[['7', '7 dias'], ['28', '28 dias'], ['56', '56 dias'], ['90', '90 dias'], ['all', 'Tudo'], ['custom', 'Datas']].map(([k, l]) => `<button data-range="${k}" aria-pressed="${state.range === k}">${l}</button>`).join('')}</div></div>
   <div class="field filter-tail"><label for="filter-mode">Base de dados</label><select id="filter-mode"><option value="real" ${state.mode === 'real' ? 'selected' : ''}>Somente dados reais</option><option value="simulado" ${state.mode === 'simulado' ? 'selected' : ''}>Somente simulação</option></select></div>
-  </div>
+  ${state.range === 'custom' ? `<div class="field"><label for="date-start">De</label><input id="date-start" type="date" min="2020-01-01" max="${current.data.today}" value="${p.start}"></div><div class="field"><label for="date-end">Até</label><input id="date-end" type="date" min="2020-01-01" max="${current.data.today}" value="${p.end}"></div><button class="button" data-action="dates">Aplicar datas</button>` : ''}</div>
   <div class="period-note">${icon('clock')}<span>${fullDate(p.start)} a ${fullDate(p.end)} · São Paulo · Resultados acompanhados até ${fullDate(current.data.today)}</span>${state.niche || state.ad ? '<button class="text-button" data-action="clear">Limpar filtros</button>' : ''}${state.ad ? `<span class="tag">Anúncio ${esc(state.ad)} <button class="text-button" data-action="clear-ad">Remover anúncio</button></span>` : ''}</div>
   ${state.mode === 'simulado' ? '<div class="notice">' + icon('info') + '<p><strong>Você está explorando uma simulação.</strong> Estes números validam a leitura do painel e não representam resultados reais da agência.</p></div>' : ''}
   ${emptyNotice(m)}${content}
@@ -252,7 +206,6 @@ function render() {
   const focused = document.activeElement;
   const focusId = focused?.id;
   charts.forEach(c => c.destroy()); charts = [];
-  hintSeq = 0;
   const data = BI.prepare(raw, state.mode, loadedAt);
   if (state.range === 'custom' && (!validDate(state.start) || !validDate(state.end) || state.start > state.end)) { state.start = BI.addDays(data.today, -55); state.end = data.today; }
   const p = BI.period(data, state.range, state.start, state.end), d = BI.slice(data, p, state.niche, state.ad);
@@ -288,12 +241,7 @@ function exportCSV() {
 document.addEventListener('click', async e => {
   const el = e.target.closest('button,a[data-nav]'); if (!el) return;
   if (el.dataset.nav || el.dataset.go) { e.preventDefault(); navigate(el.dataset.nav || el.dataset.go); }
-  else if (el.dataset.range) {
-    state.range = el.dataset.range; render();
-    // Personalizado precisa do seletor aberto pra pessoa digitar as datas.
-    if (state.range === 'custom') { document.getElementById('period-pop')?.showPopover(); document.getElementById('date-start')?.focus({ preventScroll: true }); }
-    else document.querySelector('.period-trigger')?.focus({ preventScroll: true });
-  }
+  else if (el.dataset.range) { state.range = el.dataset.range; render(); document.querySelector(`[data-range="${state.range}"]`)?.focus({ preventScroll: true }); }
   else if (el.dataset.ad) { state.ad = el.dataset.ad; state.search = ''; navigate('overview'); }
   else if (el.dataset.niche) { state.niche = el.dataset.niche; render(); $('filter-niche').focus({ preventScroll: true }); }
   else if (el.dataset.sort) { state.descending = state.sort === el.dataset.sort ? !state.descending : true; state.sort = el.dataset.sort; renderAds(); document.querySelector(`[data-sort="${state.sort}"]`)?.focus({ preventScroll: true }); }
