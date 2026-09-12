@@ -14,7 +14,7 @@ export function fixture(now = new Date()) {
     event('form_start', null, 2); event('form_step', 1, 4); event('form_step', 2, 6);
     if (i >= 68) continue;
     event('form_step', 3, 8); event('lead', null, 8);
-    const qualified = i < 45 && (niche === 'vet' ? i % 9 !== 0 : niche === 'eventos' ? i === 1 : i < 14);
+    const qualified = i < 45 && (niche === 'vet' ? i % 9 !== 0 && i !== 42 : niche === 'eventos' ? i === 1 : i < 14);
     const booked = [0, 2, 3, 6, 9, 12].includes(i), held = [0, 3, 6].includes(i), client = [0, 3].includes(i);
     const lead = { id: `lead-${i}`, created_at: at(ago), nicho: niche, ad_id: base.ad_id, etapa: client ? 'cliente' : held ? 'reuniao' : booked ? 'no_show' : qualified ? 'qualificado' : i < 45 ? 'desqualificado' : 'novo', qualificado: i < 45 ? qualified : null, faturamento: i < 45 ? (qualified ? i % 2 ? 'R$ 30 mil a R$ 69 mil' : 'R$ 70 mil a R$ 199 mil' : 'Ate R$ 30 mil') : null, verba: i < 45 ? qualified ? 'R$ 1,1 mil a R$ 3 mil' : 'Ate R$ 1 mil' : null, ja_investe: i < 45 ? i % 2 ? 'Nao, nunca investi' : 'Sim, com agencia ou gestor' : null, utm_placement: ['instagram_feed', 'instagram_stories', 'facebook_feed'][i % 3], utm_content: data.midia.find(m => m.source_id === base.ad_id).anuncio, simulado: true, fee_mensal: client ? 1500 : null, meses_previstos: client ? 4 : null, valor_contrato: client ? 6000 : null, fechado_em: client ? at(Math.max(1, ago - 10)) : null };
     data.leads.push(lead); data.etapas.push({ lead_id: lead.id, de: null, para: 'novo', em: at(ago), simulado: true });

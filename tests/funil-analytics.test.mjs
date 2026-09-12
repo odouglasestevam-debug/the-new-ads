@@ -77,7 +77,7 @@ test('filtro por anúncio acompanha leads, visitantes e origens não atribuídas
 });
 test('simulação completa reconcilia 68 leads, 3 presenças e 2 contratos', () => {
   const data = BI.prepare(fixture(now), 'simulado', now), d = BI.slice(data, BI.period(data, 'all')), m = BI.metrics(d);
-  assert.equal(m.leads, 68); assert.equal(m.held, 3); assert.equal(m.won, 2); assert.equal(m.revenue, 12000);
+  assert.equal(m.leads, 68); assert.equal(m.qualified, 14); assert.equal(m.held, 3); assert.equal(m.won, 2); assert.equal(m.revenue, 12000);
   assert.equal(BI.journey(d).rows[0].k, 442); assert.equal(BI.journey(d).rows[4].k, 68); assert.equal(BI.journey(d).rows.at(-1).k, 45);
   assert.ok(Math.abs(BI.weekly(d).reduce((s, w) => s + w.spend, 0) - m.spend) < .00001);
   assert.equal(BI.cohortRows(d).reduce((s, c) => s + c.m.won, 0), m.won);

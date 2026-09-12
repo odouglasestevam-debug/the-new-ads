@@ -1,6 +1,6 @@
 # Analytics do funil: implementação e método
 
-Implementação de 11/09/2026, baseada em `funil-tna-briefing.md`. Rota preservada: `/funil/analytics`, acessível pelo item Analytics do CRM.
+Implementação de 12/09/2026, baseada em `funil-tna-briefing.md`. Rota preservada: `/funil/analytics`, acessível pelo item Analytics do CRM. A aquisição usa **uma única conta Meta Ads**. Ela ainda não possui veiculação nem resultados reais; os registros atualmente usados para validar o painel foram inseridos no banco como dados de teste.
 
 ## Organização
 
@@ -24,7 +24,7 @@ Filtros de nicho, 7/28/56/90 dias, todo o histórico e datas personalizadas acom
 7. **Fuso fixo.** Datas de aquisição e horários usam `America/Sao_Paulo`. A comparação anterior ocupa uma janela adjacente do mesmo tamanho; não se aplica a “Tudo”.
 8. **Contrato não é caixa.** Valor negociado explícito prevalece sobre fee × duração. Sem informação, o contrato fica sinalizado. Retorno contratado/mídia não é lucro, LTV nem receita recebida; fees de contratos conquistados não equivalem a MRR ativo.
 9. **Incerteza explícita.** Taxas exibem base e Wilson de 95%. A comparação exploratória de qualificação usa Beta(1,1), Monte Carlo reproduzível. Não afirma superioridade de rentabilidade a partir de poucos contratos. Referências do briefing são hipóteses, sem causalidade presumida.
-10. **Real e simulado não se somam.** Seleção mutuamente exclusiva, com aviso em tela e identificação no CSV. Nenhuma simulação é gerada na aplicação de produção.
+10. **Conta e dados de teste não se somam.** A seleção é mutuamente exclusiva. A conta Meta é a visualização padrão e aparece vazia enquanto não há veiculação. Os dados marcados com `simulado = true` são apresentados como “dados de teste inseridos no banco”, com aviso na tela e identificação no CSV. Eles não são resultados da conta. Nenhuma simulação é gerada pela aplicação de produção.
 
 ## Arquitetura
 
