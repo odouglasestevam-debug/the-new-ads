@@ -43,3 +43,11 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 ### 2026-09-12 — Opt-out de "anúncios com vários anunciantes" não está exposto na API
 **Regra:** Não existe campo para desativar multi-advertiser ads em adset, ad ou adcreative na v21 (testado por introspecção com `?metadata=1`: nenhum campo com "multi", "contextual" ou "enroll"). É ajuste manual no Gerenciador. Avisar o usuário em vez de prometer via API.
 **Contexto:** Douglas pediu para desativar na criação da campanha multinicho da Funil Shark.
+
+### 2026-09-14 — Formato flexível do gerenciador não tem equivalente via API para imagem estática
+**Regra:** `asset_feed_spec` com `ad_formats: ["AUTOMATIC_FORMAT"]` cria o criativo, mas o anúncio é tratado como criativo dinâmico e só entra em conjunto com `is_dynamic_creative=true`, que aceita UM anúncio por conjunto ("Anúncios de criativos dinâmicos só podem ser criados em conjuntos de anúncios de criativos dinâmicos"). Com `optimization_type: FORMAT_AUTOMATION` exige pelo menos dois entre COLLECTION, CAROUSEL e SINGLE_VIDEO. Ou seja: agrupar imagens por nicho via API obriga a um conjunto por grupo, o que divide a fase de aprendizado. Para vários anúncios flexíveis num conjunto só, criar na mão pelo gerenciador. Não confundir número de anúncios com pulverização: verba e aprendizado vivem no conjunto.
+**Contexto:** Tentativa de três anúncios flexíveis por nicho num conjunto único da campanha de CompleteRegistration da Funil Shark; o Douglas optou por 13 anúncios de imagem num conjunto.
+
+### 2026-09-14 — CompleteRegistration é aceito sob OUTCOME_SALES
+**Regra:** Diferente do LEAD, `custom_event_type: COMPLETE_REGISTRATION` funciona como meta de desempenho em campanha de Vendas. Criativos podem ser reaproveitados entre anúncios de campanhas diferentes pelo `creative_id`: as macros das url_tags resolvem por anúncio.
+**Contexto:** Campanha de Vendas da Funil Shark montada reaproveitando os 13 criativos da campanha de Lead.
