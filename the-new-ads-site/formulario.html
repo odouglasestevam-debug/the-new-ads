@@ -620,7 +620,10 @@ function finish(){
   const nome = (data.nome || "").split(" ")[0];
 
   if(desqualificado){
-    dl("CompletouFormulario", {dentro_do_perfil:false, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
+    // Nome proprio pro desqualificado: nenhum gatilho do GTM escuta este evento,
+    // entao o CompleteRegistration so chega na Meta pra quem esta no perfil e
+    // passa a servir de sinal de otimizacao de lead qualificado.
+    dl("CompletouFormularioForaDoPerfil", {dentro_do_perfil:false, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
     enviarWebhook({evento:"formulario_incompleto_perfil", qualificado:false, nome:data.nome, email:data.email, telefone:data.telefone, faturamento:data.faturamento, verba:data.verba, ja_investe:data.ja_investe});
     const url = msgLink(CONTEUDO.whatsapp);
     trocarTela(
