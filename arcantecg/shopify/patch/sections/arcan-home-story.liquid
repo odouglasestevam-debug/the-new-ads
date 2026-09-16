@@ -1,0 +1,7 @@
+{% assign featured = section.settings.product %}
+{% if featured != blank %}
+<section class="collection-section" id="colecao"><div class="container collection-layout"><div class="collection-copy"><h2>{{ section.settings.title | escape | newline_to_br }}</h2><p>{{ section.settings.description | escape }}</p><a class="button light" href="{{ section.settings.collection.url | default: routes.all_products_collection_url }}">Encontrar minha próxima carta <svg class="icon" aria-hidden="true"><use href="#arcan-icon-arrow"/></svg></a></div><div class="collection-display">{% if featured.featured_image %}{{ featured.featured_image | image_url: width: 500 | image_tag: loading: 'lazy', widths: '250, 500', sizes: '200px', alt: featured.title }}{% endif %}<div><h3>{{ featured.title | escape }}</h3><p>{{ featured.price | money }}</p><a class="text-link" href="{{ featured.url }}">Conhecer esta carta <svg class="icon" aria-hidden="true"><use href="#arcan-icon-arrow"/></svg></a></div></div></div></section>
+{% endif %}
+{% schema %}
+{"name":"Arcan · Carta especial","settings":[{"type":"textarea","id":"title","label":"Título","default":"TEM CARTA QUE\nÉ UM ENCONTRO."},{"type":"textarea","id":"description","label":"Texto","default":"Uma arte que chama a atenção. Um Pokémon que faz parte da sua história. Encontre uma carta para chamar de sua."},{"type":"product","id":"product","label":"Carta em destaque"},{"type":"collection","id":"collection","label":"Coleção do botão"}],"presets":[{"name":"Arcan · Carta especial"}]}
+{% endschema %}

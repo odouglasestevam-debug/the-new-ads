@@ -1,0 +1,26 @@
+{
+  "originalStillPublished": true,
+  "newThemeUnpublished": true,
+  "originalFiles": [
+    {
+      "filename": "config/settings_data.json",
+      "unchanged": true
+    },
+    {
+      "filename": "layout/theme.liquid",
+      "unchanged": true
+    },
+    {
+      "filename": "sections/footer-group.json",
+      "unchanged": true
+    },
+    {
+      "filename": "sections/header-group.json",
+      "unchanged": true
+    },
+    {
+      "filename": "templates/index.json",
+      "unchanged": true
+    }
+  ]
+}

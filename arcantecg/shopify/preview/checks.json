@@ -1,0 +1,54 @@
+{
+  "preview": "https://arcantcg.com.br/?preview_theme_id=158466998437",
+  "banners": [
+    {
+      "src": "https://arcantcg.com.br/cdn/shop/files/2-slide-1785330290907-982451563-570aeb8f975c774c0202ed13ef40b4861785330295-1920-1920.webp?v=1785387900&width=1500",
+      "complete": true,
+      "width": 1440
+    },
+    {
+      "src": "https://arcantcg.com.br/cdn/shop/files/2-slide-1785036496582-6443414507-bed01ea3c1a22b336d3d4b39edd6156c1785036500-1920-1920.webp?v=1785387215&width=1500",
+      "complete": true,
+      "width": 1440
+    }
+  ],
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "brokenImages": []
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "brokenImages": []
+    },
+    {
+      "width": 320,
+      "overflow": false,
+      "brokenImages": []
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "brokenImages": []
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "brokenImages": []
+    }
+  ],
+  "pageErrors": [],
+  "checks": [
+    "Two original banners",
+    "Live products and price markup",
+    "Collection tabs",
+    "Native add-to-cart form and real variant id",
+    "Mobile menu and Escape",
+    "Banner navigation",
+    "Shopify search",
+    "Unchanged product template"
+  ],
+  "cartMutationPerformed": false
+}

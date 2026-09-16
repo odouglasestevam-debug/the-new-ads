@@ -1,0 +1,15 @@
+{%- if product != blank -%}
+{%- assign variant = product.selected_or_first_available_variant -%}
+<article class="arcan-product">
+  <div class="product-picture">
+    {% unless product.available %}<span class="product-tag">ESGOTADO</span>{% else %}{% if product.compare_at_price > product.price and product.price_varies == false %}<span class="product-tag">EM OFERTA</span>{% endif %}{% endunless %}
+    <a href="{{ product.url }}" aria-label="Ver {{ product.title | escape }}">{% if product.featured_image %}{{ product.featured_image | image_url: width: 600 | image_tag: loading: 'lazy', widths: '180, 300, 450, 600', sizes: '(max-width: 760px) 45vw, 280px', alt: product.title }}{% else %}{{ 'product-1' | placeholder_svg_tag }}{% endif %}</a>
+  </div>
+  <p class="product-meta">Pokémon TCG</p><h3><a href="{{ product.url }}">{{ product.title | escape }}</a></h3>
+  <div class="price-row"><div>{% if product.compare_at_price > product.price and product.price_varies == false %}<s class="compare-price">{{ product.compare_at_price | money }}</s>{% endif %}<span class="price">{% if product.price_varies %}<small>A partir de </small>{% endif %}{{ product.price | money }}</span><span class="price-note">{% if product.available %}{{ cart.currency.iso_code }}{% else %}Indisponível{% endif %}</span></div>
+    {% if product.available and product.has_only_default_variant and product.selling_plan_groups == empty %}
+      <form action="{{ routes.cart_add_url }}" method="post"><input type="hidden" name="id" value="{{ variant.id }}"><input type="hidden" name="quantity" value="1"><input type="hidden" name="return_to" value="{{ routes.cart_url }}"><button class="add-button" type="submit" aria-label="Adicionar {{ product.title | escape }} à sacola"><svg class="icon" aria-hidden="true"><use href="#arcan-icon-bag"/></svg></button></form>
+    {% else %}<a class="add-button" href="{{ product.url }}" aria-label="Ver detalhes de {{ product.title | escape }}"><svg class="icon" aria-hidden="true"><use href="#arcan-icon-arrow"/></svg></a>{% endif %}
+  </div>
+</article>
+{%- endif -%}

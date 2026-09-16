@@ -1,0 +1,104 @@
+{
+  "sections": {
+    "hero-slideshow": {
+      "type": "slideshow",
+      "blocks": {
+        "slide_CKnndD": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/2-slide-1785330290907-982451563-570aeb8f975c774c0202ed13ef40b4861785330295-1920-1920.webp",
+            "image_overlay_opacity": 0,
+            "heading": "",
+            "heading_size": "h1",
+            "subheading": "",
+            "button_label": "",
+            "link": "",
+            "button_style_secondary": false,
+            "show_text_box": false,
+            "box_align": "middle-center",
+            "text_alignment": "center",
+            "text_alignment_mobile": "center",
+            "color_scheme": "scheme-1"
+          }
+        },
+        "slide_KUPwd4": {
+          "type": "slide",
+          "settings": {
+            "image": "shopify://shop_images/2-slide-1785036496582-6443414507-bed01ea3c1a22b336d3d4b39edd6156c1785036500-1920-1920.webp",
+            "image_overlay_opacity": 0,
+            "heading": "",
+            "heading_size": "h1",
+            "subheading": "",
+            "button_label": "",
+            "link": "",
+            "button_style_secondary": false,
+            "show_text_box": false,
+            "box_align": "middle-center",
+            "text_alignment": "center",
+            "text_alignment_mobile": "center",
+            "color_scheme": "scheme-1"
+          }
+        }
+      },
+      "block_order": [
+        "slide_CKnndD",
+        "slide_KUPwd4"
+      ],
+      "settings": {
+        "layout": "full_bleed",
+        "slide_height": "adapt_image",
+        "slider_visual": "dots",
+        "auto_rotate": false,
+        "change_slides_speed": 5,
+        "image_behavior": "none",
+        "show_text_below": false,
+        "accessibility_info": "Destaques da Arcan TCG"
+      }
+    },
+    "arcan-products": {
+      "type": "arcan-home-products",
+      "settings": {
+        "collection": "box",
+        "cards_collection": "raras",
+        "boosters_collection": "blister-unitario",
+        "kits_collection": "etb",
+        "title": "Os próximos favoritos da sua coleção.",
+        "caption": "Explore cartas, boosters e boxes para sua próxima descoberta."
+      }
+    },
+    "arcan-story": {
+      "type": "arcan-home-story",
+      "settings": {
+        "product": "vaporeon-022-131-evolucoes-prismaticas",
+        "collection": "raras"
+      }
+    },
+    "arcan-discover": {
+      "type": "arcan-home-products",
+      "settings": {
+        "collection": "lancamentos",
+        "title": "Mais descobertas. Novas possibilidades.",
+        "caption": "Conheça os lançamentos da Arcan TCG.",
+        "show_filters": false
+      }
+    },
+    "arcan-beginner": {
+      "type": "arcan-home-beginner",
+      "settings": {
+        "product": "mini-bb-evolucoes-prismaticas-pt-br"
+      }
+    },
+    "tna_avaliacoes": {
+      "type": "tna-avaliacoes",
+      "settings": {}
+    }
+  },
+  "order": [
+    "hero-slideshow",
+    "arcan-products",
+    "arcan-story",
+    "arcan-discover",
+    "arcan-beginner",
+    "tna_avaliacoes"
+  ]
+}

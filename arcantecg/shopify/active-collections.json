@@ -1,0 +1,526 @@
+[
+  {
+    "handle": "frontpage",
+    "active": []
+  },
+  {
+    "handle": "full-arts",
+    "active": []
+  },
+  {
+    "handle": "produtos-nacionais-e-importados",
+    "active": []
+  },
+  {
+    "handle": "lancamentos",
+    "active": [
+      {
+        "handle": "etb-escuridao-absoluta-pt-br",
+        "title": "ETB ESCURIDÃO ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "etb-pitch-black-us",
+        "title": "ETB PITCH BLACK (US)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "mini-bb-pitch-black-us",
+        "title": "MINI BB PITCH BLACK (US)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-triplo-escuridao-absoluta-pt-br",
+        "title": "BLISTER TRIPLO ESCURIDÃO ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-quadruplo-escuridao-absoluta-pt-br",
+        "title": "BLISTER QUADRUPLO ESCURIDÃO ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "bulks",
+    "active": []
+  },
+  {
+    "handle": "acessorios",
+    "active": [
+      {
+        "handle": "pasta-central-3x3",
+        "title": "PASTA CENTRAL 3X3",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "toploader-semi-rigido-bra-c-50un",
+        "title": "TOPLOADER SEMI-RÍGIDO BRA C/50UN",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "sleeves-bra-com-100un",
+        "title": "SLEEVES BRA COM 100UN",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "toploader-magnetico-bra",
+        "title": "TOPLOADER MAGNETICO BRA",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "mega-evolucao",
+    "active": []
+  },
+  {
+    "handle": "blister-unitario",
+    "active": [
+      {
+        "handle": "blister-caos-ascendente-pt-br",
+        "title": "BLISTER CAOS ASCENDENTE (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-rivais-predestinados-pt-br",
+        "title": "BLISTER RIVAIS PREDESTINADOS (PT-BR)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "mini-box",
+    "active": [
+      {
+        "handle": "mini-bb-caos-ascendnte-pt-br",
+        "title": "MINI BB CAOS ASCENDNTE (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "mini-bb-evolucoes-prismaticas-pt-br",
+        "title": "MINI BB EVOLUÇÕES PRISMÁTICAS (PT-BR)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "booster-box",
+    "active": []
+  },
+  {
+    "handle": "box",
+    "active": [
+      {
+        "handle": "box-pokemon-go-articuno-pt-br",
+        "title": "BOX POKEMON GO ARTICUNO (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-pokemon-go-moltres-pt-br",
+        "title": "BOX POKEMON GO MOLTRES (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-equipe-rocket-pt-br",
+        "title": "BOX EQUIPE ROCKET (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-mega-charizard-x-pt-br",
+        "title": "BOX MEGA CHARIZARD X (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-mega-charizard-y-pt-br",
+        "title": "BOX MEGA CHARIZARD Y (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-mega-charizard-x-ex-pt-br",
+        "title": "BOX MEGA CHARIZARD X EX (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-mega-venusaur-ex-pt-br",
+        "title": "BOX MEGA VENUSAUR EX (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-charizard-em-dobro-pt-br",
+        "title": "BOX CHARIZARD EM DOBRO (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-mega-lucario-ex-pt-br",
+        "title": "BOX MEGA LUCARIO EX (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-mega-kangaskhan-ex-pt-br",
+        "title": "BOX MEGA KANGASKHAN EX (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-iniciais-series-1-pt-br",
+        "title": "BOX INICIAIS SERIES 1 (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "box-iniciais-series-2-pt-br",
+        "title": "BOX INICIAIS SERIES 2 (PT-BR)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "etb",
+    "active": [
+      {
+        "handle": "etb-equilibrio-perfeito-pt-br",
+        "title": "ETB EQUILIBRIO PERFEITO (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "etb-chaos-rising-us",
+        "title": "ETB CHAOS RISING (US)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "etb-caos-ascendente-pt-br",
+        "title": "ETB CAOS ASCENDENTE (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "etb-escuridao-absoluta-pt-br",
+        "title": "ETB ESCURIDÃO ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "etb-pitch-black-us",
+        "title": "ETB PITCH BLACK (US)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "blister-quadruplo",
+    "active": [
+      {
+        "handle": "blister-quadruplo-fenda-paradoxal-pt-br",
+        "title": "BLISTER QUADRUPLO FENDA PARADOXAL (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-quadruplo-equilibrio-perfeito-pt-br",
+        "title": "BLISTER QUADRUPLO EQUILIBRIO PERFEITO (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-quadruplo-escarlate-e-violeta-pt-br",
+        "title": "BLISTER QUADRUPLO ESCARLATE E VIOLETA (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-quadruplo-caos-ascendente-pt-br",
+        "title": "BLISTER QUADRUPLO CAOS ASCENDENTE (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-quadruplo-escuridao-absoluta-pt-br",
+        "title": "BLISTER QUADRUPLO ESCURIDÃO ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "blister-triplo",
+    "active": [
+      {
+        "handle": "blister-triplo-realiza-absoluta-pt-br",
+        "title": "BLISTER TRIPLO REALIZA ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "blister-triplo-escuridao-absoluta-pt-br",
+        "title": "BLISTER TRIPLO ESCURIDÃO ABSOLUTA (PT-BR)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "blister-unitario-1",
+    "active": [
+      {
+        "handle": "blister-chaos-rising-us",
+        "title": "BLISTER CHAOS RISING (US)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "mini-box-1",
+    "active": [
+      {
+        "handle": "mini-bb-pitch-black-us",
+        "title": "MINI BB PITCH BLACK (US)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "booster-box-1",
+    "active": [
+      {
+        "handle": "bb-chaos-rising-us",
+        "title": "BB CHAOS RISING (US)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "box-1",
+    "active": [
+      {
+        "handle": "box-ex-charizard-special-collection-us",
+        "title": "BOX EX CHARIZARD SPECIAL COLLECTION (US)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "etb-1",
+    "active": [
+      {
+        "handle": "etb-chaos-rising-us",
+        "title": "ETB CHAOS RISING (US)",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "etb-pitch-black-us",
+        "title": "ETB PITCH BLACK (US)",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "blister-triplo-1",
+    "active": []
+  },
+  {
+    "handle": "box-ultra-premium",
+    "active": []
+  },
+  {
+    "handle": "comums",
+    "active": [
+      {
+        "handle": "slowpoke-018-131-evolucoes-prismaticas",
+        "title": "SLOWPOKE (018/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "spritzee-038-131-evolucoes-prismaticas",
+        "title": "SPRITZEE (038/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "aromatisse-039-131-evolucoes-prismaticas",
+        "title": "AROMATISSE (039/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "riolu-050-131-evolucoes-prismaticas",
+        "title": "RIOLU (050/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "exeggcute-001-131-evolucoes-prismaticas",
+        "title": "EXEGGCUTE (001/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "pinsir-003-131-evolucoes-prismaticas",
+        "title": "PINSIR (003/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "budew-004-131-evolucoes-prismaticas",
+        "title": "BUDEW (004/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "cottonee-007-131-evolucoes-prismaticas",
+        "title": "COTTONEE (007/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "applin-009-131-evolucoes-prismaticas",
+        "title": "APPLIN (009/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "litleo-015-131-evolucoes-prismaticas",
+        "title": "LITLEO (015/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "goldeen-020-131-evolucoes-prismaticas",
+        "title": "GOLDEEN (020/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "duskull-035-131-evolucoes-prismaticas",
+        "title": "DUSKULL (035/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "dusclops-036-131-evolucoes-prismaticas",
+        "title": "DUSCLOPS (036/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "larvitar-047-131-evolucoes-prismaticas",
+        "title": "LARVITAR (047/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "pupitar-048-131-evolucoes-prismaticas",
+        "title": "PUPITAR (048/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "hippopotas-052-131-evolucoes-prismaticas",
+        "title": "HIPPOPOTAS (052/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "incomums",
+    "active": [
+      {
+        "handle": "exeggutor-002-131-evolucoes-prismaticas",
+        "title": "EXEGGUTOR (002/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "dipplin-010-131-evolucoes-prismaticas",
+        "title": "DIPPLIN (010/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "pyroar-016-131-evolucoes-prismaticas",
+        "title": "PYROAR (016/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "slowking-019-131-evolucoes-prismaticas",
+        "title": "SLOWKING (019/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "seaking-021-131-evolucoes-prismaticas",
+        "title": "SEAKING (021/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "suicune-024-131-evolucoes-prismaticas",
+        "title": "SUICUNE (024/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "cauda-brado-042-131-evolucoes-prismaticas",
+        "title": "CAUDA BRADO (042/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "raras",
+    "active": [
+      {
+        "handle": "leafeon-005-131-evolucoes-prismaticas",
+        "title": "LEAFEON (005/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "vaporeon-022-131-evolucoes-prismaticas",
+        "title": "VAPOREON (022/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "glaceon-025-131-evolucoes-prismaticas",
+        "title": "GLACEON (025/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "jolteon-029-131-evolucoes-prismaticas",
+        "title": "JOLTEON (029/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "espeon-033-131-evolucoes-prismaticas",
+        "title": "ESPEON (033/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "juba-sopro-043-131-evolucoes-prismaticas",
+        "title": "JUBA SOPRO (043/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "groudon-049-131-evolucoes-prismaticas",
+        "title": "GROUDON (049/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "whimsicott-008-131-evolucoes-prismaticas",
+        "title": "WHIMSICOTT (008/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "flareon-013-131-evolucoes-prismaticas",
+        "title": "FLAREON (013/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "dusknoir-037-131-evolucoes-prismaticas",
+        "title": "DUSKNOIR (037/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "sylveon-040-131-evolucoes-prismaticas",
+        "title": "SYLVEON (040/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "munkidori-044-131-evolucoes-prismaticas",
+        "title": "MUNKIDORI (044/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "fezandipiti-045-131-evolucoes-prismaticas",
+        "title": "FEZANDIPITI (045/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      },
+      {
+        "handle": "rocha-de-ferro-046-131-evolucoes-prismaticas",
+        "title": "ROCHA DE FERRO (046/131) - EVOLUÇÕES PRISMÁTICAS",
+        "status": "ACTIVE"
+      }
+    ]
+  },
+  {
+    "handle": "fogo-fantasmagorico",
+    "active": []
+  },
+  {
+    "handle": "herois-excelsos",
+    "active": []
+  },
+  {
+    "handle": "151",
+    "active": []
+  }
+]

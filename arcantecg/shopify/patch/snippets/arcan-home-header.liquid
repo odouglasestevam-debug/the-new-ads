@@ -1,0 +1,16 @@
+{% render 'arcan-icons' %}
+<div class="announcement">A próxima peça da sua coleção está aqui. <a href="{{ routes.root_url }}#colecao">Encontre a sua <svg class="icon" aria-hidden="true"><use href="#arcan-icon-arrow"/></svg></a></div>
+<header class="site-header">
+  <div class="container header-main">
+    <a class="brand" href="{{ routes.root_url }}" aria-label="Arcan TCG, início"><img src="{{ 'arcan-logo.png' | asset_url }}" alt="Arcan TCG" width="120" height="80"></a>
+    <form class="search-form" action="{{ routes.search_url }}" method="get" role="search"><label class="sr-only" for="arcan-search">Buscar produtos</label><input id="arcan-search" name="q" type="search" placeholder="Qual é a sua próxima descoberta?" value="{{ search.terms | escape }}"><input type="hidden" name="type" value="product"><button aria-label="Buscar"><svg class="icon" aria-hidden="true"><use href="#arcan-icon-search"/></svg></button></form>
+    <a class="header-help" href="{{ pages['contact'].url }}"><svg class="icon" aria-hidden="true"><use href="#arcan-icon-chat"/></svg><span>Conte com a gente<strong>Precisa de ajuda?</strong></span></a>
+    <a class="bag-button" href="{{ routes.cart_url }}" aria-label="Ver sacola, {{ cart.item_count }} itens"><svg class="icon" aria-hidden="true"><use href="#arcan-icon-bag"/></svg><span class="bag-label">Sacola</span><span id="cart-count">{{ cart.item_count }}</span></a>
+    <button class="menu-button" type="button" aria-label="Abrir categorias" aria-expanded="false" aria-controls="arcan-main-nav"><svg class="icon" aria-hidden="true"><use href="#arcan-icon-menu"/></svg></button>
+  </div>
+  <nav id="arcan-main-nav" class="container nav" aria-label="Categorias de produtos">
+    {% for link in linklists['main-menu'].links %}
+      {% if link.links != blank %}<details><summary>{{ link.title | escape }}</summary><ul>{% for child in link.links %}<li>{% if child.links != blank %}<details><summary>{{ child.title | escape }}</summary><ul>{% for grandchild in child.links %}<li><a href="{{ grandchild.url }}">{{ grandchild.title | escape }}</a></li>{% endfor %}</ul></details>{% else %}<a href="{{ child.url }}">{{ child.title | escape }}</a>{% endif %}</li>{% endfor %}</ul></details>{% else %}<a href="{{ link.url }}">{{ link.title | escape }}</a>{% endif %}
+    {% endfor %}
+  </nav>
+</header>

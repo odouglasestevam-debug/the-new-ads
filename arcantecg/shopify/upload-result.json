@@ -1,0 +1,71 @@
+{
+  "themeFilesUpsert": {
+    "upsertedThemeFiles": [
+      {
+        "filename": "assets/arcan-font-0.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-1.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-2.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-3.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-4.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-5.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-6.ttf"
+      },
+      {
+        "filename": "assets/arcan-font-7.ttf"
+      },
+      {
+        "filename": "assets/arcan-fonts.css"
+      },
+      {
+        "filename": "assets/arcan-home.css"
+      },
+      {
+        "filename": "assets/arcan-home.js"
+      },
+      {
+        "filename": "assets/arcan-logo.png"
+      },
+      {
+        "filename": "layout/theme.liquid"
+      },
+      {
+        "filename": "sections/arcan-home-beginner.liquid"
+      },
+      {
+        "filename": "sections/arcan-home-products.liquid"
+      },
+      {
+        "filename": "sections/arcan-home-story.liquid"
+      },
+      {
+        "filename": "snippets/arcan-home-footer.liquid"
+      },
+      {
+        "filename": "snippets/arcan-home-header.liquid"
+      },
+      {
+        "filename": "snippets/arcan-icons.liquid"
+      },
+      {
+        "filename": "snippets/arcan-product-card.liquid"
+      },
+      {
+        "filename": "templates/index.json"
+      }
+    ],
+    "job": null,
+    "userErrors": []
+  }
+}
