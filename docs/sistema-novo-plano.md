@@ -64,7 +64,15 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Migration `0003`: função `membros_da_empresa` para mostrar e-mail da equipe
 - Testado com login real via API (dono, vendedor, anônimo) e dados apagados depois
 
-Falta na Fase 0: primeiro usuário da agência (Douglas cria em Authentication > Add user no Supabase e o Claude marca em `agencia_admins`) e primeira empresa.
+**16/09/2026, origem por canal:** tag verde WhatsApp (CTWA: campanha, conjunto, anúncio), laranja Site (utm_source, medium, campaign, content, term, placement, ad_id, padrão do /funil), azul Formulário Meta. Migration `0004` criou `utm_placement`.
+
+**16/09/2026, Fase 1 (equipe) no ar:**
+- Edge Function `equipe` (`sistema-novo/supabase/functions/equipe`): convidar por e-mail com nível (gera link de convite, não manda e-mail) e gerar link de nova senha. Só agência ou dono
+- Tela: aba Empresas (agência cria cliente), aba Equipe (convidar, trocar nível, link de acesso, remover), tela de criar senha ao abrir o link, responsável editável na lista de leads por gestor/dono
+- Migration `0005`: empresa nunca fica sem dono; `usuario_id_por_email` só para service_role
+- **Pendência do Douglas:** Supabase > Authentication > URL Configuration: Site URL `https://crm.thenewads.com.br` e Redirect URL `https://crm.thenewads.com.br/**`. Sem isso o link de convite cai em localhost:3000
+
+Fase 0 concluída: Douglas é agência (odouglasestevam@gmail.com); empresas "Demo ..." são dados fictícios, apagar com `delete from empresas where slug like 'demo-%'`. Antigo item: primeiro usuário da agência (Douglas cria em Authentication > Add user no Supabase e o Claude marca em `agencia_admins`) e primeira empresa.
 
 ## Pendências (perguntar antes de decidir)
 - Cliente piloto (sugestão: Grupo Confiança)
