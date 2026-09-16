@@ -117,7 +117,12 @@
       "Bash(git rm *)",
       "Bash(python scripts/read.py --help)",
       "Bash(ls \"c:/Users/odoug/OneDrive/Documentos/\" | grep -i tna-hub; echo done)",
-      "Read(//c/Users/odoug/OneDrive/Documentos/**)"
+      "Read(//c/Users/odoug/OneDrive/Documentos/**)",
+      "mcp__supabase-app__get_project_url",
+      "mcp__supabase-app__list_tables",
+      "mcp__supabase-app__list_migrations",
+      "mcp__supabase-app__execute_sql",
+      "Bash(timeout 60 rg -il --no-ignore -g '*.md' -g '*.txt' -g '!node_modules' \"fase 0|fase zero|sistema novo|xrvjlhseyqfgyvwwlwwb\" .)"
     ],
     "additionalDirectories": [
       "C:\\Users\\odoug\\AppData\\Local\\Packages\\Claude_pzs8sxrjxfjjc\\LocalCache\\Roaming\\Claude\\local-agent-mode-sessions\\76fca591-79a1-4205-8b39-983a6c06e1a4\\aa24127f-27fd-46b8-b525-0d32a6e05a21\\local_386be040-ccfc-4557-99ff-496088a4afdc\\outputs",
@@ -126,7 +131,7 @@
       "C:\\Users\\odoug"
     ]
   },
-    "hooks": {
+  "hooks": {
     "Stop": [
       {
         "hooks": [
