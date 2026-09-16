@@ -472,6 +472,8 @@ async function entrarNoApp(sessao) {
   empresas.forEach((e) => { e.papel = ehAgencia ? "agencia" : papeis[e.id]; });
 
   if (!empresas.length) {
+    document.getElementById("nav").style.display = "none";
+    document.querySelector(".seletor-empresa").style.display = "none";
     document.getElementById("conteudo").innerHTML = `
       <div class="topo"><div><h1>Sem acesso ainda</h1>
       <div class="desc">Sua conta (${escapar(usuario.email)}) ainda não foi adicionada a nenhuma empresa. Peça o acesso a quem administra o CRM.</div></div></div>`;
