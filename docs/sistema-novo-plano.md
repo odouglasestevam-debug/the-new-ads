@@ -48,9 +48,18 @@ Regra operacional: todo formulário nativo de cliente com telefone obrigatório.
 
 Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativo Meta entra depois de validar.
 
-## Pendências (perguntar antes de decidir)
+## Andamento
 
-- Confirmar os papéis acima
+**16/09/2026, banco da Fase 0 aplicado** (`sistema-novo/supabase/migrations/0001` e `0002`):
+- Papéis confirmados pelo Douglas: agência, dono, gestor, vendedor (só os leads atribuídos a ele), leitura
+- Lead é por empresa: o mesmo telefone em dois clientes vira dois leads, um em cada
+- Tabelas: `empresas`, `agencia_admins`, `membros`, `leads`, `lead_origens`, `lead_etapas_log`, `lead_notas`, `integracoes`, `meta_anuncios_cache`
+- Funções de permissão no schema `privado` (fora da API). `segredo_id`, origens não manuais, log e cache só o servidor grava
+- `sistema-novo/supabase/tests/isolamento.sql`: 31 de 31 testes passando. Rodar de novo depois de qualquer migration
+
+Falta na Fase 0: pasta do front com a cópia do `/funil`, projeto Pages novo, primeiro usuário da agência.
+
+## Pendências (perguntar antes de decidir)
 - Cliente piloto (sugestão: Grupo Confiança)
 - Subdomínio e nome do sistema
 - Custo: projeto está no Free Plan; avisar antes de qualquer coisa que gere cobrança
