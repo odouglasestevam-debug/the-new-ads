@@ -19,10 +19,11 @@ async function main() {
   const r=await fetch(`https://${host}/admin/api/2026-07/graphql.json`,{
     method:'POST',redirect:'error',signal:AbortSignal.timeout(20000),
     headers:{'Content-Type':'application/json','X-Shopify-Access-Token':auth.access_token},
-    body:JSON.stringify({query:'query { shop { name primaryDomain { host } } themes(first: 20) { nodes { id name role } } }'})
+    body:JSON.stringify({query:'query { currentAppInstallation { accessScopes { handle } } shop { name primaryDomain { host } } themes(first: 20) { nodes { id name role } } }'})
   });
   if(!r.ok){console.log(JSON.stringify({readStatus:r.status}));return;}
   const result=await r.json();
-  console.log(JSON.stringify({shop:result.data?.shop,themes:result.data?.themes?.nodes,errors:result.errors?.map(e=>({code:e.extensions?.code,message:e.message}))},null,2));
+  const grantedScopes=result.data?.currentAppInstallation?.accessScopes?.map(s=>s.handle);
+  console.log(JSON.stringify({shop:result.data?.shop,grantedThemeScopes:grantedScopes?.filter(s=>/theme/.test(s)),writeThemesGranted:grantedScopes?grantedScopes.includes('write_themes'):null,themes:result.data?.themes?.nodes,errors:result.errors?.map(e=>({code:e.extensions?.code,message:e.message}))},null,2));
 }
 main().catch(error=>{console.error(JSON.stringify({checkFailed:true,type:error.name,reason:error.cause?.code || (error.message==='fetch failed'?'network unavailable':error.message)}));process.exitCode=1;});
