@@ -70,7 +70,7 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Edge Function `equipe` (`sistema-novo/supabase/functions/equipe`): convidar por e-mail com nível (gera link de convite, não manda e-mail) e gerar link de nova senha. Só agência ou dono
 - Tela: aba Empresas (agência cria cliente), aba Equipe (convidar, trocar nível, link de acesso, remover), tela de criar senha ao abrir o link, responsável editável na lista de leads por gestor/dono
 - Migration `0005`: empresa nunca fica sem dono; `usuario_id_por_email` só para service_role
-- **Pendência do Douglas:** Supabase > Authentication > URL Configuration: Site URL `https://crm.thenewads.com.br` e Redirect URL `https://crm.thenewads.com.br/**`. Sem isso o link de convite cai em localhost:3000
+- Site URL e Redirect URL do Supabase Auth configurados para `https://crm.thenewads.com.br` (16/09/2026). Fluxo completo testado: convite, link abre no CRM, pessoa cria senha, entra e vê só a empresa dela
 
 Fase 0 concluída: Douglas é agência (odouglasestevam@gmail.com); empresas "Demo ..." são dados fictícios, apagar com `delete from empresas where slug like 'demo-%'`. Antigo item: primeiro usuário da agência (Douglas cria em Authentication > Add user no Supabase e o Claude marca em `agencia_admins`) e primeira empresa.
 
