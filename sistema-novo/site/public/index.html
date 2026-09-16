@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>CRM | The New Ads</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" type="image/svg+xml" href="/icone.svg">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  /* Base visual copiada do /funil da The New Ads. O /funil original não é alterado. */
+  :root{
+    --preto:#0A0A0A; --grafite:#141414; --grafite-2:#1c1c1c; --nevoa:#8A8A8A;
+    --branco:#FAFAFA; --ambar:#FF6A00; --linha:rgba(255,255,255,.09);
+    --verde:#4ADE80; --vermelho:#F87171; --azul:#60A5FA;
+    --display:'Clash Display',system-ui,sans-serif;
+    --texto:'Switzer','Inter',system-ui,sans-serif;
+    --mono:'JetBrains Mono',monospace;
+    --sidebar:230px;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--preto);color:var(--branco);font-family:var(--texto);line-height:1.5;-webkit-font-smoothing:antialiased}
+  h1,h2,h3{font-family:var(--display);letter-spacing:-.015em;line-height:1.15}
+  button,input,select,textarea{font-family:inherit;font-size:inherit;color:inherit}
+  a{color:inherit;text-decoration:none}
+
+  .login{min-height:100dvh;display:flex;align-items:center;justify-content:center;padding:24px}
+  .login .caixa{width:100%;max-width:380px}
+  .login .marca{display:flex;align-items:center;gap:11px;font-family:var(--display);font-weight:600;font-size:20px;margin-bottom:30px}
+  .login .marca svg{width:26px;height:26px}
+  .login h1{font-size:26px;margin-bottom:8px}
+  .login .sub{color:var(--nevoa);font-size:14.5px;margin-bottom:26px}
+  .campo{margin-bottom:14px}
+  .campo label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa);margin-bottom:7px}
+  input[type=email],input[type=password],input[type=search],input[type=text],input[type=tel],select,textarea{
+    width:100%;background:var(--grafite);border:1px solid var(--linha);border-radius:9px;
+    padding:13px 14px;color:var(--branco);font-size:15px;outline:none;transition:border-color .15s}
+  input:focus,select:focus,textarea:focus{border-color:var(--ambar)}
+  .btn{background:var(--ambar);color:#0A0A0A;font-family:var(--display);font-weight:600;font-size:15px;
+    padding:13px 20px;border:none;border-radius:9px;cursor:pointer;transition:opacity .15s}
+  .btn:hover{opacity:.9}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-largo{width:100%}
+  .btn-fantasma{background:transparent;color:var(--branco);border:1px solid var(--linha)}
+  .btn-fantasma:hover{border-color:var(--ambar);opacity:1}
+  .aviso{font-size:13.5px;margin-top:12px;min-height:18px;color:var(--nevoa)}
+  .aviso.erro{color:var(--vermelho)}
+  .aviso.ok{color:var(--verde)}
+
+  .app{display:none;min-height:100dvh}
+  .app.ativo{display:flex}
+  aside{width:var(--sidebar);flex:none;border-right:1px solid var(--linha);background:#0c0c0c;
+    padding:22px 16px;display:flex;flex-direction:column;gap:22px;position:sticky;top:0;height:100dvh}
+  aside .marca{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:600;font-size:16px;padding:0 8px}
+  aside .marca svg{width:22px;height:22px}
+  .seletor-empresa select{padding:10px 12px;font-size:13.5px}
+  .papel-atual{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--nevoa);margin-top:6px;padding:0 4px}
+  nav{display:flex;flex-direction:column;gap:3px}
+  nav button{display:flex;align-items:center;gap:11px;background:none;border:none;text-align:left;
+    padding:11px 12px;border-radius:8px;color:var(--nevoa);font-size:14.5px;cursor:pointer;transition:all .15s;width:100%}
+  nav button:hover{background:var(--grafite);color:var(--branco)}
+  nav button.ativo{background:rgba(255,106,0,.1);color:var(--ambar);font-weight:500}
+  nav button svg{width:17px;height:17px;flex:none}
+  nav .contador{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--nevoa)}
+  aside .rodape{margin-top:auto;display:flex;flex-direction:column;gap:10px;padding:0 4px}
+  aside .usuario{font-family:var(--mono);font-size:11px;color:var(--nevoa);word-break:break-all}
+  aside .sair{background:none;border:none;color:var(--nevoa);font-size:13px;cursor:pointer;text-align:left;padding:4px}
+  aside .sair:hover{color:var(--branco)}
+
+  main{flex:1;min-width:0;padding:30px 34px 90px}
+  .topo{display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:26px}
+  .topo h1{font-size:27px}
+  .topo .desc{color:var(--nevoa);font-size:14px;margin-top:6px}
+  .ferramentas{display:flex;gap:10px;flex-wrap:wrap}
+  .ferramentas input[type=search]{width:230px}
+  .ferramentas select{width:auto;padding:11px 13px}
+
+  .tabela-caixa{border:1px solid var(--linha);border-radius:12px;overflow:hidden;background:var(--grafite)}
+  .rolagem{overflow-x:auto}
+  table{width:100%;border-collapse:collapse;min-width:760px}
+  th{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa);
+    text-align:left;padding:13px 16px;border-bottom:1px solid var(--linha);font-weight:500;white-space:nowrap}
+  td{padding:14px 16px;border-bottom:1px solid var(--linha);font-size:14px;vertical-align:top}
+  tr:last-child td{border-bottom:none}
+  tbody tr:hover{background:rgba(255,255,255,.02)}
+  .nome-cel{font-weight:600;color:var(--branco)}
+  .sub-cel{color:var(--nevoa);font-size:12.5px;margin-top:3px}
+  .num{font-family:var(--mono);font-size:12.5px;color:var(--nevoa);white-space:nowrap}
+
+  .selo{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10.5px;
+    letter-spacing:.06em;text-transform:uppercase;padding:4px 9px;border-radius:99px;border:1px solid}
+  .selo.sim{color:var(--verde);border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08)}
+  .selo.nao{color:var(--nevoa);border-color:var(--linha);background:rgba(255,255,255,.03)}
+  .selo.alerta{color:var(--vermelho);border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08)}
+  .selo.canal{color:var(--azul);border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.08)}
+
+  select.etapa-sel{padding:7px 10px;font-size:12.5px;border-radius:7px;background:var(--grafite-2);width:auto}
+
+  .kanban{display:flex;gap:14px;overflow-x:auto;padding-bottom:14px;align-items:flex-start}
+  .coluna{flex:0 0 300px;background:var(--grafite);border:1px solid var(--linha);border-radius:12px;
+    display:flex;flex-direction:column;max-height:calc(100dvh - 190px)}
+  .coluna.alvo{border-color:var(--ambar);background:rgba(255,106,0,.05)}
+  .coluna .cabeca{padding:13px 15px;border-bottom:1px solid var(--linha);display:flex;align-items:center;gap:9px}
+  .coluna .ponto{width:7px;height:7px;border-radius:50%;flex:none}
+  .coluna .titulo{font-family:var(--display);font-weight:600;font-size:13.5px}
+  .coluna .qtd{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--nevoa)}
+  .coluna .corpo{padding:11px;display:flex;flex-direction:column;gap:9px;overflow-y:auto}
+  .coluna .vazio{padding:18px 12px;text-align:center;color:var(--nevoa);font-size:12.5px}
+  .cartao{background:var(--preto);border:1px solid var(--linha);border-radius:10px;padding:14px;cursor:pointer;
+    display:flex;flex-direction:column;gap:11px}
+  .cartao:hover{border-color:rgba(255,255,255,.2)}
+  .cartao.arrastando{opacity:.4}
+  .c-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
+  .c-ident{min-width:0}
+  .cartao .n{font-weight:600;font-size:14.5px;margin-bottom:3px;line-height:1.25}
+  .cartao .e{color:var(--nevoa);font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cartao .meta{display:flex;gap:7px;flex-wrap:wrap;align-items:center}
+  .c-rodape{display:flex;align-items:center;gap:10px;padding-top:11px;border-top:1px solid var(--linha)}
+  .c-rodape .etapa-sel{flex:1;width:auto}
+  .cartao .data{font-family:var(--mono);font-size:10.5px;color:var(--nevoa);flex:none}
+  .utms{display:flex;flex-direction:column;gap:3px}
+  .utm{font-family:var(--mono);font-size:10.5px;color:#c4c4c4;display:flex;gap:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .utm i{color:var(--nevoa);font-style:normal;min-width:62px;flex:none}
+  .sinal{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--nevoa)}
+  .sinal svg{width:13px;height:13px}
+
+  .zap{display:inline-flex;align-items:center;justify-content:center;gap:8px;flex:none;
+    width:34px;height:34px;border:1px solid var(--linha);border-radius:7px;color:var(--nevoa);transition:all .15s}
+  .zap svg{width:17px;height:17px}
+  .zap:hover{border-color:#25D366;color:#25D366;background:rgba(37,211,102,.08)}
+  .zap-largo{width:100%;height:auto;padding:12px;font-family:var(--display);font-weight:600;font-size:14.5px;color:var(--branco);margin-bottom:22px}
+  .cel-contato{display:flex;align-items:center;gap:12px;justify-content:space-between}
+
+  .ver-lead{width:100%;background:transparent;border:1px solid var(--linha);color:var(--nevoa);
+    border-radius:7px;padding:7px;font-size:12px;cursor:pointer}
+  .ver-lead:hover{border-color:var(--ambar);color:var(--branco)}
+  .ver-lead.perigo{border-color:rgba(248,113,113,.3);color:var(--vermelho)}
+  .ver-lead.perigo:hover{border-color:var(--vermelho);background:rgba(248,113,113,.08)}
+
+  .fundo-modal{position:fixed;inset:0;z-index:60;background:rgba(4,4,4,.7);backdrop-filter:blur(4px);display:flex;justify-content:flex-end}
+  .fundo-centro{align-items:center;justify-content:center;padding:20px}
+  .gaveta{width:100%;max-width:460px;background:var(--grafite);border-left:1px solid var(--linha);
+    height:100dvh;overflow-y:auto;padding:26px 26px calc(26px + env(safe-area-inset-bottom))}
+  .gaveta .cabeca{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:22px}
+  .gaveta h2{font-size:20px}
+  .fechar{background:none;border:none;color:var(--nevoa);font-size:22px;cursor:pointer;line-height:1;padding:2px 6px}
+  .fechar:hover{color:var(--branco)}
+  .caixa-modal{width:100%;max-width:440px;background:var(--grafite);border:1px solid var(--linha);border-radius:14px;padding:26px}
+  .caixa-modal h2{font-size:19px;margin-bottom:8px}
+  .caixa-modal .ajuda{color:var(--nevoa);font-size:13.5px;margin-bottom:20px;line-height:1.5}
+  .acoes-modal{display:flex;gap:10px;margin-top:20px}
+  .acoes-modal .btn{flex:1}
+  .grupo{margin-bottom:24px}
+  .grupo h3{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--ambar);margin-bottom:11px;font-weight:500}
+  .par{display:grid;grid-template-columns:110px 1fr;gap:10px;padding:7px 0;border-bottom:1px solid var(--linha);font-size:13px}
+  .par:last-child{border-bottom:none}
+  .par .r{color:var(--nevoa)}
+  .par .v{word-break:break-all;font-family:var(--mono);font-size:12px}
+  .par .v.vazio{color:#5a5a5a}
+  .origem{background:var(--preto);border:1px solid var(--linha);border-radius:9px;padding:12px 14px;margin-bottom:10px}
+  .origem-topo{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  @media(max-width:520px){ .gaveta{max-width:100%} .par{grid-template-columns:96px 1fr} }
+
+  .abas{display:flex;gap:4px;border-bottom:1px solid var(--linha);margin-bottom:22px}
+  .aba{background:none;border:none;border-bottom:2px solid transparent;color:var(--nevoa);
+    padding:11px 14px;font-size:14px;cursor:pointer;display:flex;align-items:center;gap:7px;margin-bottom:-1px}
+  .aba:hover{color:var(--branco)}
+  .aba.ativa{color:var(--ambar);border-bottom-color:var(--ambar);font-weight:500}
+  .aba-conta{font-family:var(--mono);font-size:10.5px;background:var(--grafite-2);border-radius:99px;padding:2px 6px}
+
+  textarea{resize:vertical;line-height:1.5}
+  .historico{display:flex;flex-direction:column;gap:10px;margin-top:22px}
+  .vazio-bloco{color:var(--nevoa);font-size:13px;text-align:center;padding:24px 12px;border:1px dashed var(--linha);border-radius:10px}
+  .vazio-geral{padding:44px 20px;text-align:center;color:var(--nevoa);font-size:14.5px}
+  .nota{background:var(--preto);border:1px solid var(--linha);border-radius:9px;padding:13px 14px}
+  .nota-topo{display:flex;align-items:center;justify-content:space-between;margin-bottom:7px}
+  .nota-data{font-family:var(--mono);font-size:10.5px;color:var(--nevoa)}
+  .nota-apagar{background:none;border:none;color:#4b4b4b;cursor:pointer;font-size:13px;padding:2px 5px}
+  .nota-apagar:hover{color:var(--vermelho)}
+  .nota p{font-size:13.5px;color:#e4e0dc;white-space:pre-wrap;line-height:1.5}
+
+  .passos-2fa{margin:0 0 18px 18px;color:#dad5d0;font-size:13.5px;display:flex;flex-direction:column;gap:7px}
+  .qr-caixa{background:#fff;border-radius:10px;padding:12px;width:max-content;margin-bottom:16px}
+  .qr-caixa img{display:block}
+  .manual{font-size:13px;color:var(--nevoa)}
+  .manual summary{cursor:pointer;padding:6px 0}
+  .manual p{margin:8px 0}
+  .chave-2fa{display:block;font-family:var(--mono);font-size:12.5px;background:var(--preto);border:1px solid var(--linha);border-radius:7px;padding:11px;word-break:break-all;color:var(--ambar)}
+
+  .cartoes-config{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;align-items:start}
+  .abas-ajustes{margin-bottom:20px}
+  .bloco{border:1px solid var(--linha);border-radius:12px;background:var(--grafite);padding:22px}
+  .bloco h3{font-size:16px;margin-bottom:8px}
+  .bloco p{color:var(--nevoa);font-size:13.5px;margin-bottom:16px}
+
+  @media(max-width:860px){
+    .app.ativo{flex-direction:column}
+    aside{width:100%;height:auto;position:fixed;bottom:0;top:auto;z-index:20;flex-direction:row;
+      border-right:none;border-top:1px solid var(--linha);padding:8px 8px calc(8px + env(safe-area-inset-bottom));gap:0}
+    aside .marca,aside .rodape,aside .seletor-empresa{display:none}
+    nav{flex-direction:row;width:100%;gap:2px}
+    nav button{flex-direction:column;gap:4px;font-size:10.5px;padding:8px 4px;justify-content:center;text-align:center}
+    nav button svg{width:19px;height:19px}
+    nav .contador{display:none}
+    main{padding:22px 18px 110px}
+    .topo h1{font-size:22px}
+    .ferramentas input[type=search]{width:100%}
+    .ferramentas{width:100%}
+    .coluna{flex:0 0 84vw;max-height:none}
+    .seletor-movel{display:block !important;margin-bottom:18px}
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute"><defs>
+  <g id="tna-sym"><path d="M24 78 L48 26 L48 58 L78 24" fill="none" stroke="#FF6A00" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round"/></g>
+</defs></svg>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="tela-login">
+  <div class="caixa">
+    <div class="marca"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg><span>the new ads</span></div>
+    <h1>CRM</h1>
+    <p class="sub">Leads, origem das campanhas e kanban comercial.</p>
+    <form id="form-login">
+      <div class="campo">
+        <label for="email">E-mail</label>
+        <input type="email" id="email" autocomplete="username" required>
+      </div>
+      <div class="campo">
+        <label for="senha">Senha</label>
+        <input type="password" id="senha" autocomplete="current-password" required>
+      </div>
+      <button class="btn btn-largo" type="submit" id="btn-entrar">Entrar</button>
+      <div class="aviso" id="aviso-login"></div>
+    </form>
+
+    <form id="form-codigo" style="display:none">
+      <p class="sub" style="margin-bottom:20px">Abra o aplicativo autenticador e digite o código de 6 dígitos.</p>
+      <div class="campo">
+        <label for="codigo-2fa">Código de verificação</label>
+        <input type="text" id="codigo-2fa" inputmode="numeric" autocomplete="one-time-code"
+               maxlength="6" placeholder="000000" style="letter-spacing:.4em;font-family:var(--mono);text-align:center">
+      </div>
+      <button class="btn btn-largo" type="submit" id="btn-verificar">Verificar</button>
+      <div class="aviso" id="aviso-codigo"></div>
+    </form>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="app">
+  <aside>
+    <div class="marca"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg><span>CRM</span></div>
+    <div class="seletor-empresa">
+      <select id="empresa-sel" aria-label="Empresa"></select>
+      <div class="papel-atual" id="papel-atual"></div>
+    </div>
+    <nav id="nav">
+      <button data-vista="kanban">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg>
+        <span>Kanban</span>
+      </button>
+      <button data-vista="leads">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+        <span>Leads</span><span class="contador" id="cont-leads"></span>
+      </button>
+      <button data-vista="config">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+        <span>Ajustes</span>
+      </button>
+    </nav>
+    <div class="rodape">
+      <div class="usuario" id="usuario-email"></div>
+      <button class="sair" id="btn-sair">Sair</button>
+    </div>
+  </aside>
+
+  <main id="conteudo"></main>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+// Chave pública do projeto do CRM. O acesso real é decidido pelas regras do banco (RLS), não pela chave.
+const SUPABASE_URL = "https://xrvjlhseyqfgyvwwlwwb.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_9DQ3pGVnensKAXdBxtdV3Q_Ud2pUEwK";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const ETAPAS = [
+  { id: "novo",        nome: "Novo lead",        cor: "#8A8A8A" },
+  { id: "contato",     nome: "Em contato",       cor: "#60A5FA" },
+  { id: "qualificado", nome: "Qualificado",      cor: "#22D3EE" },
+  { id: "proposta",    nome: "Proposta enviada", cor: "#FF6A00" },
+  { id: "cliente",     nome: "Cliente",          cor: "#4ADE80" },
+  { id: "perdido",     nome: "Perdido",          cor: "#F87171" },
+];
+const NOME_ETAPA = Object.fromEntries(ETAPAS.map((e) => [e.id, e.nome]));
+const NOME_PAPEL = { agencia: "Agência", dono: "Dono", gestor: "Gestor", vendedor: "Vendedor", leitura: "Leitura" };
+const NOME_CANAL = { site: "Site", ctwa: "WhatsApp (anúncio)", meta_form: "Formulário Meta", manual: "Manual" };
+const CHAVE_EMPRESA = "crm_empresa_atual";
+
+let usuario = null;
+let ehAgencia = false;
+let empresas = [];
+let empresaAtual = null;
+let papel = null;        // agencia | dono | gestor | vendedor | leitura
+let equipe = [];
+let leads = [];
+let notas = [];
+let vistaAtual = "kanban";
+let abaAjustes = "seguranca";
+let busca = "";
+let filtroCadastro = "todos";
+
+/* ---------------- permissões (espelham o banco; o banco é quem manda) ---------------- */
+const pode = {
+  editarTodos: () => ["agencia", "dono", "gestor"].includes(papel),
+  editarLead: (l) => pode.editarTodos() || (papel === "vendedor" && l.responsavel_id === usuario.id),
+  criarLead: () => papel !== "leitura",
+  distribuir: () => pode.editarTodos(),
+  excluir: () => ["agencia", "dono"].includes(papel),
+};
+
+/* ---------------- utilidades ---------------- */
+function escapar(valor) {
+  return String(valor ?? "").replace(/[&<>"']/g, (c) =>
+    ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+function dataCurta(iso) {
+  return iso ? new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" }) : "";
+}
+function dataHora(iso) {
+  return iso ? new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "";
+}
+
+// Telefone no formato do banco (+5511999999999). Aceita o que a pessoa digitar com DDD.
+function normalizarTelefone(bruto) {
+  const d = String(bruto || "").replace(/\D/g, "");
+  if (!d) return null;
+  if (d.length === 10 || d.length === 11) return "+55" + d;
+  if (d.length >= 12 && d.length <= 15) return "+" + d;
+  return undefined; // inválido
+}
+function telefoneLegivel(t) {
+  const m = String(t || "").match(/^\+55(\d{2})(\d{4,5})(\d{4})$/);
+  return m ? `(${m[1]}) ${m[2]}-${m[3]}` : (t || "");
+}
+
+// Origens ordenadas: a primeira é a de entrada, a última a mais recente.
+function origensDoLead(l) {
+  return [...(l.lead_origens || [])].sort((a, b) => new Date(a.recebido_em) - new Date(b.recebido_em));
+}
+function ultimaOrigem(l) {
+  const o = origensDoLead(l);
+  return o[o.length - 1] || null;
+}
+function nomeResponsavel(id) {
+  if (!id) return "";
+  return equipe.find((m) => m.user_id === id)?.email || "";
+}
+
+const ICONE_WHATSAPP = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 0 0-8.7 15l-1.3 4.7 4.8-1.2A10 10 0 1 0 12 2Zm5.3 14.2c-.2.6-1.3 1.2-1.8 1.2-.5.1-1 .1-1.7-.1-.4-.1-.9-.3-1.6-.6-2.8-1.2-4.6-4-4.7-4.2-.1-.2-1.1-1.5-1.1-2.8 0-1.3.7-2 .9-2.2.2-.3.5-.3.7-.3h.5c.2 0 .4 0 .6.5l.8 1.9c.1.2.1.3 0 .5l-.4.5-.3.3c-.1.1-.3.3-.1.6.2.3.8 1.3 1.7 2.1 1.2 1 2.1 1.4 2.4 1.5.3.1.4.1.6-.1l.9-1c.2-.2.4-.2.6-.1l1.8.9c.3.1.5.2.5.3.1.2.1.7-.1 1.3Z"/></svg>';
+const ICONE_NOTA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5h16M4 10h16M4 15h10"/></svg>';
+
+// Enquanto o chat não existe, o botão abre o WhatsApp comum.
+function botaoWhatsApp(lead, rotulo) {
+  if (!lead.telefone) return "";
+  const url = `https://wa.me/${lead.telefone.replace(/\D/g, "")}`;
+  return `<a class="zap${rotulo ? " zap-largo" : ""}" href="${url}" target="_blank" rel="noopener"
+             draggable="false" title="Abrir conversa no WhatsApp"
+             onclick="event.stopPropagation()">${ICONE_WHATSAPP}${rotulo ? `<span>${rotulo}</span>` : ""}</a>`;
+}
+
+/* ---------------- autenticação ---------------- */
+async function iniciar() {
+  const { data } = await sb.auth.getSession();
+  if (!data.session) return;
+  if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+  entrarNoApp(data.session);
+}
+
+async function precisaSegundaEtapa() {
+  const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
+  if (error || !data) return false;
+  return data.nextLevel === "aal2" && data.currentLevel !== "aal2";
+}
+
+function pedirCodigo() {
+  document.getElementById("form-login").style.display = "none";
+  document.getElementById("form-codigo").style.display = "";
+  document.getElementById("codigo-2fa").focus();
+}
+
+async function verificarCodigo(codigo) {
+  const { data: fatores, error: erroFatores } = await sb.auth.mfa.listFactors();
+  if (erroFatores) return { erro: erroFatores.message };
+  const fator = (fatores?.totp || []).find((f) => f.status === "verified");
+  if (!fator) return { erro: "Nenhum aplicativo autenticador cadastrado." };
+  const { data: desafio, error: erroDesafio } = await sb.auth.mfa.challenge({ factorId: fator.id });
+  if (erroDesafio) return { erro: erroDesafio.message };
+  const { error } = await sb.auth.mfa.verify({ factorId: fator.id, challengeId: desafio.id, code: codigo });
+  return error ? { erro: error.message } : { ok: true };
+}
+
+document.getElementById("form-codigo").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const aviso = document.getElementById("aviso-codigo");
+  const btn = document.getElementById("btn-verificar");
+  const codigo = document.getElementById("codigo-2fa").value.replace(/\D/g, "");
+  if (codigo.length !== 6) { aviso.className = "aviso erro"; aviso.textContent = "O código tem 6 dígitos."; return; }
+  btn.disabled = true;
+  aviso.className = "aviso";
+  aviso.textContent = "Verificando...";
+  const resultado = await verificarCodigo(codigo);
+  btn.disabled = false;
+  if (resultado.erro) {
+    aviso.className = "aviso erro";
+    aviso.textContent = resultado.erro.includes("Invalid") ? "Código incorreto ou expirado." : resultado.erro;
+    document.getElementById("codigo-2fa").value = "";
+    return;
+  }
+  const { data } = await sb.auth.getSession();
+  document.getElementById("form-codigo").style.display = "none";
+  entrarNoApp(data.session);
+});
+
+document.getElementById("form-login").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const aviso = document.getElementById("aviso-login");
+  const btn = document.getElementById("btn-entrar");
+  btn.disabled = true;
+  aviso.className = "aviso";
+  aviso.textContent = "Entrando...";
+  const { data, error } = await sb.auth.signInWithPassword({
+    email: document.getElementById("email").value.trim(),
+    password: document.getElementById("senha").value,
+  });
+  btn.disabled = false;
+  if (error) {
+    aviso.className = "aviso erro";
+    aviso.textContent = error.message === "Invalid login credentials" ? "E-mail ou senha incorretos." : "Não deu pra entrar: " + error.message;
+    return;
+  }
+  aviso.textContent = "";
+  if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+  entrarNoApp(data.session);
+});
+
+async function sair() {
+  await sb.auth.signOut();
+  location.reload();
+}
+document.getElementById("btn-sair").addEventListener("click", sair);
+
+async function entrarNoApp(sessao) {
+  usuario = sessao.user;
+  document.getElementById("tela-login").style.display = "none";
+  document.getElementById("app").classList.add("ativo");
+  document.getElementById("usuario-email").textContent = usuario.email;
+
+  const [resAgencia, resEmpresas, resMembros] = await Promise.all([
+    sb.from("agencia_admins").select("user_id").eq("user_id", usuario.id).maybeSingle(),
+    sb.from("empresas").select("id, nome, slug, ativo").order("nome"),
+    sb.from("membros").select("empresa_id, papel").eq("user_id", usuario.id),
+  ]);
+  ehAgencia = !!resAgencia.data;
+  empresas = resEmpresas.data || [];
+  const papeis = Object.fromEntries((resMembros.data || []).map((m) => [m.empresa_id, m.papel]));
+  empresas.forEach((e) => { e.papel = ehAgencia ? "agencia" : papeis[e.id]; });
+
+  if (!empresas.length) {
+    document.getElementById("conteudo").innerHTML = `
+      <div class="topo"><div><h1>Sem acesso ainda</h1>
+      <div class="desc">Sua conta (${escapar(usuario.email)}) ainda não foi adicionada a nenhuma empresa. Peça o acesso a quem administra o CRM.</div></div></div>`;
+    return;
+  }
+
+  let salva = null;
+  try { salva = localStorage.getItem(CHAVE_EMPRESA); } catch (err) {}
+  const inicial = empresas.find((e) => e.id === salva) || empresas[0];
+
+  const sel = document.getElementById("empresa-sel");
+  sel.innerHTML = empresas.map((e) => `<option value="${e.id}">${escapar(e.nome)}</option>`).join("");
+  sel.addEventListener("change", () => trocarEmpresa(sel.value));
+  await trocarEmpresa(inicial.id);
+}
+
+async function trocarEmpresa(id) {
+  empresaAtual = empresas.find((e) => e.id === id);
+  papel = empresaAtual.papel;
+  try { localStorage.setItem(CHAVE_EMPRESA, id); } catch (err) {}
+  document.getElementById("empresa-sel").value = id;
+  document.getElementById("papel-atual").textContent = NOME_PAPEL[papel] || "";
+  await carregarTudo();
+}
+
+/* ---------------- dados ---------------- */
+async function carregarTudo() {
+  const [resLeads, resNotas, resEquipe] = await Promise.all([
+    sb.from("leads").select("*, lead_origens(*)").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
+    sb.from("lead_notas").select("*").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
+    sb.rpc("membros_da_empresa", { p_empresa: empresaAtual.id }),
+  ]);
+  if (resLeads.error) console.error("leads:", resLeads.error);
+  leads = resLeads.data || [];
+  notas = resNotas.data || [];
+  equipe = resEquipe.data || [];
+  document.getElementById("cont-leads").textContent = leads.length || "";
+  render();
+}
+
+/* ---------------- navegação ---------------- */
+document.querySelectorAll("#nav button").forEach((b) => {
+  b.addEventListener("click", () => { vistaAtual = b.dataset.vista; render(); });
+});
+
+function seletorMovel() {
+  if (empresas.length < 2) return "";
+  return `<select class="seletor-movel" id="empresa-sel-movel" style="display:none">
+    ${empresas.map((e) => `<option value="${e.id}"${e.id === empresaAtual.id ? " selected" : ""}>${escapar(e.nome)}</option>`).join("")}
+  </select>`;
+}
+
+function render() {
+  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("ativo", b.dataset.vista === vistaAtual));
+  const alvo = document.getElementById("conteudo");
+  let html = "";
+  if (vistaAtual === "leads") html = vistaLeads();
+  if (vistaAtual === "kanban") html = vistaKanban();
+  if (vistaAtual === "config") html = vistaConfig();
+  alvo.innerHTML = seletorMovel() + html;
+  ligarEventos();
+}
+
+function botaoNovoLead() {
+  return pode.criarLead() ? `<button class="btn" id="btn-novo-lead" type="button">Novo lead</button>` : "";
+}
+
+function seloCadastro(l) {
+  return l.cadastro_incompleto ? '<span class="selo alerta" title="Falta o telefone">Cadastro incompleto</span>' : "";
+}
+
+function seloCanal(o) {
+  return o ? `<span class="selo canal">${escapar(NOME_CANAL[o.canal] || o.canal)}</span>` : "";
+}
+
+/* ---------------- leads ---------------- */
+function leadsFiltrados() {
+  const termo = busca.trim().toLowerCase();
+  return leads.filter((l) => {
+    if (filtroCadastro === "incompleto" && !l.cadastro_incompleto) return false;
+    if (!termo) return true;
+    const o = ultimaOrigem(l) || {};
+    return [l.nome, l.email, l.telefone, o.campanha_nome, o.anuncio_nome, o.utm_campaign]
+      .filter(Boolean).join(" ").toLowerCase().includes(termo);
+  });
+}
+
+function seletorEtapa(l) {
+  if (!pode.editarLead(l)) return `<span class="num">${escapar(NOME_ETAPA[l.etapa] || l.etapa)}</span>`;
+  return `<select class="etapa-sel lead-etapa" data-id="${l.id}">
+    ${ETAPAS.map((e) => `<option value="${e.id}"${l.etapa === e.id ? " selected" : ""}>${e.nome}</option>`).join("")}
+    ${ETAPAS.some((e) => e.id === l.etapa) ? "" : `<option selected>${escapar(l.etapa)}</option>`}
+  </select>`;
+}
+
+function vistaLeads() {
+  const lista = leadsFiltrados();
+  const linhas = lista.map((l) => {
+    const o = ultimaOrigem(l);
+    return `
+    <tr class="linha-lead" data-id="${l.id}" style="cursor:pointer">
+      <td>
+        <div class="cel-contato">
+          <div>
+            <div class="nome-cel">${escapar(l.nome || "sem nome")}</div>
+            <div class="sub-cel">${escapar(telefoneLegivel(l.telefone))}${l.email ? " · " + escapar(l.email) : ""}</div>
+          </div>
+          ${botaoWhatsApp(l)}
+        </div>
+      </td>
+      <td>${seloCanal(o)}<div class="sub-cel">${escapar(o?.campanha_nome || o?.utm_campaign || "")}</div></td>
+      <td>${seloCadastro(l) || '<span class="selo sim">Completo</span>'}</td>
+      <td class="num">${escapar(nomeResponsavel(l.responsavel_id) || "sem responsável")}</td>
+      <td>${seletorEtapa(l)}</td>
+      <td class="num">${dataCurta(l.criado_em)}</td>
+    </tr>`;
+  }).join("");
+
+  return `
+    <div class="topo">
+      <div><h1>Leads</h1><div class="desc">${lista.length} de ${leads.length} lead(s) em ${escapar(empresaAtual.nome)}.</div></div>
+      <div class="ferramentas">
+        <input type="search" id="busca" placeholder="Buscar nome, telefone, campanha" value="${escapar(busca)}">
+        <select id="filtro-cadastro">
+          <option value="todos"${filtroCadastro === "todos" ? " selected" : ""}>Todos</option>
+          <option value="incompleto"${filtroCadastro === "incompleto" ? " selected" : ""}>Cadastro incompleto</option>
+        </select>
+        ${botaoNovoLead()}
+      </div>
+    </div>
+    ${lista.length === 0
+      ? `<div class="tabela-caixa"><div class="vazio-geral">${leads.length === 0 ? "Nenhum lead ainda." : "Nenhum lead com esse filtro."}</div></div>`
+      : `<div class="tabela-caixa"><div class="rolagem"><table>
+          <thead><tr><th>Contato</th><th>Origem</th><th>Cadastro</th><th>Responsável</th><th>Etapa</th><th>Entrou</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table></div></div>`}`;
+}
+
+/* ---------------- kanban ---------------- */
+function vistaKanban() {
+  const conhecidas = new Set(ETAPAS.map((e) => e.id));
+  const colunas = ETAPAS.map((etapa) => {
+    const doGrupo = leads.filter((l) => (conhecidas.has(l.etapa) ? l.etapa : "novo") === etapa.id);
+    const cartoes = doGrupo.map((l) => {
+      const o = ultimaOrigem(l);
+      const qtdNotas = notas.filter((n) => n.lead_id === l.id).length;
+      const editavel = pode.editarLead(l);
+      return `
+      <div class="cartao" ${editavel ? 'draggable="true"' : ""} data-id="${l.id}">
+        <div class="c-topo">
+          <div class="c-ident">
+            <div class="n">${escapar(l.nome || "sem nome")}</div>
+            <div class="e">${escapar(telefoneLegivel(l.telefone) || l.email || "")}</div>
+          </div>
+          ${botaoWhatsApp(l)}
+        </div>
+        ${o ? `<div class="utms">
+          ${o.campanha_nome || o.utm_campaign ? `<span class="utm"><i>campanha</i>${escapar(o.campanha_nome || o.utm_campaign)}</span>` : ""}
+          ${o.conjunto_nome || o.utm_medium ? `<span class="utm"><i>conjunto</i>${escapar(o.conjunto_nome || o.utm_medium)}</span>` : ""}
+          ${o.anuncio_nome || o.utm_content ? `<span class="utm"><i>anúncio</i>${escapar(o.anuncio_nome || o.utm_content)}</span>` : ""}
+        </div>` : ""}
+        <div class="meta">
+          ${seloCanal(o)}
+          ${seloCadastro(l)}
+          ${qtdNotas ? `<span class="sinal">${ICONE_NOTA}${qtdNotas}</span>` : ""}
+        </div>
+        <div class="c-rodape">
+          <span class="data">${dataCurta(l.criado_em)}</span>
+          ${seletorEtapa(l)}
+        </div>
+      </div>`;
+    }).join("");
+
+    return `
+      <div class="coluna" data-etapa="${etapa.id}">
+        <div class="cabeca">
+          <span class="ponto" style="background:${etapa.cor}"></span>
+          <span class="titulo">${etapa.nome}</span>
+          <span class="qtd">${doGrupo.length}</span>
+        </div>
+        <div class="corpo">${cartoes || '<div class="vazio">vazio</div>'}</div>
+      </div>`;
+  }).join("");
+
+  return `
+    <div class="topo">
+      <div><h1>Kanban</h1><div class="desc">${escapar(empresaAtual.nome)}. Arraste o cartão entre colunas ou use o seletor dentro dele.</div></div>
+      <div class="ferramentas">${botaoNovoLead()}</div>
+    </div>
+    <div class="kanban">${colunas}</div>`;
+}
+
+/* ---------------- ajustes ---------------- */
+function vistaConfig() {
+  const painel = {
+    seguranca: () => `
+      <div class="bloco">
+        <h3>Verificação em duas etapas <span class="selo nao" id="selo-2fa" style="margin-left:8px">verificando...</span></h3>
+        <p>Com isso ligado, entrar e trocar a senha passam a exigir o código de 6 dígitos de um aplicativo autenticador.</p>
+        <div id="area-2fa"></div>
+      </div>
+      <div class="bloco">
+        <h3>Trocar senha</h3>
+        <p>Mínimo de 8 caracteres.</p>
+        <div class="campo"><label for="senha-nova">Nova senha</label><input type="password" id="senha-nova" autocomplete="new-password"></div>
+        <div class="campo"><label for="senha-confirma">Repetir a nova senha</label><input type="password" id="senha-confirma" autocomplete="new-password"></div>
+        <button class="btn btn-largo" id="btn-trocar-senha" type="button">Salvar nova senha</button>
+        <div class="aviso" id="aviso-senha"></div>
+      </div>`,
+
+    equipe: () => `
+      <div class="bloco" style="grid-column:1/-1">
+        <h3>Equipe de ${escapar(empresaAtual.nome)}</h3>
+        <p>Quem tem acesso a esta empresa e com qual nível. Convites entram numa próxima etapa.</p>
+        ${equipe.length ? equipe.map((m) => `
+          <div class="par"><span class="r">${escapar(NOME_PAPEL[m.papel] || m.papel)}</span><span class="v">${escapar(m.email)}</span></div>`).join("")
+          : '<div class="vazio-bloco">Nenhum membro cadastrado nesta empresa.</div>'}
+      </div>`,
+
+    dados: () => `
+      <div class="bloco">
+        <h3>Atualizar dados</h3>
+        <p>Recarrega leads e anotações direto do banco.</p>
+        <button class="btn btn-largo btn-fantasma" id="btn-recarregar">Atualizar agora</button>
+        <div class="aviso" id="aviso-recarregar"></div>
+      </div>
+      <div class="bloco">
+        <h3>Sessão</h3>
+        <p>Sair encerra a sessão neste aparelho.</p>
+        <button class="btn btn-largo btn-fantasma" id="btn-sair-ajustes">Sair da conta</button>
+      </div>`,
+  };
+
+  const ABAS = [["seguranca", "Segurança"], ["equipe", "Equipe"], ["dados", "Dados"]];
+  return `
+    <div class="topo"><div><h1>Ajustes</h1><div class="desc">Conta, equipe e manutenção.</div></div></div>
+    <div class="abas abas-ajustes">
+      ${ABAS.map(([id, rot]) => `<button class="aba${abaAjustes === id ? " ativa" : ""}" data-aba-ajuste="${id}" type="button">${rot}</button>`).join("")}
+    </div>
+    <div class="cartoes-config">${(painel[abaAjustes] || painel.seguranca)()}</div>`;
+}
+
+async function desenhar2FA() {
+  const area = document.getElementById("area-2fa");
+  const selo = document.getElementById("selo-2fa");
+  if (!area) return;
+  const { data, error } = await sb.auth.mfa.listFactors();
+  if (error) { area.innerHTML = `<div class="aviso erro">Não deu pra checar: ${escapar(error.message)}</div>`; return; }
+  const ativo = (data?.totp || []).find((f) => f.status === "verified");
+
+  if (ativo) {
+    selo.className = "selo sim";
+    selo.textContent = "ligada";
+    area.innerHTML = `
+      <div class="par"><span class="r">Ativado em</span><span class="v">${dataCurta(ativo.created_at)}</span></div>
+      <button class="ver-lead" id="remover-2fa" type="button" style="width:auto;margin-top:16px;padding:8px 14px">Desativar verificação em duas etapas</button>
+      <div class="aviso" id="aviso-2fa"></div>`;
+    document.getElementById("remover-2fa").addEventListener("click", async () => {
+      if (!confirm("Desativar a verificação em duas etapas?")) return;
+      const { error: erro } = await sb.auth.mfa.unenroll({ factorId: ativo.id });
+      if (erro) { document.getElementById("aviso-2fa").textContent = "Não deu pra desativar: " + erro.message; return; }
+      desenhar2FA();
+    });
+    return;
+  }
+
+  selo.className = "selo nao";
+  selo.textContent = "desligada";
+  area.innerHTML = `<button class="btn btn-largo" id="ativar-2fa" type="button">Ativar</button><div class="aviso" id="aviso-2fa"></div>`;
+  document.getElementById("ativar-2fa").addEventListener("click", async () => {
+    const aviso = document.getElementById("aviso-2fa");
+    aviso.textContent = "Gerando o código...";
+    const { data: atuais } = await sb.auth.mfa.listFactors();
+    for (const pendente of (atuais?.totp || []).filter((f) => f.status !== "verified")) {
+      await sb.auth.mfa.unenroll({ factorId: pendente.id });
+    }
+    const { data: inscricao, error: erro } = await sb.auth.mfa.enroll({ factorType: "totp", friendlyName: "Autenticador", issuer: "CRM The New Ads" });
+    if (erro) { aviso.className = "aviso erro"; aviso.textContent = "Não deu pra gerar: " + erro.message; return; }
+
+    area.innerHTML = `
+      <ol class="passos-2fa">
+        <li>Abra o aplicativo autenticador e adicione uma conta pelo código QR</li>
+        <li>Aponte a câmera para o código abaixo</li>
+        <li>Digite aqui o número de 6 dígitos que aparecer</li>
+      </ol>
+      <div class="qr-caixa"><img src="${inscricao.totp.qr_code}" alt="Código QR" width="190" height="190"></div>
+      <details class="manual"><summary>Não consegue ler o código?</summary>
+        <p>Adicione manualmente com esta chave:</p><code class="chave-2fa">${escapar(inscricao.totp.secret)}</code></details>
+      <div class="campo" style="margin-top:18px">
+        <label for="confirma-2fa">Código do aplicativo</label>
+        <input type="text" id="confirma-2fa" inputmode="numeric" maxlength="6" placeholder="000000" autocomplete="one-time-code"
+               style="letter-spacing:.4em;font-family:var(--mono);text-align:center">
+      </div>
+      <button class="btn btn-largo" id="confirmar-2fa" type="button">Confirmar e ativar</button>
+      <div class="aviso" id="aviso-2fa"></div>`;
+
+    document.getElementById("confirmar-2fa").addEventListener("click", async () => {
+      const campo = document.getElementById("confirma-2fa");
+      const avisoC = document.getElementById("aviso-2fa");
+      const codigo = campo.value.replace(/\D/g, "");
+      if (codigo.length !== 6) { avisoC.className = "aviso erro"; avisoC.textContent = "O código tem 6 dígitos."; return; }
+      const { data: desafio, error: e1 } = await sb.auth.mfa.challenge({ factorId: inscricao.id });
+      if (e1) { avisoC.className = "aviso erro"; avisoC.textContent = e1.message; return; }
+      const { error: e2 } = await sb.auth.mfa.verify({ factorId: inscricao.id, challengeId: desafio.id, code: codigo });
+      if (e2) { avisoC.className = "aviso erro"; avisoC.textContent = "Código incorreto, tente com o próximo."; campo.value = ""; return; }
+      desenhar2FA();
+    });
+  });
+}
+
+/* ---------------- eventos das vistas ---------------- */
+function ligarEventos() {
+  const movel = document.getElementById("empresa-sel-movel");
+  if (movel) movel.addEventListener("change", () => trocarEmpresa(movel.value));
+
+  const campoBusca = document.getElementById("busca");
+  if (campoBusca) {
+    campoBusca.addEventListener("input", (e) => {
+      busca = e.target.value;
+      const posicao = e.target.selectionStart;
+      render();
+      const novo = document.getElementById("busca");
+      if (novo) { novo.focus(); novo.setSelectionRange(posicao, posicao); }
+    });
+  }
+  const filtro = document.getElementById("filtro-cadastro");
+  if (filtro) filtro.addEventListener("change", (e) => { filtroCadastro = e.target.value; render(); });
+
+  document.querySelectorAll(".lead-etapa").forEach((sel) => {
+    sel.addEventListener("click", (e) => e.stopPropagation());
+    sel.addEventListener("change", (e) => moverLead(e.target.dataset.id, e.target.value));
+  });
+
+  document.querySelectorAll(".cartao, .linha-lead").forEach((el) => {
+    el.addEventListener("click", (e) => {
+      if (e.target.closest("select, a, button")) return;
+      abrirLead(el.dataset.id);
+    });
+  });
+
+  const novo = document.getElementById("btn-novo-lead");
+  if (novo) novo.addEventListener("click", () => formularioLead(null));
+
+  ligarArrasto();
+
+  document.querySelectorAll("[data-aba-ajuste]").forEach((b) => {
+    b.addEventListener("click", () => { abaAjustes = b.dataset.abaAjuste; render(); });
+  });
+  const sairAjustes = document.getElementById("btn-sair-ajustes");
+  if (sairAjustes) sairAjustes.addEventListener("click", sair);
+  if (document.getElementById("area-2fa")) desenhar2FA();
+
+  const btnSenha = document.getElementById("btn-trocar-senha");
+  if (btnSenha) {
+    btnSenha.addEventListener("click", async () => {
+      const nova = document.getElementById("senha-nova").value;
+      const confirma = document.getElementById("senha-confirma").value;
+      const aviso = document.getElementById("aviso-senha");
+      if (nova.length < 8) { aviso.className = "aviso erro"; aviso.textContent = "A senha precisa ter pelo menos 8 caracteres."; return; }
+      if (nova !== confirma) { aviso.className = "aviso erro"; aviso.textContent = "As duas senhas não são iguais."; return; }
+      const { data: fatores } = await sb.auth.mfa.listFactors();
+      if ((fatores?.totp || []).some((f) => f.status === "verified")) {
+        const codigo = prompt("Digite o código de 6 dígitos do autenticador para confirmar:");
+        if (codigo === null) return;
+        const conferencia = await verificarCodigo(String(codigo).replace(/\D/g, ""));
+        if (conferencia.erro) { aviso.className = "aviso erro"; aviso.textContent = "Código não confere. A senha não foi alterada."; return; }
+      }
+      btnSenha.disabled = true;
+      const { error } = await sb.auth.updateUser({ password: nova });
+      btnSenha.disabled = false;
+      if (error) { aviso.className = "aviso erro"; aviso.textContent = "Não deu pra trocar: " + error.message; return; }
+      aviso.className = "aviso ok";
+      aviso.textContent = "Senha trocada.";
+    });
+  }
+
+  const btnRecarregar = document.getElementById("btn-recarregar");
+  if (btnRecarregar) {
+    btnRecarregar.addEventListener("click", async () => {
+      await carregarTudo();
+      const aviso = document.getElementById("aviso-recarregar");
+      if (aviso) { aviso.className = "aviso ok"; aviso.textContent = "Dados atualizados."; }
+    });
+  }
+}
+
+async function moverLead(id, etapa) {
+  const lead = leads.find((l) => l.id === id);
+  if (!lead || lead.etapa === etapa) return;
+  const { data, error } = await sb.from("leads").update({ etapa }).eq("id", id).select("id");
+  if (error || !data?.length) {
+    alert(error ? "Não deu pra mover: " + error.message : "Você não tem permissão para mover este lead.");
+    render();
+    return;
+  }
+  lead.etapa = etapa;
+  render();
+}
+
+function ligarArrasto() {
+  let arrastando = null;
+  document.querySelectorAll(".cartao[draggable]").forEach((cartao) => {
+    cartao.addEventListener("dragstart", () => { arrastando = cartao.dataset.id; cartao.classList.add("arrastando"); });
+    cartao.addEventListener("dragend", () => {
+      arrastando = null;
+      cartao.classList.remove("arrastando");
+      document.querySelectorAll(".coluna").forEach((c) => c.classList.remove("alvo"));
+    });
+  });
+  document.querySelectorAll(".coluna").forEach((coluna) => {
+    coluna.addEventListener("dragover", (e) => { if (arrastando) { e.preventDefault(); coluna.classList.add("alvo"); } });
+    coluna.addEventListener("dragleave", () => coluna.classList.remove("alvo"));
+    coluna.addEventListener("drop", (e) => {
+      e.preventDefault();
+      coluna.classList.remove("alvo");
+      if (arrastando) moverLead(arrastando, coluna.dataset.etapa);
+    });
+  });
+}
+
+/* ---------------- criar e editar lead ---------------- */
+// Serve para lead novo (lead = null) e para completar cadastro de um existente.
+function formularioLead(lead) {
+  const novo = !lead;
+  const div = document.createElement("div");
+  div.className = "fundo-modal fundo-centro";
+  const opcoesResponsavel = equipe
+    .filter((m) => m.papel !== "leitura")
+    .map((m) => `<option value="${m.user_id}"${(lead?.responsavel_id || (papel === "vendedor" ? usuario.id : "")) === m.user_id ? " selected" : ""}>${escapar(m.email)}</option>`)
+    .join("");
+
+  div.innerHTML = `
+    <div class="caixa-modal">
+      <h2>${novo ? "Novo lead" : "Editar cadastro"}</h2>
+      <p class="ajuda">Telefone com DDD. Sem telefone o lead fica marcado como cadastro incompleto.</p>
+      <div class="campo"><label for="fl-nome">Nome</label><input type="text" id="fl-nome" value="${escapar(lead?.nome || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="fl-tel">Telefone</label><input type="tel" id="fl-tel" value="${escapar(telefoneLegivel(lead?.telefone))}" placeholder="(11) 99999-9999" autocomplete="off"></div>
+      <div class="campo"><label for="fl-email">E-mail</label><input type="email" id="fl-email" value="${escapar(lead?.email || "")}" autocomplete="off"></div>
+      ${pode.distribuir() ? `
+      <div class="campo"><label for="fl-resp">Responsável</label>
+        <select id="fl-resp"><option value="">sem responsável</option>${opcoesResponsavel}</select></div>` : ""}
+      <div class="aviso" id="fl-aviso"></div>
+      <div class="acoes-modal">
+        <button class="btn btn-fantasma" type="button" id="fl-cancelar">Cancelar</button>
+        <button class="btn" type="button" id="fl-salvar">Salvar</button>
+      </div>
+    </div>`;
+  document.body.appendChild(div);
+
+  const fechar = () => div.remove();
+  div.addEventListener("click", (e) => { if (e.target === div) fechar(); });
+  div.querySelector("#fl-cancelar").addEventListener("click", fechar);
+  div.querySelector("#fl-nome").focus();
+
+  div.querySelector("#fl-salvar").addEventListener("click", async () => {
+    const aviso = div.querySelector("#fl-aviso");
+    const telefone = normalizarTelefone(div.querySelector("#fl-tel").value);
+    if (telefone === undefined) { aviso.className = "aviso erro"; aviso.textContent = "Telefone inválido. Use DDD e número."; return; }
+    const campos = {
+      nome: div.querySelector("#fl-nome").value.trim() || null,
+      telefone,
+      email: div.querySelector("#fl-email").value.trim() || null,
+    };
+    const resp = div.querySelector("#fl-resp");
+    if (resp) campos.responsavel_id = resp.value || null;
+    else if (novo && papel === "vendedor") campos.responsavel_id = usuario.id;
+
+    if (!campos.nome && !campos.telefone && !campos.email) {
+      aviso.className = "aviso erro"; aviso.textContent = "Preencha pelo menos nome, telefone ou e-mail."; return;
+    }
+
+    aviso.className = "aviso";
+    aviso.textContent = "Salvando...";
+
+    let resultado;
+    if (novo) {
+      resultado = await sb.from("leads").insert({ ...campos, empresa_id: empresaAtual.id }).select("*, lead_origens(*)").single();
+      if (!resultado.error) {
+        await sb.from("lead_origens").insert({ empresa_id: empresaAtual.id, lead_id: resultado.data.id, canal: "manual" });
+      }
+    } else {
+      resultado = await sb.from("leads").update(campos).eq("id", lead.id).select("*, lead_origens(*)").single();
+    }
+
+    if (resultado.error) {
+      aviso.className = "aviso erro";
+      aviso.textContent = resultado.error.code === "23505"
+        ? "Já existe um lead com esse telefone nesta empresa."
+        : "Não deu pra salvar: " + resultado.error.message;
+      return;
+    }
+    fechar();
+    await carregarTudo();
+    if (!novo) abrirLead(lead.id);
+  });
+}
+
+async function excluirLead(l) {
+  if (!confirm(`Excluir "${l.nome || "esse lead"}" pra sempre? Apaga também as anotações e origens. Não tem como desfazer.`)) return false;
+  const { data, error } = await sb.from("leads").delete().eq("id", l.id).select("id");
+  if (error || !data?.length) { alert(error ? "Não deu pra excluir: " + error.message : "Sem permissão para excluir."); return false; }
+  leads = leads.filter((x) => x.id !== l.id);
+  notas = notas.filter((n) => n.lead_id !== l.id);
+  return true;
+}
+
+/* ---------------- detalhe do lead ---------------- */
+function abrirLead(id, abaInicial) {
+  const l = leads.find((x) => x.id === id);
+  if (!l) return;
+  let abaAtual = abaInicial || "anotacoes";
+
+  const div = document.createElement("div");
+  div.className = "fundo-modal";
+  document.body.appendChild(div);
+  const fechar = () => { div.remove(); document.removeEventListener("keydown", aoTeclar); };
+  function aoTeclar(e) { if (e.key === "Escape") fechar(); }
+  document.addEventListener("keydown", aoTeclar);
+  div.addEventListener("click", (e) => { if (e.target === div) fechar(); });
+
+  const par = (rotulo, valor) =>
+    `<div class="par"><span class="r">${rotulo}</span><span class="v${valor ? "" : " vazio"}">${valor ? escapar(valor) : "vazio"}</span></div>`;
+
+  function abaAnotacoes() {
+    const doLead = notas.filter((n) => n.lead_id === l.id);
+    const historico = doLead.length
+      ? doLead.map((n) => `
+          <div class="nota">
+            <div class="nota-topo">
+              <span class="nota-data">${dataHora(n.criado_em)} · ${escapar(nomeResponsavel(n.autor_id) || "")}</span>
+              ${n.autor_id === usuario.id || pode.excluir() ? `<button class="nota-apagar" data-nota="${n.id}" type="button" title="Apagar">✕</button>` : ""}
+            </div>
+            <p>${escapar(n.texto)}</p>
+          </div>`).join("")
+      : '<div class="vazio-bloco">Nenhuma anotação ainda.</div>';
+    const form = pode.editarLead(l) ? `
+      <div class="campo"><label for="nova-nota">Nova anotação</label>
+        <textarea id="nova-nota" rows="3" placeholder="O que aconteceu nessa conversa?"></textarea></div>
+      <button class="btn btn-largo" id="salvar-nota" type="button">Salvar anotação</button>
+      <div class="aviso" id="aviso-nota"></div>` : "";
+    return form + `<div class="historico">${historico}</div>`;
+  }
+
+  function abaOrigem() {
+    const lista = origensDoLead(l);
+    if (!lista.length) return '<div class="vazio-bloco">Nenhuma origem registrada.</div>';
+    return lista.map((o, i) => `
+      <div class="origem">
+        <div class="origem-topo">
+          ${seloCanal(o)}
+          <span class="num">${i === 0 ? "entrada · " : i === lista.length - 1 ? "mais recente · " : ""}${dataHora(o.recebido_em)}</span>
+        </div>
+        ${o.campanha_nome ? par("Campanha", o.campanha_nome) : ""}
+        ${o.conjunto_nome ? par("Conjunto", o.conjunto_nome) : ""}
+        ${o.anuncio_nome ? par("Anúncio", o.anuncio_nome) : ""}
+        ${o.ad_id ? par("ad_id", o.ad_id) : ""}
+        ${o.utm_source ? par("utm_source", o.utm_source) : ""}
+        ${o.utm_medium ? par("utm_medium", o.utm_medium) : ""}
+        ${o.utm_campaign ? par("utm_campaign", o.utm_campaign) : ""}
+        ${o.utm_content ? par("utm_content", o.utm_content) : ""}
+        ${o.utm_term ? par("utm_term", o.utm_term) : ""}
+        ${o.pagina_url ? par("Página", o.pagina_url) : ""}
+      </div>`).join("");
+  }
+
+  function abaDados() {
+    return `
+      <div class="grupo">
+        <h3>Contato</h3>
+        ${par("Nome", l.nome)}
+        ${par("Telefone", telefoneLegivel(l.telefone))}
+        ${par("E-mail", l.email)}
+        ${par("Cadastro", l.cadastro_incompleto ? "incompleto (sem telefone)" : "completo")}
+        ${par("Responsável", nomeResponsavel(l.responsavel_id))}
+        ${par("Entrou em", dataHora(l.criado_em))}
+        ${pode.editarLead(l) ? '<button class="ver-lead" type="button" id="editar-cadastro" style="margin-top:14px">Editar cadastro</button>' : ""}
+      </div>
+      ${pode.excluir() ? '<div class="grupo"><button class="ver-lead perigo" type="button" id="excluir-lead">Excluir lead</button></div>' : ""}`;
+  }
+
+  const ABAS = [
+    { id: "anotacoes", nome: "Anotações", conta: () => notas.filter((n) => n.lead_id === l.id).length },
+    { id: "origem", nome: "Origem", conta: () => (l.lead_origens || []).length },
+    { id: "dados", nome: "Dados", conta: () => 0 },
+  ];
+
+  function desenhar() {
+    const corpo = abaAtual === "anotacoes" ? abaAnotacoes() : abaAtual === "origem" ? abaOrigem() : abaDados();
+    div.innerHTML = `
+      <div class="gaveta">
+        <div class="cabeca">
+          <div>
+            <h2>${escapar(l.nome || "Lead sem nome")}</h2>
+            <div class="sub-cel">${escapar(NOME_ETAPA[l.etapa] || l.etapa)} ${l.cadastro_incompleto ? '· <span style="color:var(--vermelho)">cadastro incompleto</span>' : ""}</div>
+          </div>
+          <button class="fechar" type="button" aria-label="Fechar">✕</button>
+        </div>
+        ${botaoWhatsApp(l, "Conversar no WhatsApp")}
+        ${l.cadastro_incompleto && pode.editarLead(l) ? '<button class="btn btn-largo" id="completar" type="button" style="margin-bottom:22px">Completar cadastro</button>' : ""}
+        <div class="abas">
+          ${ABAS.map((a) => {
+            const n = a.conta();
+            return `<button class="aba${a.id === abaAtual ? " ativa" : ""}" data-aba="${a.id}" type="button">${a.nome}${n ? `<span class="aba-conta">${n}</span>` : ""}</button>`;
+          }).join("")}
+        </div>
+        <div class="aba-corpo">${corpo}</div>
+      </div>`;
+
+    div.querySelector(".fechar").addEventListener("click", fechar);
+    div.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => { abaAtual = b.dataset.aba; desenhar(); }));
+    const completar = div.querySelector("#completar");
+    if (completar) completar.addEventListener("click", () => { fechar(); formularioLead(l); });
+
+    const salvarNota = div.querySelector("#salvar-nota");
+    if (salvarNota) {
+      salvarNota.addEventListener("click", async () => {
+        const texto = div.querySelector("#nova-nota").value.trim();
+        const aviso = div.querySelector("#aviso-nota");
+        if (!texto) { aviso.className = "aviso erro"; aviso.textContent = "Escreva algo antes de salvar."; return; }
+        const { data, error } = await sb.from("lead_notas")
+          .insert({ empresa_id: empresaAtual.id, lead_id: l.id, texto, autor_id: usuario.id }).select().single();
+        if (error) { aviso.className = "aviso erro"; aviso.textContent = "Não deu pra salvar: " + error.message; return; }
+        notas.unshift(data);
+        desenhar();
+        render();
+      });
+    }
+    div.querySelectorAll(".nota-apagar").forEach((b) => {
+      b.addEventListener("click", async () => {
+        if (!confirm("Apagar essa anotação?")) return;
+        const { data, error } = await sb.from("lead_notas").delete().eq("id", b.dataset.nota).select("id");
+        if (error || !data?.length) { alert("Não deu pra apagar."); return; }
+        notas = notas.filter((n) => n.id !== b.dataset.nota);
+        desenhar();
+        render();
+      });
+    });
+
+    const editar = div.querySelector("#editar-cadastro");
+    if (editar) editar.addEventListener("click", () => { fechar(); formularioLead(l); });
+    const excluir = div.querySelector("#excluir-lead");
+    if (excluir) excluir.addEventListener("click", async () => { if (await excluirLead(l)) { fechar(); render(); } });
+  }
+
+  desenhar();
+}
+
+iniciar();
+</script>
+</body>
+</html>

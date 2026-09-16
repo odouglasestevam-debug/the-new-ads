@@ -16,7 +16,7 @@ Um sistema para clientes da agência, baseado no `/funil` da The New Ads (duplic
 
 - **Banco:** projeto Supabase `xrvjlhseyqfgyvwwlwwb`, organização "oestevamdouglas@gmail.com's Org", conector MCP `supabase-app` (`.mcp.json`, preso a esse project_ref). Começa zerado.
 - **Front e rotas:** projeto Cloudflare Pages novo e pasta nova no repo (a definir), com o código do `/funil` copiado como ponto de partida, tirando o que é só da TNA (nichos, formulário de tráfego pago, agenda do Douglas).
-- **Subdomínio:** a definir (sugestões: `app.thenewads.com.br`, `crm.thenewads.com.br`).
+- **Subdomínio:** `crm.thenewads.com.br` (decidido em 16/09/2026).
 
 Motivo do projeto separado: usuários de cliente vão ter login. No mesmo banco dos dashboards e do `/funil`, qualquer erro de RLS numa tabela antiga exporia dado de outro cliente.
 
@@ -57,7 +57,14 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Funções de permissão no schema `privado` (fora da API). `segredo_id`, origens não manuais, log e cache só o servidor grava
 - `sistema-novo/supabase/tests/isolamento.sql`: 31 de 31 testes passando. Rodar de novo depois de qualquer migration
 
-Falta na Fase 0: pasta do front com a cópia do `/funil`, projeto Pages novo, primeiro usuário da agência.
+**16/09/2026, tela no ar em https://crm.thenewads.com.br**
+- Código em `sistema-novo/site/public/` (cópia adaptada do `/funil`, que não foi alterado). Deploy: `cd sistema-novo/site && npx wrangler deploy` com o `.env` carregado. É um Cloudflare Worker `tna-crm` com assets estáticos (o Cloudflare migrou Pages para Workers); só a pasta `public/` vai para o ar
+- Tem: login com 2FA, seletor de empresa, kanban (novo, em contato, qualificado, proposta, cliente, perdido), lista de leads, gaveta do lead (anotações, origens, dados), criar lead manual, completar cadastro, equipe (leitura), permissões espelhando o banco
+- Saiu do /funil por ser só da TNA: agenda do Google, analytics, push, CAPI, lembretes, score, nichos
+- Migration `0003`: função `membros_da_empresa` para mostrar e-mail da equipe
+- Testado com login real via API (dono, vendedor, anônimo) e dados apagados depois
+
+Falta na Fase 0: primeiro usuário da agência (Douglas cria em Authentication > Add user no Supabase e o Claude marca em `agencia_admins`) e primeira empresa.
 
 ## Pendências (perguntar antes de decidir)
 - Cliente piloto (sugestão: Grupo Confiança)
