@@ -1,0 +1,31 @@
+{
+  "viewports": [
+    {
+      "width": 1440,
+      "overflow": false,
+      "broken_images": []
+    },
+    {
+      "width": 390,
+      "overflow": false,
+      "broken_images": []
+    },
+    {
+      "width": 320,
+      "overflow": false,
+      "broken_images": []
+    },
+    {
+      "width": 768,
+      "overflow": false,
+      "broken_images": []
+    },
+    {
+      "width": 1024,
+      "overflow": false,
+      "broken_images": []
+    }
+  ],
+  "javascript_errors": [],
+  "interactions": "passed: search, details, add, remove, empty state, reset, filters, mobile menu, Escape"
+}

@@ -1,0 +1,3 @@
+tools/vendor/
+tools/__pycache__/
+assets/store-source.html
