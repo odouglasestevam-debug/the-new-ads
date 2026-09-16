@@ -94,7 +94,12 @@
   .selo.sim{color:var(--verde);border-color:rgba(74,222,128,.3);background:rgba(74,222,128,.08)}
   .selo.nao{color:var(--nevoa);border-color:var(--linha);background:rgba(255,255,255,.03)}
   .selo.alerta{color:var(--vermelho);border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.08)}
-  .selo.canal{color:var(--azul);border-color:rgba(96,165,250,.3);background:rgba(96,165,250,.08)}
+  /* tag de canal: verde WhatsApp para mensagem, âmbar para site, azul Meta para formulário nativo */
+  .selo.canal svg{width:11px;height:11px}
+  .selo.canal-ctwa{color:#25D366;border-color:rgba(37,211,102,.35);background:rgba(37,211,102,.1)}
+  .selo.canal-site{color:var(--ambar);border-color:rgba(255,106,0,.35);background:rgba(255,106,0,.08)}
+  .selo.canal-meta_form{color:#4C8DFF;border-color:rgba(76,141,255,.35);background:rgba(76,141,255,.08)}
+  .selo.canal-manual{color:var(--nevoa);border-color:var(--linha);background:rgba(255,255,255,.03)}
 
   select.etapa-sel{padding:7px 10px;font-size:12.5px;border-radius:7px;background:var(--grafite-2);width:auto}
 
@@ -299,7 +304,23 @@ const ETAPAS = [
 ];
 const NOME_ETAPA = Object.fromEntries(ETAPAS.map((e) => [e.id, e.nome]));
 const NOME_PAPEL = { agencia: "Agência", dono: "Dono", gestor: "Gestor", vendedor: "Vendedor", leitura: "Leitura" };
-const NOME_CANAL = { site: "Site", ctwa: "WhatsApp (anúncio)", meta_form: "Formulário Meta", manual: "Manual" };
+const NOME_CANAL = { site: "Site", ctwa: "WhatsApp", meta_form: "Formulário Meta", manual: "Manual" };
+
+// Cada canal tem a sua forma de origem. Mensagem (CTWA) e formulário nativo trazem
+// nomes resolvidos pela Meta; site traz os parâmetros de UTM do padrão do /funil.
+const CAMPOS_ORIGEM = {
+  ctwa: [["campanha_nome", "campanha"], ["conjunto_nome", "conjunto"], ["anuncio_nome", "anúncio"]],
+  meta_form: [["campanha_nome", "campanha"], ["conjunto_nome", "conjunto"], ["anuncio_nome", "anúncio"]],
+  site: [["utm_source", "source"], ["utm_medium", "medium"], ["utm_campaign", "campaign"], ["utm_content", "content"],
+         ["utm_term", "term"], ["utm_placement", "placement"], ["ad_id", "ad_id"]],
+  manual: [],
+};
+function camposOrigem(o) {
+  return (CAMPOS_ORIGEM[o?.canal] || []).filter(([campo]) => o[campo]).map(([campo, rotulo]) => [rotulo, o[campo]]);
+}
+function campanhaDaOrigem(o) {
+  return o ? (o.canal === "site" ? o.utm_campaign : o.campanha_nome) || "" : "";
+}
 const CHAVE_EMPRESA = "crm_empresa_atual";
 
 let usuario = null;
@@ -546,7 +567,9 @@ function seloCadastro(l) {
 }
 
 function seloCanal(o) {
-  return o ? `<span class="selo canal">${escapar(NOME_CANAL[o.canal] || o.canal)}</span>` : "";
+  if (!o) return "";
+  const icone = o.canal === "ctwa" ? ICONE_WHATSAPP : "";
+  return `<span class="selo canal canal-${escapar(o.canal)}">${icone}${escapar(NOME_CANAL[o.canal] || o.canal)}</span>`;
 }
 
 /* ---------------- leads ---------------- */
@@ -556,7 +579,7 @@ function leadsFiltrados() {
     if (filtroCadastro === "incompleto" && !l.cadastro_incompleto) return false;
     if (!termo) return true;
     const o = ultimaOrigem(l) || {};
-    return [l.nome, l.email, l.telefone, o.campanha_nome, o.anuncio_nome, o.utm_campaign]
+    return [l.nome, l.email, l.telefone, o.campanha_nome, o.conjunto_nome, o.anuncio_nome, o.utm_campaign, o.utm_medium, o.utm_content]
       .filter(Boolean).join(" ").toLowerCase().includes(termo);
   });
 }
@@ -584,7 +607,7 @@ function vistaLeads() {
           ${botaoWhatsApp(l)}
         </div>
       </td>
-      <td>${seloCanal(o)}<div class="sub-cel">${escapar(o?.campanha_nome || o?.utm_campaign || "")}</div></td>
+      <td>${seloCanal(o)}<div class="sub-cel">${escapar(campanhaDaOrigem(o))}</div></td>
       <td>${seloCadastro(l) || '<span class="selo sim">Completo</span>'}</td>
       <td class="num">${escapar(nomeResponsavel(l.responsavel_id) || "sem responsável")}</td>
       <td>${seletorEtapa(l)}</td>
@@ -631,12 +654,10 @@ function vistaKanban() {
           ${botaoWhatsApp(l)}
         </div>
         ${o ? `<div class="utms">
-          ${o.campanha_nome || o.utm_campaign ? `<span class="utm"><i>campanha</i>${escapar(o.campanha_nome || o.utm_campaign)}</span>` : ""}
-          ${o.conjunto_nome || o.utm_medium ? `<span class="utm"><i>conjunto</i>${escapar(o.conjunto_nome || o.utm_medium)}</span>` : ""}
-          ${o.anuncio_nome || o.utm_content ? `<span class="utm"><i>anúncio</i>${escapar(o.anuncio_nome || o.utm_content)}</span>` : ""}
+          <div style="margin-bottom:4px">${seloCanal(o)}</div>
+          ${camposOrigem(o).map(([rotulo, valor]) => `<span class="utm" title="${escapar(valor)}"><i>${rotulo}</i>${escapar(valor)}</span>`).join("")}
         </div>` : ""}
         <div class="meta">
-          ${seloCanal(o)}
           ${seloCadastro(l)}
           ${qtdNotas ? `<span class="sinal">${ICONE_NOTA}${qtdNotas}</span>` : ""}
         </div>
@@ -1026,16 +1047,22 @@ function abrirLead(id, abaInicial) {
           ${seloCanal(o)}
           <span class="num">${i === 0 ? "entrada · " : i === lista.length - 1 ? "mais recente · " : ""}${dataHora(o.recebido_em)}</span>
         </div>
-        ${o.campanha_nome ? par("Campanha", o.campanha_nome) : ""}
-        ${o.conjunto_nome ? par("Conjunto", o.conjunto_nome) : ""}
-        ${o.anuncio_nome ? par("Anúncio", o.anuncio_nome) : ""}
-        ${o.ad_id ? par("ad_id", o.ad_id) : ""}
-        ${o.utm_source ? par("utm_source", o.utm_source) : ""}
-        ${o.utm_medium ? par("utm_medium", o.utm_medium) : ""}
-        ${o.utm_campaign ? par("utm_campaign", o.utm_campaign) : ""}
-        ${o.utm_content ? par("utm_content", o.utm_content) : ""}
-        ${o.utm_term ? par("utm_term", o.utm_term) : ""}
-        ${o.pagina_url ? par("Página", o.pagina_url) : ""}
+        ${o.canal === "site" ? `
+          ${par("utm_source", o.utm_source)}
+          ${par("utm_medium", o.utm_medium)}
+          ${par("utm_campaign", o.utm_campaign)}
+          ${par("utm_content", o.utm_content)}
+          ${par("utm_term", o.utm_term)}
+          ${par("utm_placement", o.utm_placement)}
+          ${par("ad_id", o.ad_id)}
+          ${o.pagina_url ? par("Página", o.pagina_url) : ""}` : ""}
+        ${o.canal === "ctwa" || o.canal === "meta_form" ? `
+          ${par("Campanha", o.campanha_nome)}
+          ${par("Conjunto", o.conjunto_nome)}
+          ${par("Anúncio", o.anuncio_nome)}
+          ${par(o.canal === "ctwa" ? "source_id" : "ad_id", o.ad_id)}
+          ${o.ctwa_clid ? par("ctwa_clid", o.ctwa_clid) : ""}` : ""}
+        ${o.canal === "manual" ? '<div class="sub-cel">Cadastrado manualmente pela equipe.</div>' : ""}
       </div>`).join("");
   }
 
