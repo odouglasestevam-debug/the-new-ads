@@ -117,6 +117,15 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - No WhatsApp oficial, conversa nova avisa que só começa com modelo aprovado pela Meta (ainda não existe no CRM)
 - Testado no navegador: 18 verificações (filtros, busca, permissão do vendedor, número repetido não duplica conversa, envio numa conversa iniciada pelo CRM); corrigido erro de JS ao clicar no menu antes da empresa carregar
 
+**17/09/2026, API oficial validada ponta a ponta (número de teste da Meta):**
+- Integração salva na Agari Drinks: phone_number_id `1324788970715973`, WABA `2281314125740536`, token e App Secret no Vault
+- Mensagem de entrada criou o lead sozinha, assinatura HMAC conferida, resposta pelo CRM saiu e voltou com status `entregue`
+- "Testar conexão" do WhatsApp oficial agora **confere o webhook de verdade**: `debug_token` descobre o app do token e `GET /{waba}/subscribed_apps` diz se ele está inscrito. Antes a tela afirmava "as mensagens já chegam" sem base
+- Botão **Configurar webhook na Meta**: `POST /{app}/subscriptions` (callback, verify_token, campo `messages`) com app access token `{app_id}|{app_secret}`, mais `POST /{waba}/subscribed_apps`. Substitui as duas telas escondidas da Meta. **Recusa com 409 se o app já aponta o webhook para outro sistema**, porque o callback é do app inteiro e sobrescrever derrubaria quem já usa
+- Envio traduz os erros da Meta (131030 lista de permitidos, 131047 janela, 131026 número sem WhatsApp, 190 token expirado, 10 sem permissão)
+- Envio tenta o número **com e sem o nono dígito** quando a Meta recusa por número (131030/131026/131009) e grava o formato que funcionou no `wa_id`. Foi exatamente o que travou o primeiro envio real
+- Aprendizado do onboarding novo da Meta: o número de teste só envia para até 5 números cadastrados em Configuração da API, campo Para. App precisa ser tipo Negócios. App Secret fica em Configurações, Básico, e só administrador do app enxerga
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
