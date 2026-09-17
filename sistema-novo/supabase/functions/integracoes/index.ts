@@ -211,6 +211,34 @@ Deno.serve(async (req) => {
       return resposta(req, 200, { ok: true, estado: await estado(ok) });
     }
 
+    // Lista os números de uma conta do WhatsApp. Evita caçar o Phone Number ID no painel da Meta,
+    // que muda de lugar a cada reforma. Aceita um WABA ainda não salvo para poder trocar de conta.
+    if (b.acao === "numeros" && tipo === "whatsapp_oficial") {
+      const integ = await buscar(tipo);
+      if (!integ) return resposta(req, 400, { erro: "Salve o token primeiro." });
+      const s = await segredos(integ.id);
+      if (!s.token) return resposta(req, 400, { erro: "Falta o token." });
+      const waba = limpo(b.waba_id) || (integ.config as Record<string, string>).waba_id;
+      if (!/^\d{5,25}$/.test(waba || "")) return resposta(req, 400, { erro: "Informe o ID da conta do WhatsApp (WABA)." });
+
+      const r = await fetch(`${GRAPH}/${waba}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`, {
+        headers: { Authorization: `Bearer ${s.token}` },
+      });
+      const d = await r.json().catch(() => ({}));
+      if (!r.ok) {
+        const msg = erroMeta(d, r.status);
+        return resposta(req, 400, {
+          erro: String(d?.error?.code) === "200" || String(d?.error?.code) === "10"
+            ? `Este token não alcança a conta ${waba}. Adicione essa conta do WhatsApp aos ativos do usuário do sistema e gere o token de novo. (${msg})`
+            : "A Meta recusou: " + msg,
+        });
+      }
+      const numeros = (d?.data || []).map((n: any) => ({
+        id: n.id, numero: n.display_phone_number, nome: n.verified_name, qualidade: n.quality_rating,
+      }));
+      return resposta(req, 200, { ok: true, waba_id: waba, numeros });
+    }
+
     // Assina o webhook do app na Meta sem a pessoa procurar telas escondidas.
     // Faz o que "Configuração > Webhook" e "Gerenciar > messages" fazem na mão, mais a
     // inscrição do app na conta. Recusa se o app já aponta para outro sistema.

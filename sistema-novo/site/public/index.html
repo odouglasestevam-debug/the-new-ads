@@ -1425,7 +1425,9 @@ function painelIntegracoes() {
       <h3>WhatsApp API oficial ${seloIntegracao(of)}</h3>
       <p>${of.existe && ofc.numero_exibido ? `Número ${escapar(ofc.numero_exibido)}${ofc.nome_verificado ? ` · ${escapar(ofc.nome_verificado)}` : ""}. ` : ""}Cloud API da Meta. Token e App Secret ficam cifrados e nunca aparecem de novo.</p>
       <div class="campo"><label for="wa-pnid">Phone Number ID</label><input type="text" id="wa-pnid" inputmode="numeric" value="${escapar(ofc.phone_number_id || "")}" autocomplete="off"></div>
-      <div class="campo"><label for="wa-waba">WhatsApp Business Account ID</label><input type="text" id="wa-waba" inputmode="numeric" value="${escapar(ofc.waba_id || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="wa-waba">WhatsApp Business Account ID</label><input type="text" id="wa-waba" inputmode="numeric" value="${escapar(ofc.waba_id || "")}" autocomplete="off">
+        ${of.token_salvo ? '<button class="mini" type="button" id="wa-numeros" style="margin-top:8px">Buscar números desta conta</button><span class="ajuda">Troque o ID da conta acima e busque: o CRM lista os números e preenche o Phone Number ID.</span>' : ""}</div>
+      <div id="lista-numeros-wa"></div>
       <div class="campo"><label for="wa-token">Token permanente (usuário do sistema)</label><input type="password" id="wa-token" autocomplete="new-password" placeholder="${salvoOu(of.token_salvo, "EAA...")}"></div>
       <div class="campo"><label for="wa-secret">App Secret</label><input type="password" id="wa-secret" autocomplete="new-password" placeholder="${salvoOu(of.app_secret_salvo, "32 caracteres do app")}"></div>
       ${botoes("wa", of)}
@@ -1526,6 +1528,27 @@ function ligarIntegracoes() {
       avisar(p, err.message, "erro");
     }
   }));
+
+  document.getElementById("wa-numeros")?.addEventListener("click", async (ev) => {
+    const alvo = document.getElementById("lista-numeros-wa");
+    ev.target.disabled = true;
+    alvo.innerHTML = '<div class="aviso">Perguntando para a Meta...</div>';
+    try {
+      const r = await chamarIntegracoes({ acao: "numeros", tipo: "whatsapp_oficial", waba_id: document.getElementById("wa-waba").value.trim() });
+      ev.target.disabled = false;
+      if (!r.numeros?.length) { alvo.innerHTML = '<div class="aviso">Essa conta não tem número nenhum ligado.</div>'; return; }
+      alvo.innerHTML = `<div class="origem" style="margin-top:4px">${r.numeros.map((n) => `
+        <div class="par"><span>${escapar(n.numero || "")}${n.nome ? ` · ${escapar(n.nome)}` : ""}</span>
+          <button class="mini" type="button" data-usar-numero="${escapar(n.id)}">Usar este</button></div>`).join("")}</div>`;
+      alvo.querySelectorAll("[data-usar-numero]").forEach((botao) => botao.addEventListener("click", () => {
+        document.getElementById("wa-pnid").value = botao.dataset.usarNumero;
+        alvo.innerHTML = '<div class="aviso ok">Número escolhido. Clique em Salvar e depois em Testar conexão.</div>';
+      }));
+    } catch (err) {
+      ev.target.disabled = false;
+      alvo.innerHTML = `<div class="aviso erro">${escapar(err.message)}</div>`;
+    }
+  });
 
   document.querySelectorAll("[data-integ-webhook]").forEach((b) => b.addEventListener("click", async () => {
     const p = b.dataset.integWebhook;
