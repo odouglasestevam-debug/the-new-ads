@@ -769,6 +769,8 @@ function seletorMovel() {
 }
 
 function render() {
+  // clique no menu antes da empresa terminar de carregar: espera o carregamento redesenhar
+  if (!empresaAtual) return;
   document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("ativo", b.dataset.vista === vistaAtual));
   const alvo = document.getElementById("conteudo");
   let html = "";

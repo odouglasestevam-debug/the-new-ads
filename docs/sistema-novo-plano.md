@@ -107,6 +107,16 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Tela Integrações com blocos NeoGo, webhook NeoGo, Meta Ads (token ads_read) e WhatsApp oficial; chat mostra por qual canal responde
 - Testado com httpbin.org fazendo papel da NeoGo (17 cenários de webhook, envio, eco, slot ocupado) e no navegador; dados de teste apagados
 
+**17/09/2026, Conversas no estilo WhatsApp Web e conversa iniciada pelo CRM:**
+- Pedido do Douglas: lista parecida com o WhatsApp Web, filtros minimalistas (inclusive por responsável, a nível de administrador) e poder chamar alguém primeiro, digitando o número
+- Lista: avatar com iniciais, busca por nome, número, prévia ou responsável, chips Todas / Não lidas / Sem resposta com contador, e seletor de responsável (Minhas conversas, cada pessoa da equipe, Sem responsável) só para agência, dono e gestor
+- "Sem resposta" é calculado sem coluna nova: `ultima_entrada_em >= ultima_mensagem_em` quer dizer que a última mensagem foi do lead
+- Vendedor não vê o seletor de responsável e continua vendo só as conversas dos leads dele (regra do banco, não da tela)
+- Migration `0010`: `public.abrir_conversa_whatsapp(empresa, telefone, nome)`, security definer, chamável por `authenticated`. Acha ou cria o lead pelo telefone (com e sem o 9), escolhe o canal ativo (NeoGo antes da oficial, porque não tem janela de 24h) e abre a conversa. Erros com nome próprio: `sem_whatsapp`, `lead_de_outro`, `telefone_invalido`, `sem_permissao`
+- Lead criado assim já nasce no nome de quem abriu, senão o vendedor não enxergaria o próprio contato
+- No WhatsApp oficial, conversa nova avisa que só começa com modelo aprovado pela Meta (ainda não existe no CRM)
+- Testado no navegador: 18 verificações (filtros, busca, permissão do vendedor, número repetido não duplica conversa, envio numa conversa iniciada pelo CRM); corrigido erro de JS ao clicar no menu antes da empresa carregar
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio

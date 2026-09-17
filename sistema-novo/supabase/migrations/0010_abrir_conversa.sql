@@ -4,8 +4,8 @@ create function public.abrir_conversa_whatsapp(p_empresa uuid, p_telefone text, 
 returns table (lead_id uuid, conversa_id uuid, canal text, novo_lead boolean)
 language plpgsql security definer set search_path = '' as $$
 declare
-  v_papel public.papel_membro := public.papel_na_empresa(p_empresa);
-  v_agencia boolean := public.eh_agencia();
+  v_papel public.papel_membro := privado.papel_na_empresa(p_empresa);
+  v_agencia boolean := privado.eh_agencia();
   v_tel text := privado.telefone_de_wa(p_telefone);
   v_sem9 text;
   v_canal text;
@@ -40,7 +40,7 @@ begin
         returning id into v_lead;
         v_novo := true;
       else
-        if not public.pode_editar_lead(p_empresa, v_responsavel) then raise exception 'lead_de_outro'; end if;
+        if not privado.pode_editar_lead(p_empresa, v_responsavel) then raise exception 'lead_de_outro'; end if;
         update public.leads set nome = coalesce(nome, nullif(trim(p_nome), '')) where id = v_lead;
       end if;
       exit;
