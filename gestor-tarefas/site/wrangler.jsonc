@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "tna-tarefas",
+  "compatibility_date": "2026-09-17",
+  "observability": { "enabled": true },
+  // só a pasta public vai para o ar
+  "assets": { "directory": "./public", "not_found_handling": "single-page-application" },
+  "routes": [{ "pattern": "tarefas.thenewads.com.br", "custom_domain": true }]
+}

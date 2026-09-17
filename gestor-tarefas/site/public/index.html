@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Tarefas | The New Ads</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" type="image/svg+xml" href="/icone.svg">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/icone-192.png">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=switzer@400,500,600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/estilo.css?v=1">
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<div class="login" id="tela-login">
+  <div class="caixa">
+    <div class="marca"><img src="/icone.svg" alt=""> Tarefas</div>
+
+    <form id="form-login">
+      <h1>Entrar</h1>
+      <p class="sub">Gestor de tarefas da The New Ads.</p>
+      <div class="campo"><label for="email">E-mail</label><input type="email" id="email" autocomplete="username" required></div>
+      <div class="campo"><label for="senha">Senha</label><input type="password" id="senha" autocomplete="current-password" required></div>
+      <button class="btn btn-largo" id="btn-entrar">Entrar</button>
+      <p class="aviso" id="aviso-login"></p>
+    </form>
+
+    <form id="form-codigo" style="display:none">
+      <h1>Código de acesso</h1>
+      <p class="sub">Digite o código de 6 dígitos do seu aplicativo autenticador.</p>
+      <div class="campo"><label for="codigo-2fa">Código</label><input type="text" id="codigo-2fa" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+      <button class="btn btn-largo" id="btn-verificar">Verificar</button>
+      <p class="aviso" id="aviso-codigo"></p>
+    </form>
+
+    <div id="sem-acesso" style="display:none">
+      <h1>Sem acesso</h1>
+      <p class="sub">Sua conta existe, mas ainda não foi liberada no gestor de tarefas. Peça a um admin para te adicionar.</p>
+      <button class="btn btn-fantasma btn-largo" data-acao="sair">Sair</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ APP ============ -->
+<div class="app" id="app">
+  <header class="barra-movel">
+    <button class="icone-btn" data-acao="abrir-menu" aria-label="Abrir menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+    </button>
+    <span class="barra-titulo" id="barra-titulo">Tarefas</span>
+    <button class="icone-btn" data-acao="nova-tarefa-rapida" aria-label="Nova tarefa">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+    </button>
+  </header>
+
+  <aside id="lateral">
+    <div class="marca"><img src="/icone.svg" alt=""> Tarefas</div>
+    <nav class="nav-fixa">
+      <button data-rota="#/central" id="nav-central">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
+        Central <span class="contador alerta" id="cont-atraso"></span>
+      </button>
+      <button data-rota="#/minhas" id="nav-minhas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>
+        Minhas tarefas <span class="contador" id="cont-minhas"></span>
+      </button>
+    </nav>
+    <div class="arvore-cabeca">
+      <span>Projetos</span>
+      <button class="icone-btn mini" data-acao="novo-projeto" title="Novo projeto" aria-label="Novo projeto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+      </button>
+    </div>
+    <div class="arvore" id="arvore"></div>
+    <div class="rodape">
+      <button data-rota="#/ajustes" id="nav-ajustes" class="link-rodape">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
+        Ajustes
+      </button>
+      <div class="usuario" id="usuario-nome"></div>
+      <button class="sair" data-acao="sair">Sair</button>
+    </div>
+  </aside>
+  <div class="veu" data-acao="fechar-menu"></div>
+
+  <main id="conteudo"></main>
+
+  <div class="gaveta-veu" id="gaveta-veu" data-acao="fechar-tarefa"></div>
+  <section class="gaveta" id="gaveta" aria-label="Tarefa"></section>
+</div>
+
+<div class="modal-veu" id="modal-veu"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
+<div class="menu-flutuante" id="menu-flutuante"></div>
+<div class="toast" id="toast"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/app.js?v=1"></script>
+</body>
+</html>
