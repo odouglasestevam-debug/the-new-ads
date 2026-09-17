@@ -119,7 +119,17 @@ Deno.serve(async (req) => {
   const d = await r.json().catch(() => ({}));
 
   if (!r.ok || !d?.messages?.[0]?.id) {
-    const erro = d?.error?.error_user_msg || d?.error?.message || `HTTP ${r.status}`;
+    const bruto = d?.error?.error_user_msg || d?.error?.message || `HTTP ${r.status}`;
+    // Erros que a pessoa consegue resolver sozinha, ditos em português.
+    const CLAROS: Record<string, string> = {
+      "131030": "Esse número não está na lista de permitidos do número de teste da Meta. Em WhatsApp, Configuração da API, abra o campo Para, clique em Gerenciar lista de números de telefone e cadastre o número. Isso some quando o número de produção entrar.",
+      "131047": "Passaram 24h desde a última mensagem do cliente. Só dá para retomar com um modelo aprovado pela Meta.",
+      "131026": "Esse número não tem WhatsApp, ou não consegue receber mensagem.",
+      "190": "O token da integração expirou. Gere um novo token permanente e salve em Ajustes, Integrações.",
+      "10": "Esse token não tem permissão para enviar por este número. Confira se o usuário do sistema tem acesso à conta do WhatsApp.",
+    };
+    const codigo = String(d?.error?.code ?? "");
+    const erro = CLAROS[codigo] || bruto;
     await admin.from("mensagens").update({ status: "falhou", erro }).eq("id", registro.id);
     return resposta(req, 502, { erro: "A Meta recusou o envio: " + erro });
   }
