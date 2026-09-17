@@ -237,6 +237,9 @@
   .conv-pe{display:flex;gap:8px;align-items:center;margin-top:5px;min-height:0}
   .conv-pe:empty{display:none}
   .pino{font-size:10px;color:#25D366;border:1px solid rgba(37,211,102,.35);border-radius:99px;padding:1px 7px}
+  .pino.numero{color:var(--nevoa);border-color:var(--linha)}
+  .selo.wa-whatsapp_oficial{color:#4C8DFF;border-color:rgba(76,141,255,.35);background:rgba(76,141,255,.08)}
+  .selo.wa-whatsapp_nao_oficial{color:#25D366;border-color:rgba(37,211,102,.35);background:rgba(37,211,102,.1)}
   .conv-dono{font-family:var(--mono);font-size:10px;color:var(--nevoa);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .badge{background:#25D366;color:#04130a;font-family:var(--mono);font-size:10.5px;font-weight:600;border-radius:99px;padding:1px 7px;flex:none}
   .chat-painel{display:flex;flex-direction:column;min-height:0;height:100%}
@@ -452,6 +455,7 @@ let conversas = [];
 let conversaAberta = null; // id da conversa aberta na vista Conversas
 let mensagensPorConversa = {};
 let integracaoWhats = null; // estado vindo da função integracoes (sem segredos)
+let canaisWhats = [];       // números ligados da empresa: [{canal, numero}]
 
 /* ---------------- permissões (espelham o banco; o banco é quem manda) ---------------- */
 const pode = {
@@ -693,6 +697,7 @@ async function trocarEmpresa(id) {
   conversaAberta = null;
   mensagensPorConversa = {};
   integracaoWhats = null;
+  canaisWhats = [];
   avisosIntegracao = {};
   if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";
   if (abaAjustes === "integracoes" && !pode.administrar()) abaAjustes = "seguranca";
@@ -704,12 +709,13 @@ async function trocarEmpresa(id) {
 
 /* ---------------- dados ---------------- */
 async function carregarTudo() {
-  const [resLeads, resNotas, resEquipe, resForms, resConversas] = await Promise.all([
+  const [resLeads, resNotas, resEquipe, resForms, resConversas, resCanais] = await Promise.all([
     sb.from("leads").select("*, lead_origens(*)").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
     sb.from("lead_notas").select("*").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
     sb.rpc("membros_da_empresa", { p_empresa: empresaAtual.id }),
     sb.from("formularios").select("*").eq("empresa_id", empresaAtual.id).order("criado_em"),
     sb.from("conversas").select("*").eq("empresa_id", empresaAtual.id).order("ultima_mensagem_em", { ascending: false }),
+    sb.rpc("canais_whatsapp", { p_empresa: empresaAtual.id }),
   ]);
   if (resLeads.error) console.error("leads:", resLeads.error);
   leads = resLeads.data || [];
@@ -717,6 +723,7 @@ async function carregarTudo() {
   equipe = resEquipe.data || [];
   formularios = resForms.data || [];
   conversas = resConversas.data || [];
+  canaisWhats = resCanais.data || [];
   document.getElementById("cont-leads").textContent = leads.length || "";
   atualizarContadorConversas();
   render();
@@ -1024,8 +1031,22 @@ function htmlChat(c) {
     </div>`;
 }
 
+// Empresa pode ter dois números: um na API oficial e outro na NeoGo.
+const NOME_CANAL_WA = { whatsapp_oficial: "Oficial", whatsapp_nao_oficial: "NeoGo" };
+const doisNumeros = () => canaisWhats.length > 1;
+function numeroDoCanal(canal) {
+  return canaisWhats.find((c) => c.canal === canal)?.numero || "";
+}
+function rotuloCanal(canal) {
+  const numero = numeroDoCanal(canal);
+  return numero ? `${numero} · ${NOME_CANAL_WA[canal] || canal}` : (NOME_CANAL_WA[canal] || canal);
+}
+function seloCanalWa(canal) {
+  return `<span class="selo canal wa-${escapar(canal)}">${escapar(rotuloCanal(canal))}</span>`;
+}
+
 // Filtros da lista, no espírito do WhatsApp Web: busca, estado e responsável.
-const filtroConv = { busca: "", estado: "todas", responsavel: "" };
+const filtroConv = { busca: "", estado: "todas", responsavel: "", canal: "" };
 const CHIPS_CONV = [["todas", "Todas"], ["nao_lidas", "Não lidas"], ["sem_resposta", "Sem resposta"]];
 
 // A última mensagem foi do lead: ninguém respondeu ainda.
@@ -1046,6 +1067,7 @@ function conversasFiltradas() {
     const l = leadDaConversa(c);
     if (filtroConv.estado === "nao_lidas" && !c.nao_lidas) return false;
     if (filtroConv.estado === "sem_resposta" && !semResposta(c)) return false;
+    if (filtroConv.canal && c.canal !== filtroConv.canal) return false;
     if (filtroConv.responsavel) {
       const r = l?.responsavel_id || "";
       if (filtroConv.responsavel === "sem" ? !!r : r !== filtroConv.responsavel) return false;
@@ -1069,10 +1091,16 @@ function barraFiltrosConversas() {
       ${equipe.map((m) => `<option value="${m.user_id}"${filtroConv.responsavel === m.user_id ? " selected" : ""}>${escapar(m.user_id === usuario.id ? "Minhas conversas" : m.email)}</option>`).join("")}
       <option value="sem"${filtroConv.responsavel === "sem" ? " selected" : ""}>Sem responsável</option>
     </select>` : "";
+  // com dois números, dá para olhar um de cada vez
+  const numeros = doisNumeros() ? `
+    <select class="chip-sel" id="filtro-conv-canal">
+      <option value="">Os dois números</option>
+      ${canaisWhats.map((c) => `<option value="${escapar(c.canal)}"${filtroConv.canal === c.canal ? " selected" : ""}>${escapar(rotuloCanal(c.canal))}</option>`).join("")}
+    </select>` : "";
   return `
     <div class="inbox-topo">
       <input type="search" id="busca-conv" placeholder="Buscar nome ou número" value="${escapar(filtroConv.busca)}" autocomplete="off">
-      <div class="chips">${chips}${responsaveis}</div>
+      <div class="chips">${chips}${numeros}${responsaveis}</div>
     </div>`;
 }
 
@@ -1089,7 +1117,7 @@ function vistaConversas() {
         <span class="conv-corpo">
           <span class="conv-topo"><span class="conv-nome">${escapar(nome)}</span><span class="conv-hora">${horaCurta(c.ultima_mensagem_em)}</span></span>
           <span class="conv-previa"><span>${escapar(c.ultima_previa || "Conversa aberta pelo CRM")}</span>${c.nao_lidas ? `<span class="badge">${c.nao_lidas}</span>` : ""}</span>
-          <span class="conv-pe">${semResposta(c) ? '<span class="pino">sem resposta</span>' : ""}${dono && pode.editarTodos() ? `<span class="conv-dono">${escapar(dono.split("@")[0])}</span>` : ""}</span>
+          <span class="conv-pe">${semResposta(c) ? '<span class="pino">sem resposta</span>' : ""}${doisNumeros() ? `<span class="pino numero">${escapar(NOME_CANAL_WA[c.canal] || c.canal)}</span>` : ""}${dono && pode.editarTodos() ? `<span class="conv-dono">${escapar(dono.split("@")[0])}</span>` : ""}</span>
         </span>
       </button>`;
   }).join("") : '<div class="vazio-geral" style="padding:34px 18px">Nada com esse filtro.</div>';
@@ -1099,7 +1127,7 @@ function vistaConversas() {
     <div class="chat-cabeca">
       <div>
         <div class="nome-cel">${escapar(l?.nome || "Sem nome")}</div>
-        <div class="sub-cel">${escapar(telefoneLegivel(l?.telefone))} ${seloCanal(l ? ultimaOrigem(l) : null)}</div>
+        <div class="sub-cel">${escapar(telefoneLegivel(l?.telefone))} ${seloCanal(l ? ultimaOrigem(l) : null)}${doisNumeros() ? " " + seloCanalWa(ativa.canal) : ""}</div>
       </div>
       <div style="display:flex;gap:8px">
         <button class="mini" type="button" id="voltar-lista">Conversas</button>
@@ -1140,6 +1168,12 @@ function formularioNovaConversa() {
         <input type="tel" id="nc-tel" placeholder="(11) 99999-9999" autocomplete="off"></div>
       <div class="campo"><label for="nc-nome">Nome (opcional)</label>
         <input type="text" id="nc-nome" autocomplete="off"></div>
+      ${doisNumeros() ? `
+      <div class="campo"><label for="nc-canal">Falar por qual número</label>
+        <select id="nc-canal">
+          ${canaisWhats.map((c) => `<option value="${escapar(c.canal)}">${escapar(rotuloCanal(c.canal))}</option>`).join("")}
+        </select>
+        <span class="ajuda">No número da API oficial, começar conversa exige modelo aprovado pela Meta.</span></div>` : ""}
       <div class="aviso" id="nc-aviso"></div>
       <div class="acoes-modal">
         <button class="btn btn-fantasma" type="button" id="nc-cancelar">Cancelar</button>
@@ -1173,6 +1207,7 @@ function formularioNovaConversa() {
     aviso.textContent = "Abrindo...";
     const { data, error } = await sb.rpc("abrir_conversa_whatsapp", {
       p_empresa: empresaAtual.id, p_telefone: telefone, p_nome: div.querySelector("#nc-nome").value.trim() || null,
+      p_canal: div.querySelector("#nc-canal")?.value || null,
     });
     if (error) {
       const chave = Object.keys(ERROS).find((k) => error.message.includes(k));
@@ -1264,6 +1299,8 @@ function ligarConversas() {
   }));
   const selResp = document.getElementById("filtro-conv-resp");
   if (selResp) selResp.addEventListener("change", () => { filtroConv.responsavel = selResp.value; render(); });
+  const selCanal = document.getElementById("filtro-conv-canal");
+  if (selCanal) selCanal.addEventListener("change", () => { filtroConv.canal = selCanal.value; render(); });
   const buscaConv = document.getElementById("busca-conv");
   if (buscaConv) buscaConv.addEventListener("input", (e) => {
     filtroConv.busca = e.target.value;

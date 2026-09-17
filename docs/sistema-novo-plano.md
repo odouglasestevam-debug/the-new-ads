@@ -126,6 +126,14 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Envio tenta o número **com e sem o nono dígito** quando a Meta recusa por número (131030/131026/131009) e grava o formato que funcionou no `wa_id`. Foi exatamente o que travou o primeiro envio real
 - Aprendizado do onboarding novo da Meta: o número de teste só envia para até 5 números cadastrados em Configuração da API, campo Para. App precisa ser tipo Negócios. App Secret fica em Configurações, Básico, e só administrador do app enxerga
 
+**17/09/2026, empresa com dois números (Agari vai usar os dois):**
+- Decisão do Douglas: a Agari terá um número na API oficial e outro na NeoGo, ao mesmo tempo
+- Migration `0011`: `public.canais_whatsapp(empresa)` devolve canal e número de exibição das integrações ativas (vendedor não lê a tabela `integracoes`, que é só de admin), e `abrir_conversa_whatsapp` ganhou `p_canal`
+- Cuidado achado no teste: `integracoes.tipo` é enum `tipo_integracao`, comparar com texto dá `operator does not exist`. Sempre `i.tipo::text`
+- Tela: seletor "Falar por qual número" quando há dois, filtro "Os dois números" na lista, selo do número em cada conversa e no cabeçalho do chat
+- Conversa é única por lead e canal, então a mesma pessoa falando nos dois números vira duas conversas no mesmo lead, cada uma com o seu histórico. É o comportamento desejado
+- Testado no navegador com dois números ligados: 10 verificações passaram; dados de teste apagados
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
