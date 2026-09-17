@@ -4,7 +4,9 @@ const SUPABASE_URL = "https://xrvjlhseyqfgyvwwlwwb.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_9DQ3pGVnensKAXdBxtdV3Q_Ud2pUEwK";
 const VAPID_PUBLICA = "BIjOKRvucz3-CKve2E9L04tSd3hb3eEc5nU7AUzpggPhZC7_97hsh75ABRG56WIS9eU7xdf4hH4NHSJ9TW9SheI";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-const db = () => sb.schema("tarefas");
+// As tabelas ficam no schema tarefas; a API acessa pelas views tarefas_* em public (mesmo RLS).
+const VIEWS = { tarefas: "tarefas_tarefas", tarefa_responsaveis: "tarefas_responsaveis", tarefas_visao: "tarefas_visao" };
+const db = () => ({ from: (tabela) => sb.from(VIEWS[tabela] || "tarefas_" + tabela) });
 
 const PRIORIDADES = [
   { id: "urgente", nome: "Urgente", peso: 0 },
@@ -925,6 +927,7 @@ async function criarTarefa(r) {
   if (r.tipo === "minhas") await db().from("tarefa_responsaveis").insert({ tarefa_id: data.id, user_id: S.user.id });
   gravarLocal("tf_ultima_lista", listaId);
   input.value = "";
+  document.getElementById("nova-entrega").value = "";
   await carregar();
   const f = filtroDaRota(r);
   renderArvore();
