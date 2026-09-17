@@ -1462,7 +1462,7 @@ function ligarIntegracoes() {
     try {
       const r = await chamarIntegracoes({ acao: "testar", tipo: TIPO_POR_PREFIXO[p] });
       avisosIntegracao[p] = r.ok
-        ? { msg: r.aviso || (p === "mt" ? "Token válido. Os próximos leads de anúncio chegam com os nomes." : "Conectado. As mensagens já chegam em Conversas."), tipo: r.parcial ? "" : "ok" }
+        ? { msg: r.aviso || (p === "mt" ? "Token válido. Os próximos leads de anúncio chegam com os nomes." : "Conectado. Falta conferir o webhook para as mensagens chegarem."), tipo: r.parcial ? "" : "ok" }
         : { msg: r.erro, tipo: "erro" };
       aplicar(p, r.estado || integracaoWhats[TIPO_POR_PREFIXO[p]]);
     } catch (err) {

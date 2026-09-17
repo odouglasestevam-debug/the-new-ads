@@ -155,8 +155,33 @@ Deno.serve(async (req) => {
         });
         const d = await r.json().catch(() => ({}));
         if (!r.ok) return resposta(req, 200, { ok: false, erro: "A Meta recusou: " + erroMeta(d, r.status), estado: await estado(await marcar(integ, "erro")) });
-        const ok = await marcar(integ, "ativa", { numero_exibido: d.display_phone_number, nome_verificado: d.verified_name, qualidade: d.quality_rating });
-        return resposta(req, 200, { ok: true, estado: await estado(ok) });
+
+        // O número responder só prova que dá para enviar. Receber depende deste app estar
+        // inscrito no webhook da conta, e isso a Meta sabe dizer.
+        let inscrito: boolean | null = null;
+        try {
+          const [rToken, rApps] = await Promise.all([
+            fetch(`${GRAPH}/debug_token?input_token=${encodeURIComponent(s.token)}&access_token=${encodeURIComponent(s.token)}`),
+            fetch(`${GRAPH}/${cfg.waba_id}/subscribed_apps`, { headers: { Authorization: `Bearer ${s.token}` } }),
+          ]);
+          const dToken = await rToken.json().catch(() => ({}));
+          const dApps = await rApps.json().catch(() => ({}));
+          const meuApp = dToken?.data?.app_id ? String(dToken.data.app_id) : null;
+          if (rApps.ok && Array.isArray(dApps.data) && meuApp) {
+            inscrito = dApps.data.some((x: any) => String(x?.whatsapp_business_api_data?.id || "") === meuApp);
+          }
+        } catch (e) { console.error("subscribed_apps", String(e)); }
+
+        const ok = await marcar(integ, "ativa", {
+          numero_exibido: d.display_phone_number, nome_verificado: d.verified_name,
+          qualidade: d.quality_rating, webhook_inscrito: inscrito,
+        });
+        const aviso = inscrito === true
+          ? `Conectado como ${d.display_phone_number}. O webhook está inscrito, as mensagens chegam em Conversas.`
+          : inscrito === false
+            ? `Conectado como ${d.display_phone_number}, mas este app ainda não está inscrito no webhook da conta. Enquanto isso, o CRM envia mas não recebe. Configure o webhook na Meta e marque o campo messages.`
+            : `Conectado como ${d.display_phone_number}. Não consegui conferir o webhook com este token: confirme na Meta que o webhook aponta para o CRM e que o campo messages está marcado.`;
+        return resposta(req, 200, { ok: true, parcial: inscrito !== true, aviso, estado: await estado(ok) });
       }
 
       if (tipo === "whatsapp_nao_oficial") {
