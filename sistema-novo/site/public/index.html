@@ -1393,7 +1393,14 @@ function painelIntegracoes() {
       <div class="campo"><label for="wa-secret">App Secret</label><input type="password" id="wa-secret" autocomplete="new-password" placeholder="${salvoOu(of.app_secret_salvo, "32 caracteres do app")}"></div>
       ${botoes("wa", of)}
       ${of.existe ? `
-      <details class="manual" style="margin-top:12px"><summary>Webhook na Meta</summary>
+      <div class="origem" style="margin-top:14px">
+        <p style="margin-bottom:10px">${ofc.webhook_inscrito
+          ? "Webhook configurado. As mensagens que chegam no número entram em Conversas."
+          : "Falta o webhook: sem ele o CRM envia mas não recebe. O botão abaixo configura na Meta por você, usando o token e o App Secret já salvos."}</p>
+        <button class="btn btn-largo btn-fantasma" type="button" data-integ-webhook="wa">${ofc.webhook_inscrito ? "Reconfigurar webhook" : "Configurar webhook na Meta"}</button>
+        <p class="ajuda" style="margin-top:8px">Use isso num app dedicado ao CRM. Se o app já envia webhook para outro sistema, o CRM recusa em vez de derrubar.</p>
+      </div>
+      <details class="manual" style="margin-top:12px"><summary>Preferindo configurar na mão</summary>
         <p>No app da Meta, em WhatsApp, Configuração, cole os dois valores e assine o campo <b>messages</b>.</p>
         <div class="campo"><label>URL de retorno</label>${copiar("wa-url", of.webhook_url)}</div>
         <div class="campo"><label>Token de verificação</label>${copiar("wa-verify", of.verify_token || "")}</div>
@@ -1479,6 +1486,20 @@ function ligarIntegracoes() {
       avisosIntegracao[p] = null;
       aplicar(p, estado);
     } catch (err) {
+      avisar(p, err.message, "erro");
+    }
+  }));
+
+  document.querySelectorAll("[data-integ-webhook]").forEach((b) => b.addEventListener("click", async () => {
+    const p = b.dataset.integWebhook;
+    b.disabled = true;
+    avisar(p, "Configurando na Meta...");
+    try {
+      const r = await chamarIntegracoes({ acao: "registrar_webhook", tipo: TIPO_POR_PREFIXO[p] });
+      avisosIntegracao[p] = { msg: r.aviso || "Webhook configurado.", tipo: "ok" };
+      aplicar(p, r.estado);
+    } catch (err) {
+      b.disabled = false;
       avisar(p, err.message, "erro");
     }
   }));

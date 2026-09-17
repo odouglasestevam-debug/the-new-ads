@@ -211,6 +211,62 @@ Deno.serve(async (req) => {
       return resposta(req, 200, { ok: true, estado: await estado(ok) });
     }
 
+    // Assina o webhook do app na Meta sem a pessoa procurar telas escondidas.
+    // Faz o que "Configuração > Webhook" e "Gerenciar > messages" fazem na mão, mais a
+    // inscrição do app na conta. Recusa se o app já aponta para outro sistema.
+    if (b.acao === "registrar_webhook" && tipo === "whatsapp_oficial") {
+      const integ = await buscar(tipo);
+      if (!integ) return resposta(req, 400, { erro: "Salve as credenciais primeiro." });
+      const s = await segredos(integ.id);
+      const cfg = integ.config as Record<string, string>;
+      if (!s.token || !s.app_secret) return resposta(req, 400, { erro: "Preciso do token e do App Secret salvos." });
+      if (!cfg.waba_id) return resposta(req, 400, { erro: "Preencha o WhatsApp Business Account ID." });
+
+      const rToken = await fetch(`${GRAPH}/debug_token?input_token=${encodeURIComponent(s.token)}&access_token=${encodeURIComponent(s.token)}`);
+      const dToken = await rToken.json().catch(() => ({}));
+      const appId = dToken?.data?.app_id ? String(dToken.data.app_id) : null;
+      if (!appId) return resposta(req, 400, { erro: "Não consegui descobrir o app deste token: " + erroMeta(dToken, rToken.status) });
+
+      const tokenApp = `${appId}|${s.app_secret}`;
+      const nosso = `${url}/functions/v1/whatsapp-webhook?i=${integ.id}`;
+
+      // O endereço do webhook é do app inteiro: sobrescrever derruba quem já usa esse app.
+      const rAtual = await fetch(`${GRAPH}/${appId}/subscriptions?access_token=${encodeURIComponent(tokenApp)}`);
+      const dAtual = await rAtual.json().catch(() => ({}));
+      if (!rAtual.ok) return resposta(req, 400, { erro: "A Meta recusou o App Secret: " + erroMeta(dAtual, rAtual.status) });
+      const jaTem = (dAtual?.data || []).find((x: any) => x?.object === "whatsapp_business_account");
+      if (jaTem?.callback_url && jaTem.callback_url !== nosso) {
+        let host = jaTem.callback_url;
+        try { host = new URL(jaTem.callback_url).host; } catch { /* mantém texto */ }
+        return resposta(req, 409, {
+          erro: `Este app já manda os webhooks do WhatsApp para ${host}. Trocar aqui derrubaria esse sistema. Crie um app separado para o CRM.`,
+        });
+      }
+
+      const corpo = new URLSearchParams({
+        object: "whatsapp_business_account", callback_url: nosso,
+        verify_token: s.verify_token || "", fields: "messages", access_token: tokenApp,
+      });
+      const rSub = await fetch(`${GRAPH}/${appId}/subscriptions`, { method: "POST", body: corpo });
+      const dSub = await rSub.json().catch(() => ({}));
+      if (!rSub.ok) return resposta(req, 400, { erro: "A Meta recusou o webhook: " + erroMeta(dSub, rSub.status) });
+
+      // Inscreve o app nesta conta do WhatsApp (sem isso a conta não manda nada para o app).
+      const rApp = await fetch(`${GRAPH}/${cfg.waba_id}/subscribed_apps`, {
+        method: "POST", headers: { Authorization: `Bearer ${s.token}` },
+      });
+      const dApp = await rApp.json().catch(() => ({}));
+      if (!rApp.ok) {
+        return resposta(req, 400, {
+          erro: "Webhook configurado, mas não consegui inscrever o app na conta do WhatsApp: " + erroMeta(dApp, rApp.status),
+        });
+      }
+
+      const ok = await marcar(integ, integ.status === "erro" ? "pendente" : integ.status,
+        { webhook_inscrito: true, webhook_registrado_em: new Date().toISOString() });
+      return resposta(req, 200, { ok: true, aviso: "Webhook configurado e app inscrito na conta. Mande uma mensagem para o número e ela cai em Conversas.", estado: await estado(ok) });
+    }
+
     // Registra o webhook do CRM num slot livre da instância. A Global Key é usada só nesta chamada, não é guardada.
     if (b.acao === "registrar_webhook" && tipo === "whatsapp_nao_oficial") {
       const integ = await buscar(tipo);
