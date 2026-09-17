@@ -1,7 +1,7 @@
 -- Teste de isolamento entre empresas e papéis.
 -- Rodar inteiro pelo execute_sql do conector supabase-app. Cria dados fictícios,
 -- testa leitura e escrita como cada papel e apaga tudo no final.
--- Resultado esperado: ok = total, falhas = null, sobras = 0.
+-- Resultado esperado: ok = total, falhas = null, sobras = 0. Não mexe nos dados reais.
 
 insert into auth.users (id, email, aud, role) values
  ('00000000-0000-0000-0000-00000000a001','t-agencia@teste.local','authenticated','authenticated'),
@@ -28,6 +28,7 @@ insert into public.leads (id,empresa_id,nome,telefone,responsavel_id) values
  ('22222222-0000-0000-0000-000000000b01','11111111-0000-0000-0000-00000000000b','Lead B1','+5511999990001',null);
 insert into public.lead_origens (empresa_id,lead_id,canal) values ('11111111-0000-0000-0000-00000000000a','22222222-0000-0000-0000-000000000a01','ctwa'),('11111111-0000-0000-0000-00000000000b','22222222-0000-0000-0000-000000000b01','site');
 insert into public.integracoes (empresa_id,tipo) values ('11111111-0000-0000-0000-00000000000a','whatsapp_oficial'),('11111111-0000-0000-0000-00000000000b','whatsapp_oficial');
+insert into public.formularios (empresa_id,nome) values ('11111111-0000-0000-0000-00000000000a','Form A'),('11111111-0000-0000-0000-00000000000b','Form B');
 
 create temp table w (teste text, esperado text, resultado text);
 grant all on w to authenticated;
@@ -56,7 +57,7 @@ begin
 exception when others then reset role; return 'bloqueado';
 end $f$;
 insert into w values
- ('agência vê leads', 'vê 4', pg_temp.conta('00000000-0000-0000-0000-00000000a001','select count(*) from public.leads')),
+ ('agência vê leads', 'vê 4', pg_temp.conta('00000000-0000-0000-0000-00000000a001','select count(*) from public.leads where empresa_id in (''11111111-0000-0000-0000-00000000000a'',''11111111-0000-0000-0000-00000000000b'')')),
  ('dono A vê leads', 'vê 3', pg_temp.conta('00000000-0000-0000-0000-00000000a002','select count(*) from public.leads')),
  ('gestor A vê leads', 'vê 3', pg_temp.conta('00000000-0000-0000-0000-00000000a003','select count(*) from public.leads')),
  ('vendedor 1 vê leads', 'vê 1', pg_temp.conta('00000000-0000-0000-0000-00000000a004','select count(*) from public.leads')),
@@ -86,6 +87,12 @@ insert into w values
  ('leitura cria nota', 'bloqueado', pg_temp.tenta('00000000-0000-0000-0000-00000000a006', $$insert into public.lead_notas (empresa_id,lead_id,texto) values ('11111111-0000-0000-0000-00000000000a','22222222-0000-0000-0000-000000000a01','oi')$$)),
  ('vendedor 2 cria nota no lead dele', 'afetou 1', pg_temp.tenta('00000000-0000-0000-0000-00000000a005', $$insert into public.lead_notas (empresa_id,lead_id,texto) values ('11111111-0000-0000-0000-00000000000a','22222222-0000-0000-0000-000000000a02','oi')$$)),
  ('agência cria empresa', 'afetou 1', pg_temp.tenta('00000000-0000-0000-0000-00000000a001', $$insert into public.empresas (nome,slug) values ('x','x-teste')$$)),
+ ('dono A vê formulários', 'vê 1', pg_temp.conta('00000000-0000-0000-0000-00000000a002','select count(*) from public.formularios')),
+ ('vendedor edita formulário', 'afetou 0', pg_temp.tenta('00000000-0000-0000-0000-00000000a004', $$update public.formularios set nome='x'$$)),
+ ('dono A edita formulário da B', 'afetou 0', pg_temp.tenta('00000000-0000-0000-0000-00000000a002', $$update public.formularios set nome='x' where empresa_id='11111111-0000-0000-0000-00000000000b'$$)),
+ ('dono troca a chave do formulário', 'bloqueado', pg_temp.tenta('00000000-0000-0000-0000-00000000a002', $$update public.formularios set chave='roubada'$$)),
+ ('dono lê envios do formulário', 'bloqueado', pg_temp.conta('00000000-0000-0000-0000-00000000a002','select count(*) from public.formulario_envios')),
+ ('usuário chama receber_lead_site', 'bloqueado', pg_temp.tenta('00000000-0000-0000-0000-00000000a002', $$select public.receber_lead_site('x','x','+5511999999999',null,'{}','{}')$$)),
  ('telefone duplicado na mesma empresa', 'bloqueado', pg_temp.tenta('00000000-0000-0000-0000-00000000a002', $$insert into public.leads (empresa_id,telefone) values ('11111111-0000-0000-0000-00000000000a','+5511999990002')$$));
 
 delete from public.empresas where id in ('11111111-0000-0000-0000-00000000000a','11111111-0000-0000-0000-00000000000b');
@@ -93,5 +100,5 @@ delete from auth.users where email like 't-%@teste.local';
 
 select count(*) filter (where resultado = esperado) ok, count(*) total,
   string_agg(case when resultado <> esperado then teste||': '||resultado end, ' | ') falhas,
-  (select count(*) from public.empresas) + (select count(*) from auth.users) sobras
+  (select count(*) from public.empresas where slug in ('teste-a','teste-b','x-teste')) + (select count(*) from auth.users where email like 't-%@teste.local') sobras
 from w;

@@ -72,6 +72,38 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Migration `0005`: empresa nunca fica sem dono; `usuario_id_por_email` só para service_role
 - Site URL e Redirect URL do Supabase Auth configurados para `https://crm.thenewads.com.br` (16/09/2026). Fluxo completo testado: convite, link abre no CRM, pessoa cria senha, entra e vê só a empresa dela
 
+**16/09/2026, Fase 2 (formulário do site, modo 1) no ar:**
+- Decisões do Douglas: formulário gerado pelo CRM que copia o visual do site (modo 1 antes do modo 2 de captura); depois de enviar vai para um redirect configurado no próprio formulário
+- Migration `0006`: tabela `formularios` (config jsonb, chave pública), `formulario_envios` (limite por IP com hash), `lead_origens.formulario_id`, função `receber_lead_site` (só service_role) que acha a pessoa por telefone e depois e-mail, completa dados e anexa origem
+- Edge Function `form` (pública, verify_jwt false): GET devolve config pública, POST valida, isca `empresa_site`, tempo mínimo 3s, 6 envios por IP em 10 min (robô recebe sucesso falso), só aceita respostas de campos e opções configurados
+- Script `https://crm.thenewads.com.br/f.js` com `data-form="CHAVE"`: Shadow DOM, copia fonte, cor/raio do botão mais colorido da página e detecta fundo claro/escuro; máscara de telefone; guarda UTMs (inclui `posicionamento`) por 30 dias no localStorage; dispara `tna_crm_lead` no dataLayer; sem data-form só guarda UTMs
+- Tela Formulários (dono e agência): lista com código, editor (textos, redirect, e-mail opcional/obrigatório/oculto, perguntas texto/parágrafo/seleção/única/múltipla, visual automático ou manual), prévia ao vivo em site claro/escuro
+- Testado com Playwright em sites falsos claro e escuro (visual copiado certo, redirect, dedup por telefone com 2 origens, respostas na ficha), anti-robô por API, `tests/isolamento.sql` com 37/37
+- Sugestão pendente: ligar "Leaked password protection" no Supabase Auth (painel)
+
+**17/09/2026, Fase 3 (WhatsApp API oficial), servidor pronto:**
+- Migration `0007`: `conversas` (uma por empresa+canal+wa_id, janela de 24h por `ultima_entrada_em`), `mensagens` (wa_message_id único, status enviando/enviada/entregue/lida/falhou), navegador só lê; `marcar_conversa_lida`; `privado.telefone_de_wa` põe o 9 no celular BR; segredos no Vault por integração (`integracao_salvar_segredos`/`integracao_ler_segredos`, só service_role, campo vazio mantém o anterior, apagar integração apaga o segredo); `receber_mensagem_whatsapp` junta com lead existente (com ou sem o 9), origem CTWA uma por ctwa_clid, sem duplicar reentrega
+- Edge Functions: `integracoes` (dono/agência: ver, salvar phone_number_id/waba_id/token/app_secret, gera verify_token, testar na Graph API, desligar), `whatsapp-webhook` (público, `?i=<integracao_id>`, verifica hub.verify_token e assinatura X-Hub-Signature-256, ignora phone_number_id de outra empresa, nomes do anúncio por ad_id via cache `meta_anuncios_cache` ou Graph `/{ad_id}?fields=name,adset{id,name},campaign{id,name}`), `whatsapp-enviar` (mesma permissão de edição de lead, bloqueia fora da janela de 24h, grava falha com o erro da Meta)
+- Testado com credenciais falsas e payload assinado: tudo passou; envio real e nomes pela Graph API só validam com token de verdade
+- Não feito: API não oficial (Douglas precisa escolher Evolution, NeoGo ou outra), templates fora da janela, download de mídia
+
+**17/09/2026, Fase 4 (chat) e tela de Integrações no ar:**
+- Migration `0008`: conversa única por lead e canal (número com e sem o 9 abria duas); `wa_id` fica com o último formato recebido
+- Menu Conversas (todos os papéis, RLS filtra): lista com não lidas, chat com balões, status (✓, ✓✓, lida, não enviada com o erro da Meta), aviso da janela de 24h, responder com Enter; só quem pode editar o lead responde
+- Ficha do lead abre na aba Conversa quando existe conversa; botão wa.me some nesse caso
+- Atualização a cada 10 s (sem Realtime); contador de não lidas na barra
+- Ajustes, Integrações (dono/agência): Phone Number ID, WABA ID, token e App Secret só de escrita, Salvar, Testar conexão, Desligar; mostra URL do webhook e token de verificação para colar na Meta
+- Conversas fictícias nas empresas Demo (5 no total, uma fora da janela de 24h)
+- Testado com Playwright desktop e celular (sem erro de JS, sem rolagem horizontal) e laço infinito de redesenho corrigido
+- Melhorar depois: no celular o campo de resposta fica logo acima da barra inferior e exige rolar
+
+**Próximos passos (em ordem):**
+1. Douglas validar CRM, formulário e conversas
+2. Ligar o WhatsApp oficial de um cliente piloto com credenciais reais (valida envio real e nomes do anúncio pela Graph API com ads_read)
+3. Escolher a API não oficial e integrar no mesmo modelo (`canal = whatsapp_nao_oficial`)
+4. Templates para retomar conversa fora das 24h; download e exibição de mídia
+5. Modo 2 do formulário (captura de formulário existente); formulário nativo Meta; analytics por empresa
+
 Fase 0 concluída: Douglas é agência (odouglasestevam@gmail.com); empresas "Demo ..." são dados fictícios, apagar com `delete from empresas where slug like 'demo-%'`. Antigo item: primeiro usuário da agência (Douglas cria em Authentication > Add user no Supabase e o Claude marca em `agencia_admins`) e primeira empresa.
 
 ## Pendências (perguntar antes de decidir)

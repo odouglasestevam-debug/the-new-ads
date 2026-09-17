@@ -200,6 +200,69 @@
   .bloco h3{font-size:16px;margin-bottom:8px}
   .bloco p{color:var(--nevoa);font-size:13.5px;margin-bottom:16px}
 
+  .mini{background:transparent;border:1px solid var(--linha);color:var(--nevoa);border-radius:6px;
+    padding:5px 10px;font-size:11.5px;cursor:pointer}
+  .mini:hover{border-color:var(--ambar);color:var(--branco)}
+  .mini:disabled{opacity:.35;cursor:not-allowed;border-color:var(--linha);color:var(--nevoa)}
+
+  /* conversas */
+  .inbox{display:grid;grid-template-columns:340px minmax(0,1fr);border:1px solid var(--linha);border-radius:12px;overflow:hidden;
+    background:var(--grafite);height:calc(100dvh - 170px);min-height:480px}
+  .inbox-lista{border-right:1px solid var(--linha);overflow-y:auto}
+  .conv-item{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--linha);padding:14px 16px;cursor:pointer;color:inherit}
+  .conv-item:hover{background:rgba(255,255,255,.03)}
+  .conv-item.ativa{background:rgba(255,106,0,.08)}
+  .conv-topo{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+  .conv-nome{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .conv-hora{font-family:var(--mono);font-size:10.5px;color:var(--nevoa);flex:none}
+  .conv-previa{display:flex;justify-content:space-between;gap:10px;margin-top:4px;color:var(--nevoa);font-size:12.5px}
+  .conv-previa span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .badge{background:#25D366;color:#04130a;font-family:var(--mono);font-size:10.5px;font-weight:600;border-radius:99px;padding:1px 7px;flex:none}
+  .chat-painel{display:flex;flex-direction:column;min-height:0;height:100%}
+  .chat{display:flex;flex-direction:column;min-height:0;flex:1}
+  .chat-cabeca{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;border-bottom:1px solid var(--linha)}
+  .chat-msgs{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:8px;background:#0d0d0d}
+  .bolha{max-width:78%;padding:9px 12px;border-radius:12px;font-size:14px;line-height:1.45;word-wrap:break-word}
+  .bolha-texto{white-space:pre-wrap}
+  .bolha.entrada{align-self:flex-start;background:var(--grafite-2);border-top-left-radius:4px}
+  .bolha.saida{align-self:flex-end;background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.25);border-top-right-radius:4px}
+  .bolha.falhou{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08)}
+  .bolha-meta{display:flex;gap:8px;justify-content:flex-end;margin-top:4px;font-family:var(--mono);font-size:10px;color:var(--nevoa)}
+  .bolha-midia{font-family:var(--mono);font-size:11px;color:var(--nevoa);display:block;margin-bottom:3px}
+  .bolha-erro{color:var(--vermelho);font-size:11.5px;margin-top:4px;white-space:normal}
+  .dia-chat{align-self:center;font-family:var(--mono);font-size:10.5px;color:var(--nevoa);padding:4px 10px;border:1px solid var(--linha);border-radius:99px;margin:6px 0}
+  .chat-rodape{border-top:1px solid var(--linha);padding:12px 16px}
+  .chat-form{display:flex;gap:10px;align-items:flex-end}
+  .chat-form textarea{min-height:46px;max-height:160px;resize:none;padding:12px}
+  .chat-aviso{font-size:12.5px;color:var(--nevoa);margin-bottom:8px}
+  .chat-aviso.alerta{color:var(--ambar)}
+  .gaveta .chat{height:auto}
+  .gaveta .chat-msgs{max-height:52dvh;min-height:220px;border:1px solid var(--linha);border-radius:10px}
+  .gaveta .chat-rodape{padding:12px 0 0;border:0}
+  @media(max-width:860px){
+    .inbox{grid-template-columns:1fr;height:auto}
+    .inbox.com-chat .inbox-lista{display:none}
+    .inbox:not(.com-chat) .chat-vazio{display:none}
+    .chat-msgs{min-height:50dvh}
+  }
+
+  /* formulários */
+  .lista-forms{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+  .editor-form{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+  .editor-form .previa{position:sticky;top:20px}
+  .previa-barra{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+  .previa iframe{width:100%;height:640px;border:1px solid var(--linha);border-radius:12px;background:#fff}
+  .campo-extra{background:var(--preto);border:1px solid var(--linha);border-radius:10px;padding:14px;margin-bottom:10px}
+  .campo-extra .linha{display:grid;grid-template-columns:1fr 150px;gap:10px}
+  .campo-extra .acoes{display:flex;gap:6px;justify-content:flex-end;margin-top:8px;flex-wrap:wrap}
+  .check{display:flex;align-items:center;gap:8px;font-size:13.5px;color:#dad5d0;cursor:pointer}
+  .check input{width:16px;height:16px;accent-color:var(--ambar)}
+  .cores{display:grid;grid-template-columns:1fr 1fr 110px;gap:10px}
+  input[type=color]{width:100%;height:46px;padding:4px;background:var(--grafite);border:1px solid var(--linha);border-radius:9px}
+  input[type=url],input[type=number]{width:100%;background:var(--grafite);border:1px solid var(--linha);border-radius:9px;padding:13px 14px;color:var(--branco);font-size:15px;outline:none}
+  .codigo{display:block;font-family:var(--mono);font-size:12px;background:var(--preto);border:1px solid var(--linha);border-radius:8px;padding:12px;word-break:break-all;color:var(--ambar);margin:10px 0}
+  @media(max-width:1100px){ .editor-form{grid-template-columns:1fr} .editor-form .previa{position:static} }
+
   @media(max-width:860px){
     .app.ativo{flex-direction:column}
     aside{width:100%;height:auto;position:fixed;bottom:0;top:auto;z-index:20;flex-direction:row;
@@ -284,9 +347,17 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg>
         <span>Kanban</span>
       </button>
+      <button data-vista="conversas">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>
+        <span>Conversas</span><span class="contador" id="cont-conversas"></span>
+      </button>
       <button data-vista="leads">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
         <span>Leads</span><span class="contador" id="cont-leads"></span>
+      </button>
+      <button data-vista="formularios" id="nav-formularios">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        <span>Formulários</span>
       </button>
       <button data-vista="config">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
@@ -353,6 +424,12 @@ let vistaAtual = "kanban";
 let abaAjustes = "seguranca";
 let busca = "";
 let filtroCadastro = "todos";
+let formularios = [];
+let formEditando = null;   // cópia em edição; null mostra a lista
+let conversas = [];
+let conversaAberta = null; // id da conversa aberta na vista Conversas
+let mensagensPorConversa = {};
+let integracaoWhats = null; // estado vindo da função integracoes (sem segredos)
 
 /* ---------------- permissões (espelham o banco; o banco é quem manda) ---------------- */
 const pode = {
@@ -590,6 +667,12 @@ async function carregarEmpresas(selecionar) {
 async function trocarEmpresa(id) {
   empresaAtual = empresas.find((e) => e.id === id);
   papel = empresaAtual.papel;
+  formEditando = null;
+  conversaAberta = null;
+  mensagensPorConversa = {};
+  integracaoWhats = null;
+  if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";
+  if (abaAjustes === "integracoes" && !pode.administrar()) abaAjustes = "seguranca";
   try { localStorage.setItem(CHAVE_EMPRESA, id); } catch (err) {}
   document.getElementById("empresa-sel").value = id;
   document.getElementById("papel-atual").textContent = NOME_PAPEL[papel] || "";
@@ -598,22 +681,61 @@ async function trocarEmpresa(id) {
 
 /* ---------------- dados ---------------- */
 async function carregarTudo() {
-  const [resLeads, resNotas, resEquipe] = await Promise.all([
+  const [resLeads, resNotas, resEquipe, resForms, resConversas] = await Promise.all([
     sb.from("leads").select("*, lead_origens(*)").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
     sb.from("lead_notas").select("*").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
     sb.rpc("membros_da_empresa", { p_empresa: empresaAtual.id }),
+    sb.from("formularios").select("*").eq("empresa_id", empresaAtual.id).order("criado_em"),
+    sb.from("conversas").select("*").eq("empresa_id", empresaAtual.id).order("ultima_mensagem_em", { ascending: false }),
   ]);
   if (resLeads.error) console.error("leads:", resLeads.error);
   leads = resLeads.data || [];
   notas = resNotas.data || [];
   equipe = resEquipe.data || [];
+  formularios = resForms.data || [];
+  conversas = resConversas.data || [];
   document.getElementById("cont-leads").textContent = leads.length || "";
+  atualizarContadorConversas();
   render();
 }
 
+function atualizarContadorConversas() {
+  const naoLidas = conversas.reduce((soma, c) => soma + (c.nao_lidas || 0), 0);
+  document.getElementById("cont-conversas").textContent = naoLidas || "";
+}
+
+// Enquanto a pessoa está no CRM, busca conversas novas a cada 10 segundos.
+setInterval(async () => {
+  if (!empresaAtual || document.hidden) return;
+  const { data } = await sb.from("conversas").select("*").eq("empresa_id", empresaAtual.id)
+    .order("ultima_mensagem_em", { ascending: false });
+  if (!data) return;
+  const mudou = JSON.stringify(data.map((c) => [c.id, c.ultima_mensagem_em, c.nao_lidas])) !==
+    JSON.stringify(conversas.map((c) => [c.id, c.ultima_mensagem_em, c.nao_lidas]));
+  if (!mudou) return;
+  const novoLead = data.some((c) => !leads.find((l) => l.id === c.lead_id));
+  conversas = data;
+  atualizarContadorConversas();
+  if (novoLead) { await carregarTudo(); return; }
+  for (const c of data) {
+    const antes = conversas.find((x) => x.id === c.id);
+    if (!antes || antes.ultima_mensagem_em !== c.ultima_mensagem_em) delete mensagensPorConversa[c.id];
+  }
+  if (vistaAtual === "conversas" && !document.querySelector(".chat-campo:focus")) {
+    render();
+  } else {
+    document.dispatchEvent(new CustomEvent("conversas-atualizadas"));
+  }
+}, 10000);
+
 /* ---------------- navegação ---------------- */
 document.querySelectorAll("#nav button").forEach((b) => {
-  b.addEventListener("click", () => { vistaAtual = b.dataset.vista; render(); });
+  b.addEventListener("click", () => {
+    if (formEditando && !confirm("Sair do editor sem salvar as mudanças?")) return;
+    formEditando = null;
+    vistaAtual = b.dataset.vista;
+    render();
+  });
 });
 
 function seletorMovel() {
@@ -630,6 +752,9 @@ function render() {
   if (vistaAtual === "leads") html = vistaLeads();
   if (vistaAtual === "kanban") html = vistaKanban();
   if (vistaAtual === "config") html = vistaConfig();
+  if (vistaAtual === "formularios") html = formEditando ? vistaEditorFormulario() : vistaFormularios();
+  if (vistaAtual === "conversas") html = vistaConversas();
+  document.getElementById("nav-formularios").style.display = pode.administrar() ? "" : "none";
   alvo.innerHTML = seletorMovel() + html;
   ligarEventos();
 }
@@ -801,6 +926,602 @@ function vistaKanban() {
     <div class="kanban">${colunas}</div>`;
 }
 
+/* ---------------- conversas (WhatsApp) ---------------- */
+const JANELA_WHATS_MS = 24 * 3600 * 1000;
+const ROTULO_STATUS = { enviando: "enviando", enviada: "✓", entregue: "✓✓", lida: "✓✓ lida", falhou: "não enviada", recebida: "" };
+const ROTULO_MIDIA = { imagem: "Imagem", video: "Vídeo", audio: "Áudio", documento: "Documento", figurinha: "Figurinha", localizacao: "Localização", reacao: "Reação", outro: "Mensagem não suportada" };
+
+function horaCurta(iso) {
+  const d = new Date(iso);
+  const hoje = new Date();
+  return d.toDateString() === hoje.toDateString()
+    ? d.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })
+    : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" });
+}
+
+function leadDaConversa(c) {
+  return leads.find((l) => l.id === c.lead_id) || null;
+}
+
+async function carregarMensagens(conversaId) {
+  const { data, error } = await sb.from("mensagens").select("*").eq("conversa_id", conversaId).order("criado_em");
+  if (error) { console.error("mensagens:", error); return []; }
+  mensagensPorConversa[conversaId] = data || [];
+  return mensagensPorConversa[conversaId];
+}
+
+function janelaAberta(c) {
+  return !!c.ultima_entrada_em && Date.now() - new Date(c.ultima_entrada_em).getTime() < JANELA_WHATS_MS;
+}
+
+// Corpo do chat reaproveitado na vista Conversas e na ficha do lead.
+function htmlChat(c) {
+  const l = leadDaConversa(c);
+  const msgs = mensagensPorConversa[c.id];
+  let ultimoDia = "";
+  const bolhas = !msgs ? '<div class="chat-aviso">Carregando mensagens...</div>'
+    : !msgs.length ? '<div class="chat-aviso">Nenhuma mensagem ainda.</div>'
+    : msgs.map((m) => {
+      const dia = new Date(m.criado_em).toLocaleDateString("pt-BR", { day: "2-digit", month: "long" });
+      const separador = dia !== ultimoDia ? `<div class="dia-chat">${dia}</div>` : "";
+      ultimoDia = dia;
+      const midia = m.tipo !== "texto" ? `<span class="bolha-midia">${escapar(ROTULO_MIDIA[m.tipo] || m.tipo)}</span>` : "";
+      const autor = m.direcao === "saida" && m.autor_id ? nomeResponsavel(m.autor_id).split("@")[0] : "";
+      // sem espaços entre as tags: o texto da mensagem usa pre-wrap e mostraria a indentação
+      return separador +
+        `<div class="bolha ${m.direcao}${m.status === "falhou" ? " falhou" : ""}">` +
+        midia + `<span class="bolha-texto">${escapar(m.texto || "")}</span>` +
+        (m.erro ? `<div class="bolha-erro">${escapar(m.erro)}</div>` : "") +
+        `<div class="bolha-meta">${autor ? `<span>${escapar(autor)}</span>` : ""}<span>${new Date(m.criado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span><span>${ROTULO_STATUS[m.status] || ""}</span></div>` +
+        `</div>`;
+    }).join("");
+
+  const podeResponder = l && pode.editarLead(l);
+  const aberta = janelaAberta(c);
+  const rodape = !podeResponder
+    ? '<div class="chat-aviso">Você pode ler esta conversa, mas só quem é responsável pelo lead responde.</div>'
+    : !aberta
+      ? '<div class="chat-aviso alerta">Passaram 24h desde a última mensagem do lead. Pela regra da Meta, a conversa só pode ser retomada com um modelo aprovado (em breve no CRM).</div>'
+      : `<div class="chat-aviso">Janela aberta até ${new Date(new Date(c.ultima_entrada_em).getTime() + JANELA_WHATS_MS).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.</div>
+         <form class="chat-form" data-chat-form="${c.id}">
+           <textarea class="chat-campo" rows="1" placeholder="Escreva a resposta. Enter envia, Shift+Enter quebra linha" maxlength="4096"></textarea>
+           <button class="btn" type="submit">Enviar</button>
+         </form>
+         <div class="aviso" data-chat-aviso="${c.id}"></div>`;
+
+  return `
+    <div class="chat" data-chat="${c.id}">
+      <div class="chat-msgs">${bolhas}</div>
+      <div class="chat-rodape">${rodape}</div>
+    </div>`;
+}
+
+function vistaConversas() {
+  const ativa = conversas.find((c) => c.id === conversaAberta);
+  const lista = conversas.map((c) => {
+    const l = leadDaConversa(c);
+    return `
+      <button class="conv-item${c.id === conversaAberta ? " ativa" : ""}" type="button" data-abrir-conversa="${c.id}">
+        <div class="conv-topo"><span class="conv-nome">${escapar(l?.nome || telefoneLegivel(l?.telefone) || c.wa_id)}</span><span class="conv-hora">${horaCurta(c.ultima_mensagem_em)}</span></div>
+        <div class="conv-previa"><span>${escapar(c.ultima_previa || "")}</span>${c.nao_lidas ? `<span class="badge">${c.nao_lidas}</span>` : ""}</div>
+      </button>`;
+  }).join("");
+
+  const l = ativa ? leadDaConversa(ativa) : null;
+  const painel = ativa ? `
+    <div class="chat-cabeca">
+      <div>
+        <div class="nome-cel">${escapar(l?.nome || "Sem nome")}</div>
+        <div class="sub-cel">${escapar(telefoneLegivel(l?.telefone))} ${seloCanal(l ? ultimaOrigem(l) : null)}</div>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="mini" type="button" id="voltar-lista">Conversas</button>
+        ${l ? `<button class="mini" type="button" data-ver-lead="${l.id}">Ver lead</button>` : ""}
+      </div>
+    </div>
+    ${htmlChat(ativa)}`
+    : '<div class="vazio-geral chat-vazio">Escolha uma conversa.</div>';
+
+  return `
+    <div class="topo">
+      <div><h1>Conversas</h1><div class="desc">WhatsApp de ${escapar(empresaAtual.nome)}. Leads que chamam pelo anúncio entram aqui com campanha, conjunto e anúncio.</div></div>
+    </div>
+    ${conversas.length ? `
+      <div class="inbox${ativa ? " com-chat" : ""}">
+        <div class="inbox-lista">${lista}</div>
+        <div class="chat-painel">${painel}</div>
+      </div>`
+      : `<div class="tabela-caixa"><div class="vazio-geral">Nenhuma conversa ainda.${pode.administrar() ? " Ligue o WhatsApp em Ajustes, Integrações." : ""}</div></div>`}`;
+}
+
+function rolarChat(raiz) {
+  (raiz || document).querySelectorAll(".chat-msgs").forEach((el) => { el.scrollTop = el.scrollHeight; });
+}
+
+// Liga envio e rolagem de um chat já desenhado. `aoMudar` redesenha quem hospeda o chat.
+function ligarChat(raiz, conversa, aoMudar) {
+  rolarChat(raiz);
+  const form = raiz.querySelector(`[data-chat-form="${conversa.id}"]`);
+  if (!form) return;
+  const campo = form.querySelector("textarea");
+  const aviso = raiz.querySelector(`[data-chat-aviso="${conversa.id}"]`);
+  campo.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); }
+  });
+  campo.addEventListener("input", () => { campo.style.height = "auto"; campo.style.height = Math.min(campo.scrollHeight, 160) + "px"; });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const texto = campo.value.trim();
+    if (!texto) return;
+    const botao = form.querySelector("button");
+    botao.disabled = true;
+    aviso.className = "aviso";
+    aviso.textContent = "Enviando...";
+    try {
+      const { data: sessao } = await sb.auth.getSession();
+      const res = await fetch(`${SUPABASE_URL}/functions/v1/whatsapp-enviar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${sessao.session.access_token}` },
+        body: JSON.stringify({ conversa_id: conversa.id, texto }),
+      });
+      const dados = await res.json().catch(() => ({}));
+      await carregarMensagens(conversa.id);
+      const { data: atual } = await sb.from("conversas").select("*").eq("id", conversa.id).single();
+      if (atual) Object.assign(conversa, atual);
+      if (!res.ok) {
+        aoMudar();
+        const novoAviso = document.querySelector(`[data-chat-aviso="${conversa.id}"]`);
+        if (novoAviso) { novoAviso.className = "aviso erro"; novoAviso.textContent = dados.erro || "Não deu pra enviar."; }
+        return;
+      }
+      aoMudar();
+    } catch (err) {
+      botao.disabled = false;
+      aviso.className = "aviso erro";
+      aviso.textContent = "Sem conexão: " + err.message;
+    }
+  });
+}
+
+const carregandoMensagens = new Map();
+
+async function abrirConversa(id) {
+  conversaAberta = id;
+  const c = conversas.find((x) => x.id === id);
+  render();
+  await garantirMensagens(id);
+  if (c?.nao_lidas) {
+    c.nao_lidas = 0;
+    atualizarContadorConversas();
+    sb.rpc("marcar_conversa_lida", { p_conversa: id });
+  }
+  if (vistaAtual === "conversas" && conversaAberta === id) render();
+}
+
+function ligarConversas() {
+  document.querySelectorAll("[data-abrir-conversa]").forEach((b) => b.addEventListener("click", () => abrirConversa(b.dataset.abrirConversa)));
+  const voltar = document.getElementById("voltar-lista");
+  if (voltar) voltar.addEventListener("click", () => { conversaAberta = null; render(); });
+  document.querySelectorAll("[data-ver-lead]").forEach((b) => b.addEventListener("click", () => abrirLead(b.dataset.verLead, "conversa")));
+  if (vistaAtual !== "conversas" || !conversaAberta) return;
+  const c = conversas.find((x) => x.id === conversaAberta);
+  const raiz = document.querySelector(".chat-painel");
+  if (c && raiz) {
+    const carregando = garantirMensagens(c.id);
+    // só a primeira chamada redesenha; as outras compartilham a mesma promessa e não reagendam
+    if (carregando && !carregando.redesenhoAgendado) {
+      carregando.redesenhoAgendado = true;
+      carregando.then(() => { if (vistaAtual === "conversas" && conversaAberta === c.id) render(); });
+    }
+    ligarChat(raiz, c, () => render());
+  }
+}
+
+// Busca as mensagens uma vez só. Quem chama durante o carregamento recebe a mesma promessa,
+// e quem chama depois de carregado recebe null (não precisa redesenhar de novo).
+function garantirMensagens(id) {
+  if (mensagensPorConversa[id]) return null;
+  if (!carregandoMensagens.has(id)) {
+    const promessa = carregarMensagens(id).finally(() => carregandoMensagens.delete(id));
+    carregandoMensagens.set(id, promessa);
+  }
+  return carregandoMensagens.get(id);
+}
+
+/* ---------------- integrações ---------------- */
+async function chamarIntegracoes(corpo) {
+  const { data: sessao } = await sb.auth.getSession();
+  const res = await fetch(`${SUPABASE_URL}/functions/v1/integracoes`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${sessao.session.access_token}` },
+    body: JSON.stringify({ empresa_id: empresaAtual.id, ...corpo }),
+  });
+  const dados = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(dados.erro || `Erro ${res.status}`);
+  return dados;
+}
+
+function painelIntegracoes() {
+  const e = integracaoWhats;
+  if (!e) return '<div class="bloco" style="grid-column:1/-1"><p id="integ-carregando">Carregando integrações...</p></div>';
+  const cfg = e.config || {};
+  const status = !e.existe ? '<span class="selo nao">desligado</span>'
+    : e.status === "ativa" ? '<span class="selo sim">conectado</span>'
+    : e.status === "erro" ? '<span class="selo alerta">com erro</span>'
+    : '<span class="selo nao">aguardando teste</span>';
+  const copiar = (id, valor) => `<code class="codigo" id="${id}">${escapar(valor)}</code><button class="mini" type="button" data-copiar="${id}">Copiar</button>`;
+  return `
+    <div class="bloco">
+      <h3>WhatsApp API oficial ${status}</h3>
+      <p>${e.existe && cfg.numero_exibido ? `Número ${escapar(cfg.numero_exibido)}${cfg.nome_verificado ? ` · ${escapar(cfg.nome_verificado)}` : ""}. ` : ""}Credenciais do app da Meta desta empresa. Token e App Secret ficam guardados cifrados e nunca aparecem de novo nesta tela.</p>
+      <div class="campo"><label for="wa-pnid">Phone Number ID</label><input type="text" id="wa-pnid" inputmode="numeric" value="${escapar(cfg.phone_number_id || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="wa-waba">WhatsApp Business Account ID</label><input type="text" id="wa-waba" inputmode="numeric" value="${escapar(cfg.waba_id || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="wa-token">Token permanente (usuário do sistema)</label><input type="password" id="wa-token" autocomplete="new-password" placeholder="${e.token_salvo ? "Salvo. Deixe vazio para manter" : "EAA..."}"></div>
+      <div class="campo"><label for="wa-secret">App Secret</label><input type="password" id="wa-secret" autocomplete="new-password" placeholder="${e.app_secret_salvo ? "Salvo. Deixe vazio para manter" : "32 caracteres do app"}"></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" type="button" id="wa-salvar">Salvar</button>
+        ${e.existe ? '<button class="btn btn-fantasma" type="button" id="wa-testar">Testar conexão</button>' : ""}
+        ${e.existe ? '<button class="btn btn-fantasma" type="button" id="wa-desligar">Desligar</button>' : ""}
+      </div>
+      <div class="aviso" id="aviso-integ"></div>
+    </div>
+    <div class="bloco">
+      <h3>Configurar o webhook na Meta</h3>
+      ${e.existe ? `
+      <p>No app da Meta, em WhatsApp, Configuração, cole estes dois valores e assine o campo <b>messages</b>.</p>
+      <div class="campo"><label>URL de retorno</label>${copiar("wa-url", e.webhook_url)}</div>
+      <div class="campo"><label>Token de verificação</label>${copiar("wa-verify", e.verify_token || "")}</div>
+      <p style="margin-bottom:0">O token precisa das permissões <b>whatsapp_business_messaging</b> e <b>whatsapp_business_management</b>. Para o CRM trazer campanha, conjunto e anúncio de quem chama pelo anúncio, inclua também <b>ads_read</b> com acesso à conta de anúncios do cliente.</p>`
+      : "<p>Salve as credenciais ao lado para gerar a URL de retorno e o token de verificação.</p>"}
+    </div>`;
+}
+
+async function carregarIntegracoes() {
+  try {
+    integracaoWhats = await chamarIntegracoes({ acao: "ver" });
+  } catch (err) {
+    integracaoWhats = { existe: false, erroCarga: err.message };
+  }
+  if (vistaAtual === "config" && abaAjustes === "integracoes") render();
+}
+
+function ligarIntegracoes() {
+  if (vistaAtual !== "config" || abaAjustes !== "integracoes") return;
+  if (!integracaoWhats) { carregarIntegracoes(); return; }
+
+  document.querySelectorAll("[data-copiar]").forEach((b) => b.addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(document.getElementById(b.dataset.copiar).textContent); b.textContent = "Copiado"; }
+    catch (err) { b.textContent = "Selecione e copie"; }
+  }));
+
+  const aviso = document.getElementById("aviso-integ");
+  const avisar = (msg, tipo) => {
+    const alvo = document.getElementById("aviso-integ");
+    if (alvo) { alvo.className = "aviso " + (tipo || ""); alvo.textContent = msg; }
+  };
+  if (integracaoWhats.erroCarga) avisar(integracaoWhats.erroCarga, "erro");
+
+  document.getElementById("wa-salvar")?.addEventListener("click", async (ev) => {
+    ev.target.disabled = true;
+    avisar("Salvando...");
+    try {
+      integracaoWhats = await chamarIntegracoes({
+        acao: "salvar",
+        phone_number_id: document.getElementById("wa-pnid").value.trim(),
+        waba_id: document.getElementById("wa-waba").value.trim(),
+        token: document.getElementById("wa-token").value.trim(),
+        app_secret: document.getElementById("wa-secret").value.trim(),
+      });
+      render();
+      avisar("Salvo. Agora clique em Testar conexão.", "ok");
+    } catch (err) {
+      ev.target.disabled = false;
+      avisar(err.message, "erro");
+    }
+  });
+
+  document.getElementById("wa-testar")?.addEventListener("click", async (ev) => {
+    ev.target.disabled = true;
+    avisar("Testando com a Meta...");
+    try {
+      const r = await chamarIntegracoes({ acao: "testar" });
+      integracaoWhats = r.estado || integracaoWhats;
+      render();
+      avisar(r.ok ? "Conectado. As mensagens do número já chegam em Conversas." : r.erro, r.ok ? "ok" : "erro");
+    } catch (err) {
+      ev.target.disabled = false;
+      avisar(err.message, "erro");
+    }
+  });
+
+  document.getElementById("wa-desligar")?.addEventListener("click", async () => {
+    if (!confirm("Desligar o WhatsApp desta empresa? As credenciais são apagadas e as mensagens novas deixam de chegar. O histórico fica.")) return;
+    try {
+      integracaoWhats = await chamarIntegracoes({ acao: "desligar" });
+      render();
+    } catch (err) {
+      avisar(err.message, "erro");
+    }
+  });
+  void aviso;
+}
+
+/* ---------------- formulários ---------------- */
+const URL_SCRIPT_FORM = "https://crm.thenewads.com.br/f.js";
+const TIPOS_CAMPO = { texto: "Texto curto", paragrafo: "Texto longo", selecao: "Lista de seleção", opcoes: "Escolha única", multipla: "Múltipla escolha" };
+
+function configPadrao() {
+  return {
+    titulo: "Fale com a nossa equipe",
+    subtitulo: "Preencha e entramos em contato pelo WhatsApp.",
+    botao: "Quero ser atendido",
+    redirect_url: "",
+    sucesso: "Recebemos seus dados. Em breve entraremos em contato.",
+    email: "opcional",
+    campos: [],
+    visual: { modo: "auto", tema: "auto", cor_botao: "#111111", cor_texto_botao: "#ffffff", raio: 8 },
+  };
+}
+
+function codigoFormulario(f) {
+  return `<script src="${URL_SCRIPT_FORM}" data-form="${f.chave}" async><\/script>`;
+}
+
+function leadsDoFormulario(f) {
+  return leads.filter((l) => (l.lead_origens || []).some((o) => o.formulario_id === f.id)).length;
+}
+
+function vistaFormularios() {
+  const cartoes = formularios.map((f) => `
+    <div class="bloco">
+      <h3>${escapar(f.nome)} ${f.ativo ? '<span class="selo sim" style="margin-left:6px">ativo</span>' : '<span class="selo nao" style="margin-left:6px">desativado</span>'}</h3>
+      <p>${leadsDoFormulario(f)} lead(s) recebido(s)${f.config?.redirect_url ? ` · envia para ${escapar(f.config.redirect_url)}` : " · sem redirect, mostra mensagem"}</p>
+      <code class="codigo">${escapar(codigoFormulario(f))}</code>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn" type="button" data-editar-form="${f.id}">Editar</button>
+        <button class="btn btn-fantasma" type="button" data-copiar-form="${f.id}">Copiar código</button>
+      </div>
+    </div>`).join("");
+
+  return `
+    <div class="topo">
+      <div><h1>Formulários</h1><div class="desc">Formulários para colar no site de ${escapar(empresaAtual.nome)}. Os leads entram aqui com a tag Site e as UTMs.</div></div>
+      <div class="ferramentas"><button class="btn" id="btn-novo-form" type="button">Novo formulário</button></div>
+    </div>
+    ${formularios.length ? `<div class="lista-forms">${cartoes}</div>`
+      : '<div class="tabela-caixa"><div class="vazio-geral">Nenhum formulário ainda. Crie o primeiro e cole o código no site do cliente.</div></div>'}
+    <div class="bloco" style="margin-top:18px">
+      <h3>Como instalar</h3>
+      <p>Cole o código no lugar onde o formulário deve aparecer: bloco HTML no WordPress, widget HTML no Elementor, embed no Webflow ou Wix. O formulário copia a fonte e a cor do botão principal do site sozinho.</p>
+      <p style="margin-bottom:0">Para não perder a origem de quem entra por uma página e preenche em outra, cole também <code class="codigo" style="display:inline;padding:2px 6px">&lt;script src="${URL_SCRIPT_FORM}" async&gt;&lt;/script&gt;</code> no cabeçalho de todas as páginas. Sem o data-form ele só guarda as UTMs.</p>
+    </div>`;
+}
+
+function vistaEditorFormulario() {
+  const f = formEditando;
+  const c = f.config;
+  const v = c.visual;
+  const campos = c.campos.map((campo, i) => `
+    <div class="campo-extra">
+      <div class="linha">
+        <div class="campo" style="margin:0"><label>Pergunta</label><input type="text" data-campo="${i}" data-prop="rotulo" value="${escapar(campo.rotulo)}"></div>
+        <div class="campo" style="margin:0"><label>Tipo</label>
+          <select data-campo="${i}" data-prop="tipo">${Object.entries(TIPOS_CAMPO).map(([id, nome]) => `<option value="${id}"${campo.tipo === id ? " selected" : ""}>${nome}</option>`).join("")}</select></div>
+      </div>
+      ${["selecao", "opcoes", "multipla"].includes(campo.tipo) ? `
+        <div class="campo" style="margin:10px 0 0"><label>Opções (uma por linha)</label>
+          <textarea rows="3" data-campo="${i}" data-prop="opcoes">${escapar((campo.opcoes || []).join("\n"))}</textarea></div>` : ""}
+      <div class="acoes">
+        <label class="check" style="margin-right:auto"><input type="checkbox" data-campo="${i}" data-prop="obrigatorio"${campo.obrigatorio ? " checked" : ""}> Obrigatória</label>
+        <button class="mini" type="button" data-mover="${i}" data-dir="-1"${i === 0 ? " disabled" : ""}>Subir</button>
+        <button class="mini" type="button" data-mover="${i}" data-dir="1"${i === c.campos.length - 1 ? " disabled" : ""}>Descer</button>
+        <button class="mini" type="button" data-remover-campo="${i}">Remover</button>
+      </div>
+    </div>`).join("");
+
+  return `
+    <div class="topo">
+      <div><h1>${f.id ? "Editar formulário" : "Novo formulário"}</h1><div class="desc">${escapar(empresaAtual.nome)}. As mudanças valem para o site assim que salvar.</div></div>
+      <div class="ferramentas">
+        <button class="btn btn-fantasma" id="form-cancelar" type="button">Voltar</button>
+        <button class="btn" id="form-salvar" type="button">Salvar</button>
+      </div>
+    </div>
+    <div class="aviso" id="aviso-form" style="margin:-10px 0 14px"></div>
+
+    <div class="editor-form">
+      <div>
+        <div class="bloco" style="margin-bottom:14px">
+          <h3>Básico</h3>
+          <div class="campo"><label for="ff-nome">Nome interno</label><input type="text" id="ff-nome" data-raiz="nome" value="${escapar(f.nome)}" placeholder="Ex: Landing implante"></div>
+          <label class="check"><input type="checkbox" data-raiz="ativo"${f.ativo ? " checked" : ""}> Formulário ativo (desativado some do site)</label>
+        </div>
+
+        <div class="bloco" style="margin-bottom:14px">
+          <h3>Textos</h3>
+          <div class="campo"><label>Título</label><input type="text" data-cfg="titulo" value="${escapar(c.titulo)}"></div>
+          <div class="campo"><label>Subtítulo</label><input type="text" data-cfg="subtitulo" value="${escapar(c.subtitulo)}"></div>
+          <div class="campo"><label>Texto do botão</label><input type="text" data-cfg="botao" value="${escapar(c.botao)}"></div>
+        </div>
+
+        <div class="bloco" style="margin-bottom:14px">
+          <h3>Depois de enviar</h3>
+          <p>Para onde a pessoa vai depois de enviar. Use a página de obrigado do cliente, onde fica o evento de conversão.</p>
+          <div class="campo"><label>URL de redirect</label><input type="url" data-cfg="redirect_url" value="${escapar(c.redirect_url)}" placeholder="https://site-do-cliente.com.br/obrigado"></div>
+          <div class="campo"><label>Mensagem se não houver redirect</label><input type="text" data-cfg="sucesso" value="${escapar(c.sucesso)}"></div>
+        </div>
+
+        <div class="bloco" style="margin-bottom:14px">
+          <h3>Campos</h3>
+          <p>Nome e WhatsApp são sempre obrigatórios, assim nenhum lead do site nasce com cadastro incompleto.</p>
+          <div class="campo"><label>E-mail</label>
+            <select data-cfg="email">
+              ${[["opcional", "Opcional"], ["obrigatorio", "Obrigatório"], ["oculto", "Não pedir"]].map(([id, nome]) => `<option value="${id}"${c.email === id ? " selected" : ""}>${nome}</option>`).join("")}
+            </select></div>
+          ${campos}
+          <button class="btn btn-largo btn-fantasma" id="add-campo" type="button">Adicionar pergunta</button>
+        </div>
+
+        <div class="bloco" style="margin-bottom:14px">
+          <h3>Visual</h3>
+          <p>No automático o formulário usa a fonte do site e copia a cor e o arredondamento do botão principal da página.</p>
+          <div class="campo"><label>Cores do botão</label>
+            <select data-visual="modo">
+              <option value="auto"${v.modo !== "manual" ? " selected" : ""}>Automático, copiar do site</option>
+              <option value="manual"${v.modo === "manual" ? " selected" : ""}>Definir manualmente</option>
+            </select></div>
+          ${v.modo === "manual" ? `
+          <div class="cores">
+            <div class="campo"><label>Botão</label><input type="color" data-visual="cor_botao" value="${escapar(v.cor_botao || "#111111")}"></div>
+            <div class="campo"><label>Texto do botão</label><input type="color" data-visual="cor_texto_botao" value="${escapar(v.cor_texto_botao || "#ffffff")}"></div>
+            <div class="campo"><label>Borda (px)</label><input type="number" min="0" max="40" data-visual="raio" value="${escapar(v.raio ?? 8)}"></div>
+          </div>` : ""}
+          <div class="campo"><label>Fundo onde vai ficar</label>
+            <select data-visual="tema">
+              ${[["auto", "Detectar pela página"], ["claro", "Fundo claro"], ["escuro", "Fundo escuro"]].map(([id, nome]) => `<option value="${id}"${(v.tema || "auto") === id ? " selected" : ""}>${nome}</option>`).join("")}
+            </select></div>
+        </div>
+
+        ${f.chave ? `
+        <div class="bloco">
+          <h3>Código para o site</h3>
+          <code class="codigo">${escapar(codigoFormulario(f))}</code>
+          <button class="btn btn-largo btn-fantasma" type="button" data-copiar-form="${f.id}">Copiar código</button>
+        </div>` : ""}
+      </div>
+
+      <div class="previa">
+        <div class="previa-barra">
+          <span class="num">Pré-visualização em um site de exemplo</span>
+          <select id="previa-fundo" style="width:auto;padding:8px 10px;font-size:13px">
+            <option value="claro">Site claro</option>
+            <option value="escuro">Site escuro</option>
+          </select>
+        </div>
+        <iframe id="previa-form" title="Pré-visualização do formulário"></iframe>
+      </div>
+    </div>`;
+}
+
+let fundoPrevia = "claro";
+function atualizarPrevia() {
+  const iframe = document.getElementById("previa-form");
+  if (!iframe || !formEditando) return;
+  const escuro = fundoPrevia === "escuro";
+  // Site de exemplo com botão próprio, para a detecção automática ter o que copiar.
+  const site = escuro
+    ? { fundo: "#101418", texto: "#f1f5f9", botao: "#22c55e", textoBotao: "#052e16", raio: "999px", fonte: "Georgia, serif" }
+    : { fundo: "#f7f4ef", texto: "#1f2937", botao: "#1d4ed8", textoBotao: "#ffffff", raio: "6px", fonte: "Arial, Helvetica, sans-serif" };
+  const config = JSON.stringify(formEditando.config).replace(/</g, "\\u003c");
+  iframe.srcdoc = `<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <style>body{margin:0;padding:28px;background:${site.fundo};color:${site.texto};font-family:${site.fonte}}
+    .site-botao{display:inline-block;background:${site.botao};color:${site.textoBotao};border-radius:${site.raio};padding:10px 18px;font-weight:700;border:0;margin-bottom:22px}</style>
+    </head><body><button class="site-botao">Botão do site</button><div id="alvo"></div>
+    <script src="${URL_SCRIPT_FORM}"><\/script>
+    <script>window.TNACRMForm.render(document.getElementById("alvo"), ${config}, { preview: true });<\/script>
+    </body></html>`;
+}
+
+function ligarFormularios() {
+  const novoForm = document.getElementById("btn-novo-form");
+  if (novoForm) novoForm.addEventListener("click", () => {
+    formEditando = { id: null, nome: "", ativo: true, config: configPadrao() };
+    render();
+  });
+
+  document.querySelectorAll("[data-editar-form]").forEach((b) => b.addEventListener("click", () => {
+    const f = formularios.find((x) => x.id === b.dataset.editarForm);
+    const base = configPadrao();
+    formEditando = JSON.parse(JSON.stringify({ ...f, config: { ...base, ...f.config, visual: { ...base.visual, ...(f.config?.visual || {}) } } }));
+    render();
+  }));
+
+  document.querySelectorAll("[data-copiar-form]").forEach((b) => b.addEventListener("click", async () => {
+    const f = formularios.find((x) => x.id === b.dataset.copiarForm);
+    try { await navigator.clipboard.writeText(codigoFormulario(f)); b.textContent = "Copiado"; }
+    catch (err) { b.textContent = "Selecione o código acima"; }
+  }));
+
+  if (!formEditando || !document.getElementById("previa-form")) return;
+  const f = formEditando;
+  const c = f.config;
+
+  // Campos de texto só atualizam a prévia; mudanças de estrutura redesenham o editor.
+  let espera;
+  const previaDepois = () => { clearTimeout(espera); espera = setTimeout(atualizarPrevia, 350); };
+
+  document.querySelectorAll("[data-raiz]").forEach((el) => el.addEventListener(el.type === "checkbox" ? "change" : "input", () => {
+    f[el.dataset.raiz] = el.type === "checkbox" ? el.checked : el.value;
+  }));
+  document.querySelectorAll("[data-cfg]").forEach((el) => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+    c[el.dataset.cfg] = el.value;
+    previaDepois();
+  }));
+  document.querySelectorAll("[data-visual]").forEach((el) => el.addEventListener(el.tagName === "SELECT" ? "change" : "input", () => {
+    c.visual[el.dataset.visual] = el.type === "number" ? Number(el.value) : el.value;
+    if (el.dataset.visual === "modo") render(); else previaDepois();
+  }));
+  document.querySelectorAll("[data-campo]").forEach((el) => {
+    const evento = el.type === "checkbox" || el.tagName === "SELECT" ? "change" : "input";
+    el.addEventListener(evento, () => {
+      const campo = c.campos[Number(el.dataset.campo)];
+      const prop = el.dataset.prop;
+      if (prop === "obrigatorio") campo.obrigatorio = el.checked;
+      else if (prop === "opcoes") campo.opcoes = el.value.split("\n").map((x) => x.trim()).filter(Boolean);
+      else campo[prop] = el.value;
+      if (prop === "tipo") render(); else previaDepois();
+    });
+  });
+
+  document.getElementById("add-campo").addEventListener("click", () => {
+    c.campos.push({ id: "p" + Date.now().toString(36), rotulo: "Nova pergunta", tipo: "texto", obrigatorio: false, opcoes: [] });
+    render();
+  });
+  document.querySelectorAll("[data-remover-campo]").forEach((b) => b.addEventListener("click", () => {
+    c.campos.splice(Number(b.dataset.removerCampo), 1);
+    render();
+  }));
+  document.querySelectorAll("[data-mover]").forEach((b) => b.addEventListener("click", () => {
+    const i = Number(b.dataset.mover), j = i + Number(b.dataset.dir);
+    [c.campos[i], c.campos[j]] = [c.campos[j], c.campos[i]];
+    render();
+  }));
+
+  const seletorFundo = document.getElementById("previa-fundo");
+  seletorFundo.value = fundoPrevia;
+  seletorFundo.addEventListener("change", () => { fundoPrevia = seletorFundo.value; atualizarPrevia(); });
+
+  document.getElementById("form-cancelar").addEventListener("click", () => {
+    if (!confirm("Voltar sem salvar as mudanças?")) return;
+    formEditando = null;
+    render();
+  });
+
+  document.getElementById("form-salvar").addEventListener("click", async () => {
+    const aviso = document.getElementById("aviso-form");
+    const falha = (msg) => { aviso.className = "aviso erro"; aviso.textContent = msg; window.scrollTo(0, 0); };
+    if (!String(f.nome).trim()) return falha("Dê um nome interno ao formulário.");
+    if (c.redirect_url && !/^https:\/\/[^\s]+\.[^\s]+/.test(c.redirect_url)) return falha("O redirect precisa ser um endereço completo começando com https://");
+    for (const campo of c.campos) {
+      if (!String(campo.rotulo).trim()) return falha("Toda pergunta precisa de um texto.");
+      if (["selecao", "opcoes", "multipla"].includes(campo.tipo) && !(campo.opcoes || []).length) {
+        return falha(`A pergunta "${campo.rotulo}" precisa de pelo menos uma opção.`);
+      }
+      if (campo.tipo === "texto" || campo.tipo === "paragrafo") campo.opcoes = [];
+    }
+    const dados = { nome: String(f.nome).trim(), ativo: !!f.ativo, config: c };
+    const res = f.id
+      ? await sb.from("formularios").update(dados).eq("id", f.id).select().single()
+      : await sb.from("formularios").insert({ ...dados, empresa_id: empresaAtual.id }).select().single();
+    if (res.error) return falha("Não deu pra salvar: " + res.error.message);
+    await carregarTudo();
+    formEditando = null;
+    render();
+  });
+
+  atualizarPrevia();
+}
+
 /* ---------------- ajustes ---------------- */
 function vistaConfigPainel(aba) {
   return paineisConfig()[aba]();
@@ -860,6 +1581,8 @@ function paineisConfig() {
         <div id="link-membro"></div>
       </div>`,
 
+    integracoes: () => painelIntegracoes(),
+
     empresas: () => `
       <div class="bloco">
         <h3>Nova empresa</h3>
@@ -891,7 +1614,9 @@ function paineisConfig() {
 
 function vistaConfig() {
   const painel = paineisConfig();
-  const ABAS = [["seguranca", "Segurança"], ["equipe", "Equipe"], ...(ehAgencia ? [["empresas", "Empresas"]] : []), ["dados", "Dados"]];
+  const ABAS = [["seguranca", "Segurança"], ["equipe", "Equipe"],
+    ...(pode.administrar() ? [["integracoes", "Integrações"]] : []),
+    ...(ehAgencia ? [["empresas", "Empresas"]] : []), ["dados", "Dados"]];
   return `
     <div class="topo"><div><h1>Ajustes</h1><div class="desc">Conta, equipe e manutenção.</div></div></div>
     <div class="abas abas-ajustes">
@@ -905,6 +1630,8 @@ async function desenhar2FA() {
   const selo = document.getElementById("selo-2fa");
   if (!area) return;
   const { data, error } = await sb.auth.mfa.listFactors();
+  // a pessoa pode ter trocado de aba enquanto carregava
+  if (!document.body.contains(area)) return;
   if (error) { area.innerHTML = `<div class="aviso erro">Não deu pra checar: ${escapar(error.message)}</div>`; return; }
   const ativo = (data?.totp || []).find((f) => f.status === "verified");
 
@@ -1013,6 +1740,9 @@ function ligarEventos() {
   });
 
   ligarEquipe();
+  ligarFormularios();
+  ligarConversas();
+  ligarIntegracoes();
 
   ligarArrasto();
 
@@ -1297,7 +2027,7 @@ function abrirLead(id, abaInicial) {
   const div = document.createElement("div");
   div.className = "fundo-modal";
   document.body.appendChild(div);
-  const fechar = () => { div.remove(); document.removeEventListener("keydown", aoTeclar); };
+  let fechar = () => { div.remove(); document.removeEventListener("keydown", aoTeclar); };
   function aoTeclar(e) { if (e.key === "Escape") fechar(); }
   document.addEventListener("keydown", aoTeclar);
   div.addEventListener("click", (e) => { if (e.target === div) fechar(); });
@@ -1342,7 +2072,10 @@ function abrirLead(id, abaInicial) {
           ${par("utm_term", o.utm_term)}
           ${par("utm_placement", o.utm_placement)}
           ${par("ad_id", o.ad_id)}
-          ${o.pagina_url ? par("Página", o.pagina_url) : ""}` : ""}
+          ${o.pagina_url ? par("Página", o.pagina_url) : ""}
+          ${o.dados?.formulario ? par("Formulário", o.dados.formulario) : ""}
+          ${Object.entries(o.dados?.respostas || {}).map(([pergunta, resposta]) =>
+            par(escapar(pergunta), Array.isArray(resposta) ? resposta.join(", ") : resposta)).join("")}` : ""}
         ${o.canal === "ctwa" || o.canal === "meta_form" ? `
           ${par("Campanha", o.campanha_nome)}
           ${par("Conjunto", o.conjunto_nome)}
@@ -1368,14 +2101,40 @@ function abrirLead(id, abaInicial) {
       ${pode.excluir() ? '<div class="grupo"><button class="ver-lead perigo" type="button" id="excluir-lead">Excluir lead</button></div>' : ""}`;
   }
 
+  const conversa = conversas.find((c) => c.lead_id === l.id) || null;
+  if (!conversa && abaAtual === "conversa") abaAtual = "anotacoes";
+  if (conversa && !abaInicial) abaAtual = "conversa";
+
   const ABAS = [
+    ...(conversa ? [{ id: "conversa", nome: "Conversa", conta: () => conversa.nao_lidas || 0 }] : []),
     { id: "anotacoes", nome: "Anotações", conta: () => notas.filter((n) => n.lead_id === l.id).length },
     { id: "origem", nome: "Origem", conta: () => (l.lead_origens || []).length },
     { id: "dados", nome: "Dados", conta: () => 0 },
   ];
 
+  // Chegou mensagem nova enquanto a ficha está aberta na conversa: atualiza.
+  const aoAtualizar = () => {
+    if (abaAtual === "conversa" && document.body.contains(div)) (garantirMensagens(conversa.id) || Promise.resolve()).then(desenhar);
+  };
+  document.addEventListener("conversas-atualizadas", aoAtualizar);
+  const fecharOriginal = fechar;
+  fechar = () => { document.removeEventListener("conversas-atualizadas", aoAtualizar); fecharOriginal(); };
+
   function desenhar() {
-    const corpo = abaAtual === "anotacoes" ? abaAnotacoes() : abaAtual === "origem" ? abaOrigem() : abaDados();
+    if (abaAtual === "conversa" && conversa) {
+      const carregando = garantirMensagens(conversa.id);
+      if (carregando && !carregando.redesenhoFicha) {
+        carregando.redesenhoFicha = true;
+        carregando.then(() => { if (document.body.contains(div)) desenhar(); });
+      }
+    }
+    if (abaAtual === "conversa" && conversa?.nao_lidas) {
+      conversa.nao_lidas = 0;
+      atualizarContadorConversas();
+      sb.rpc("marcar_conversa_lida", { p_conversa: conversa.id });
+    }
+    const corpo = abaAtual === "conversa" ? htmlChat(conversa)
+      : abaAtual === "anotacoes" ? abaAnotacoes() : abaAtual === "origem" ? abaOrigem() : abaDados();
     div.innerHTML = `
       <div class="gaveta">
         <div class="cabeca">
@@ -1385,7 +2144,7 @@ function abrirLead(id, abaInicial) {
           </div>
           <button class="fechar" type="button" aria-label="Fechar">✕</button>
         </div>
-        ${botaoWhatsApp(l, "Conversar no WhatsApp")}
+        ${conversa ? "" : botaoWhatsApp(l, "Conversar no WhatsApp")}
         ${l.cadastro_incompleto && pode.editarLead(l) ? '<button class="btn btn-largo" id="completar" type="button" style="margin-bottom:22px">Completar cadastro</button>' : ""}
         <div class="abas">
           ${ABAS.map((a) => {
@@ -1398,6 +2157,7 @@ function abrirLead(id, abaInicial) {
 
     div.querySelector(".fechar").addEventListener("click", fechar);
     div.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => { abaAtual = b.dataset.aba; desenhar(); }));
+    if (abaAtual === "conversa" && conversa) ligarChat(div, conversa, () => { desenhar(); if (vistaAtual === "conversas") render(); });
     const completar = div.querySelector("#completar");
     if (completar) completar.addEventListener("click", () => { fechar(); formularioLead(l); });
 
