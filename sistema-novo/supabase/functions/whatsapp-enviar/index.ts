@@ -111,12 +111,30 @@ Deno.serve(async (req) => {
   }).select().single();
   if (erroInsert) return resposta(req, 500, { erro: erroInsert.message });
 
-  const r = await fetch(`${GRAPH}/${(integ.config as Record<string, string>).phone_number_id}/messages`, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${s.token}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ messaging_product: "whatsapp", to: conversa.wa_id, type: "text", text: { body: mensagem, preview_url: true } }),
-  });
-  const d = await r.json().catch(() => ({}));
+  // Celular brasileiro chega ora com o 9, ora sem. Se a Meta recusar o formato que veio
+  // no webhook, tenta o outro antes de desistir e guarda o que funcionou.
+  const alternativo = (n: string) =>
+    /^55\d{2}9\d{8}$/.test(n) ? n.slice(0, 4) + n.slice(5)
+    : /^55\d{2}[6-9]\d{7}$/.test(n) ? n.slice(0, 4) + "9" + n.slice(4)
+    : null;
+  const formatos = [conversa.wa_id, alternativo(conversa.wa_id)].filter(Boolean) as string[];
+  const RECUSA_DE_NUMERO = ["131030", "131026", "131009"];
+
+  let r!: Response, d: any = {}, usado = conversa.wa_id;
+  for (const numero of formatos) {
+    r = await fetch(`${GRAPH}/${(integ.config as Record<string, string>).phone_number_id}/messages`, {
+      method: "POST",
+      headers: { Authorization: `Bearer ${s.token}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ messaging_product: "whatsapp", to: numero, type: "text", text: { body: mensagem, preview_url: true } }),
+    });
+    d = await r.json().catch(() => ({}));
+    usado = numero;
+    if (r.ok && d?.messages?.[0]?.id) break;
+    if (!RECUSA_DE_NUMERO.includes(String(d?.error?.code ?? ""))) break;
+  }
+  if (r.ok && d?.messages?.[0]?.id && usado !== conversa.wa_id) {
+    await admin.from("conversas").update({ wa_id: usado }).eq("id", conversa.id);
+  }
 
   if (!r.ok || !d?.messages?.[0]?.id) {
     const bruto = d?.error?.error_user_msg || d?.error?.message || `HTTP ${r.status}`;
