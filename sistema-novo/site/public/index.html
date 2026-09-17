@@ -671,6 +671,7 @@ async function trocarEmpresa(id) {
   conversaAberta = null;
   mensagensPorConversa = {};
   integracaoWhats = null;
+  avisosIntegracao = {};
   if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";
   if (abaAjustes === "integracoes" && !pode.administrar()) abaAjustes = "seguranca";
   try { localStorage.setItem(CHAVE_EMPRESA, id); } catch (err) {}
@@ -977,12 +978,13 @@ function htmlChat(c) {
     }).join("");
 
   const podeResponder = l && pode.editarLead(l);
-  const aberta = janelaAberta(c);
+  const oficial = c.canal === 'whatsapp_oficial';
+  const aberta = !oficial || janelaAberta(c);
   const rodape = !podeResponder
     ? '<div class="chat-aviso">Você pode ler esta conversa, mas só quem é responsável pelo lead responde.</div>'
     : !aberta
       ? '<div class="chat-aviso alerta">Passaram 24h desde a última mensagem do lead. Pela regra da Meta, a conversa só pode ser retomada com um modelo aprovado (em breve no CRM).</div>'
-      : `<div class="chat-aviso">Janela aberta até ${new Date(new Date(c.ultima_entrada_em).getTime() + JANELA_WHATS_MS).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.</div>
+      : `<div class="chat-aviso">${oficial ? `WhatsApp oficial. Janela aberta até ${new Date(new Date(c.ultima_entrada_em).getTime() + JANELA_WHATS_MS).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.` : "WhatsApp NeoGo. Respostas saem pelo número da empresa."}</div>
          <form class="chat-form" data-chat-form="${c.id}">
            <textarea class="chat-campo" rows="1" placeholder="Escreva a resposta. Enter envia, Shift+Enter quebra linha" maxlength="4096"></textarea>
            <button class="btn" type="submit">Enviar</button>
@@ -1141,38 +1143,92 @@ async function chamarIntegracoes(corpo) {
   return dados;
 }
 
-function painelIntegracoes() {
-  const e = integracaoWhats;
-  if (!e) return '<div class="bloco" style="grid-column:1/-1"><p id="integ-carregando">Carregando integrações...</p></div>';
-  const cfg = e.config || {};
-  const status = !e.existe ? '<span class="selo nao">desligado</span>'
+function seloIntegracao(e) {
+  return !e?.existe ? '<span class="selo nao">desligado</span>'
     : e.status === "ativa" ? '<span class="selo sim">conectado</span>'
     : e.status === "erro" ? '<span class="selo alerta">com erro</span>'
     : '<span class="selo nao">aguardando teste</span>';
+}
+
+// Guarda o aviso de cada bloco entre redesenhos (salvar redesenha a tela).
+let avisosIntegracao = {};
+
+function painelIntegracoes() {
+  const todas = integracaoWhats;
+  if (!todas) return '<div class="bloco" style="grid-column:1/-1"><p>Carregando integrações...</p></div>';
+  if (todas.erroCarga) return `<div class="bloco" style="grid-column:1/-1"><div class="aviso erro">${escapar(todas.erroCarga)}</div></div>`;
   const copiar = (id, valor) => `<code class="codigo" id="${id}">${escapar(valor)}</code><button class="mini" type="button" data-copiar="${id}">Copiar</button>`;
+  const botoes = (prefixo, e) => `
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" type="button" data-integ-salvar="${prefixo}">Salvar</button>
+      ${e.existe ? `<button class="btn btn-fantasma" type="button" data-integ-testar="${prefixo}">Testar conexão</button>` : ""}
+      ${e.existe ? `<button class="btn btn-fantasma" type="button" data-integ-desligar="${prefixo}">Desligar</button>` : ""}
+    </div>`;
+  const aviso = (prefixo) => {
+    const a = avisosIntegracao[prefixo];
+    return `<div class="aviso ${a?.tipo || ""}" id="aviso-${prefixo}">${a ? escapar(a.msg) : ""}</div>`;
+  };
+  const salvoOu = (salvo, exemplo) => salvo ? "Salvo. Deixe vazio para manter" : exemplo;
+
+  const ng = todas.whatsapp_nao_oficial || { existe: false };
+  const ngc = ng.config || {};
+  const of = todas.whatsapp_oficial || { existe: false };
+  const ofc = of.config || {};
+  const mt = todas.meta || { existe: false };
+  const mtc = mt.config || {};
+
   return `
     <div class="bloco">
-      <h3>WhatsApp API oficial ${status}</h3>
-      <p>${e.existe && cfg.numero_exibido ? `Número ${escapar(cfg.numero_exibido)}${cfg.nome_verificado ? ` · ${escapar(cfg.nome_verificado)}` : ""}. ` : ""}Credenciais do app da Meta desta empresa. Token e App Secret ficam guardados cifrados e nunca aparecem de novo nesta tela.</p>
-      <div class="campo"><label for="wa-pnid">Phone Number ID</label><input type="text" id="wa-pnid" inputmode="numeric" value="${escapar(cfg.phone_number_id || "")}" autocomplete="off"></div>
-      <div class="campo"><label for="wa-waba">WhatsApp Business Account ID</label><input type="text" id="wa-waba" inputmode="numeric" value="${escapar(cfg.waba_id || "")}" autocomplete="off"></div>
-      <div class="campo"><label for="wa-token">Token permanente (usuário do sistema)</label><input type="password" id="wa-token" autocomplete="new-password" placeholder="${e.token_salvo ? "Salvo. Deixe vazio para manter" : "EAA..."}"></div>
-      <div class="campo"><label for="wa-secret">App Secret</label><input type="password" id="wa-secret" autocomplete="new-password" placeholder="${e.app_secret_salvo ? "Salvo. Deixe vazio para manter" : "32 caracteres do app"}"></div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap">
-        <button class="btn" type="button" id="wa-salvar">Salvar</button>
-        ${e.existe ? '<button class="btn btn-fantasma" type="button" id="wa-testar">Testar conexão</button>' : ""}
-        ${e.existe ? '<button class="btn btn-fantasma" type="button" id="wa-desligar">Desligar</button>' : ""}
-      </div>
-      <div class="aviso" id="aviso-integ"></div>
+      <h3>WhatsApp NeoGo ${seloIntegracao(ng)}</h3>
+      <p>API não oficial. O número continua no celular da empresa e as conversas aparecem aqui. Sem janela de 24h.</p>
+      <div class="campo"><label for="ng-base">URL da API NeoGo</label><input type="url" id="ng-base" value="${escapar(ngc.base_url || "")}" placeholder="https://api.seu-servidor-neogo.com" autocomplete="off"></div>
+      <div class="campo"><label for="ng-inst">ID da instância</label><input type="text" id="ng-inst" value="${escapar(ngc.instance_id || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="ng-token">Token da instância</label><input type="password" id="ng-token" autocomplete="new-password" placeholder="${salvoOu(ng.token_salvo, "token da instância, não a Global Key")}"></div>
+      ${botoes("ng", ng)}
+      ${aviso("ng")}
     </div>
     <div class="bloco">
-      <h3>Configurar o webhook na Meta</h3>
-      ${e.existe ? `
-      <p>No app da Meta, em WhatsApp, Configuração, cole estes dois valores e assine o campo <b>messages</b>.</p>
-      <div class="campo"><label>URL de retorno</label>${copiar("wa-url", e.webhook_url)}</div>
-      <div class="campo"><label>Token de verificação</label>${copiar("wa-verify", e.verify_token || "")}</div>
-      <p style="margin-bottom:0">O token precisa das permissões <b>whatsapp_business_messaging</b> e <b>whatsapp_business_management</b>. Para o CRM trazer campanha, conjunto e anúncio de quem chama pelo anúncio, inclua também <b>ads_read</b> com acesso à conta de anúncios do cliente.</p>`
-      : "<p>Salve as credenciais ao lado para gerar a URL de retorno e o token de verificação.</p>"}
+      <h3>Webhook da NeoGo</h3>
+      ${ng.existe ? `
+      <p>A NeoGo aceita até 3 webhooks por instância. Se a instância já manda eventos para o n8n, use um slot livre: o CRM não substitui slot ocupado.</p>
+      <div class="campo"><label>URL do webhook</label>${copiar("ng-url", ng.webhook_url)}</div>
+      <div class="campo"><label>Secret do slot (assinatura)</label>${copiar("ng-secret", ng.webhook_secret || "")}</div>
+      ${ngc.webhook_slot ? `<p>Registrado no slot ${escapar(ngc.webhook_slot)}.</p>` : ""}
+      <details class="manual"><summary>Registrar automaticamente com a Global API Key</summary>
+        <p>A Global Key é usada só neste registro e não fica guardada no CRM.</p>
+        <div class="campo"><label for="ng-global">Global API Key</label><input type="password" id="ng-global" autocomplete="new-password"></div>
+        <div class="campo"><label for="ng-slot">Slot</label><select id="ng-slot"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
+        <button class="btn btn-largo btn-fantasma" type="button" id="ng-registrar">Registrar webhook</button>
+      </details>
+      ${aviso("ng-webhook")}`
+      : "<p>Salve a NeoGo ao lado para gerar a URL do webhook.</p>"}
+    </div>
+
+    <div class="bloco">
+      <h3>Meta Ads, nomes dos anúncios ${seloIntegracao(mt)}</h3>
+      <p>Token com <b>ads_read</b> na conta de anúncios do cliente. É com ele que o CRM transforma o ID do anúncio de quem chama no WhatsApp em nome de campanha, conjunto e anúncio.</p>
+      <div class="campo"><label for="mt-token">Token de acesso</label><input type="password" id="mt-token" autocomplete="new-password" placeholder="${salvoOu(mt.token_salvo, "EAA...")}"></div>
+      <div class="campo"><label for="mt-conta">Conta de anúncios (opcional, para o teste)</label><input type="text" id="mt-conta" value="${escapar(mtc.ad_account_id ? "act_" + mtc.ad_account_id : "")}" placeholder="act_123456789" autocomplete="off"></div>
+      ${mt.existe && mtc.nome_conta ? `<p>Conta: ${escapar(mtc.nome_conta)}</p>` : ""}
+      ${botoes("mt", mt)}
+      ${aviso("mt")}
+    </div>
+
+    <div class="bloco">
+      <h3>WhatsApp API oficial ${seloIntegracao(of)}</h3>
+      <p>${of.existe && ofc.numero_exibido ? `Número ${escapar(ofc.numero_exibido)}${ofc.nome_verificado ? ` · ${escapar(ofc.nome_verificado)}` : ""}. ` : ""}Cloud API da Meta. Token e App Secret ficam cifrados e nunca aparecem de novo.</p>
+      <div class="campo"><label for="wa-pnid">Phone Number ID</label><input type="text" id="wa-pnid" inputmode="numeric" value="${escapar(ofc.phone_number_id || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="wa-waba">WhatsApp Business Account ID</label><input type="text" id="wa-waba" inputmode="numeric" value="${escapar(ofc.waba_id || "")}" autocomplete="off"></div>
+      <div class="campo"><label for="wa-token">Token permanente (usuário do sistema)</label><input type="password" id="wa-token" autocomplete="new-password" placeholder="${salvoOu(of.token_salvo, "EAA...")}"></div>
+      <div class="campo"><label for="wa-secret">App Secret</label><input type="password" id="wa-secret" autocomplete="new-password" placeholder="${salvoOu(of.app_secret_salvo, "32 caracteres do app")}"></div>
+      ${botoes("wa", of)}
+      ${of.existe ? `
+      <details class="manual" style="margin-top:12px"><summary>Webhook na Meta</summary>
+        <p>No app da Meta, em WhatsApp, Configuração, cole os dois valores e assine o campo <b>messages</b>.</p>
+        <div class="campo"><label>URL de retorno</label>${copiar("wa-url", of.webhook_url)}</div>
+        <div class="campo"><label>Token de verificação</label>${copiar("wa-verify", of.verify_token || "")}</div>
+      </details>` : ""}
+      ${aviso("wa")}
     </div>`;
 }
 
@@ -1180,9 +1236,19 @@ async function carregarIntegracoes() {
   try {
     integracaoWhats = await chamarIntegracoes({ acao: "ver" });
   } catch (err) {
-    integracaoWhats = { existe: false, erroCarga: err.message };
+    integracaoWhats = { erroCarga: err.message };
   }
   if (vistaAtual === "config" && abaAjustes === "integracoes") render();
+}
+
+const TIPO_POR_PREFIXO = { ng: "whatsapp_nao_oficial", wa: "whatsapp_oficial", mt: "meta" };
+const NOME_POR_PREFIXO = { ng: "a NeoGo", wa: "o WhatsApp oficial", mt: "o token da Meta" };
+
+function camposIntegracao(prefixo) {
+  const v = (id) => document.getElementById(id)?.value.trim() || "";
+  if (prefixo === "ng") return { base_url: v("ng-base"), instance_id: v("ng-inst"), instance_token: v("ng-token") };
+  if (prefixo === "mt") return { token: v("mt-token"), ad_account_id: v("mt-conta") };
+  return { phone_number_id: v("wa-pnid"), waba_id: v("wa-waba"), token: v("wa-token"), app_secret: v("wa-secret") };
 }
 
 function ligarIntegracoes() {
@@ -1194,56 +1260,74 @@ function ligarIntegracoes() {
     catch (err) { b.textContent = "Selecione e copie"; }
   }));
 
-  const aviso = document.getElementById("aviso-integ");
-  const avisar = (msg, tipo) => {
-    const alvo = document.getElementById("aviso-integ");
+  const avisar = (prefixo, msg, tipo) => {
+    avisosIntegracao[prefixo] = { msg, tipo: tipo || "" };
+    const alvo = document.getElementById("aviso-" + prefixo);
     if (alvo) { alvo.className = "aviso " + (tipo || ""); alvo.textContent = msg; }
   };
-  if (integracaoWhats.erroCarga) avisar(integracaoWhats.erroCarga, "erro");
+  // atualiza só o bloco que mudou, sem perder o que já foi carregado dos outros
+  const aplicar = (prefixo, estado) => {
+    integracaoWhats = { ...integracaoWhats, [TIPO_POR_PREFIXO[prefixo]]: estado };
+    render();
+  };
 
-  document.getElementById("wa-salvar")?.addEventListener("click", async (ev) => {
-    ev.target.disabled = true;
-    avisar("Salvando...");
+  document.querySelectorAll("[data-integ-salvar]").forEach((b) => b.addEventListener("click", async () => {
+    const p = b.dataset.integSalvar;
+    b.disabled = true;
+    avisar(p, "Salvando...");
     try {
-      integracaoWhats = await chamarIntegracoes({
-        acao: "salvar",
-        phone_number_id: document.getElementById("wa-pnid").value.trim(),
-        waba_id: document.getElementById("wa-waba").value.trim(),
-        token: document.getElementById("wa-token").value.trim(),
-        app_secret: document.getElementById("wa-secret").value.trim(),
-      });
-      render();
-      avisar("Salvo. Agora clique em Testar conexão.", "ok");
+      const estado = await chamarIntegracoes({ acao: "salvar", tipo: TIPO_POR_PREFIXO[p], ...camposIntegracao(p) });
+      avisosIntegracao[p] = { msg: "Salvo. Agora clique em Testar conexão.", tipo: "ok" };
+      aplicar(p, estado);
+    } catch (err) {
+      b.disabled = false;
+      avisar(p, err.message, "erro");
+    }
+  }));
+
+  document.querySelectorAll("[data-integ-testar]").forEach((b) => b.addEventListener("click", async () => {
+    const p = b.dataset.integTestar;
+    b.disabled = true;
+    avisar(p, "Testando...");
+    try {
+      const r = await chamarIntegracoes({ acao: "testar", tipo: TIPO_POR_PREFIXO[p] });
+      avisosIntegracao[p] = r.ok
+        ? { msg: r.aviso || (p === "mt" ? "Token válido. Os próximos leads de anúncio chegam com os nomes." : "Conectado. As mensagens já chegam em Conversas."), tipo: r.parcial ? "" : "ok" }
+        : { msg: r.erro, tipo: "erro" };
+      aplicar(p, r.estado || integracaoWhats[TIPO_POR_PREFIXO[p]]);
+    } catch (err) {
+      b.disabled = false;
+      avisar(p, err.message, "erro");
+    }
+  }));
+
+  document.querySelectorAll("[data-integ-desligar]").forEach((b) => b.addEventListener("click", async () => {
+    const p = b.dataset.integDesligar;
+    if (!confirm(`Desligar ${NOME_POR_PREFIXO[p]} desta empresa? As credenciais são apagadas. O histórico de conversas fica.`)) return;
+    try {
+      const estado = await chamarIntegracoes({ acao: "desligar", tipo: TIPO_POR_PREFIXO[p] });
+      avisosIntegracao[p] = null;
+      aplicar(p, estado);
+    } catch (err) {
+      avisar(p, err.message, "erro");
+    }
+  }));
+
+  document.getElementById("ng-registrar")?.addEventListener("click", async (ev) => {
+    const globalKey = document.getElementById("ng-global").value.trim();
+    const slot = Number(document.getElementById("ng-slot").value);
+    if (!globalKey) { avisar("ng-webhook", "Informe a Global API Key.", "erro"); return; }
+    ev.target.disabled = true;
+    avisar("ng-webhook", "Registrando na NeoGo...");
+    try {
+      const r = await chamarIntegracoes({ acao: "registrar_webhook", tipo: "whatsapp_nao_oficial", global_key: globalKey, slot });
+      avisosIntegracao["ng-webhook"] = { msg: `Webhook registrado no slot ${slot}. Mande uma mensagem para o número para ver chegar em Conversas.`, tipo: "ok" };
+      aplicar("ng", r.estado);
     } catch (err) {
       ev.target.disabled = false;
-      avisar(err.message, "erro");
+      avisar("ng-webhook", err.message, "erro");
     }
   });
-
-  document.getElementById("wa-testar")?.addEventListener("click", async (ev) => {
-    ev.target.disabled = true;
-    avisar("Testando com a Meta...");
-    try {
-      const r = await chamarIntegracoes({ acao: "testar" });
-      integracaoWhats = r.estado || integracaoWhats;
-      render();
-      avisar(r.ok ? "Conectado. As mensagens do número já chegam em Conversas." : r.erro, r.ok ? "ok" : "erro");
-    } catch (err) {
-      ev.target.disabled = false;
-      avisar(err.message, "erro");
-    }
-  });
-
-  document.getElementById("wa-desligar")?.addEventListener("click", async () => {
-    if (!confirm("Desligar o WhatsApp desta empresa? As credenciais são apagadas e as mensagens novas deixam de chegar. O histórico fica.")) return;
-    try {
-      integracaoWhats = await chamarIntegracoes({ acao: "desligar" });
-      render();
-    } catch (err) {
-      avisar(err.message, "erro");
-    }
-  });
-  void aviso;
 }
 
 /* ---------------- formulários ---------------- */

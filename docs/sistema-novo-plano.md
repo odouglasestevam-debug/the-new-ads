@@ -97,11 +97,21 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Testado com Playwright desktop e celular (sem erro de JS, sem rolagem horizontal) e laço infinito de redesenho corrigido
 - Melhorar depois: no celular o campo de resposta fica logo acima da barra inferior e exige rolar
 
+**17/09/2026, NeoGo (API não oficial) pronta, piloto Agari Drinks:**
+- Decisão do Douglas: API não oficial é a NeoGo; cliente piloto é a Agari Drinks (empresa criada no CRM, slug `agari-drinks`)
+- API NeoGo lida do pacote público `n8n-nodes-neogo` (só leitura): `POST {base}/send/text` com `apikey: <token da instância>` e corpo `{number, text}`; webhooks em `PUT {base}/instance/{id}/webhooks/{slot}` (slots 1 a 3, exige Global API Key, corpo `{url, events: [], enabled, secret}`); assinatura `X-Hub-Signature-256` quando o slot tem secret
+- Migration `0009`: `receber_mensagem_whatsapp` ganhou `p_direcao` (mensagem do atendente pelo celular entra como saída, sem contar não lida nem abrir janela); índice único de `instance_id` por integração NeoGo
+- Edge Function `neogo-webhook` (pública, `?i=<id>&t=<token do endereço>`): ignora grupo, broadcast, LID sem telefone e instância de outra empresa; desembrulha mensagem temporária e visualização única; `meta_ads.source_id` vira origem CTWA com nomes via cache ou token da integração `meta` (fallback token do WhatsApp oficial); `Receipt` atualiza entregue/lida; eco do envio feito pelo CRM amarra o ID em vez de duplicar
+- `integracoes` agora trata 3 tipos (`whatsapp_oficial`, `whatsapp_nao_oficial`, `meta`) e registra webhook NeoGo num slot **só se estiver livre** (Global Key usada na hora, não guardada). Motivo: a instância do cliente pode já ter slot apontando para o n8n, que não pode ser mexido
+- `whatsapp-enviar` envia pela NeoGo sem janela de 24h
+- Tela Integrações com blocos NeoGo, webhook NeoGo, Meta Ads (token ads_read) e WhatsApp oficial; chat mostra por qual canal responde
+- Testado com httpbin.org fazendo papel da NeoGo (17 cenários de webhook, envio, eco, slot ocupado) e no navegador; dados de teste apagados
+
 **Próximos passos (em ordem):**
-1. Douglas validar CRM, formulário e conversas
-2. Ligar o WhatsApp oficial de um cliente piloto com credenciais reais (valida envio real e nomes do anúncio pela Graph API com ads_read)
-3. Escolher a API não oficial e integrar no mesmo modelo (`canal = whatsapp_nao_oficial`)
-4. Templates para retomar conversa fora das 24h; download e exibição de mídia
+1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
+2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
+3. Convidar a equipe da Agari
+4. Templates para retomar conversa fora das 24h (oficial); download e exibição de mídia
 5. Modo 2 do formulário (captura de formulário existente); formulário nativo Meta; analytics por empresa
 
 Fase 0 concluída: Douglas é agência (odouglasestevam@gmail.com); empresas "Demo ..." são dados fictícios, apagar com `delete from empresas where slug like 'demo-%'`. Antigo item: primeiro usuário da agência (Douglas cria em Authentication > Add user no Supabase e o Claude marca em `agencia_admins`) e primeira empresa.
