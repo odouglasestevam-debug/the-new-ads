@@ -764,7 +764,7 @@ function vazioSemLista(r) {
 }
 
 function contarFiltros(r, f) {
-  return [f.local, f.status.length, f.responsavel && !(r.tipo === "minhas" && f.responsavel === "eu"), f.prioridade, f.de, f.ate].filter(Boolean).length;
+  return [f.local, f.status.length, f.responsavel && !(r.tipo === "minhas" && f.responsavel === "eu"), f.prioridade, f.de, f.ate, f.prazo.length].filter(Boolean).length;
 }
 
 function barraFiltros(r, f) {
@@ -772,11 +772,8 @@ function barraFiltros(r, f) {
   return `
     <div class="filtros">
       <input type="search" id="busca" placeholder="Buscar tarefa" value="${esc(f.busca)}">
-      <div class="chips" aria-label="Prazo">
-        ${SITUACOES.map((sit) => `<button class="chip ${sit.id}${f.prazo.includes(sit.id) ? " ligado" : ""}" onclick="mudarFiltro('prazo','${sit.id}')"><span class="bolinha" style="background:${sit.cor}"></span>${sit.nome}</button>`).join("")}
-      </div>
       <button class="chip${n ? " ligado" : ""}" id="btn-mais-filtros" data-menu onclick="abrirMaisFiltros(this)">Filtros${n ? ` · ${n}` : ""}</button>
-      ${n || f.busca || f.prazo.length ? '<button class="limpar" onclick="limparFiltros()">Limpar</button>' : ""}
+      ${n || f.busca ? '<button class="limpar" onclick="limparFiltros()">Limpar</button>' : ""}
     </div>`;
 }
 
@@ -796,6 +793,8 @@ function abrirMaisFiltros(ancora) {
   const sel = (campo, opcoes, rotulo) => `<label class="rotulo">${rotulo}</label>
     <select onchange="mudarFiltroPainel('${campo}', this.value)">${opcoes.map((o) => `<option value="${esc(o.v)}"${o.v === f[campo] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
   abrirPainel(ancora, `
+    <label class="rotulo">Prazo</label>
+    <div class="chips">${SITUACOES.map((sit) => `<button class="chip ${sit.id}${f.prazo.includes(sit.id) ? " ligado" : ""}" onclick="mudarFiltroPainel('prazo','${sit.id}')"><span class="bolinha" style="background:${sit.cor}"></span>${sit.nome}</button>`).join("")}</div>
     ${global ? sel("local", [{ v: "", t: "Todos os espaços" }, ...locais], "Espaço, pasta ou lista") : ""}
     ${sel("responsavel", [{ v: "", t: "Qualquer responsável" }, { v: "eu", t: "Eu" }, ...S.usuarios.filter((u) => u.ativo && u.user_id !== S.user.id).map((u) => ({ v: u.user_id, t: u.nome })), { v: "ninguem", t: "Sem responsável" }], "Responsável")}
     ${sel("prioridade", [{ v: "", t: "Qualquer prioridade" }, ...PRIORIDADES.map((x) => ({ v: x.id, t: x.nome }))], "Prioridade")}
@@ -967,11 +966,10 @@ function abrirAdicionar(chave) {
   const escopo = S.ultimo?.escopo;
   S.add = {
     grupo: chave, titulo: "", data_entrega: null, responsaveis: [], prioridade: "normal",
-    status_id: null, lista_id: null, mostrarData: false, ...(g?.preset || {}),
+    recorrencia: null, status_id: null, lista_id: null, ...(g?.preset || {}),
   };
   if (!S.add.lista_id) S.add.lista_id = listaPadraoAdd(escopo);
   if (!S.add.lista_id) return toast("Crie uma lista antes de lançar tarefa.", true);
-  if (S.add.data_entrega) S.add.mostrarData = true;
   renderResultadoAtual();
 }
 
@@ -990,11 +988,10 @@ function formAdicionar(escopo) {
       value="${esc(a.titulo)}" oninput="S.add.titulo = this.value">
     <div class="add-acoes">
       ${varias ? `<button type="button" class="add-btn" data-menu onclick="menuAddLista(this)" title="Lista">${ICONES.lista}<span>${esc((S.listas.find((l) => l.id === a.lista_id) || {}).nome || "")}</span></button>` : ""}
-      <button type="button" class="add-btn" onclick="abrirDataAdd()" title="Data de entrega" aria-label="Data de entrega">
-        ${ICONES.calendario}${a.data_entrega ? `<span>${dataBR(a.data_entrega, true)}</span>` : ""}
+      <button type="button" class="add-btn" data-menu id="add-data" onclick="abrirDataAdd(this)" title="Data de entrega" aria-label="Data de entrega">
+        ${ICONES.calendario}${a.data_entrega ? `<span>${esc(rotuloData(a.data_entrega))}</span>` : ""}
       </button>
-      <input type="date" id="add-data" class="add-data escondida" value="${a.data_entrega || ""}" tabindex="-1"
-        onchange="S.add.data_entrega = this.value || null; renderResultadoAtual()" aria-label="Data de entrega">
+      ${a.recorrencia ? `<button type="button" class="add-btn ligado" data-menu onclick="abrirDataAdd(this)" title="Repete">${ICONES.repetir}</button>` : ""}
       <button type="button" class="add-btn" data-menu onclick="menuAddResp(this)" title="Responsável" aria-label="Responsável">
         ${resp.length ? resp.map((u) => `<span class="avatar" style="background:${corDoNome(u.nome)}">${esc(iniciais(u.nome))}</span>`).join("") : ICONES.pessoa}
       </button>
@@ -1005,17 +1002,128 @@ function formAdicionar(escopo) {
   </form>`;
 }
 
-// O campo de data nativo é largo demais: fica escondido e o botão abre o calendário dele.
-// Navegador sem showPicker mostra o campo do jeito tradicional.
-function abrirDataAdd() {
-  const campo = document.getElementById("add-data");
-  if (!campo) return;
-  try {
-    campo.showPicker();
-  } catch {
-    campo.classList.remove("escondida");
-    campo.focus();
+
+/* ---------------- calendário com datas prontas (estilo ClickUp) ---------------- */
+const DIAS_SEMANA = ["dom", "seg", "ter", "qua", "qui", "sex", "sáb"];
+const MESES = ["janeiro", "fevereiro", "março", "abril", "maio", "junho", "julho", "agosto", "setembro", "outubro", "novembro", "dezembro"];
+
+function comoData(iso) {
+  const [a, m, d] = iso.slice(0, 10).split("-").map(Number);
+  return new Date(Date.UTC(a, m - 1, d));
+}
+function comoIso(data) {
+  return data.toISOString().slice(0, 10);
+}
+function somarDias(iso, n) {
+  const d = comoData(iso);
+  d.setUTCDate(d.getUTCDate() + n);
+  return comoIso(d);
+}
+function diaDaSemana(iso) {
+  return comoData(iso).getUTCDay();
+}
+// Próximo dia da semana pedido (0 = domingo). Hoje não conta, é sempre o próximo.
+function proximo(iso, alvo) {
+  const falta = (alvo - diaDaSemana(iso) + 7) % 7;
+  return somarDias(iso, falta === 0 ? 7 : falta);
+}
+function rotuloData(iso) {
+  const hoje = hojeSP();
+  if (iso === hoje) return "hoje";
+  if (iso === somarDias(hoje, 1)) return "amanhã";
+  return `${DIAS_SEMANA[diaDaSemana(iso)]}, ${dataBR(iso)}`;
+}
+
+function atalhosDeData() {
+  const hoje = hojeSP();
+  const sabado = proximo(hoje, 6);
+  return [
+    { t: "Hoje", d: hoje },
+    { t: "Amanhã", d: somarDias(hoje, 1) },
+    { t: "Este fim de semana", d: sabado },
+    { t: "Semana que vem", d: proximo(hoje, 1) },
+    { t: "Próximo fim de semana", d: somarDias(sabado, 7) },
+    { t: "Em 2 semanas", d: somarDias(hoje, 14) },
+    { t: "Em 4 semanas", d: somarDias(hoje, 28) },
+  ];
+}
+
+let calendario = null;
+
+// aoEscolher(iso | null) grava a data; aoRepetir, quando existe, abre a recorrência.
+function abrirCalendario(ancora, valor, aoEscolher, aoRepetir) {
+  calendario = { ancora, valor: valor || null, mes: (valor || hojeSP()).slice(0, 7), aoEscolher, aoRepetir };
+  renderCalendario();
+}
+
+function escolherData(iso) {
+  const aoEscolher = calendario.aoEscolher;
+  fecharMenu();
+  calendario = null;
+  aoEscolher(iso);
+}
+function mudarMes(passo) {
+  const [a, m] = calendario.mes.split("-").map(Number);
+  calendario.mes = comoIso(new Date(Date.UTC(a, m - 1 + passo, 1))).slice(0, 7);
+  renderCalendario();
+}
+
+function renderCalendario() {
+  const { valor, mes, aoRepetir } = calendario;
+  const hoje = hojeSP();
+  const [ano, m] = mes.split("-").map(Number);
+  const primeiro = new Date(Date.UTC(ano, m - 1, 1));
+  const inicio = somarDias(comoIso(primeiro), -primeiro.getUTCDay());
+  const celulas = [];
+  for (let i = 0; i < 42; i++) {
+    const iso = somarDias(inicio, i);
+    const foraDoMes = iso.slice(0, 7) !== mes;
+    if (i >= 35 && foraDoMes) break;
+    const classes = ["dia"];
+    if (foraDoMes) classes.push("fora");
+    if (iso === hoje) classes.push("hoje");
+    if (iso === valor) classes.push("marcado");
+    celulas.push(`<button type="button" class="${classes.join(" ")}" onclick="escolherData('${iso}')">${Number(iso.slice(8))}</button>`);
   }
+  abrirPainel(calendario.ancora, `
+    <div class="cal">
+      <div class="cal-atalhos">
+        ${atalhosDeData().map((a) => `<button type="button" onclick="escolherData('${a.d}')"><span>${a.t}</span><em>${rotuloData(a.d)}</em></button>`).join("")}
+      </div>
+      <div class="cal-mes">
+        <button type="button" class="icone-btn mini" onclick="mudarMes(-1)" aria-label="Mês anterior">‹</button>
+        <strong>${MESES[m - 1]} ${ano}</strong>
+        <button type="button" class="icone-btn mini" onclick="mudarMes(1)" aria-label="Próximo mês">›</button>
+      </div>
+      <div class="cal-grade">
+        ${DIAS_SEMANA.map((d) => `<span class="cal-cab">${d}</span>`).join("")}
+        ${celulas.join("")}
+      </div>
+      <div class="cal-rodape">
+        ${valor ? '<button type="button" class="limpar" onclick="escolherData(null)">Sem data</button>' : "<span></span>"}
+        ${aoRepetir ? '<button type="button" class="limpar" onclick="abrirRepetir()">Configurar recorrência</button>' : ""}
+      </div>
+    </div>`);
+}
+
+function abrirRepetir() {
+  const { ancora, aoRepetir } = calendario;
+  fecharMenu();
+  calendario = null;
+  abrirMenu(ancora, [
+    { t: "Não repete", acao: () => aoRepetir(null) },
+    ...Object.entries({ diaria: "Diária", semanal: "Semanal", mensal: "Mensal", anual: "Anual" }).map(([v, nome]) => ({ t: nome, acao: () => aoRepetir(v) })),
+  ]);
+}
+
+function abrirDataAdd(ancora) {
+  abrirCalendario(ancora, S.add.data_entrega, (iso) => {
+    S.add.data_entrega = iso;
+    renderResultadoAtual();
+  }, (rec) => {
+    S.add.recorrencia = rec;
+    renderResultadoAtual();
+  });
 }
 
 function menuAddLista(ancora) {
@@ -1048,7 +1156,8 @@ async function salvarAdicionar(e) {
   const status = a.status_id || primeiroStatus("aberto")?.id;
   if (!status) return toast("Crie pelo menos um status aberto em Ajustes.", true);
   const { data, error } = await db().from("tarefas").insert({
-    lista_id: a.lista_id, titulo, status_id: status, data_entrega: a.data_entrega, prioridade: a.prioridade,
+    lista_id: a.lista_id, titulo, status_id: status, data_entrega: a.data_entrega,
+    prioridade: a.prioridade, recorrencia: a.recorrencia || null,
   }).select().single();
   if (error) return toast(erroBanco(error, "Não deu pra criar"), true);
   if (a.responsaveis.length) {
@@ -1171,9 +1280,11 @@ function renderGaveta() {
           ${PRIORIDADES.map((p) => `<option value="${p.id}"${p.id === t.prioridade ? " selected" : ""}>${p.nome}</option>`).join("")}
         </select>
         <span class="rotulo">Início</span>
-        <input type="date" value="${t.data_inicio || ""}" onchange="salvarTarefa('${t.id}', { data_inicio: this.value || null })">
+        <button type="button" class="campo-data" data-menu onclick="calendarioDaTarefa(this, '${t.id}', 'data_inicio')">
+          ${ICONES.calendario}<span>${t.data_inicio ? esc(rotuloData(t.data_inicio)) : "Sem data"}</span></button>
         <span class="rotulo">Entrega</span>
-        <input type="date" value="${t.data_entrega || ""}" onchange="salvarTarefa('${t.id}', { data_entrega: this.value || null })" ${t.situacao === "atrasada" ? 'style="border-color:rgba(239,68,68,.6);color:var(--vermelho)"' : ""}>
+        <button type="button" class="campo-data${t.situacao === "atrasada" ? " atrasada" : ""}" data-menu onclick="calendarioDaTarefa(this, '${t.id}', 'data_entrega')">
+          ${ICONES.calendario}<span>${t.data_entrega ? esc(rotuloData(t.data_entrega)) : "Sem data"}</span></button>
         <span class="rotulo">Responsáveis</span>
         <div class="resp-escolha">
           ${S.usuarios.filter((u) => u.ativo || t.responsaveis.includes(u.user_id)).map((u) => `<button class="chip${t.responsaveis.includes(u.user_id) ? " ligado" : ""}" onclick="alternarResponsavel('${t.id}','${u.user_id}')">
@@ -1258,6 +1369,12 @@ function renderGaveta() {
     if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) el.querySelector("#form-comentario").requestSubmit();
   });
   renderComentarios();
+}
+
+function calendarioDaTarefa(ancora, id, campo) {
+  const t = S.tarefas.find((x) => x.id === id);
+  abrirCalendario(ancora, t[campo], (iso) => salvarTarefa(id, { [campo]: iso }),
+    campo === "data_entrega" ? (rec) => salvarTarefa(id, { recorrencia: rec }) : null);
 }
 
 function renderComentarios() {

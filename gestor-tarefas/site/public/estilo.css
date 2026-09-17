@@ -375,3 +375,32 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
 .add-data{min-width:0;width:130px}
 .add-data::-webkit-calendar-picker-indicator{margin-left:0;padding:0}
 .add-data.escondida{position:absolute;width:1px;height:1px;padding:0;opacity:0;pointer-events:none;border:none}
+
+/* ---------------- calendário próprio ---------------- */
+.menu-flutuante.painel .cal{min-width:246px}
+.cal-atalhos{display:flex;flex-direction:column;gap:1px;margin:-4px -4px 8px}
+.cal-atalhos button{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;background:none;border:none;
+  padding:7px 8px;border-radius:7px;color:#ddd;font-size:13.5px;text-align:left}
+.cal-atalhos button:hover{background:var(--grafite-3);color:var(--branco)}
+.cal-atalhos em{font-style:normal;font-family:var(--mono);font-size:10.5px;color:var(--nevoa);white-space:nowrap}
+.cal-mes{display:flex;align-items:center;justify-content:space-between;gap:6px;border-top:1px solid var(--linha);padding-top:10px;margin-bottom:6px}
+.cal-mes strong{font-family:var(--display);font-size:13.5px;font-weight:600;text-transform:capitalize}
+.cal-mes .icone-btn{font-size:17px;line-height:1}
+.cal-grade{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-cab{font-family:var(--mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--nevoa);text-align:center;padding-bottom:4px}
+.cal .dia{height:30px;border:none;background:none;border-radius:7px;color:#ddd;font-size:13px;font-variant-numeric:tabular-nums}
+.cal .dia:hover{background:var(--grafite-3);color:var(--branco)}
+.cal .dia.fora{color:rgba(255,255,255,.22)}
+.cal .dia.hoje{color:var(--vermelho-forte);font-weight:600;box-shadow:inset 0 0 0 1px rgba(239,68,68,.55)}
+.cal .dia.marcado{background:var(--ambar);color:#0A0A0A;font-weight:600;box-shadow:none}
+.cal-rodape{display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--linha);margin-top:8px;padding-top:8px}
+.cal-rodape .limpar{font-size:12.5px}
+
+/* campo de data da gaveta vira botão */
+.campo-data{display:flex;align-items:center;gap:8px;width:100%;background:var(--grafite);border:1px solid var(--linha);
+  border-radius:9px;padding:8px 11px;color:var(--branco);font-size:14px;text-align:left}
+.campo-data:hover{border-color:rgba(255,255,255,.22)}
+.campo-data svg{width:15px;height:15px;color:var(--nevoa)}
+.campo-data.atrasada{border-color:rgba(239,68,68,.6);color:var(--vermelho)}
+.campo-data.atrasada svg{color:var(--vermelho)}
+.add-btn.ligado{color:var(--azul);border-color:rgba(96,165,250,.35)}
