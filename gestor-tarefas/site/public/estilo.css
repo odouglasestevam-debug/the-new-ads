@@ -330,3 +330,48 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
 /* período de entrega nos filtros: campo compacto */
 .chips input[type=date]{width:auto;padding:6px 10px;font-size:13px;border-radius:99px}
 @media (max-width:860px){ .linha-filtros-2 .sep{display:none} }
+
+/* ---------------- lançar tarefa em linha (estilo ClickUp) ---------------- */
+.linha-add{display:flex;align-items:center;gap:10px;width:100%;min-height:46px;padding:8px 14px;background:none;border:none;
+  border-top:1px solid var(--linha);color:var(--nevoa);font-size:14px;text-align:left;transition:color .15s,background .15s}
+.tabela > .linha-add:first-child{border-top:none}
+.linha-add:hover{color:var(--branco);background:rgba(255,255,255,.02)}
+.linha-add .sinal{font-size:16px;line-height:1}
+.linha-add.aberta{background:rgba(255,255,255,.03);cursor:default;gap:8px;flex-wrap:wrap}
+.linha-add.aberta:hover{background:rgba(255,255,255,.03)}
+#add-titulo{flex:1 1 220px;min-width:0;background:none;border:none;padding:4px 0;font-size:14.5px;color:var(--branco)}
+#add-titulo::placeholder{color:rgba(255,255,255,.35)}
+#add-titulo:focus{border:none;outline:none}
+.add-acoes{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.add-btn{display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 8px;border-radius:7px;background:none;
+  border:1px solid transparent;color:var(--nevoa);font-size:12.5px;transition:all .15s;max-width:190px}
+.add-btn:hover{background:var(--grafite-3);color:var(--branco);border-color:var(--linha)}
+.add-btn svg{width:16px;height:16px}
+.add-btn span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.add-btn .avatar{width:21px;height:21px;font-size:9px;border:none;margin:0}
+.add-btn .prio svg{width:13px;height:13px}
+.add-data{width:auto;padding:5px 8px;font-size:12.5px;border-radius:7px;background:var(--grafite-2)}
+.dica-vazia{color:var(--nevoa);font-size:13.5px;padding:4px 2px}
+
+/* painel de filtros */
+.menu-flutuante.painel{padding:14px;min-width:280px;max-width:min(340px,calc(100vw - 16px));max-height:min(70vh,560px);overflow-y:auto}
+.menu-flutuante.painel .rotulo{margin:12px 0 6px}
+.menu-flutuante.painel .rotulo:first-child{margin-top:0}
+.menu-flutuante.painel select{padding:8px 30px 8px 11px;font-size:13.5px}
+.menu-flutuante.painel .chip{padding:5px 10px;font-size:12.5px}
+.menu-flutuante.painel input[type=date]{width:auto;padding:6px 9px;font-size:12.5px}
+@media (max-width:860px){
+  .linha-add.aberta{padding:10px 12px}
+  #add-titulo{flex:1 1 100%}
+}
+
+/* linha de lançamento numa linha só no computador */
+.linha-add.aberta{flex-wrap:nowrap}
+.add-data{width:136px;flex:none}
+#add-titulo{flex:1 1 auto}
+@media (max-width:860px){ .linha-add.aberta{flex-wrap:wrap} .add-data{width:auto} }
+.linha-add.aberta .add-acoes{flex-wrap:nowrap}
+@media (max-width:860px){ .linha-add.aberta .add-acoes{flex-wrap:wrap} }
+.add-data{min-width:0;width:130px}
+.add-data::-webkit-calendar-picker-indicator{margin-left:0;padding:0}
+.add-data.escondida{position:absolute;width:1px;height:1px;padding:0;opacity:0;pointer-events:none;border:none}

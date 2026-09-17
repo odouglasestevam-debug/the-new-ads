@@ -208,15 +208,36 @@
   /* conversas */
   .inbox{display:grid;grid-template-columns:340px minmax(0,1fr);border:1px solid var(--linha);border-radius:12px;overflow:hidden;
     background:var(--grafite);height:calc(100dvh - 170px);min-height:480px}
-  .inbox-lista{border-right:1px solid var(--linha);overflow-y:auto}
-  .conv-item{display:block;width:100%;text-align:left;background:none;border:0;border-bottom:1px solid var(--linha);padding:14px 16px;cursor:pointer;color:inherit}
+  .inbox-lista{border-right:1px solid var(--linha);display:flex;flex-direction:column;min-height:0}
+  .inbox-itens{overflow-y:auto;flex:1;min-height:0}
+  .inbox-topo{padding:12px 14px;border-bottom:1px solid var(--linha);background:var(--grafite)}
+  .inbox-topo input[type=search]{width:100%;background:var(--preto);border:1px solid var(--linha);border-radius:9px;
+    padding:9px 12px;color:var(--branco);font-size:13.5px;outline:none}
+  .inbox-topo input[type=search]:focus{border-color:var(--ambar)}
+  .chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+  .chip{background:transparent;border:1px solid var(--linha);color:var(--nevoa);border-radius:99px;
+    padding:4px 11px;font-size:11.5px;cursor:pointer;white-space:nowrap}
+  .chip:hover{color:var(--branco)}
+  .chip.ativo{border-color:var(--ambar);color:var(--branco);background:rgba(255,106,0,.1)}
+  .chip b{font-family:var(--mono);font-weight:600;color:var(--ambar)}
+  .chip-sel{background:transparent;border:1px solid var(--linha);color:var(--nevoa);border-radius:99px;
+    padding:4px 8px;font-size:11.5px;max-width:100%}
+  .conv-item{display:flex;gap:11px;align-items:center;width:100%;text-align:left;background:none;border:0;
+    border-bottom:1px solid var(--linha);padding:12px 14px;cursor:pointer;color:inherit}
   .conv-item:hover{background:rgba(255,255,255,.03)}
   .conv-item.ativa{background:rgba(255,106,0,.08)}
+  .conv-ava{flex:none;width:38px;height:38px;border-radius:50%;background:var(--grafite-2);border:1px solid var(--linha);
+    display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:var(--nevoa)}
+  .conv-corpo{display:block;min-width:0;flex:1}
   .conv-topo{display:flex;justify-content:space-between;gap:10px;align-items:baseline}
   .conv-nome{font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .conv-hora{font-family:var(--mono);font-size:10.5px;color:var(--nevoa);flex:none}
-  .conv-previa{display:flex;justify-content:space-between;gap:10px;margin-top:4px;color:var(--nevoa);font-size:12.5px}
+  .conv-previa{display:flex;justify-content:space-between;gap:10px;margin-top:3px;color:var(--nevoa);font-size:12.5px}
   .conv-previa span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .conv-pe{display:flex;gap:8px;align-items:center;margin-top:5px;min-height:0}
+  .conv-pe:empty{display:none}
+  .pino{font-size:10px;color:#25D366;border:1px solid rgba(37,211,102,.35);border-radius:99px;padding:1px 7px}
+  .conv-dono{font-family:var(--mono);font-size:10px;color:var(--nevoa);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .badge{background:#25D366;color:#04130a;font-family:var(--mono);font-size:10.5px;font-weight:600;border-radius:99px;padding:1px 7px;flex:none}
   .chat-painel{display:flex;flex-direction:column;min-height:0;height:100%}
   .chat{display:flex;flex-direction:column;min-height:0;flex:1}
@@ -241,6 +262,7 @@
   .gaveta .chat-rodape{padding:12px 0 0;border:0}
   @media(max-width:860px){
     .inbox{grid-template-columns:1fr;height:auto}
+    .inbox-itens{overflow:visible}
     .inbox.com-chat .inbox-lista{display:none}
     .inbox:not(.com-chat) .chat-vazio{display:none}
     .chat-msgs{min-height:50dvh}
@@ -983,7 +1005,9 @@ function htmlChat(c) {
   const rodape = !podeResponder
     ? '<div class="chat-aviso">Você pode ler esta conversa, mas só quem é responsável pelo lead responde.</div>'
     : !aberta
-      ? '<div class="chat-aviso alerta">Passaram 24h desde a última mensagem do lead. Pela regra da Meta, a conversa só pode ser retomada com um modelo aprovado (em breve no CRM).</div>'
+      ? `<div class="chat-aviso alerta">${c.ultima_entrada_em
+          ? "Passaram 24h desde a última mensagem do lead. Pela regra da Meta, a conversa só pode ser retomada com um modelo aprovado (em breve no CRM)."
+          : "No WhatsApp oficial, quem começa a conversa precisa de um modelo aprovado pela Meta (em breve no CRM). Por enquanto, espere a pessoa chamar."}</div>`
       : `<div class="chat-aviso">${oficial ? `WhatsApp oficial. Janela aberta até ${new Date(new Date(c.ultima_entrada_em).getTime() + JANELA_WHATS_MS).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.` : "WhatsApp NeoGo. Respostas saem pelo número da empresa."}</div>
          <form class="chat-form" data-chat-form="${c.id}">
            <textarea class="chat-campo" rows="1" placeholder="Escreva a resposta. Enter envia, Shift+Enter quebra linha" maxlength="4096"></textarea>
@@ -998,16 +1022,75 @@ function htmlChat(c) {
     </div>`;
 }
 
+// Filtros da lista, no espírito do WhatsApp Web: busca, estado e responsável.
+const filtroConv = { busca: "", estado: "todas", responsavel: "" };
+const CHIPS_CONV = [["todas", "Todas"], ["nao_lidas", "Não lidas"], ["sem_resposta", "Sem resposta"]];
+
+// A última mensagem foi do lead: ninguém respondeu ainda.
+function semResposta(c) {
+  return !!c.ultima_entrada_em &&
+    new Date(c.ultima_entrada_em).getTime() >= new Date(c.ultima_mensagem_em).getTime() - 1000;
+}
+
+function iniciais(texto) {
+  const partes = String(texto || "").trim().split(/\s+/).filter(Boolean);
+  if (!partes.length) return "?";
+  return (partes[0][0] + (partes[1]?.[0] || "")).toUpperCase();
+}
+
+function conversasFiltradas() {
+  const termo = filtroConv.busca.trim().toLowerCase();
+  return conversas.filter((c) => {
+    const l = leadDaConversa(c);
+    if (filtroConv.estado === "nao_lidas" && !c.nao_lidas) return false;
+    if (filtroConv.estado === "sem_resposta" && !semResposta(c)) return false;
+    if (filtroConv.responsavel) {
+      const r = l?.responsavel_id || "";
+      if (filtroConv.responsavel === "sem" ? !!r : r !== filtroConv.responsavel) return false;
+    }
+    if (!termo) return true;
+    return [l?.nome, l?.telefone, c.wa_id, c.ultima_previa, nomeResponsavel(l?.responsavel_id)]
+      .filter(Boolean).join(" ").toLowerCase().includes(termo);
+  });
+}
+
+function barraFiltrosConversas() {
+  const conta = (estado) => estado === "nao_lidas" ? conversas.filter((c) => c.nao_lidas).length
+    : estado === "sem_resposta" ? conversas.filter(semResposta).length : 0;
+  const chips = CHIPS_CONV.map(([id, nome]) => {
+    const n = conta(id);
+    return `<button class="chip${filtroConv.estado === id ? " ativo" : ""}" type="button" data-filtro-conv="${id}">${nome}${n ? ` <b>${n}</b>` : ""}</button>`;
+  }).join("");
+  const responsaveis = pode.editarTodos() && equipe.length ? `
+    <select class="chip-sel" id="filtro-conv-resp">
+      <option value="">Todos os responsáveis</option>
+      ${equipe.map((m) => `<option value="${m.user_id}"${filtroConv.responsavel === m.user_id ? " selected" : ""}>${escapar(m.user_id === usuario.id ? "Minhas conversas" : m.email)}</option>`).join("")}
+      <option value="sem"${filtroConv.responsavel === "sem" ? " selected" : ""}>Sem responsável</option>
+    </select>` : "";
+  return `
+    <div class="inbox-topo">
+      <input type="search" id="busca-conv" placeholder="Buscar nome ou número" value="${escapar(filtroConv.busca)}" autocomplete="off">
+      <div class="chips">${chips}${responsaveis}</div>
+    </div>`;
+}
+
 function vistaConversas() {
   const ativa = conversas.find((c) => c.id === conversaAberta);
-  const lista = conversas.map((c) => {
+  const filtradas = conversasFiltradas();
+  const lista = filtradas.length ? filtradas.map((c) => {
     const l = leadDaConversa(c);
+    const nome = l?.nome || telefoneLegivel(l?.telefone) || c.wa_id;
+    const dono = nomeResponsavel(l?.responsavel_id);
     return `
       <button class="conv-item${c.id === conversaAberta ? " ativa" : ""}" type="button" data-abrir-conversa="${c.id}">
-        <div class="conv-topo"><span class="conv-nome">${escapar(l?.nome || telefoneLegivel(l?.telefone) || c.wa_id)}</span><span class="conv-hora">${horaCurta(c.ultima_mensagem_em)}</span></div>
-        <div class="conv-previa"><span>${escapar(c.ultima_previa || "")}</span>${c.nao_lidas ? `<span class="badge">${c.nao_lidas}</span>` : ""}</div>
+        <span class="conv-ava">${escapar(iniciais(l?.nome || nome))}</span>
+        <span class="conv-corpo">
+          <span class="conv-topo"><span class="conv-nome">${escapar(nome)}</span><span class="conv-hora">${horaCurta(c.ultima_mensagem_em)}</span></span>
+          <span class="conv-previa"><span>${escapar(c.ultima_previa || "Conversa aberta pelo CRM")}</span>${c.nao_lidas ? `<span class="badge">${c.nao_lidas}</span>` : ""}</span>
+          <span class="conv-pe">${semResposta(c) ? '<span class="pino">sem resposta</span>' : ""}${dono && pode.editarTodos() ? `<span class="conv-dono">${escapar(dono.split("@")[0])}</span>` : ""}</span>
+        </span>
       </button>`;
-  }).join("");
+  }).join("") : '<div class="vazio-geral" style="padding:34px 18px">Nada com esse filtro.</div>';
 
   const l = ativa ? leadDaConversa(ativa) : null;
   const painel = ativa ? `
@@ -1024,16 +1107,85 @@ function vistaConversas() {
     ${htmlChat(ativa)}`
     : '<div class="vazio-geral chat-vazio">Escolha uma conversa.</div>';
 
+  const botaoNova = pode.criarLead()
+    ? '<button class="btn" id="btn-nova-conversa" type="button">Nova conversa</button>' : "";
+
   return `
     <div class="topo">
       <div><h1>Conversas</h1><div class="desc">WhatsApp de ${escapar(empresaAtual.nome)}. Leads que chamam pelo anúncio entram aqui com campanha, conjunto e anúncio.</div></div>
+      <div class="ferramentas">${botaoNova}</div>
     </div>
     ${conversas.length ? `
       <div class="inbox${ativa ? " com-chat" : ""}">
-        <div class="inbox-lista">${lista}</div>
+        <div class="inbox-lista">
+          ${barraFiltrosConversas()}
+          <div class="inbox-itens">${lista}</div>
+        </div>
         <div class="chat-painel">${painel}</div>
       </div>`
-      : `<div class="tabela-caixa"><div class="vazio-geral">Nenhuma conversa ainda.${pode.administrar() ? " Ligue o WhatsApp em Ajustes, Integrações." : ""}</div></div>`}`;
+      : `<div class="tabela-caixa"><div class="vazio-geral">Nenhuma conversa ainda.${pode.administrar() ? " Ligue o WhatsApp em Ajustes, Integrações." : ""}<br>Para puxar assunto primeiro, use o botão Nova conversa.</div></div>`}`;
+}
+
+// Puxar assunto primeiro: digita o número, o CRM acha ou cria o lead e abre a conversa.
+function formularioNovaConversa() {
+  const div = document.createElement("div");
+  div.className = "fundo-modal fundo-centro";
+  div.innerHTML = `
+    <div class="caixa-modal">
+      <h2>Nova conversa</h2>
+      <p class="ajuda">Número com DDD. Se essa pessoa já for lead, a conversa abre na ficha dela em vez de criar outra.</p>
+      <div class="campo"><label for="nc-tel">Número do WhatsApp</label>
+        <input type="tel" id="nc-tel" placeholder="(11) 99999-9999" autocomplete="off"></div>
+      <div class="campo"><label for="nc-nome">Nome (opcional)</label>
+        <input type="text" id="nc-nome" autocomplete="off"></div>
+      <div class="aviso" id="nc-aviso"></div>
+      <div class="acoes-modal">
+        <button class="btn btn-fantasma" type="button" id="nc-cancelar">Cancelar</button>
+        <button class="btn" type="button" id="nc-abrir">Abrir conversa</button>
+      </div>
+    </div>`;
+  document.body.appendChild(div);
+  const fechar = () => { div.remove(); document.removeEventListener("keydown", aoTeclar); };
+  function aoTeclar(e) { if (e.key === "Escape") fechar(); }
+  document.addEventListener("keydown", aoTeclar);
+  div.addEventListener("click", (e) => { if (e.target === div) fechar(); });
+  div.querySelector("#nc-cancelar").addEventListener("click", fechar);
+
+  const campo = div.querySelector("#nc-tel");
+  campo.focus();
+  campo.addEventListener("keydown", (e) => { if (e.key === "Enter") div.querySelector("#nc-abrir").click(); });
+
+  const ERROS = {
+    telefone_invalido: "Esse número não parece válido. Escreva com DDD.",
+    sem_whatsapp: "O WhatsApp desta empresa ainda não está ligado. Configure em Ajustes, Integrações.",
+    lead_de_outro: "Esse número já é lead de outra pessoa da equipe. Peça para ela responder.",
+    sem_permissao: "Seu acesso é só de leitura.",
+    sem_acesso: "Você não tem acesso a esta empresa.",
+  };
+
+  div.querySelector("#nc-abrir").addEventListener("click", async () => {
+    const aviso = div.querySelector("#nc-aviso");
+    const telefone = normalizarTelefone(campo.value);
+    if (!telefone) { aviso.className = "aviso erro"; aviso.textContent = "Escreva o número com DDD."; return; }
+    aviso.className = "aviso";
+    aviso.textContent = "Abrindo...";
+    const { data, error } = await sb.rpc("abrir_conversa_whatsapp", {
+      p_empresa: empresaAtual.id, p_telefone: telefone, p_nome: div.querySelector("#nc-nome").value.trim() || null,
+    });
+    if (error) {
+      const chave = Object.keys(ERROS).find((k) => error.message.includes(k));
+      aviso.className = "aviso erro";
+      aviso.textContent = chave ? ERROS[chave] : "Não deu pra abrir: " + error.message;
+      return;
+    }
+    fechar();
+    const nova = Array.isArray(data) ? data[0] : data;
+    await carregarTudo();
+    vistaAtual = "conversas";
+    filtroConv.busca = "";
+    filtroConv.estado = "todas";
+    abrirConversa(nova.conversa_id);
+  });
 }
 
 function rolarChat(raiz) {
@@ -1102,6 +1254,22 @@ async function abrirConversa(id) {
 
 function ligarConversas() {
   document.querySelectorAll("[data-abrir-conversa]").forEach((b) => b.addEventListener("click", () => abrirConversa(b.dataset.abrirConversa)));
+  const nova = document.getElementById("btn-nova-conversa");
+  if (nova) nova.addEventListener("click", formularioNovaConversa);
+  document.querySelectorAll("[data-filtro-conv]").forEach((b) => b.addEventListener("click", () => {
+    filtroConv.estado = b.dataset.filtroConv;
+    render();
+  }));
+  const selResp = document.getElementById("filtro-conv-resp");
+  if (selResp) selResp.addEventListener("change", () => { filtroConv.responsavel = selResp.value; render(); });
+  const buscaConv = document.getElementById("busca-conv");
+  if (buscaConv) buscaConv.addEventListener("input", (e) => {
+    filtroConv.busca = e.target.value;
+    const posicao = e.target.selectionStart;
+    render();
+    const novo = document.getElementById("busca-conv");
+    if (novo) { novo.focus(); novo.setSelectionRange(posicao, posicao); }
+  });
   const voltar = document.getElementById("voltar-lista");
   if (voltar) voltar.addEventListener("click", () => { conversaAberta = null; render(); });
   document.querySelectorAll("[data-ver-lead]").forEach((b) => b.addEventListener("click", () => abrirLead(b.dataset.verLead, "conversa")));

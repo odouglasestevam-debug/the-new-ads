@@ -29,7 +29,7 @@ const RECORRENCIAS = { diaria: ["dia", "dias"], semanal: ["semana", "semanas"], 
 const S = {
   user: null, eu: null,
   usuarios: [], status: [], projetos: [], pastas: [], listas: [], tarefas: [],
-  comentarios: [], aberta: null, abaAjustes: "conta",
+  comentarios: [], aberta: null, abaAjustes: "conta", add: null, grupos: [], ultimo: null,
 };
 const expandidos = new Set(lerLocal("tf_expandidos", []));
 
@@ -101,6 +101,8 @@ const ICONES = {
   repetir: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 2l4 4-4 4"/><path d="M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4"/><path d="M21 13v2a3 3 0 0 1-3 3H3"/></svg>',
   sub: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v10a4 4 0 0 0 4 4h9"/><path d="m15 13 4 4-4 4"/></svg>',
   fechar: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  calendario: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2.5"/><path d="M8 3v4M16 3v4M3 10h18"/></svg>',
+  pessoa: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.3-3.4 4-5.2 7-5.2s5.7 1.8 7 5.2"/></svg>',
   alerta: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v6M12 16.5v.5"/></svg>',
 };
 
@@ -199,7 +201,7 @@ function abrirMenu(ancora, itens) {
   };
 }
 function fecharMenu() {
-  document.getElementById("menu-flutuante").classList.remove("ativo");
+  document.getElementById("menu-flutuante").classList.remove("ativo", "painel");
 }
 document.addEventListener("mousedown", (e) => {
   if (!e.target.closest("#menu-flutuante") && !e.target.closest("[data-menu]")) fecharMenu();
@@ -208,6 +210,7 @@ document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (document.getElementById("modal-veu").classList.contains("ativo")) fecharModal(null);
   else if (document.getElementById("menu-flutuante").classList.contains("ativo")) fecharMenu();
+  else if (S.add) cancelarAdicionar();
   else if (S.aberta) fecharTarefa();
 });
 
@@ -482,7 +485,7 @@ function renderArvore() {
     if (expandidos.has("projeto:" + p.id)) desenharConteudo(p.id, null, 1);
   }
   document.getElementById("arvore").innerHTML = html.join("") ||
-    '<div class="arvore-vazia">Nenhum projeto ainda. Use o + acima para criar o primeiro.</div>';
+    '<div class="arvore-vazia">Nenhum espaço ainda. Use o + acima para criar o primeiro.</div>';
 }
 
 function alternar(chave) {
@@ -508,7 +511,7 @@ function fecharMenuLateral() { document.getElementById("app").classList.remove("
 /* ---------------- criar, renomear, mover, excluir estrutura ---------------- */
 async function novoProjeto() {
   const r = await pedirTexto({
-    titulo: "Novo projeto", rotulo: "Nome", botao: "Criar",
+    titulo: "Novo espaço", rotulo: "Nome", botao: "Criar",
     extra: '<div class="campo"><label for="modal-cor">Cor</label><input type="color" id="modal-cor" data-extra="cor" value="#FF6A00" style="width:60px;height:38px;padding:3px;background:var(--grafite);border:1px solid var(--linha);border-radius:8px"></div>',
   });
   if (!r) return;
@@ -559,7 +562,7 @@ async function renomear(tipo, id) {
 async function mudarCor(id) {
   const p = objeto("projeto", id);
   const r = await pedirTexto({
-    titulo: "Nome e cor do projeto", rotulo: "Nome", valor: p.nome,
+    titulo: "Nome e cor do espaço", rotulo: "Nome", valor: p.nome,
     extra: `<div class="campo"><label for="modal-cor">Cor</label><input type="color" id="modal-cor" data-extra="cor" value="${esc(p.cor)}" style="width:60px;height:38px;padding:3px;background:var(--grafite);border:1px solid var(--linha);border-radius:8px"></div>`,
   });
   if (!r) return;
@@ -572,14 +575,14 @@ async function mover(tipo, id) {
   const opcoes = [];
   const proibidas = tipo === "pasta" ? pastasDescendentes(id) : new Set();
   for (const p of S.projetos) {
-    opcoes.push({ v: `projeto:${p.id}`, t: `${p.nome} (raiz do projeto)` });
+    opcoes.push({ v: `projeto:${p.id}`, t: `${p.nome} (raiz do espaço)` });
     for (const pa of S.pastas.filter((x) => x.projeto_id === p.id && !proibidas.has(x.id))) {
       opcoes.push({ v: `pasta:${pa.id}`, t: [p.nome, ...caminhoPasta(pa.id)].join(" › ") });
     }
   }
   const obj = objeto(tipo, id);
   const pai = tipo === "pasta" ? obj.pasta_pai_id : obj.pasta_id;
-  const escolha = await escolher({ titulo: `Mover ${tipo}`, rotulo: "Para onde", opcoes, valor: pai ? `pasta:${pai}` : `projeto:${obj.projeto_id}` });
+  const escolha = await escolher({ titulo: tipo === "pasta" ? "Mover pasta" : "Mover lista", rotulo: "Para onde", opcoes, valor: pai ? `pasta:${pai}` : `projeto:${obj.projeto_id}` });
   if (!escolha) return;
   const [destTipo, destId] = escolha.split(":");
   const projetoId = destTipo === "projeto" ? destId : S.pastas.find((x) => x.id === destId).projeto_id;
@@ -597,7 +600,7 @@ async function excluir(tipo, id) {
   const obj = objeto(tipo, id);
   const ids = listasDoLocal(`${tipo}:${id}`);
   const n = S.tarefas.filter((t) => ids.has(t.lista_id)).length;
-  const oque = { projeto: "o projeto", pasta: "a pasta", lista: "a lista" }[tipo];
+  const oque = { projeto: "o espaço", pasta: "a pasta", lista: "a lista" }[tipo];
   const ok = await confirmar({
     titulo: `Excluir ${oque}?`,
     texto: `<b>${esc(obj.nome)}</b> será excluído${tipo === "projeto" ? "" : "a"} junto com tudo o que tem dentro${n ? `, incluindo <b>${n} ${n === 1 ? "tarefa" : "tarefas"}</b>` : ""}. Não tem como desfazer.`,
@@ -686,11 +689,11 @@ function limparFiltros() {
 function renderVisao(r) {
   const main = document.getElementById("conteudo");
   let f = filtroDaRota(r);
-  let titulo, caminho = "", escopo = null, acoes = "";
+  let titulo, caminho = "", escopo = null, acoes = "", acoesTarefa = false;
 
   if (r.tipo === "central") {
     titulo = "Central";
-    caminho = "Todas as tarefas de todos os projetos";
+    caminho = "Todas as tarefas de todos os espaços";
   } else if (r.tipo === "minhas") {
     titulo = "Minhas tarefas";
     caminho = "Tarefas atribuídas a você";
@@ -710,13 +713,14 @@ function renderVisao(r) {
     escopo = listasDoLocal(`${r.tipo}:${r.id}`);
     if (r.tipo === "lista") caminho = caminhoLista(r.id).slice(0, -1).join(" › ");
     if (r.tipo === "pasta") caminho = [S.projetos.find((p) => p.id === obj.projeto_id)?.nome, ...caminhoPasta(r.id).slice(0, -1)].join(" › ");
-    if (r.tipo === "projeto") caminho = "Projeto";
+    if (r.tipo === "projeto") caminho = "Espaço";
     const projetoId = r.tipo === "projeto" ? r.id : obj.projeto_id;
     if (r.tipo !== "lista") {
       acoes = `<button class="btn btn-fantasma btn-pequeno" onclick="novaPasta('${projetoId}', ${r.tipo === "pasta" ? `'${r.id}'` : "null"})">+ Pasta</button>
         <button class="btn btn-fantasma btn-pequeno" onclick="novaLista('${projetoId}', ${r.tipo === "pasta" ? `'${r.id}'` : "null"})">+ Lista</button>`;
     }
     acoes += `<button class="icone-btn" data-menu onclick="menuDe('${r.tipo}','${r.id}',this)" aria-label="Opções">${ICONES.mais}</button>`;
+    acoesTarefa = true;
   } else {
     irPara("#/central");
     return;
@@ -724,29 +728,20 @@ function renderVisao(r) {
   document.getElementById("barra-titulo").textContent = titulo;
   document.title = `${titulo} | Tarefas`;
 
-  const listasDisponiveis = opcoesListas(escopo);
-  const listaPadrao = lerLocal("tf_ultima_lista", "");
-  const semLista = !listasDisponiveis.length;
+  const semLista = !opcoesListas(escopo).length;
 
   main.innerHTML = `
     <div class="topo">
       <div><div class="caminho-topo">${esc(caminho)}</div><h1>${esc(titulo)}</h1></div>
-      <div class="chips">${acoes}</div>
+      <div class="chips"><button class="btn btn-pequeno" onclick="novaTarefaRapida()">+ Tarefa</button>${acoes}</div>
     </div>
     ${semLista ? vazioSemLista(r) : `
-    <form class="nova" id="form-nova">
-      <input type="text" id="nova-titulo" placeholder="Nova tarefa: escreva e aperte Enter" maxlength="300" autocomplete="off">
-      ${listasDisponiveis.length > 1 ? `<select id="nova-lista" aria-label="Lista">${listasDisponiveis.map((o) => `<option value="${o.v}"${o.v === listaPadrao ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>` : `<input type="hidden" id="nova-lista" value="${listasDisponiveis[0].v}">`}
-      <input type="date" id="nova-entrega" aria-label="Data de entrega" title="Data de entrega">
-      <button class="btn">Criar</button>
-    </form>
     <div class="resumo" id="resumo"></div>
     ${barraFiltros(r, f)}
     <div id="lista-tarefas"></div>`}
   `;
   if (semLista) return;
 
-  document.getElementById("form-nova").addEventListener("submit", (e) => { e.preventDefault(); criarTarefa(r); });
   document.getElementById("busca").addEventListener("input", (e) => {
     f.busca = e.target.value;
     renderResultado(r, f, escopo);
@@ -756,11 +751,11 @@ function renderVisao(r) {
 
 function vazioSemLista(r) {
   if (!S.projetos.length) {
-    return `<div class="vazio"><h3>Comece criando um projeto</h3>Projeto guarda pastas, e pastas guardam listas de tarefas.<br>
-      <button class="btn" onclick="novoProjeto()">Novo projeto</button></div>`;
+    return `<div class="vazio"><h3>Comece criando um espaço</h3>Espaço guarda pastas, pasta guarda subpastas e listas, e lista guarda as tarefas.<br>
+      <button class="btn" onclick="novoProjeto()">Novo espaço</button></div>`;
   }
   if (r.tipo === "central" || r.tipo === "minhas") {
-    return `<div class="vazio"><h3>Nenhuma lista ainda</h3>Toda tarefa mora numa lista. Crie uma lista dentro de um projeto pelo menu ⋯ na barra lateral.</div>`;
+    return `<div class="vazio"><h3>Nenhuma lista ainda</h3>Toda tarefa mora numa lista. Crie uma lista dentro de um espaço pelo menu ⋯ na barra lateral.</div>`;
   }
   const obj = objeto(r.tipo, r.id);
   const projetoId = r.tipo === "projeto" ? r.id : obj.projeto_id;
@@ -768,7 +763,27 @@ function vazioSemLista(r) {
     <button class="btn" onclick="novaLista('${projetoId}', ${r.tipo === "pasta" ? `'${r.id}'` : "null"})">Nova lista</button></div>`;
 }
 
+function contarFiltros(r, f) {
+  return [f.local, f.status.length, f.responsavel && !(r.tipo === "minhas" && f.responsavel === "eu"), f.prioridade, f.de, f.ate].filter(Boolean).length;
+}
+
 function barraFiltros(r, f) {
+  const n = contarFiltros(r, f);
+  return `
+    <div class="filtros">
+      <input type="search" id="busca" placeholder="Buscar tarefa" value="${esc(f.busca)}">
+      <div class="chips" aria-label="Prazo">
+        ${SITUACOES.map((sit) => `<button class="chip ${sit.id}${f.prazo.includes(sit.id) ? " ligado" : ""}" onclick="mudarFiltro('prazo','${sit.id}')"><span class="bolinha" style="background:${sit.cor}"></span>${sit.nome}</button>`).join("")}
+      </div>
+      <button class="chip${n ? " ligado" : ""}" id="btn-mais-filtros" data-menu onclick="abrirMaisFiltros(this)">Filtros${n ? ` · ${n}` : ""}</button>
+      ${n || f.busca || f.prazo.length ? '<button class="limpar" onclick="limparFiltros()">Limpar</button>' : ""}
+    </div>`;
+}
+
+// Painel com os filtros menos usados, pra barra principal ficar limpa.
+function abrirMaisFiltros(ancora) {
+  const r = rotaAtual();
+  const f = filtroDaRota(r);
   const global = r.tipo === "central" || r.tipo === "minhas";
   const locais = [];
   if (global) {
@@ -778,38 +793,43 @@ function barraFiltros(r, f) {
       for (const l of S.listas.filter((x) => x.projeto_id === p.id)) locais.push({ v: `lista:${l.id}`, t: caminhoLista(l.id).join(" › ") });
     }
   }
-  const sel = (campo, opcoes, rotulo) =>
-    `<select aria-label="${rotulo}" onchange="mudarFiltro('${campo}', this.value)">${opcoes.map((o) => `<option value="${esc(o.v)}"${o.v === f[campo] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
-  const temFiltro = f.busca || f.local || f.status.length || (f.responsavel && !(r.tipo === "minhas" && f.responsavel === "eu")) || f.prioridade || f.prazo.length || f.de || f.ate;
+  const sel = (campo, opcoes, rotulo) => `<label class="rotulo">${rotulo}</label>
+    <select onchange="mudarFiltroPainel('${campo}', this.value)">${opcoes.map((o) => `<option value="${esc(o.v)}"${o.v === f[campo] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
+  abrirPainel(ancora, `
+    ${global ? sel("local", [{ v: "", t: "Todos os espaços" }, ...locais], "Espaço, pasta ou lista") : ""}
+    ${sel("responsavel", [{ v: "", t: "Qualquer responsável" }, { v: "eu", t: "Eu" }, ...S.usuarios.filter((u) => u.ativo && u.user_id !== S.user.id).map((u) => ({ v: u.user_id, t: u.nome })), { v: "ninguem", t: "Sem responsável" }], "Responsável")}
+    ${sel("prioridade", [{ v: "", t: "Qualquer prioridade" }, ...PRIORIDADES.map((x) => ({ v: x.id, t: x.nome }))], "Prioridade")}
+    ${sel("agrupar", [{ v: "situacao", t: "Prazo" }, { v: "status", t: "Status" }, { v: "projeto", t: "Lista" }, { v: "responsavel", t: "Responsável" }, { v: "", t: "Não agrupar" }], "Agrupar por")}
+    ${f.prazo.includes("a_vencer") ? sel("dias", [{ v: "7", t: "Próximos 7 dias" }, { v: "15", t: "Próximos 15 dias" }, { v: "30", t: "Próximos 30 dias" }, { v: "", t: "Qualquer data" }], "A vencer em") : ""}
+    <label class="rotulo">Status</label>
+    <div class="chips">${S.status.map((st) => `<button class="chip${f.status.includes(st.id) ? " ligado" : ""}" onclick="mudarFiltroPainel('status','${st.id}')"><span class="bolinha" style="background:${st.cor}"></span>${esc(st.nome)}</button>`).join("")}</div>
+    <label class="rotulo">Entrega entre</label>
+    <div class="chips">
+      <input type="date" value="${f.de}" onchange="mudarFiltroPainel('de', this.value)" aria-label="Entrega a partir de">
+      <span style="color:var(--nevoa);font-size:13px">até</span>
+      <input type="date" value="${f.ate}" onchange="mudarFiltroPainel('ate', this.value)" aria-label="Entrega até">
+    </div>`);
+}
 
-  return `
-    <div class="filtros">
-      <input type="search" id="busca" placeholder="Buscar tarefa" value="${esc(f.busca)}">
-      ${global ? sel("local", [{ v: "", t: "Todos os projetos" }, ...locais], "Projeto, pasta ou lista") : ""}
-      ${sel("responsavel", [{ v: "", t: "Qualquer responsável" }, { v: "eu", t: "Eu" }, ...S.usuarios.filter((u) => u.ativo && u.user_id !== S.user.id).map((u) => ({ v: u.user_id, t: u.nome })), { v: "ninguem", t: "Sem responsável" }], "Responsável")}
-      ${sel("prioridade", [{ v: "", t: "Qualquer prioridade" }, ...PRIORIDADES.map((p) => ({ v: p.id, t: p.nome }))], "Prioridade")}
-      ${sel("agrupar", [{ v: "situacao", t: "Agrupar por prazo" }, { v: "status", t: "Agrupar por status" }, { v: "projeto", t: "Agrupar por lista" }, { v: "responsavel", t: "Agrupar por responsável" }, { v: "", t: "Sem agrupar" }], "Agrupar")}
-    </div>
-    <div class="linha-filtros-2">
-      <div class="chips" aria-label="Prazo">
-        ${SITUACOES.map((s) => `<button class="chip ${s.id}${f.prazo.includes(s.id) ? " ligado" : ""}" onclick="mudarFiltro('prazo','${s.id}')"><span class="bolinha" style="background:${s.cor}"></span>${s.nome}</button>`).join("")}
-        ${f.prazo.includes("a_vencer") ? sel("dias", [{ v: "7", t: "próximos 7 dias" }, { v: "15", t: "próximos 15 dias" }, { v: "30", t: "próximos 30 dias" }, { v: "", t: "qualquer data" }], "A vencer em") : ""}
-      </div>
-      <span class="sep"></span>
-      <div class="chips" aria-label="Status">
-        ${S.status.map((s) => `<button class="chip${f.status.includes(s.id) ? " ligado" : ""}" onclick="mudarFiltro('status','${s.id}')"><span class="bolinha" style="background:${s.cor}"></span>${esc(s.nome)}</button>`).join("")}
-      </div>
-      <span class="sep"></span>
-      <div class="chips" aria-label="Período de entrega">
-        <input type="date" value="${f.de}" onchange="mudarFiltro('de', this.value)" aria-label="Entrega a partir de" title="Entrega a partir de">
-        <span style="color:var(--nevoa);font-size:13px">até</span>
-        <input type="date" value="${f.ate}" onchange="mudarFiltro('ate', this.value)" aria-label="Entrega até" title="Entrega até">
-      </div>
-      ${temFiltro ? '<button class="limpar" onclick="limparFiltros()">Limpar filtros</button>' : ""}
-    </div>`;
+function mudarFiltroPainel(campo, valor) {
+  mudarFiltro(campo, valor);
+  const botao = document.getElementById("btn-mais-filtros");
+  if (botao) abrirMaisFiltros(botao);
+}
+
+function abrirPainel(ancora, html) {
+  const menu = document.getElementById("menu-flutuante");
+  menu.innerHTML = html;
+  menu.onclick = null;
+  menu.classList.add("ativo", "painel");
+  const r = ancora.getBoundingClientRect();
+  const largura = menu.offsetWidth;
+  menu.style.left = Math.max(8, Math.min(r.left, innerWidth - largura - 8)) + "px";
+  menu.style.top = Math.min(r.bottom + 6, innerHeight - menu.offsetHeight - 8) + "px";
 }
 
 function renderResultado(r, f, escopo) {
+  S.ultimo = { r, f, escopo };
   // Cartões de prazo: contam tudo o que passa pelos outros filtros, sem o filtro de prazo.
   const base = filtrar(f, escopo, { ignorarPrazo: true });
   const conta = (p) => base.filter((t) => casaPrazo(p, t, f)).length;
@@ -821,20 +841,27 @@ function renderResultado(r, f, escopo) {
 
   const tarefas = filtrar(f, escopo).sort(ordenar);
   const alvo = document.getElementById("lista-tarefas");
-  if (!tarefas.length) {
-    alvo.innerHTML = `<div class="vazio"><h3>Nada por aqui</h3>${S.tarefas.some((t) => !escopo || escopo.has(t.lista_id)) ? "Nenhuma tarefa com esses filtros." : "Crie a primeira tarefa no campo acima."}</div>`;
-    return;
-  }
   const mostrarCaminho = r.tipo !== "lista";
-  const grupos = agrupar(tarefas, f.agrupar);
+  const grupos = tarefas.length ? agrupar(tarefas, f.agrupar) : [{ chave: "tudo", nome: "", itens: [] }];
+  S.grupos = grupos;
   alvo.innerHTML = grupos.map((g) => `
     <div class="grupo">
       ${g.nome ? `<div class="grupo-cabeca ${g.classe || ""}"><span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>` : ""}
       <div class="tabela" role="list">
-        <div class="cab-colunas"><span></span><span>Tarefa</span><span>Status</span><span>Responsável</span><span>Entrega</span><span class="col-prio">Prioridade</span></div>
+        ${g.itens.length ? '<div class="cab-colunas"><span></span><span>Tarefa</span><span>Status</span><span>Responsável</span><span>Entrega</span><span class="col-prio">Prioridade</span></div>' : ""}
         ${g.itens.map((t) => linhaTarefa(t, mostrarCaminho)).join("")}
+        ${linhaAdicionar(g, escopo)}
       </div>
-    </div>`).join("");
+    </div>`).join("") + (tarefas.length ? "" : `<p class="dica-vazia">${S.tarefas.some((t) => !escopo || escopo.has(t.lista_id)) ? "Nenhuma tarefa com esses filtros." : "Nenhuma tarefa ainda."}</p>`);
+  const campo = document.getElementById("add-titulo");
+  if (campo) {
+    campo.focus();
+    campo.setSelectionRange(campo.value.length, campo.value.length);
+  }
+}
+
+function renderResultadoAtual() {
+  if (S.ultimo) renderResultado(S.ultimo.r, S.ultimo.f, S.ultimo.escopo);
 }
 
 function ordenar(a, b) {
@@ -846,25 +873,26 @@ function ordenar(a, b) {
 }
 
 function agrupar(tarefas, modo) {
-  if (!modo) return [{ nome: "", itens: tarefas }];
+  if (!modo) return [{ chave: "tudo", nome: "", itens: tarefas }];
   const mapa = new Map();
   const add = (chave, meta, t) => {
-    if (!mapa.has(chave)) mapa.set(chave, { ...meta, itens: [] });
+    if (!mapa.has(chave)) mapa.set(chave, { chave, ...meta, itens: [] });
     mapa.get(chave).itens.push(t);
   };
   for (const t of tarefas) {
     if (modo === "situacao") {
-      const s = SITUACOES.find((x) => x.id === t.situacao);
-      add(s.id, { nome: s.nome, cor: s.cor, classe: s.id, ordem: SITUACOES.indexOf(s) }, t);
+      const sit = SITUACOES.find((x) => x.id === t.situacao);
+      const quando = { vence_hoje: hojeSP(), a_vencer: emDias(1) }[sit.id] || null;
+      add(sit.id, { nome: sit.nome, cor: sit.cor, classe: sit.id, ordem: SITUACOES.indexOf(sit), preset: { data_entrega: quando } }, t);
     } else if (modo === "status") {
-      add(t.status_id, { nome: t.status_nome, cor: t.status_cor, ordem: t.status_ordem }, t);
+      add(t.status_id, { nome: t.status_nome, cor: t.status_cor, ordem: t.status_ordem, preset: { status_id: t.status_id } }, t);
     } else if (modo === "projeto") {
-      add(t.lista_id, { nome: caminhoLista(t.lista_id).join(" › "), cor: t.projeto_cor }, t);
+      add(t.lista_id, { nome: caminhoLista(t.lista_id).join(" › "), cor: t.projeto_cor, preset: { lista_id: t.lista_id } }, t);
     } else if (modo === "responsavel") {
-      if (!t.responsaveis.length) add("~", { nome: "Sem responsável", cor: "#8A8A8A", ordem: "~" }, t);
+      if (!t.responsaveis.length) add("~", { nome: "Sem responsável", cor: "#8A8A8A", ordem: "~", preset: {} }, t);
       for (const id of t.responsaveis) {
         const u = usuario(id);
-        add(id, { nome: u?.nome || "Usuário removido", cor: corDoNome(u?.nome || id), ordem: u?.nome || "~~" }, t);
+        add(id, { nome: u?.nome || "Usuário removido", cor: corDoNome(u?.nome || id), ordem: u?.nome || "~~", preset: { responsaveis: [id] } }, t);
       }
     }
   }
@@ -914,28 +942,139 @@ function linhaTarefa(t, mostrarCaminho) {
 }
 
 /* ---------------- ações de tarefa ---------------- */
-async function criarTarefa(r) {
-  const input = document.getElementById("nova-titulo");
-  const titulo = input.value.trim();
-  if (!titulo) return input.focus();
-  const listaId = document.getElementById("nova-lista").value;
-  const entrega = document.getElementById("nova-entrega").value || null;
-  const status = primeiroStatus("aberto");
+function emDias(n) {
+  const [a, m, d] = hojeSP().split("-").map(Number);
+  const x = new Date(Date.UTC(a, m - 1, d + n));
+  return x.toISOString().slice(0, 10);
+}
+
+/* Lançar tarefa em linha, como no ClickUp: a linha fica sempre no fim do grupo,
+   o clique abre o campo com o cursor piscando e os ícones de data, responsável e prioridade. */
+function listaPadraoAdd(escopo) {
+  const opcoes = opcoesListas(escopo);
+  const ultima = lerLocal("tf_ultima_lista", "");
+  return opcoes.find((o) => o.v === ultima)?.v || opcoes[0]?.v || null;
+}
+
+function linhaAdicionar(g, escopo) {
+  if (!opcoesListas(escopo).length) return "";
+  if (S.add?.grupo === g.chave) return formAdicionar(escopo);
+  return `<button class="linha-add" onclick="abrirAdicionar('${g.chave}')"><span class="sinal">+</span>Adicionar tarefa</button>`;
+}
+
+function abrirAdicionar(chave) {
+  const g = (S.grupos || []).find((x) => x.chave === chave);
+  const escopo = S.ultimo?.escopo;
+  S.add = {
+    grupo: chave, titulo: "", data_entrega: null, responsaveis: [], prioridade: "normal",
+    status_id: null, lista_id: null, mostrarData: false, ...(g?.preset || {}),
+  };
+  if (!S.add.lista_id) S.add.lista_id = listaPadraoAdd(escopo);
+  if (!S.add.lista_id) return toast("Crie uma lista antes de lançar tarefa.", true);
+  if (S.add.data_entrega) S.add.mostrarData = true;
+  renderResultadoAtual();
+}
+
+function cancelarAdicionar() {
+  S.add = null;
+  renderResultadoAtual();
+}
+
+function formAdicionar(escopo) {
+  const a = S.add;
+  const varias = opcoesListas(escopo).length > 1;
+  const resp = a.responsaveis.map((id) => usuario(id)).filter(Boolean);
+  const prio = a.prioridade !== "normal" ? `<span class="prio ${a.prioridade}">${ICONES.bandeira}${NOME_PRIO[a.prioridade]}</span>` : ICONES.bandeira;
+  return `<form class="linha-add aberta" id="form-add" onsubmit="salvarAdicionar(event)">
+    <input type="text" id="add-titulo" placeholder="Nome da tarefa" maxlength="300" autocomplete="off"
+      value="${esc(a.titulo)}" oninput="S.add.titulo = this.value">
+    <div class="add-acoes">
+      ${varias ? `<button type="button" class="add-btn" data-menu onclick="menuAddLista(this)" title="Lista">${ICONES.lista}<span>${esc((S.listas.find((l) => l.id === a.lista_id) || {}).nome || "")}</span></button>` : ""}
+      <button type="button" class="add-btn" onclick="abrirDataAdd()" title="Data de entrega" aria-label="Data de entrega">
+        ${ICONES.calendario}${a.data_entrega ? `<span>${dataBR(a.data_entrega, true)}</span>` : ""}
+      </button>
+      <input type="date" id="add-data" class="add-data escondida" value="${a.data_entrega || ""}" tabindex="-1"
+        onchange="S.add.data_entrega = this.value || null; renderResultadoAtual()" aria-label="Data de entrega">
+      <button type="button" class="add-btn" data-menu onclick="menuAddResp(this)" title="Responsável" aria-label="Responsável">
+        ${resp.length ? resp.map((u) => `<span class="avatar" style="background:${corDoNome(u.nome)}">${esc(iniciais(u.nome))}</span>`).join("") : ICONES.pessoa}
+      </button>
+      <button type="button" class="add-btn" data-menu onclick="menuAddPrio(this)" title="Prioridade" aria-label="Prioridade">${prio}</button>
+      <button type="button" class="add-btn" onclick="cancelarAdicionar()" title="Cancelar" aria-label="Cancelar">${ICONES.fechar}</button>
+      <button class="btn btn-pequeno">Salvar</button>
+    </div>
+  </form>`;
+}
+
+// O campo de data nativo é largo demais: fica escondido e o botão abre o calendário dele.
+// Navegador sem showPicker mostra o campo do jeito tradicional.
+function abrirDataAdd() {
+  const campo = document.getElementById("add-data");
+  if (!campo) return;
+  try {
+    campo.showPicker();
+  } catch {
+    campo.classList.remove("escondida");
+    campo.focus();
+  }
+}
+
+function menuAddLista(ancora) {
+  abrirMenu(ancora, opcoesListas(S.ultimo?.escopo).map((o) => ({
+    t: o.t, acao: () => { S.add.lista_id = o.v; renderResultadoAtual(); },
+  })));
+}
+function menuAddResp(ancora) {
+  abrirMenu(ancora, S.usuarios.filter((u) => u.ativo).map((u) => ({
+    t: (S.add.responsaveis.includes(u.user_id) ? "✓ " : "") + u.nome,
+    acao: () => {
+      S.add.responsaveis = S.add.responsaveis.includes(u.user_id)
+        ? S.add.responsaveis.filter((x) => x !== u.user_id) : [...S.add.responsaveis, u.user_id];
+      renderResultadoAtual();
+    },
+  })));
+}
+function menuAddPrio(ancora) {
+  abrirMenu(ancora, PRIORIDADES.map((x) => ({
+    t: (S.add.prioridade === x.id ? "✓ " : "") + x.nome,
+    acao: () => { S.add.prioridade = x.id; renderResultadoAtual(); },
+  })));
+}
+
+async function salvarAdicionar(e) {
+  e.preventDefault();
+  const a = S.add;
+  const titulo = (a.titulo || "").trim();
+  if (!titulo) return document.getElementById("add-titulo")?.focus();
+  const status = a.status_id || primeiroStatus("aberto")?.id;
   if (!status) return toast("Crie pelo menos um status aberto em Ajustes.", true);
-  const { data, error } = await db().from("tarefas").insert({ lista_id: listaId, titulo, data_entrega: entrega, status_id: status.id }).select().single();
+  const { data, error } = await db().from("tarefas").insert({
+    lista_id: a.lista_id, titulo, status_id: status, data_entrega: a.data_entrega, prioridade: a.prioridade,
+  }).select().single();
   if (error) return toast(erroBanco(error, "Não deu pra criar"), true);
-  if (r.tipo === "minhas") await db().from("tarefa_responsaveis").insert({ tarefa_id: data.id, user_id: S.user.id });
-  gravarLocal("tf_ultima_lista", listaId);
-  input.value = "";
-  document.getElementById("nova-entrega").value = "";
+  if (a.responsaveis.length) {
+    await db().from("tarefa_responsaveis").insert(a.responsaveis.map((user_id) => ({ tarefa_id: data.id, user_id })));
+  }
+  gravarLocal("tf_ultima_lista", a.lista_id);
+  a.titulo = "";
   await carregar();
-  const f = filtroDaRota(r);
   renderArvore();
   renderContadores();
-  renderResultado(r, f, TABELA[r.tipo] ? listasDoLocal(`${r.tipo}:${r.id}`) : null);
-  const visivel = filtrar(f, TABELA[r.tipo] ? listasDoLocal(`${r.tipo}:${r.id}`) : null).some((t) => t.id === data.id);
-  toast(visivel ? "Tarefa criada." : "Tarefa criada. Ela não aparece aqui por causa dos filtros.");
-  document.getElementById("nova-titulo").focus();
+  renderResultadoAtual();
+  // A tarefa nova pode criar (ou esvaziar) grupos: a linha de lançamento segue no grupo onde ela caiu.
+  if (!(S.grupos || []).some((g) => g.chave === a.grupo)) {
+    const destino = (S.grupos || []).find((g) => g.itens.some((t) => t.id === data.id)) || (S.grupos || [])[0];
+    if (destino) {
+      a.grupo = destino.chave;
+      renderResultadoAtual();
+    }
+  }
+  const visivel = S.ultimo && filtrar(S.ultimo.f, S.ultimo.escopo).some((t) => t.id === data.id);
+  if (!visivel) toast("Tarefa criada. Ela não aparece aqui por causa dos filtros.");
+}
+
+function novaTarefaRapida() {
+  const primeiro = (S.grupos || [])[0];
+  if (primeiro) abrirAdicionar(primeiro.chave);
 }
 
 async function salvarTarefa(id, patch, { silencioso } = {}) {
@@ -1233,7 +1372,7 @@ function abaUsuarios() {
     </div>` : ""}
     <div class="painel">
       <h2>Usuários</h2>
-      <p class="desc">Todos veem todos os projetos e tarefas. ${admin ? "Desativar tira o acesso sem apagar o histórico." : "Só admin altera usuários."}</p>
+      <p class="desc">Todos veem todos os espaços e tarefas. ${admin ? "Desativar tira o acesso sem apagar o histórico." : "Só admin altera usuários."}</p>
       <div class="rolagem"><table class="tab-simples">
         <thead><tr><th>Nome</th><th>E-mail</th><th>Admin</th><th>Ativo</th></tr></thead>
         <tbody>${S.usuarios.map((u) => `<tr>
@@ -1437,11 +1576,7 @@ document.addEventListener("click", (e) => {
   if (acao === "abrir-menu") abrirMenuLateral();
   if (acao === "fechar-menu") fecharMenuLateral();
   if (acao === "fechar-tarefa") fecharTarefa();
-  if (acao === "nova-tarefa-rapida") {
-    const campo = document.getElementById("nova-titulo");
-    if (campo) { campo.scrollIntoView({ block: "center" }); campo.focus(); }
-    else irPara("#/central");
-  }
+  if (acao === "nova-tarefa-rapida") novaTarefaRapida();
 });
 
 iniciar();
