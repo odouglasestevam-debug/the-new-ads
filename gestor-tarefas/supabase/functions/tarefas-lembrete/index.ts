@@ -4,6 +4,7 @@
 //  - usuário logado com {"acao":"teste"}: manda uma notificação de teste só para os aparelhos dele
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
+import { endpointPermitido } from "./push-seguro.ts";
 
 const ORIGENS = ["https://tarefas.thenewads.com.br", "http://localhost:8790"];
 const APP = "https://tarefas.thenewads.com.br/";
@@ -48,11 +49,12 @@ Deno.serve(async (req) => {
     let enviados = 0;
     const erros: string[] = [];
     for (const i of inscricoes) {
+      if (!endpointPermitido(i.endpoint)) { erros.push("Serviço de notificação não permitido."); continue; }
       try {
         await webpush.sendNotification(
           { endpoint: i.endpoint, keys: { p256dh: i.p256dh, auth: i.auth } },
           JSON.stringify(carga),
-          { urgency: "high", TTL: 86400 },
+          { urgency: "high", TTL: 86400, timeout: 10000 },
         );
         enviados++;
       } catch (e) {
@@ -91,6 +93,10 @@ Deno.serve(async (req) => {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data: quem, error: erroQuem } = await admin.auth.getUser(token);
   if (erroQuem || !quem?.user) return resposta(req, 401, { erro: "Sessão inválida." });
+  const { data: nivel, error: erroNivel } = await admin.auth.mfa.getAuthenticatorAssuranceLevel(token);
+  if (erroNivel || !nivel || (quem.user.factors?.some(f => f.status === "verified") && nivel.currentLevel !== "aal2")) {
+    return resposta(req, 403, { erro: "Conclua a verificação em duas etapas." });
+  }
   const { data: inscricoes } = await admin.rpc("tarefas_inscricoes_do_usuario", { p_user: quem.user.id });
   if (!inscricoes?.length) return resposta(req, 400, { erro: "Nenhum aparelho com notificação ativada." });
   const envio = await enviar(inscricoes, {

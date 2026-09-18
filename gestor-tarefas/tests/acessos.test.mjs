@@ -1,0 +1,118 @@
+import {PGlite} from '@electric-sql/pglite';
+import {readFile} from 'node:fs/promises';
+import {randomUUID} from 'node:crypto';
+import assert from 'node:assert/strict';
+import test from 'node:test';
+const ler = file => readFile(new URL('../supabase/migrations/'+file,import.meta.url),'utf8');
+
+test('acesso por membro: RLS, herança, exclusões, RPCs, revogação e lembretes', async () => {
+  const db=new PGlite();
+  const admin=randomUUID(), membro=randomUUID(), estranho=randomUUID(), legado=randomUUID();
+  let checks=0;
+  const igual=(a,b,msg)=>{assert.deepEqual(a,b,msg);checks++;};
+  const como=async (id,sql,params=[])=>db.transaction(async tx=>{
+    await tx.query("select set_config('request.jwt.claims',$1,true)",[JSON.stringify({sub:id,role:'authenticated',aal:'aal2'})]);
+    await tx.exec('set local role authenticated');
+    return tx.query(sql,params);
+  });
+  const negado=async fn=>{await assert.rejects(fn);checks++;};
+  const ids=async(id,tabela)=>(await como(id,`select id from public.${tabela} order by id`)).rows.map(r=>r.id).sort();
+  const config=async (id, total,espacos=[],pastas=[],listas=[],extra={})=>como(admin,
+    'select public.tarefas_configurar_membro($1,$2,$3,$4,$5,$6,$7,$8)',
+    [id,extra.nome||'Membro',extra.admin||false,extra.ativo??true,total,espacos,pastas,listas]);
+  try {
+    await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;
+      create schema auth;create schema privado;create schema vault;
+      create table auth.users(id uuid primary key,email text,aud text,role text);
+      create table auth.mfa_factors(user_id uuid,status text);
+      create table vault.decrypted_secrets(name text,decrypted_secret text);
+      create function auth.jwt() returns jsonb language sql stable as $$select nullif(current_setting('request.jwt.claims',true),'')::jsonb$$;
+      create function auth.uid() returns uuid language sql stable as $$select (auth.jwt()->>'sub')::uuid$$;
+      grant usage on schema auth,privado to authenticated,service_role;`);
+    await db.query('insert into auth.users(id,email) values($1,$2),($3,$4),($5,$6),($7,$8)',[admin,'odouglasestevam@gmail.com',membro,'membro@test.local',estranho,'crm@test.local',legado,'legado@test.local']);
+    await db.exec(await ler('0001_estrutura.sql'));
+    const m2=await ler('0002_servidor_e_lembrete.sql');
+    await db.exec(m2.slice(0,m2.indexOf('create extension')));
+    await db.exec(await ler('0003_views_publicas.sql'));
+    await db.exec(await ler('0004_integridade_e_seguranca.sql'));
+    await db.query('insert into tarefas.usuarios(user_id,nome,email) values($1,$2,$3)',[legado,'Legado','legado@test.local']);
+    await db.exec(await ler('0005_acessos_por_membro.sql'));
+    await db.query('insert into tarefas.usuarios(user_id,nome,email) values($1,$2,$3)',[membro,'Membro','membro@test.local']);
+    igual((await db.query('select acesso_total from tarefas.usuarios where user_id=$1',[membro])).rows[0].acesso_total,false,'novo sem acesso implícito');
+    igual((await db.query('select acesso_total from tarefas.usuarios where user_id=$1',[legado])).rows[0].acesso_total,true,'legado preservado');
+    const projetoA=randomUUID(),projetoB=randomUUID(),pasta=randomUUID(),subpasta=randomUUID();
+    await db.query("insert into tarefas.projetos(id,nome) values($1,'A'),($2,'B')",[projetoA,projetoB]);
+    await db.query("insert into tarefas.pastas(id,projeto_id,nome) values($1,$2,'Privada')",[pasta,projetoA]);
+    await db.query("insert into tarefas.pastas(id,projeto_id,pasta_pai_id,nome) values($1,$2,$3,'Subpasta')",[subpasta,projetoA,pasta]);
+    const listas=[randomUUID(),randomUUID(),randomUUID(),randomUUID(),randomUUID()];
+    for(const [i,l] of listas.entries())await db.query('insert into tarefas.listas(id,projeto_id,pasta_id,nome) values($1,$2,$3,$4)',[l,i===4?projetoB:projetoA,i===2?pasta:i===3?subpasta:null,'Lista '+i]);
+    const st=(await db.query("select id from tarefas.status where tipo='aberto' order by ordem limit 1")).rows[0].id;
+    const tarefas=listas.map(()=>randomUUID());
+    for(const [i,t] of tarefas.entries()){
+      await db.query("insert into tarefas.tarefas(id,lista_id,titulo,status_id,data_entrega) values($1,$2,$3,$4,privado.tarefas_hoje())",[t,listas[i],'Tarefa '+i,st]);
+      await db.query("insert into tarefas.comentarios(tarefa_id,autor_id,texto) values($1,$2,'Comentário')",[t,admin]);
+      await db.query('insert into tarefas.tarefa_responsaveis(tarefa_id,user_id) values($1,$2)',[t,membro]);
+    }
+    igual(await ids(membro,'tarefas_projetos'),[],'restrito sem espaços');
+    igual(await ids(membro,'tarefas_visao'),[],'restrito sem tarefas');
+    igual((await ids(legado,'tarefas_visao')).length,5,'legado com todas');
+    await config(membro,false,[projetoA],[pasta],[listas[1]]);
+    igual(await ids(membro,'tarefas_projetos'),[projetoA],'espaço escolhido');
+    igual(await ids(membro,'tarefas_pastas'),[],'pasta bloqueada oculta descendentes');
+    igual(await ids(membro,'tarefas_listas'),[listas[0]],'lista visível');
+    igual(await ids(membro,'tarefas_tarefas'),[tarefas[0]],'tabela base por view');
+    igual(await ids(membro,'tarefas_visao'),[tarefas[0]],'visão de tarefas respeita RLS');
+    igual((await como(membro,'select * from public.tarefas_comentarios')).rows.length,1,'comentários protegidos');
+    igual((await como(membro,'select * from public.tarefas_responsaveis')).rows.length,1,'responsáveis protegidos');
+    igual((await como(membro,'update public.tarefas_tarefas set titulo=$1 where id=$2 returning id',['Intrusão',tarefas[1]])).rows.length,0,'não altera tarefa oculta');
+    igual((await como(membro,'delete from public.tarefas_comentarios where tarefa_id=$1 returning id',[tarefas[1]])).rows.length,0,'não apaga comentário oculto');
+    await negado(()=>como(membro,'insert into public.tarefas_tarefas(lista_id,titulo,status_id) values($1,$2,$3)',[listas[1],'Intrusão',st]));
+    await negado(()=>como(membro,'insert into public.tarefas_comentarios(tarefa_id,texto) values($1,$2)',[tarefas[1],'Intrusão']));
+    await negado(()=>como(membro,'update public.tarefas_tarefas set lista_id=$1 where id=$2',[listas[1],tarefas[0]]));
+    igual((await como(membro,'update public.tarefas_tarefas set titulo=$1 where id=$2 returning id',['Pode editar',tarefas[0]])).rows.length,1,'membro edita o permitido');
+    igual((await como(membro,'delete from public.tarefas_projetos where id=$1 returning id',[projetoA])).rows.length,0,'cascata não apaga dados bloqueados');
+    igual((await como(membro,'update public.tarefas_pastas set pasta_pai_id=null where id=$1 returning id',[subpasta])).rows.length,0,'não move para escapar do bloqueio');
+    await negado(()=>como(membro,'select public.tarefas_acessos_membro($1)',[admin]));
+    await negado(()=>como(membro,'select public.tarefas_configurar_membro($1,$2,true,true,true,$3,$3,$3)',[membro,'Intrusão',[]]));
+    await negado(()=>como(membro,'update public.tarefas_usuarios set acesso_total=true where user_id=$1',[membro]));
+    await negado(()=>como(membro,'select privado.tarefas_pode($1,$2,$3)',[admin,'lista',listas[0]]));
+    await negado(()=>como(membro,'select public.tarefas_cadastrar_membro($1,$2,$3,true,true,$4,$4,$4)',[estranho,'Intrusão','crm@test.local',[]]));
+    const antes=(await como(admin,'select public.tarefas_acessos_membro($1) a',[membro])).rows[0].a;
+    await negado(()=>config(membro,true,[],[],[randomUUID()]));
+    igual((await como(admin,'select public.tarefas_acessos_membro($1) a',[membro])).rows[0].a,antes,'FK inválida faz rollback completo');
+    igual((await ids(admin,'tarefas_visao')).length,5,'admin vê tudo');
+    igual(await ids(estranho,'tarefas_visao'),[],'CRM sem acesso');
+    const novaLista=randomUUID();
+    await db.query("insert into tarefas.listas(id,projeto_id,pasta_id,nome) values($1,$2,$3,'Nova lista bloqueada')",[novaLista,projetoA,subpasta]);
+    igual(await ids(membro,'tarefas_listas'),[listas[0]],'nova lista herda bloqueio da pasta');
+    await db.query('delete from tarefas.listas where id=$1',[novaLista]);
+    await como(admin,'insert into public.tarefas_pastas(projeto_id,nome) values($1,$2)',[projetoA,'Nova pasta permitida']);
+    igual((await ids(membro,'tarefas_pastas')).length,1,'nova pasta herda espaço permitido');
+    await db.query("delete from tarefas.pastas where nome='Nova pasta permitida'");
+    await db.query("insert into tarefas.push_inscricoes(user_id,endpoint,p256dh,auth) values($1,'https://fcm.googleapis.com/push/test',repeat('a',87),repeat('b',22))",[membro]);
+    igual((await db.query('select hoje from public.tarefas_lembretes_pendentes() where user_id=$1',[membro])).rows[0].hoje,1,'lembrete só conta tarefa permitida');
+    await config(membro,false,[]);
+    igual(await ids(membro,'tarefas_visao'),[],'revogação imediata');
+    igual((await db.query('select * from public.tarefas_lembretes_pendentes() where user_id=$1',[membro])).rows.length,0,'revogação elimina lembrete');
+    await config(membro,true,[],[pasta],[listas[1]]);
+    igual(await ids(membro,'tarefas_listas'),[listas[0],listas[4]].sort(),'todos os espaços preserva exceções');
+    await config(membro,false,[projetoA],[],[listas[3]]);
+    igual(await ids(membro,'tarefas_pastas'),[pasta,subpasta].sort(),'bloqueio somente na lista preserva pastas');
+    igual(await ids(membro,'tarefas_listas'),listas.slice(0,3).sort(),'lista isolada bloqueada');
+    await config(membro,true,[],[],[],{ativo:false});
+    igual(await ids(membro,'tarefas_visao'),[],'inativo não vê nada');
+    const cadastro=async espacos=>db.transaction(async tx=>{
+      await tx.exec('set local role service_role');
+      return tx.query('select public.tarefas_cadastrar_membro($1,$2,$3,false,false,$4,$5,$5)',[estranho,'Novo membro','crm@test.local',espacos,[]]);
+    });
+    await negado(()=>cadastro([randomUUID()]));
+    igual((await db.query('select * from tarefas.usuarios where user_id=$1',[estranho])).rows.length,0,'cadastro inválido não deixa membro parcialmente liberado');
+    await cadastro([projetoB]);
+    igual(await ids(estranho,'tarefas_listas'),[listas[4]],'cadastro atômico libera somente espaço escolhido');
+    await negado(()=>cadastro([projetoA]));
+    igual(await ids(estranho,'tarefas_listas'),[listas[4]],'recadastro não sobrescreve permissões');
+    await negado(()=>config(admin,true,[],[],[],{admin:false}));
+    igual((await db.query('select admin from tarefas.usuarios where user_id=$1',[admin])).rows[0].admin,true,'último admin preservado');
+    console.log(`${checks} verificações de permissões por membro passaram.`);
+  } finally {await db.close();}
+});

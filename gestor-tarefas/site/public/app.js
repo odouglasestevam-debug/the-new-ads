@@ -34,7 +34,7 @@ const S = {
 const expandidos = new Set(lerLocal("tf_expandidos", []));
 
 function novoFiltro(extra = {}) {
-  return { busca: "", local: "", status: [], responsavel: "", prioridade: "", prazo: [], dias: "7", de: "", ate: "", agrupar: "situacao", ...extra };
+  return { busca: "", local: "", status: [], responsavel: "", prioridade: "", prazo: [], dias: "7", de: "", ate: "", agrupar: "situacao", visao: "lista", ordenar: "prazo", concluidas: false, ...extra };
 }
 const filtros = {
   central: novoFiltro({ prazo: ["atrasada", "vence_hoje"] }),
@@ -223,7 +223,7 @@ function aviso(id, msg, tipo) {
 
 async function precisaSegundaEtapa() {
   const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
-  if (error || !data) return false;
+  if (error || !data) throw new Error("Não foi possível verificar a segurança da sessão. Tente entrar novamente.");
   return data.nextLevel === "aal2" && data.currentLevel !== "aal2";
 }
 
@@ -242,8 +242,10 @@ document.getElementById("form-login").addEventListener("submit", async (e) => {
     return;
   }
   aviso("aviso-login", "");
-  if (await precisaSegundaEtapa()) return pedirCodigo();
-  entrar(data.session);
+  try {
+    if (await precisaSegundaEtapa()) return pedirCodigo();
+    await entrar(data.session);
+  } catch (err) { aviso("aviso-login", err.message, "erro"); }
 });
 
 function pedirCodigo() {
@@ -283,10 +285,13 @@ async function sair() {
 }
 
 async function iniciar() {
-  const { data } = await sb.auth.getSession();
-  if (!data.session) return;
-  if (await precisaSegundaEtapa()) return pedirCodigo();
-  entrar(data.session);
+  try {
+    const { data, error } = await sb.auth.getSession();
+    if (error) throw error;
+    if (!data.session) return;
+    if (await precisaSegundaEtapa()) return pedirCodigo();
+    await entrar(data.session);
+  } catch (err) { aviso("aviso-login", err.message, "erro"); }
 }
 
 async function entrar(sessao) {
@@ -319,7 +324,9 @@ async function entrar(sessao) {
 async function buscarTodas(tabela, ordem) {
   const todas = [];
   for (let de = 0; ; de += 1000) {
-    const { data, error } = await db().from(tabela).select("*").order(ordem).range(de, de + 999);
+    let consulta = db().from(tabela).select("*").order(ordem);
+    if (ordem !== "id") consulta = consulta.order(tabela === "usuarios" ? "user_id" : "id");
+    const { data, error } = await consulta.range(de, de + 999);
     if (error) throw error;
     todas.push(...data);
     if (data.length < 1000) return todas;
@@ -331,19 +338,35 @@ async function carregar() {
     buscarTodas("usuarios", "nome"), buscarTodas("status", "ordem"), buscarTodas("projetos", "nome"),
     buscarTodas("pastas", "nome"), buscarTodas("listas", "nome"), buscarTodas("tarefas_visao", "id"),
   ]);
-  Object.assign(S, { usuarios, status, projetos: projetos.sort(porNome), pastas: pastas.sort(porNome), listas: listas.sort(porNome), tarefas });
+  const eu = usuarios.find(u => u.user_id === S.user?.id && u.ativo);
+  if (!eu) {
+    bloquearInterface();
+    throw new Error("Seu acesso não está disponível. Entre novamente.");
+  }
+  Object.assign(S, { eu, usuarios, status, projetos: projetos.sort(porNome), pastas: pastas.sort(porNome), listas: listas.sort(porNome), tarefas });
+  if (S.aberta && !tarefas.some(t => t.id === S.aberta)) {
+    fecharTarefa();
+    S.comentarios = [];
+    document.getElementById('gaveta').innerHTML = '';
+  }
+  if (S.add && !listas.some(l => l.id === S.add.lista_id)) S.add = null;
 }
 
 let carregando = false;
 async function atualizarEmSegundoPlano() {
-  if (carregando || document.hidden || !S.eu) return;
+  if (carregando || document.hidden || !S.eu || gravacoesPendentes.size) return;
   const foco = document.activeElement;
-  if (foco && foco.matches("input, textarea, select")) return;
-  if (document.getElementById("modal-veu").classList.contains("ativo")) return;
+  const preservar = S.add || S.aberta || (typeof editorMembro !== 'undefined' && editorMembro) ||
+    foco?.matches('input, textarea, select') || document.getElementById('modal-veu').classList.contains('ativo');
+  const eraAdmin = S.eu.admin;
   carregando = true;
   try {
     await carregar();
-    renderTudo();
+    if (!preservar || (eraAdmin && !S.eu.admin)) renderTudo();
+    else {
+      renderArvore(); renderContadores();
+      if (document.getElementById('lista-tarefas')) renderResultadoAtual();
+    }
   } catch { /* tenta de novo no próximo ciclo */ }
   carregando = false;
 }
@@ -429,6 +452,7 @@ function irPara(hash) {
 window.addEventListener("hashchange", rotear);
 
 function rotear() {
+  if (!S.eu) return;
   const r = rotaAtual();
   if (r.tarefa && S.tarefas.some((t) => t.id === r.tarefa)) abrirTarefa(r.tarefa, true);
   else if (S.aberta && !r.tarefa) fecharTarefa(true);
@@ -436,6 +460,8 @@ function rotear() {
 }
 
 function renderTudo() {
+  if (!S.eu) return;
+  document.querySelectorAll('[data-acao="novo-projeto"]').forEach(b => { b.hidden = !S.eu.admin; });
   renderArvore();
   renderContadores();
   const r = rotaAtual();
@@ -468,7 +494,7 @@ function renderArvore() {
     return `<div class="no ${tipo}${chave === ativo ? " ativo" : ""}" style="padding-left:${6 + nivel * 14}px" onclick="irPara('#/${tipo}/${obj.id}')">
       ${tipo === "lista" ? '<span class="seta vazia"></span>' : `<button class="seta${aberto ? " aberta" : ""}${temFilhos ? "" : " vazia"}" onclick="event.stopPropagation();alternar('${chave}')" aria-label="${aberto ? "Recolher" : "Expandir"}">${ICONES.seta}</button>`}
       ${conteudoIcone}<span class="nome">${esc(obj.nome)}</span>${qtd(listasDoLocal(chave))}
-      <button class="icone-btn mini mais" data-menu onclick="event.stopPropagation();menuDe('${tipo}','${obj.id}',this)" aria-label="Opções">${ICONES.mais}</button>
+      ${S.eu.admin ? `<button class="icone-btn mini mais" data-menu onclick="event.stopPropagation();menuDe('${tipo}','${obj.id}',this)" aria-label="Opções">${ICONES.mais}</button>` : ''}
     </div>`;
   };
   const desenharConteudo = (projetoId, pastaId, nivel) => {
@@ -485,7 +511,7 @@ function renderArvore() {
     if (expandidos.has("projeto:" + p.id)) desenharConteudo(p.id, null, 1);
   }
   document.getElementById("arvore").innerHTML = html.join("") ||
-    '<div class="arvore-vazia">Nenhum espaço ainda. Use o + acima para criar o primeiro.</div>';
+    `<div class="arvore-vazia">${S.eu.admin ? 'Nenhum espaço ainda. Use o + acima para criar o primeiro.' : 'Nenhum espaço liberado. Peça acesso ao administrador.'}</div>`;
 }
 
 function alternar(chave) {
@@ -615,6 +641,7 @@ async function excluir(tipo, id) {
 }
 
 function menuDe(tipo, id, ancora) {
+  if (!S.eu.admin) return;
   const obj = objeto(tipo, id);
   const itens = [];
   if (tipo === "projeto") {
@@ -638,27 +665,6 @@ function casaPrazo(p, t, f) {
   return t.situacao === p;
 }
 
-function filtrar(f, escopo, { ignorarPrazo } = {}) {
-  const local = f.local ? listasDoLocal(f.local) : null;
-  const busca = norm(f.busca);
-  return S.tarefas.filter((t) => {
-    if (escopo && !escopo.has(t.lista_id)) return false;
-    if (local && !local.has(t.lista_id)) return false;
-    if (f.status.length && !f.status.includes(t.status_id)) return false;
-    if (f.responsavel === "eu") { if (!t.responsaveis.includes(S.user.id)) return false; }
-    else if (f.responsavel === "ninguem") { if (t.responsaveis.length) return false; }
-    else if (f.responsavel && !t.responsaveis.includes(f.responsavel)) return false;
-    if (f.prioridade && t.prioridade !== f.prioridade) return false;
-    if (busca && !norm(t.titulo + " " + (t.descricao || "")).includes(busca)) return false;
-    if (ignorarPrazo) return true;
-    if (f.prazo.length) { if (!f.prazo.some((p) => casaPrazo(p, t, f))) return false; }
-    else if (t.situacao === "concluida" && !f.status.length) return false;
-    if (f.de && (!t.data_entrega || t.data_entrega < f.de)) return false;
-    if (f.ate && (!t.data_entrega || t.data_entrega > f.ate)) return false;
-    return true;
-  });
-}
-
 function filtroDaRota(r) {
   return r.tipo === "central" ? filtros.central : r.tipo === "minhas" ? filtros.minhas : filtros.local;
 }
@@ -680,76 +686,14 @@ function soPrazo(valor) {
 function limparFiltros() {
   const r = rotaAtual();
   const chave = r.tipo === "central" ? "central" : r.tipo === "minhas" ? "minhas" : "local";
-  const agrupar = filtros[chave].agrupar;
-  filtros[chave] = novoFiltro({ agrupar, ...(chave === "minhas" ? { responsavel: "eu" } : {}) });
+  const { agrupar, visao, ordenar, _escopo } = filtros[chave];
+  filtros[chave] = novoFiltro({ agrupar, visao, ordenar, _escopo, ...(chave === "minhas" ? { responsavel: "eu" } : {}) });
   renderVisao(r);
 }
 
 /* ---------------- visão de tarefas (central, minhas, projeto, pasta, lista) ---------------- */
-function renderVisao(r) {
-  const main = document.getElementById("conteudo");
-  let f = filtroDaRota(r);
-  let titulo, caminho = "", escopo = null, acoes = "", acoesTarefa = false;
-
-  if (r.tipo === "central") {
-    titulo = "Central";
-    caminho = "Todas as tarefas de todos os espaços";
-  } else if (r.tipo === "minhas") {
-    titulo = "Minhas tarefas";
-    caminho = "Tarefas atribuídas a você";
-  } else if (TABELA[r.tipo]) {
-    const obj = objeto(r.tipo, r.id);
-    if (!obj) {
-      main.innerHTML = '<div class="vazio"><h3>Não encontrado</h3>Esse item foi excluído ou movido.</div>';
-      return;
-    }
-    if (f._escopo !== `${r.tipo}:${r.id}`) {
-      filtros.local = novoFiltro({ agrupar: filtros.local.agrupar });
-      filtros.local._escopo = `${r.tipo}:${r.id}`;
-      f = filtros.local;
-    }
-    expandirAte(r.tipo, r.id);
-    titulo = obj.nome;
-    escopo = listasDoLocal(`${r.tipo}:${r.id}`);
-    if (r.tipo === "lista") caminho = caminhoLista(r.id).slice(0, -1).join(" › ");
-    if (r.tipo === "pasta") caminho = [S.projetos.find((p) => p.id === obj.projeto_id)?.nome, ...caminhoPasta(r.id).slice(0, -1)].join(" › ");
-    if (r.tipo === "projeto") caminho = "Espaço";
-    const projetoId = r.tipo === "projeto" ? r.id : obj.projeto_id;
-    if (r.tipo !== "lista") {
-      acoes = `<button class="btn btn-fantasma btn-pequeno" onclick="novaPasta('${projetoId}', ${r.tipo === "pasta" ? `'${r.id}'` : "null"})">+ Pasta</button>
-        <button class="btn btn-fantasma btn-pequeno" onclick="novaLista('${projetoId}', ${r.tipo === "pasta" ? `'${r.id}'` : "null"})">+ Lista</button>`;
-    }
-    acoes += `<button class="icone-btn" data-menu onclick="menuDe('${r.tipo}','${r.id}',this)" aria-label="Opções">${ICONES.mais}</button>`;
-    acoesTarefa = true;
-  } else {
-    irPara("#/central");
-    return;
-  }
-  document.getElementById("barra-titulo").textContent = titulo;
-  document.title = `${titulo} | Tarefas`;
-
-  const semLista = !opcoesListas(escopo).length;
-
-  main.innerHTML = `
-    <div class="topo">
-      <div><div class="caminho-topo">${esc(caminho)}</div><h1>${esc(titulo)}</h1></div>
-      <div class="chips"><button class="btn btn-pequeno" onclick="novaTarefaRapida()">+ Tarefa</button>${acoes}</div>
-    </div>
-    ${semLista ? vazioSemLista(r) : `
-    <div class="resumo" id="resumo"></div>
-    ${barraFiltros(r, f)}
-    <div id="lista-tarefas"></div>`}
-  `;
-  if (semLista) return;
-
-  document.getElementById("busca").addEventListener("input", (e) => {
-    f.busca = e.target.value;
-    renderResultado(r, f, escopo);
-  });
-  renderResultado(r, f, escopo);
-}
-
 function vazioSemLista(r) {
+  if (!S.eu.admin) return '<div class="vazio"><h3>Nenhuma lista disponível</h3>Peça ao administrador para liberar um espaço ou uma lista para você.</div>';
   if (!S.projetos.length) {
     return `<div class="vazio"><h3>Comece criando um espaço</h3>Espaço guarda pastas, pasta guarda subpastas e listas, e lista guarda as tarefas.<br>
       <button class="btn" onclick="novoProjeto()">Novo espaço</button></div>`;
@@ -761,59 +705,6 @@ function vazioSemLista(r) {
   const projetoId = r.tipo === "projeto" ? r.id : obj.projeto_id;
   return `<div class="vazio"><h3>Nenhuma lista aqui</h3>Crie uma lista para começar a lançar tarefas.<br>
     <button class="btn" onclick="novaLista('${projetoId}', ${r.tipo === "pasta" ? `'${r.id}'` : "null"})">Nova lista</button></div>`;
-}
-
-function contarFiltros(r, f) {
-  return [f.local, f.status.length, f.responsavel && !(r.tipo === "minhas" && f.responsavel === "eu"), f.prioridade, f.de, f.ate, f.prazo.length].filter(Boolean).length;
-}
-
-function barraFiltros(r, f) {
-  const n = contarFiltros(r, f);
-  return `
-    <div class="filtros">
-      <input type="search" id="busca" placeholder="Buscar tarefa" value="${esc(f.busca)}">
-      <button class="chip${n ? " ligado" : ""}" id="btn-mais-filtros" data-menu onclick="abrirMaisFiltros(this)">Filtros${n ? ` · ${n}` : ""}</button>
-      ${n || f.busca ? '<button class="limpar" onclick="limparFiltros()">Limpar</button>' : ""}
-    </div>`;
-}
-
-// Painel com os filtros menos usados, pra barra principal ficar limpa.
-function abrirMaisFiltros(ancora) {
-  const r = rotaAtual();
-  const f = filtroDaRota(r);
-  const global = r.tipo === "central" || r.tipo === "minhas";
-  const locais = [];
-  if (global) {
-    for (const p of S.projetos) {
-      locais.push({ v: `projeto:${p.id}`, t: p.nome });
-      for (const pa of S.pastas.filter((x) => x.projeto_id === p.id)) locais.push({ v: `pasta:${pa.id}`, t: [p.nome, ...caminhoPasta(pa.id)].join(" › ") });
-      for (const l of S.listas.filter((x) => x.projeto_id === p.id)) locais.push({ v: `lista:${l.id}`, t: caminhoLista(l.id).join(" › ") });
-    }
-  }
-  const sel = (campo, opcoes, rotulo) => `<label class="rotulo">${rotulo}</label>
-    <select onchange="mudarFiltroPainel('${campo}', this.value)">${opcoes.map((o) => `<option value="${esc(o.v)}"${o.v === f[campo] ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select>`;
-  abrirPainel(ancora, `
-    <label class="rotulo">Prazo</label>
-    <div class="chips">${SITUACOES.map((sit) => `<button class="chip ${sit.id}${f.prazo.includes(sit.id) ? " ligado" : ""}" onclick="mudarFiltroPainel('prazo','${sit.id}')"><span class="bolinha" style="background:${sit.cor}"></span>${sit.nome}</button>`).join("")}</div>
-    ${global ? sel("local", [{ v: "", t: "Todos os espaços" }, ...locais], "Espaço, pasta ou lista") : ""}
-    ${sel("responsavel", [{ v: "", t: "Qualquer responsável" }, { v: "eu", t: "Eu" }, ...S.usuarios.filter((u) => u.ativo && u.user_id !== S.user.id).map((u) => ({ v: u.user_id, t: u.nome })), { v: "ninguem", t: "Sem responsável" }], "Responsável")}
-    ${sel("prioridade", [{ v: "", t: "Qualquer prioridade" }, ...PRIORIDADES.map((x) => ({ v: x.id, t: x.nome }))], "Prioridade")}
-    ${sel("agrupar", [{ v: "situacao", t: "Prazo" }, { v: "status", t: "Status" }, { v: "projeto", t: "Lista" }, { v: "responsavel", t: "Responsável" }, { v: "", t: "Não agrupar" }], "Agrupar por")}
-    ${f.prazo.includes("a_vencer") ? sel("dias", [{ v: "7", t: "Próximos 7 dias" }, { v: "15", t: "Próximos 15 dias" }, { v: "30", t: "Próximos 30 dias" }, { v: "", t: "Qualquer data" }], "A vencer em") : ""}
-    <label class="rotulo">Status</label>
-    <div class="chips">${S.status.map((st) => `<button class="chip${f.status.includes(st.id) ? " ligado" : ""}" onclick="mudarFiltroPainel('status','${st.id}')"><span class="bolinha" style="background:${st.cor}"></span>${esc(st.nome)}</button>`).join("")}</div>
-    <label class="rotulo">Entrega entre</label>
-    <div class="chips">
-      <input type="date" value="${f.de}" onchange="mudarFiltroPainel('de', this.value)" aria-label="Entrega a partir de">
-      <span style="color:var(--nevoa);font-size:13px">até</span>
-      <input type="date" value="${f.ate}" onchange="mudarFiltroPainel('ate', this.value)" aria-label="Entrega até">
-    </div>`);
-}
-
-function mudarFiltroPainel(campo, valor) {
-  mudarFiltro(campo, valor);
-  const botao = document.getElementById("btn-mais-filtros");
-  if (botao) abrirMaisFiltros(botao);
 }
 
 function abrirPainel(ancora, html) {
@@ -838,8 +729,9 @@ function renderResultado(r, f, escopo) {
     card("atrasada", "Em atraso") + card("vence_hoje", "Vencem hoje") +
     card("a_vencer", f.dias ? `A vencer em ${f.dias} dias` : "A vencer") + card("sem_data", "Sem data");
 
-  const tarefas = filtrar(f, escopo).sort(ordenar);
+  const tarefas = filtrar(f, escopo).sort((a, b) => ordenarVisao(a, b, f.ordenar));
   const alvo = document.getElementById("lista-tarefas");
+  if (f.visao === "quadro") return renderQuadro(alvo, tarefas, escopo);
   const mostrarCaminho = r.tipo !== "lista";
   const grupos = tarefas.length ? agrupar(tarefas, f.agrupar) : [{ chave: "tudo", nome: "", itens: [] }];
   S.grupos = grupos;
@@ -869,6 +761,29 @@ function ordenar(a, b) {
   if (da !== dbb) return da < dbb ? -1 : 1;
   if (PESO_PRIO[a.prioridade] !== PESO_PRIO[b.prioridade]) return PESO_PRIO[a.prioridade] - PESO_PRIO[b.prioridade];
   return a.criado_em.localeCompare(b.criado_em);
+}
+
+function ordenarVisao(a, b, modo) {
+  if (modo === "titulo") return a.titulo.localeCompare(b.titulo, "pt-BR", { sensitivity: "base" }) || ordenar(a, b);
+  if (modo === "recentes") return b.criado_em.localeCompare(a.criado_em) || ordenar(a, b);
+  if (modo === "prioridade") return PESO_PRIO[a.prioridade] - PESO_PRIO[b.prioridade] || ordenar(a, b);
+  return ordenar(a, b);
+}
+
+function renderQuadro(alvo, tarefas, escopo) {
+  S.grupos = S.status.map(st => ({ chave: st.id, nome: st.nome, cor: st.cor,
+    preset: { status_id: st.id }, itens: tarefas.filter(t => t.status_id === st.id) }));
+  alvo.innerHTML = `<div class="quadro">${S.grupos.map(g => `<section class="quadro-coluna" aria-label="${esc(g.nome)}">
+    <div class="grupo-cabeca"><span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>
+    <div class="quadro-itens">${g.itens.map(t => `<article class="quadro-cartao">
+      <button class="quadro-titulo" onclick="abrirTarefa('${t.id}')">${esc(t.titulo)}</button>
+      <p class="quadro-lista">${esc(caminhoLista(t.lista_id).join(' › '))}</p>
+      <div class="quadro-meta">${celulaPrazo(t)}<span class="resp">${avatares(t.responsaveis)}</span></div>
+      <div class="quadro-meta"><span class="prio ${t.prioridade}">${ICONES.bandeira}${NOME_PRIO[t.prioridade]}</span>
+      <select class="status-sel" aria-label="Status de ${esc(t.titulo)}" onchange="salvarTarefa('${t.id}',{status_id:this.value})">${S.status.map(st => `<option value="${st.id}"${st.id === t.status_id ? ' selected' : ''}>${esc(st.nome)}</option>`).join('')}</select></div>
+    </article>`).join('') || '<p class="quadro-vazio">Nenhuma tarefa</p>'}</div>${linhaAdicionar(g, escopo)}</section>`).join('')}</div>`;
+  const campo = document.getElementById("add-titulo");
+  if (campo) { campo.focus(); campo.setSelectionRange(campo.value.length, campo.value.length); }
 }
 
 function agrupar(tarefas, modo) {
@@ -928,7 +843,7 @@ function linhaTarefa(t, mostrarCaminho) {
   const feita = t.situacao === "concluida";
   return `<div class="linha ${t.situacao}" role="listitem" onclick="abrirTarefa('${t.id}')">
     <div class="col-check"><button class="check${feita ? " feito" : ""}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
-    <div class="col-titulo t-principal"><div class="t-titulo">${esc(t.titulo)}</div>${meta.length ? `<div class="t-meta">${meta.join("")}</div>` : ""}</div>
+    <div class="col-titulo t-principal"><button class="t-titulo tarefa-link" onclick="event.stopPropagation();abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${meta.length ? `<div class="t-meta">${meta.join("")}</div>` : ""}</div>
     <div class="col-status" onclick="event.stopPropagation()">
       <select class="status-sel" style="color:${t.status_cor};background-color:${t.status_cor}1f" onchange="salvarTarefa('${t.id}', { status_id: this.value })" aria-label="Status">
         ${S.status.map((s) => `<option value="${s.id}"${s.id === t.status_id ? " selected" : ""}>${esc(s.nome)}</option>`).join("")}
@@ -962,10 +877,11 @@ function linhaAdicionar(g, escopo) {
 }
 
 function abrirAdicionar(chave) {
+  if (criandoTarefa) return;
   const g = (S.grupos || []).find((x) => x.chave === chave);
   const escopo = S.ultimo?.escopo;
   S.add = {
-    grupo: chave, titulo: "", data_entrega: null, responsaveis: [], prioridade: "normal",
+    grupo: chave, titulo: "", data_entrega: null, responsaveis: modoEuAtivo() ? [S.user.id] : [], prioridade: "normal",
     recorrencia: null, status_id: null, lista_id: null, ...(g?.preset || {}),
   };
   if (!S.add.lista_id) S.add.lista_id = listaPadraoAdd(escopo);
@@ -974,6 +890,7 @@ function abrirAdicionar(chave) {
 }
 
 function cancelarAdicionar() {
+  if (criandoTarefa) return;
   S.add = null;
   renderResultadoAtual();
 }
@@ -1148,20 +1065,31 @@ function menuAddPrio(ancora) {
   })));
 }
 
+let criandoTarefa = false;
 async function salvarAdicionar(e) {
   e.preventDefault();
+  if (criandoTarefa || !S.add) return;
   const a = S.add;
   const titulo = (a.titulo || "").trim();
   if (!titulo) return document.getElementById("add-titulo")?.focus();
   const status = a.status_id || primeiroStatus("aberto")?.id;
   if (!status) return toast("Crie pelo menos um status aberto em Ajustes.", true);
+  criandoTarefa = true;
+  const botao = e.target.querySelector('button:not([type="button"])');
+  if (botao) { botao.disabled = true; botao.textContent = "Salvando…"; }
+  try {
   const { data, error } = await db().from("tarefas").insert({
     lista_id: a.lista_id, titulo, status_id: status, data_entrega: a.data_entrega,
     prioridade: a.prioridade, recorrencia: a.recorrencia || null,
   }).select().single();
   if (error) return toast(erroBanco(error, "Não deu pra criar"), true);
+  // A tarefa já existe: não deixar uma falha posterior causar um segundo INSERT.
+  a.titulo = "";
+  if (document.getElementById("add-titulo")) document.getElementById("add-titulo").value = "";
+  let erroResponsaveis = null;
   if (a.responsaveis.length) {
-    await db().from("tarefa_responsaveis").insert(a.responsaveis.map((user_id) => ({ tarefa_id: data.id, user_id })));
+    const resposta = await db().from("tarefa_responsaveis").insert(a.responsaveis.map((user_id) => ({ tarefa_id: data.id, user_id })));
+    erroResponsaveis = resposta.error;
   }
   gravarLocal("tf_ultima_lista", a.lista_id);
   a.titulo = "";
@@ -1179,22 +1107,52 @@ async function salvarAdicionar(e) {
   }
   const visivel = S.ultimo && filtrar(S.ultimo.f, S.ultimo.escopo).some((t) => t.id === data.id);
   if (!visivel) toast("Tarefa criada. Ela não aparece aqui por causa dos filtros.");
+  if (erroResponsaveis) {
+    S.add = null;
+    renderResultadoAtual();
+    await abrirTarefa(data.id);
+    toast("A tarefa foi criada, mas os responsáveis não foram salvos. Selecione-os nos detalhes.", true);
+  }
+  } catch {
+    toast("Não foi possível atualizar. Confira a lista antes de tentar criar novamente.", true);
+  } finally {
+    criandoTarefa = false;
+    if (botao) { botao.disabled = false; botao.textContent = "Salvar"; }
+  }
 }
 
 function novaTarefaRapida() {
+  if (rotaAtual().tipo === "ajustes") {
+    irPara("#/central");
+    rotear();
+  }
   const primeiro = (S.grupos || [])[0];
   if (primeiro) abrirAdicionar(primeiro.chave);
+  else toast("Crie uma lista em um espaço para adicionar tarefas.");
 }
 
-async function salvarTarefa(id, patch, { silencioso } = {}) {
+const gravacoesPendentes = new Map();
+function salvarTarefa(id, patch, opcoes = {}) {
+  const anterior = gravacoesPendentes.get(id) || Promise.resolve();
+  const atual = anterior.catch(() => {}).then(() => gravarTarefa(id, patch, opcoes)).catch(() => {
+    toast("Não foi possível salvar a alteração. Verifique sua conexão e tente novamente.", true);
+    return false;
+  }).finally(() => { if (gravacoesPendentes.get(id) === atual) gravacoesPendentes.delete(id); });
+  gravacoesPendentes.set(id, atual);
+  return atual;
+}
+async function gravarTarefa(id, patch, { silencioso } = {}) {
   const antes = S.tarefas.find((t) => t.id === id);
-  const { error } = await db().from("tarefas").update(patch).eq("id", id);
-  if (error) {
+  const { data, error } = await db().from("tarefas").update(patch).eq("id", id).select("id").maybeSingle();
+  if (error || !data) {
     toast(erroBanco(error, "Não deu pra salvar"), true);
     renderTudo();
     return false;
   }
-  if (patch.lista_id) await db().from("tarefas").update({ lista_id: patch.lista_id }).eq("tarefa_pai_id", id);
+  if (patch.lista_id) {
+    const { error: erroSub } = await db().from("tarefas").update({ lista_id: patch.lista_id }).eq("tarefa_pai_id", id);
+    if (erroSub) toast("A tarefa foi movida, mas houve um erro ao mover as subtarefas. Atualize e confira a lista.", true);
+  }
   await carregar();
   const depois = S.tarefas.find((t) => t.id === id);
   if (antes && depois && !antes.proxima_id && depois.proxima_id) {
@@ -1208,7 +1166,9 @@ async function salvarTarefa(id, patch, { silencioso } = {}) {
 }
 
 function alternarConclusao(id) {
+  if (gravacoesPendentes.has(id)) return;
   const t = S.tarefas.find((x) => x.id === id);
+  if (!t) return;
   const destino = primeiroStatus(t.situacao === "concluida" ? "aberto" : "concluido");
   if (!destino) return toast("Não existe status do tipo " + (t.situacao === "concluida" ? "aberto" : "concluído") + ".", true);
   salvarTarefa(id, { status_id: destino.id }, { silencioso: true });
@@ -1218,6 +1178,7 @@ async function abrirTarefa(id, semHash) {
   S.aberta = id;
   S.comentarios = [];
   document.getElementById("app").classList.add("gaveta-aberta");
+  document.getElementById("gaveta").inert = false;
   if (!semHash) {
     const base = location.hash.split("?")[0] || "#/central";
     history.replaceState(null, "", `${base}?t=${id}`);
@@ -1233,6 +1194,7 @@ async function abrirTarefa(id, semHash) {
 function fecharTarefa(semHash) {
   S.aberta = null;
   document.getElementById("app").classList.remove("gaveta-aberta");
+  document.getElementById("gaveta").inert = true;
   if (!semHash) history.replaceState(null, "", location.hash.split("?")[0]);
 }
 
@@ -1257,7 +1219,7 @@ function renderGaveta() {
       ? `<div class="faixa-atraso">${ICONES.alerta}<span>Concluída em ${dataBR(t.concluida_em, true)}, <b>${dias(t.dias_atraso)} depois</b> da entrega.</span></div>`
       : `<div class="faixa-atraso faixa-ok">${ICONES.check}<span>Concluída no prazo em ${dataBR(t.concluida_em, true)}.</span></div>`;
   } else if (t.situacao === "vence_hoje") {
-    faixa = `<div class="faixa-atraso" style="background:rgba(250,204,21,.08);border-color:rgba(250,204,21,.35);color:#fef08a">${ICONES.alerta}<span>Vence hoje.</span></div>`;
+    faixa = `<div class="faixa-atraso" style="background:#fff9ed;border-color:#e9d6a8;color:var(--amarelo)">${ICONES.alerta}<span>Vence hoje.</span></div>`;
   }
 
   el.innerHTML = `
@@ -1389,16 +1351,26 @@ function renderComentarios() {
   }).join("") : '<p style="color:var(--nevoa);font-size:13.5px">Nenhum comentário.</p>';
 }
 
+let enviandoComentario = false;
 async function enviarComentario(e) {
   e.preventDefault();
+  if (enviandoComentario) return;
+  const tarefaId = S.aberta;
   const campo = document.getElementById("comentario-texto");
   const texto = campo.value.trim();
   if (!texto) return;
-  const { data, error } = await db().from("comentarios").insert({ tarefa_id: S.aberta, texto }).select().single();
+  enviandoComentario = true;
+  const botao = e.target.querySelector('button');
+  botao.disabled = true;
+  try {
+  const { data, error } = await db().from("comentarios").insert({ tarefa_id: tarefaId, texto }).select().single();
   if (error) return toast(erroBanco(error, "Não deu pra comentar"), true);
+  if (S.aberta !== tarefaId) return;
   campo.value = "";
   S.comentarios.push(data);
   renderComentarios();
+  } catch { toast("Não foi possível enviar o comentário. Tente novamente.", true); }
+  finally { enviandoComentario = false; botao.disabled = false; }
 }
 
 async function apagarComentario(id) {
@@ -1437,7 +1409,7 @@ async function excluirTarefa(id) {
 function renderAjustes() {
   document.getElementById("barra-titulo").textContent = "Ajustes";
   document.title = "Ajustes | Tarefas";
-  const abas = [["conta", "Minha conta"], ["notificacoes", "Notificações"], ["usuarios", "Usuários"], ["status", "Status"]];
+  const abas = [["conta", "Minha conta"], ["notificacoes", "Notificações"], ["usuarios", "Membros"], ["status", "Status"]];
   const main = document.getElementById("conteudo");
   main.innerHTML = `
     <div class="topo"><div><h1>Ajustes</h1></div></div>
@@ -1471,53 +1443,7 @@ function abaConta() {
 }
 
 function abaUsuarios() {
-  const admin = S.eu.admin;
-  document.getElementById("aba").innerHTML = `
-    ${admin ? `<div class="painel">
-      <h2>Adicionar usuário</h2>
-      <p class="desc">Se a pessoa já tem conta (por exemplo no CRM), ela entra com a senha que já usa e o campo de senha é ignorado. Se não tem, a conta é criada com a senha inicial que você definir aqui. Passe a senha para ela por um canal seguro.</p>
-      <form id="form-usuario">
-        <div class="grade-form">
-          <div class="campo"><label for="u-nome">Nome</label><input type="text" id="u-nome" required maxlength="80"></div>
-          <div class="campo"><label for="u-email">E-mail</label><input type="email" id="u-email" required></div>
-          <div class="campo"><label for="u-senha">Senha inicial</label><input type="text" id="u-senha" minlength="8" autocomplete="off" placeholder="mínimo 8 caracteres"></div>
-          <div class="campo" style="display:flex;align-items:flex-end;padding-bottom:12px"><label class="caixa-check" style="text-transform:none;letter-spacing:0;font-family:var(--texto);font-size:14px;margin:0"><input type="checkbox" id="u-admin"> Admin (gerencia usuários e status)</label></div>
-        </div>
-        <button class="btn">Adicionar</button>
-        <p class="aviso" id="aviso-usuario"></p>
-      </form>
-    </div>` : ""}
-    <div class="painel">
-      <h2>Usuários</h2>
-      <p class="desc">Todos veem todos os espaços e tarefas. ${admin ? "Desativar tira o acesso sem apagar o histórico." : "Só admin altera usuários."}</p>
-      <div class="rolagem"><table class="tab-simples">
-        <thead><tr><th>Nome</th><th>E-mail</th><th>Admin</th><th>Ativo</th></tr></thead>
-        <tbody>${S.usuarios.map((u) => `<tr>
-          <td>${admin ? `<input type="text" value="${esc(u.nome)}" maxlength="80" onchange="salvarUsuario('${u.user_id}', { nome: this.value.trim() })" aria-label="Nome">` : esc(u.nome)}</td>
-          <td style="color:var(--nevoa)">${esc(u.email)}</td>
-          <td><input type="checkbox" ${u.admin ? "checked" : ""} ${admin ? "" : "disabled"} onchange="salvarUsuario('${u.user_id}', { admin: this.checked })" aria-label="Admin"></td>
-          <td><input type="checkbox" ${u.ativo ? "checked" : ""} ${admin ? "" : "disabled"} onchange="salvarUsuario('${u.user_id}', { ativo: this.checked })" aria-label="Ativo"></td>
-        </tr>`).join("")}</tbody>
-      </table></div>
-    </div>`;
-  document.getElementById("form-usuario")?.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    aviso("aviso-usuario", "Adicionando...");
-    const { data: sessao } = await sb.auth.getSession();
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/tarefas-usuarios`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${sessao.session.access_token}`, apikey: SUPABASE_ANON_KEY },
-      body: JSON.stringify({
-        acao: "adicionar", nome: document.getElementById("u-nome").value, email: document.getElementById("u-email").value,
-        senha: document.getElementById("u-senha").value, admin: document.getElementById("u-admin").checked,
-      }),
-    }).catch(() => null);
-    const corpo = res ? await res.json().catch(() => ({})) : {};
-    if (!res || !res.ok) return aviso("aviso-usuario", corpo.erro || "Não deu pra adicionar.", "erro");
-    await carregar();
-    renderAjustes();
-    toast(corpo.conta_nova ? "Conta criada e liberada." : "Conta existente liberada no gestor.");
-  });
+  renderMembros();
 }
 
 async function salvarUsuario(userId, patch) {
@@ -1696,4 +1622,25 @@ document.addEventListener("click", (e) => {
   if (acao === "nova-tarefa-rapida") novaTarefaRapida();
 });
 
+function bloquearInterface() {
+  S.eu = null; S.user = null; S.aberta = null; S.add = null;
+  for (const k of ["usuarios", "status", "projetos", "pastas", "listas", "tarefas", "comentarios", "grupos"]) S[k] = [];
+  S.ultimo = null;
+  document.getElementById("app").className = "app";
+  for (const id of ["conteudo", "arvore", "gaveta", "usuario-nome"]) document.getElementById(id).innerHTML = "";
+  fecharModal(null); fecharMenu();
+  document.getElementById("tela-login").style.display = "";
+  document.getElementById("form-login").style.display = "";
+  document.getElementById("form-codigo").style.display = "none";
+  document.getElementById("sem-acesso").style.display = "none";
+  document.getElementById("senha").value = "";
+}
+sb.auth.onAuthStateChange((evento) => {
+  if (evento === "SIGNED_OUT") bloquearInterface();
+});
+document.addEventListener("keydown", e => {
+  if (!S.eu || e.target.matches("input,textarea,select,[contenteditable]")) return;
+  if (document.getElementById("modal-veu").classList.contains("ativo") || S.aberta) return;
+  if (e.key === "/") { e.preventDefault(); document.getElementById("busca")?.focus(); }
+});
 iniciar();

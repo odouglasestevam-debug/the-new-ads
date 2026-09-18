@@ -5,20 +5,28 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Tarefas | The New Ads</title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#ffffff">
+<script src="/tema.js?v=10"></script>
 <link rel="icon" type="image/svg+xml" href="/icone.svg">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icons/icone-192.png">
-<link href="https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=switzer@400,500,600&display=swap" rel="stylesheet">
-<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/estilo.css?v=8">
+<link rel="stylesheet" href="/estilo.css?v=9">
+<link rel="stylesheet" href="/workspace.css?v=11">
+<link rel="stylesheet" href="/toolbar.css?v=12">
 </head>
 <body>
+<!-- THESIS: um workspace compacto para receber, atribuir e acompanhar demandas de três pessoas.
+OWN-WORLD: superfícies brancas, lateral cinza, destaque violeta e fontes nativas de interface.
+STORY: encontrar demanda, identificar responsável e prazo, atualizar status na lista ou no quadro.
+FIRST VIEWPORT: navegação de espaços à esquerda, título e criação acima, filtros e tarefas no centro.
+FORM: interface operacional familiar, inspirada no ClickUp conforme pedido explícito do usuário.
+FINISH: revisão visual em desktop e celular, testes funcionais e registro do sistema em DESIGN.md. -->
 
 <!-- ============ LOGIN ============ -->
 <div class="login" id="tela-login">
   <div class="caixa">
     <div class="marca"><img src="/icone.svg" alt=""> Tarefas</div>
+    <label class="seletor-tema">Tema <select data-tema aria-label="Tema da tela de acesso"><option value="claro">Claro</option><option value="escuro">Escuro</option><option value="sistema">Sistema</option></select></label>
 
     <form id="form-login">
       <h1>Entrar</h1>
@@ -77,6 +85,7 @@
     </div>
     <div class="arvore" id="arvore"></div>
     <div class="rodape">
+      <label class="seletor-tema">Tema <select data-tema aria-label="Tema do aplicativo"><option value="claro">Claro</option><option value="escuro">Escuro</option><option value="sistema">Sistema</option></select></label>
       <button data-rota="#/ajustes" id="nav-ajustes" class="link-rodape">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
         Ajustes
@@ -90,14 +99,16 @@
   <main id="conteudo"></main>
 
   <div class="gaveta-veu" id="gaveta-veu" data-acao="fechar-tarefa"></div>
-  <section class="gaveta" id="gaveta" aria-label="Tarefa"></section>
+  <section class="gaveta" id="gaveta" aria-label="Tarefa" inert></section>
 </div>
 
 <div class="modal-veu" id="modal-veu"><div class="modal" id="modal" role="dialog" aria-modal="true"></div></div>
 <div class="menu-flutuante" id="menu-flutuante"></div>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-<script src="/app.js?v=7"></script>
+<script src="/vendor/supabase.js"></script>
+<script src="/filtros.js?v=12"></script>
+<script src="/membros.js?v=11"></script>
+<script src="/app.js?v=12"></script>
 </body>
 </html>

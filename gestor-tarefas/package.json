@@ -1,0 +1,13 @@
+{
+  "name": "tna-tarefas-checks",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/database.test.mjs tests/push.test.mjs tests/acessos.test.mjs",
+    "test:ui": "node tests/browser.mjs"
+  },
+  "devDependencies": {
+    "@electric-sql/pglite": "0.5.3",
+    "playwright": "1.58.2"
+  }
+}

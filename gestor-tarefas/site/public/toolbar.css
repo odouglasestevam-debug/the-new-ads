@@ -1,0 +1,83 @@
+/* Cabeçalho operacional compacto, inspirado na referência fornecida. */
+:root {--barra-ativo:#087b68;--barra-fundo:#e8f5f1}
+[data-tema=escuro] {--barra-ativo:#72dcca;--barra-fundo:#173e37}
+main:has(.cabecalho-tarefas) {padding-top:12px}
+.cabecalho-tarefas {margin-bottom:18px}
+.titulo-compacto {display:flex;align-items:center;gap:8px;min-height:30px;min-width:0}
+.titulo-compacto h1 {font-size:16px;line-height:1.4;letter-spacing:-.2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.caminho-compacto {color:var(--nevoa);font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:55%}
+.caminho-compacto > span {margin-left:8px}
+.abas-visao {display:flex;gap:6px;border-bottom:1px solid var(--linha);margin-top:6px}
+.abas-visao button {display:flex;align-items:center;gap:6px;background:none;border:0;border-bottom:2px solid transparent;color:var(--nevoa);padding:8px 10px;font-size:12px}
+.abas-visao button svg {width:14px;height:14px}
+.abas-visao button:hover {color:var(--branco);background:var(--grafite-2)}
+.abas-visao button.ativo {color:var(--branco);border-bottom-color:var(--branco)}
+.barra-tarefas {display:flex;align-items:center;gap:12px;justify-content:space-between;min-height:46px;border-bottom:1px solid var(--linha);padding:7px 0}
+.agrupar-compacto {display:flex;align-items:center;gap:5px;color:var(--barra-ativo);flex:none}
+.agrupar-compacto > svg {width:14px;height:14px}
+.agrupar-compacto select {width:auto;padding:4px 23px 4px 0;border:0;background-color:transparent;font-size:11px;color:inherit;border-radius:4px;background-position:right 3px center;background-size:12px}
+.agrupar-compacto select:disabled {opacity:.8}
+.ferramentas-tarefas {display:flex;align-items:center;justify-content:flex-end;gap:6px;min-width:0}
+.controle-barra {display:inline-flex;align-items:center;justify-content:center;gap:5px;min-height:28px;border:0;background:transparent;border-radius:5px;color:var(--nevoa);padding:5px 7px;font-size:12px;white-space:nowrap}
+.controle-barra svg {width:14px;height:14px}
+.controle-barra:hover {background:var(--grafite-2);color:var(--branco)}
+.controle-barra.ligado,.filtros-badge.ligado {background:var(--barra-fundo);color:var(--barra-ativo)}
+.controle-barra:disabled {cursor:default}
+.filtros-badge {display:flex;align-items:center;border-radius:5px}
+.filtros-badge.ligado .controle-barra {color:inherit}
+.remover-filtros {display:flex;align-items:center;justify-content:center;width:24px;height:26px;background:transparent;border:0;color:inherit;border-radius:4px}
+.remover-filtros:hover {background:var(--grafite-3)}
+.remover-filtros svg {width:12px;height:12px}
+.controle-icone {width:28px;padding:6px}
+.barra-tarefas #busca {width:135px;padding:5px 8px;font-size:12px;border-radius:5px;background:transparent;border-color:transparent}
+.barra-tarefas #busca:hover,.barra-tarefas #busca:focus {border-color:var(--linha);background:var(--grafite)}
+.barra-tarefas .ordenar-compacto {width:94px;border:0;border-radius:4px;padding:5px 24px 5px 6px;font-size:11px;background-color:transparent;color:var(--nevoa);background-position:right 4px center;background-size:12px}
+.barra-tarefas .nova-tarefa-barra {padding:5px 10px;border-radius:5px;background:#07816f;color:#fff;font-size:12px;min-height:28px}
+.barra-tarefas .nova-tarefa-barra:hover {background:#086856}
+.menu-flutuante.painel:has(.filtros-popover) {width:650px;max-width:calc(100vw - 16px);min-width:0;padding:16px;margin:0;max-height:calc(100dvh - 16px)}
+.filtros-popover {color:var(--branco)}
+.filtros-popover button {display:inline-flex;width:auto;color:var(--nevoa)}
+.filtros-cabeca {display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+.filtros-cabeca h2 {font-size:14px;letter-spacing:0}
+.filtros-popover .fechar-filtros,.filtros-popover .excluir-condicao {padding:5px;align-items:center;justify-content:center;width:28px;height:28px;flex:none}
+.filtros-popover svg {width:14px;height:14px}
+.combinar-filtros {display:flex;align-items:center;gap:9px;color:var(--nevoa);font-size:12px;margin-bottom:14px;flex-wrap:wrap}
+.menu-flutuante.painel .combinar-filtros select {width:auto;padding:5px 28px 5px 8px;font-size:12px}
+.condicoes-filtros {display:flex;flex-direction:column;gap:8px}
+.condicao-filtro {display:grid;grid-template-columns:110px 54px minmax(0,1fr) 28px;gap:8px;align-items:start}
+.campo-filtro,.operador-filtro {padding-top:8px;font-size:12px}
+.operador-filtro {color:var(--nevoa)}
+.menu-flutuante.painel .valor-filtro select {padding:7px 28px 7px 9px;font-size:12px;border-radius:5px;min-width:0}
+.valores-filtro {font-size:12px;border:1px solid var(--linha);border-radius:5px;background:var(--grafite)}
+.valores-filtro summary {cursor:pointer;padding:7px 9px;overflow-wrap:anywhere}
+.valores-filtro > div {border-top:1px solid var(--linha);padding:5px 9px;display:flex;flex-direction:column;gap:4px;max-height:200px;overflow:auto}
+.valores-filtro label {display:flex;align-items:center;gap:8px;cursor:pointer;padding:5px 0;font-size:12px;color:var(--branco)}
+.valores-filtro input {width:15px;height:15px}
+.periodo-filtro {display:flex;gap:6px;align-items:center;color:var(--nevoa);font-size:11px;min-width:0}
+.periodo-filtro input {min-width:0;flex:1;padding:6px;font-size:11px;border-radius:5px}
+.dias-filtro {display:flex;align-items:center;gap:8px;font-size:11px;margin-top:6px;color:var(--nevoa)}
+.filtros-popover .dias-filtro select {width:auto;font-size:11px;padding:5px 28px 5px 8px}
+.filtros-rodape {display:flex;align-items:center;gap:12px;border-top:1px solid var(--linha);margin-top:16px;padding-top:12px;flex-wrap:wrap}
+.menu-flutuante.painel #adicionar-filtro {width:170px;border:0;background-color:transparent;padding:6px 24px 6px 0;font-size:12px;color:var(--barra-ativo)}
+.filtros-popover .limpar {font-size:12px;padding:4px}
+#contagem-filtros {margin-left:auto;font-size:11px;color:var(--nevoa)}
+.nenhum-filtro,.nota-modo-eu {font-size:12px;color:var(--nevoa);margin:10px 0}
+@media(max-width:1100px) {.barra-tarefas #busca {width:105px}.barra-tarefas .ordenar-compacto {width:78px}}
+@media(max-width:860px) {
+  main:has(.cabecalho-tarefas) {padding-top:8px}
+  .barra-tarefas {align-items:flex-start;flex-wrap:wrap;gap:4px}
+  .ferramentas-tarefas {flex-wrap:wrap;justify-content:flex-start;width:100%;gap:5px}
+  .controle-barra {min-height:34px;padding:6px}
+  .barra-tarefas #busca {width:110px;flex:1;min-width:90px}
+  .barra-tarefas .ordenar-compacto {width:94px;min-height:32px}
+  .barra-tarefas .nova-tarefa-barra {margin-left:auto;min-height:32px}
+  .menu-flutuante.painel:has(.filtros-popover) {padding:12px}
+  .condicao-filtro {grid-template-columns:minmax(0,1fr) 48px 28px;gap:5px}
+  .campo-filtro {font-weight:600}
+  .valor-filtro {grid-column:1 / 3;grid-row:2}
+  .excluir-condicao {grid-column:3;grid-row:1}
+  .condicao-filtro {padding-bottom:10px;border-bottom:1px solid var(--linha)}
+  .filtros-rodape {gap:8px}
+  .caminho-compacto {max-width:40%;font-size:11px}
+  .titulo-compacto h1 {font-size:15px}
+}

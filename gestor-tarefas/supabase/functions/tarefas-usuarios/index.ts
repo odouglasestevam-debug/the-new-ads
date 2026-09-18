@@ -33,6 +33,10 @@ Deno.serve(async (req) => {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data: quem, error: erroQuem } = await admin.auth.getUser(token);
   if (erroQuem || !quem?.user) return resposta(req, 401, { erro: "Sessão inválida." });
+  const { data: nivel, error: erroNivel } = await admin.auth.mfa.getAuthenticatorAssuranceLevel(token);
+  if (erroNivel || !nivel || (quem.user.factors?.some(f => f.status === "verified") && nivel.currentLevel !== "aal2")) {
+    return resposta(req, 403, { erro: "Conclua a verificação em duas etapas." });
+  }
 
   const { data: ehAdmin } = await admin.rpc("tarefas_eh_admin", { p_user: quem.user.id });
   if (!ehAdmin) return resposta(req, 403, { erro: "Só admin do gestor cadastra usuários." });
@@ -43,16 +47,26 @@ Deno.serve(async (req) => {
   } catch {
     return resposta(req, 400, { erro: "Corpo inválido." });
   }
+  if (!corpo || typeof corpo !== "object" || Array.isArray(corpo)) return resposta(req, 400, { erro: "Corpo inválido." });
 
   if (corpo.acao === "adicionar") {
     const email = String(corpo.email || "").trim().toLowerCase();
     const nome = String(corpo.nome || "").trim();
     const senha = String(corpo.senha || "");
     const ehNovoAdmin = corpo.admin === true;
+    const permissoes = corpo.permissoes as Record<string, unknown> | undefined;
+    const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!permissoes || typeof permissoes.acesso_total !== "boolean" ||
+        !["espacos", "pastas", "listas"].every(k => Array.isArray(permissoes[k]) &&
+          (permissoes[k] as unknown[]).length <= 10000 && (permissoes[k] as unknown[]).every(v => typeof v === "string" && uuid.test(v)))) {
+      return resposta(req, 400, { erro: "Defina os espaços, pastas e listas permitidos para este membro." });
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return resposta(req, 400, { erro: "E-mail inválido." });
-    if (!nome) return resposta(req, 400, { erro: "Informe o nome." });
+    if (!nome || nome.length > 200) return resposta(req, 400, { erro: "Informe um nome de até 200 caracteres." });
 
-    let userId = (await admin.rpc("usuario_id_por_email", { p_email: email })).data as string | null;
+    const { data: usuarioExistente, error: erroBusca } = await admin.rpc("usuario_id_por_email", { p_email: email });
+    if (erroBusca) return resposta(req, 503, { erro: "Não foi possível verificar a conta existente. Tente novamente." });
+    let userId = usuarioExistente as string | null;
     let contaNova = false;
     if (!userId) {
       if (senha.length < 8) return resposta(req, 400, { erro: "A senha inicial precisa ter pelo menos 8 caracteres." });
@@ -62,8 +76,10 @@ Deno.serve(async (req) => {
       contaNova = true;
     }
 
-    const { error } = await admin.rpc("tarefas_adicionar_usuario", {
+    const { error } = await admin.rpc("tarefas_cadastrar_membro", {
       p_user: userId, p_nome: nome, p_email: email, p_admin: ehNovoAdmin,
+      p_total: permissoes.acesso_total, p_espacos: permissoes.espacos,
+      p_pastas: permissoes.pastas, p_listas: permissoes.listas,
     });
     if (error) return resposta(req, 400, { erro: "Não deu pra liberar o acesso: " + error.message });
     return resposta(req, 200, { ok: true, conta_nova: contaNova });
