@@ -839,7 +839,7 @@ function linhaTarefa(t, mostrarCaminho) {
   if (pai) meta.push(`<span>${ICONES.sub} ${esc(pai.titulo)}</span>`);
   if (mostrarCaminho) meta.push(`<span>${esc(caminhoLista(t.lista_id).join(" › "))}</span>`);
   if (subs.length) meta.push(`<span>${subs.filter((s) => s.situacao === "concluida").length}/${subs.length} subtarefas</span>`);
-  if (t.recorrencia) meta.push(`<span class="rec" title="Repete">${ICONES.repetir}</span>`);
+  if (t.recorrencia) meta.push(`<span class="rec" title="${esc(descreverRecorrencia(t))}">${ICONES.repetir}</span>`);
   const feita = t.situacao === "concluida";
   return `<div class="linha ${t.situacao}" role="listitem" onclick="abrirTarefa('${t.id}')">
     <div class="col-check"><button class="check${feita ? " feito" : ""}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
@@ -1262,12 +1262,13 @@ function renderGaveta() {
             <input type="number" min="1" max="365" value="${t.recorrencia_intervalo}" onchange="salvarTarefa('${t.id}', { recorrencia_intervalo: Math.max(1, Number(this.value) || 1) })" aria-label="Intervalo" style="max-width:70px">
             <span style="color:var(--nevoa);font-size:13px;flex:none">${RECORRENCIAS[t.recorrencia][t.recorrencia_intervalo === 1 ? 0 : 1]}</span></div>` : ""}
         </div>
+        ${blocoRegraRecorrencia(t)}
         <span class="rotulo">Lista</span>
         <select onchange="salvarTarefa('${t.id}', { lista_id: this.value })" ${pai ? 'disabled title="Subtarefa fica na lista da tarefa principal"' : ""}>
           ${opcoesListas().map((o) => `<option value="${o.v}"${o.v === t.lista_id ? " selected" : ""}>${esc(o.t)}</option>`).join("")}
         </select>
       </div>
-      ${t.recorrencia ? `<p style="font-size:12.5px;color:var(--nevoa);margin:-10px 0 18px">Ao concluir, a próxima é criada com a entrega ${RECORRENCIAS[t.recorrencia][0] === "dia" && t.recorrencia_intervalo === 1 ? "no dia seguinte" : `${t.recorrencia_intervalo} ${RECORRENCIAS[t.recorrencia][t.recorrencia_intervalo === 1 ? 0 : 1]} depois`} da data de entrega desta.</p>` : ""}
+      ${resumoRecorrencia(t)}
 
       <span class="rotulo">Descrição</span>
       <textarea id="g-descricao" placeholder="Detalhes, links, contexto..." rows="4">${esc(t.descricao || "")}</textarea>

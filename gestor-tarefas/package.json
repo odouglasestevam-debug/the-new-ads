@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --test tests/database.test.mjs tests/push.test.mjs tests/acessos.test.mjs",
+    "test": "node --test tests/database.test.mjs tests/push.test.mjs tests/acessos.test.mjs tests/recorrencia.test.mjs",
     "test:ui": "node tests/browser.mjs"
   },
   "devDependencies": {
