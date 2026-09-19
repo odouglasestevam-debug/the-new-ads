@@ -220,6 +220,12 @@
   .plano .para { font-size: 14px; color: var(--muted); margin-top: auto; padding-top: 16px; }
   .plano ul.check li { font-size: 15px; }
   @media (max-width: 640px) { .planos { grid-template-columns: 1fr; } }
+  .validade { display: flex; gap: 14px; align-items: flex-start; border: 1px solid rgba(255,106,0,.45); background: rgba(255,106,0,.07); padding: 18px 20px; margin: -24px 0 56px; }
+  .validade .tag { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); white-space: nowrap; padding-top: 3px; }
+  .validade p { margin: 0; font-size: 15px; }
+  .validade strong { color: var(--amber-glow); }
+  @media (max-width: 560px) { .validade { flex-direction: column; gap: 6px; margin-top: -16px; } }
+  .plano .prazo { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--amber-glow); border: 1px solid rgba(255,106,0,.35); padding: 8px 10px; margin-bottom: 14px; line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -235,6 +241,11 @@
   <span class="kicker">Proposta comercial</span>
   <h1 class="titulo-proposta">Gestão de tráfego pago no Google e no Meta para <span>Automatiza Nunes</span></h1>
 
+  <div class="validade">
+    <span class="tag">Validade</span>
+    <p>Proposta exclusiva para fechamento até <strong>23/09/2026</strong>. Após essa data, os valores têm acréscimo de 30%.</p>
+  </div>
+
   <section>
     <h2><span class="num">01</span> A solução</h2>
     <p>A The New Ads assume a operação de mídia da Automatiza Nunes: monta as campanhas, produz os criativos, acompanha os números e ajusta toda semana. São dois planos, conforme a verba que você quer investir em mídia e a estrutura que já tem hoje.</p>
@@ -247,6 +258,7 @@
         <span class="nome">Essencial</span>
         <div class="preco">R$ 1.000<small>/mês</small></div>
         <div class="midia">Pra investimento em mídia a partir de R$ 1.000/mês</div>
+        <div class="prazo">Válido para fechamento até 23/09/2026. Depois: R$ 1.300/mês (+30%)</div>
         <ul class="check">
           <li>Gestão de Google Ads e/ou Meta Ads</li>
           <li>Criativos estáticos</li>
@@ -258,6 +270,7 @@
         <span class="nome">Completo</span>
         <div class="preco">R$ 1.500<small>/mês</small></div>
         <div class="midia">Pra investimento em mídia de R$ 1.500 a R$ 3.000/mês</div>
+        <div class="prazo">Válido para fechamento até 23/09/2026. Depois: R$ 1.950/mês (+30%)</div>
         <ul class="check">
           <li>Gestão de Google Ads e Meta Ads</li>
           <li>Landing page de conversão</li>
@@ -293,6 +306,7 @@
         <span class="valor">R$ 1.500/mês</span>
       </div>
       <p class="nota">O fee de gestão é separado da verba de mídia. Exemplo no plano Completo com R$ 2.000 em mídia: R$ 1.500 de fee pra The New Ads + R$ 2.000 pagos direto às plataformas.</p>
+      <p class="nota"><strong style="color:var(--amber-glow)">Valores válidos para fechamento até 23/09/2026.</strong> Após essa data, acréscimo de 30%: Essencial passa a R$ 1.300/mês e Completo a R$ 1.950/mês.</p>
     </div>
   </section>
 
