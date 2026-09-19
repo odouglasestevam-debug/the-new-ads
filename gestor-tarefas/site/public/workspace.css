@@ -202,3 +202,5 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
   .regra-espaco {padding:8px}
   #editor-membro {scroll-margin-top:80px}
 }
+.membros-acoes {gap:10px}
+.membros-acoes #excluir-membro {margin-right:auto}

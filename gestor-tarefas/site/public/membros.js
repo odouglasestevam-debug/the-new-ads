@@ -56,7 +56,7 @@ async function abrirEditorMembro(userId = null) {
     <h3 class="acesso-titulo">Locais permitidos</h3>
     <div id="regras-membro"></div>
     <p class="aviso" id="aviso-membro" role="status" aria-live="polite"></p>
-    <div class="membros-acoes"><button class="btn" id="salvar-membro">${u ? 'Salvar alterações' : 'Adicionar membro'}</button></div>
+    <div class="membros-acoes">${u && u.user_id !== S.user.id ? '<button type="button" class="btn btn-perigo" id="excluir-membro">Excluir membro</button>' : ''}<button class="btn" id="salvar-membro">${u ? 'Salvar alterações' : 'Adicionar membro'}</button></div>
   </form>`;
   document.getElementById('m-funcao').addEventListener('change', e => { editorMembro.admin = e.target.value === 'admin'; renderRegrasMembro(); });
   document.getElementById('cancelar-membro').addEventListener('click', () => {
@@ -65,6 +65,7 @@ async function abrirEditorMembro(userId = null) {
     document.getElementById('adicionar-membro')?.focus();
   });
   document.getElementById('form-membro').addEventListener('submit', salvarMembro);
+  document.getElementById('excluir-membro')?.addEventListener('click', () => excluirMembro(u));
   renderRegrasMembro();
   alvo.scrollIntoView({block:'start',behavior:'auto'});
   document.getElementById('m-nome').focus();
@@ -155,4 +156,21 @@ async function salvarMembro(event) {
     e.salvando = false;
     controles.forEach(el=>{el.disabled=false;});
   }
+}
+
+// Exclui do gestor (não apaga a conta de login, que pode ser a mesma do CRM).
+async function excluirMembro(u) {
+  if (!S.eu?.admin || !u || editorMembro?.salvando) return;
+  const atribuicoes = S.tarefas.filter(t => t.responsaveis.includes(u.user_id)).length;
+  const ok = await confirmar({
+    titulo: 'Excluir membro?',
+    texto: `<b>${esc(u.nome)}</b> perde todo o acesso ao gestor e sai da lista de membros${atribuicoes ? `. Também deixa de ser responsável por <b>${atribuicoes} ${atribuicoes === 1 ? 'tarefa' : 'tarefas'}</b>` : ''}. Comentários e tarefas criadas continuam. A conta de login não é apagada. Se quiser só bloquear a entrada e manter tudo, use Desativar.`,
+  });
+  if (!ok) return;
+  const { error } = await sb.rpc('tarefas_excluir_membro', { p_user: u.user_id });
+  if (error) return aviso('aviso-membro', erroBanco(error, 'Não foi possível excluir'), 'erro');
+  editorMembro = null;
+  await carregar();
+  renderAjustes();
+  toast('Membro excluído.');
 }

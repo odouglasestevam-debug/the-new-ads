@@ -11,6 +11,7 @@ Status: **ativo em produção desde 18/09/2026.** Migrações `tarefas_0004_inte
 - Bloqueios individuais de listas preservam o acesso à pasta e às outras listas.
 - A opção Todos os espaços mantém os bloqueios de pastas/listas. Sem essa opção, espaços novos exigem liberação explícita.
 - A migração preserva o acesso amplo dos membros existentes. Depois, usar Ajustes > Membros > Editar acesso para restringir cada pessoa.
+- Excluir (migração `tarefas_0006_excluir_membro`, função `tarefas_excluir_membro`): só admin, nunca a si mesmo, respeita o último admin. Remove cadastro, permissões, push e atribuições; comentários, tarefas criadas e a conta de login (que pode ser a do CRM) continuam.
 - Desativar preserva histórico e impede acesso. Administradores podem ver a lista de membros para editar seus acessos; membros só veem o cadastro básico da equipe.
 
 As regras valem no PostgreSQL, incluindo acesso por URL/API, subtarefas, comentários, responsáveis e contagem dos lembretes push. Uma atribuição de tarefa não concede permissão para ler sua lista. A sessão aberta atualiza os dados periodicamente e ao voltar para a aba; a revogação no banco passa a valer imediatamente, mas não remove informações já visualizadas ou copiadas.
