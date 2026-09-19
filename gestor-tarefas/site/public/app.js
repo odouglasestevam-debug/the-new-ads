@@ -189,6 +189,7 @@ function abrirMenu(ancora, itens) {
   menu.innerHTML = itens.map((it, i) => it === "-" ? "<hr>" :
     `<button data-i="${i}" class="${it.perigo ? "perigo" : ""}${it.atual ? " atual" : ""}">${it.cor ? `<span class="bolinha-menu" style="background:${esc(it.cor)}"></span>` : ""}${esc(it.t)}${it.atual ? '<span class="marcado-menu">✓</span>' : ""}</button>`).join("");
   menu.classList.add("ativo");
+  ancoraMenu = ancora;
   const r = ancora.getBoundingClientRect();
   const largura = menu.offsetWidth, altura = menu.offsetHeight;
   menu.style.left = Math.max(8, Math.min(r.right - largura, innerWidth - largura - 8)) + "px";
@@ -202,10 +203,25 @@ function abrirMenu(ancora, itens) {
 }
 function fecharMenu() {
   document.getElementById("menu-flutuante").classList.remove("ativo", "painel");
+  ancoraMenu = null;
 }
-document.addEventListener("mousedown", (e) => {
-  if (!e.target.closest("#menu-flutuante") && !e.target.closest("[data-menu]")) fecharMenu();
-});
+// Menus e janelinhas (status, datas, filtros, ⋯): qualquer clique fora fecha; clicar de novo no
+// mesmo botão fecha em vez de reabrir; rolar a página também fecha, porque a janela fica solta na tela.
+let ancoraMenu = null, ignorarClique = null;
+function menuAberto() { return document.getElementById("menu-flutuante").classList.contains("ativo"); }
+document.addEventListener("pointerdown", (e) => {
+  if (!menuAberto() || e.target.closest("#menu-flutuante")) return;
+  if (ancoraMenu && ancoraMenu.isConnected && ancoraMenu.contains(e.target)) ignorarClique = ancoraMenu;
+  fecharMenu();
+}, true);
+document.addEventListener("click", (e) => {
+  if (ignorarClique && ignorarClique.contains(e.target)) { e.stopPropagation(); e.preventDefault(); }
+  ignorarClique = null;
+}, true);
+document.addEventListener("scroll", (e) => {
+  if (menuAberto() && !(e.target instanceof Element && e.target.closest("#menu-flutuante"))) fecharMenu();
+}, true);
+window.addEventListener("resize", () => { if (menuAberto()) fecharMenu(); });
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (document.getElementById("modal-veu").classList.contains("ativo")) fecharModal(null);
@@ -715,10 +731,13 @@ function abrirPainel(ancora, html) {
   menu.innerHTML = html;
   menu.onclick = null;
   menu.classList.add("ativo", "painel");
+  ancoraMenu = ancora;
   const r = ancora.getBoundingClientRect();
-  const largura = menu.offsetWidth;
+  const largura = menu.offsetWidth, altura = menu.offsetHeight;
   menu.style.left = Math.max(8, Math.min(r.left, innerWidth - largura - 8)) + "px";
-  menu.style.top = Math.min(r.bottom + 6, innerHeight - menu.offsetHeight - 8) + "px";
+  // Abre abaixo; se não couber, acima do botão; em último caso, colado no topo.
+  const abaixo = r.bottom + 6, acima = r.top - altura - 6;
+  menu.style.top = (abaixo + altura <= innerHeight - 8 ? abaixo : acima >= 8 ? acima : Math.max(8, innerHeight - altura - 8)) + "px";
 }
 
 function renderResultado(r, f, escopo) {
@@ -954,13 +973,16 @@ function rotuloData(iso) {
 
 function atalhosDeData() {
   const hoje = hojeSP();
-  const sabado = proximo(hoje, 6);
+  // No sábado ou domingo, "este fim de semana" é o próprio dia; nos outros, o próximo sábado.
+  const dow = diaDaSemana(hoje);
+  const sabado = dow === 6 || dow === 0 ? hoje : proximo(hoje, 6);
+  const proximoSabado = dow === 0 ? proximo(hoje, 6) : somarDias(sabado, 7);
   return [
     { t: "Hoje", d: hoje },
     { t: "Amanhã", d: somarDias(hoje, 1) },
     { t: "Este fim de semana", d: sabado },
     { t: "Semana que vem", d: proximo(hoje, 1) },
-    { t: "Próximo fim de semana", d: somarDias(sabado, 7) },
+    { t: "Próximo fim de semana", d: proximoSabado },
     { t: "Em 2 semanas", d: somarDias(hoje, 14) },
     { t: "Em 4 semanas", d: somarDias(hoje, 28) },
   ];

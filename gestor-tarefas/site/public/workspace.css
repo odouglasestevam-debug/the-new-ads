@@ -310,3 +310,29 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
   .cu-linha > .cu-cel:nth-child(2) {display:none}
   .cu-titulo {white-space:normal}
 }
+
+/* ---------- Menus e calendário mais compactos, sem rolagem ---------- */
+.menu-flutuante {padding:4px;min-width:170px;border-radius:9px}
+.menu-flutuante button {padding:6px 9px;font-size:13px;gap:8px;border-radius:6px}
+.menu-flutuante hr {margin:3px 0}
+.menu-flutuante.painel:has(.cal) {padding:8px;max-height:none;overflow:visible;min-width:0;width:auto}
+.cal {display:grid;grid-template-columns:168px 224px;grid-template-areas:"atalhos mes" "atalhos grade" "rodape rodape";column-gap:10px;min-width:0!important}
+.cal-atalhos {grid-area:atalhos;margin:0;padding-right:8px;border-right:1px solid var(--linha);gap:0}
+.cal-atalhos button {padding:5px 7px;font-size:12.5px;gap:8px}
+.cal-atalhos em {font-size:10px}
+.cal-mes {grid-area:mes;border-top:0;padding-top:0;margin-bottom:2px}
+.cal-mes strong {font-size:12.5px}
+.cal-grade {grid-area:grade;gap:1px}
+.cal-cab {font-size:9px;padding-bottom:2px}
+.cal .dia {height:26px;font-size:12px;border-radius:6px}
+.cal-rodape {grid-area:rodape;margin-top:6px;padding-top:6px}
+.cal-rodape .limpar {font-size:12px}
+@media(max-width:480px) {
+  .cal {grid-template-columns:1fr;grid-template-areas:"atalhos" "mes" "grade" "rodape";width:calc(100vw - 32px)}
+  .cal-atalhos {display:grid;grid-template-columns:1fr 1fr;border-right:0;border-bottom:1px solid var(--linha);padding:0 0 6px;margin-bottom:6px}
+  .cal-atalhos em {display:none}
+}
+.menu-flutuante.painel:has(.cal) {max-width:calc(100vw - 16px)}
+.cal {grid-template-columns:190px 224px}
+.cal-atalhos button span {white-space:nowrap}
+@media(max-width:480px) { .cal {grid-template-columns:1fr} .cal-atalhos button {padding:5px 6px} }
