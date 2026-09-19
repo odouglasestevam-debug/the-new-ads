@@ -1,6 +1,6 @@
 # Membros e acesso a espaços, pastas e listas
 
-Status: implementado e validado localmente. **Ainda não ativado no domínio publicado.** O conector Supabase não está disponível nesta sessão. A versão de produção continua com as regras anteriores até aplicar a migração e publicar o pacote completo.
+Status: **ativo em produção desde 18/09/2026.** Migrações `tarefas_0004_integridade_e_seguranca` e `tarefas_0005_acessos_por_membro` aplicadas no projeto `xrvjlhseyqfgyvwwlwwb`, Edge Functions `tarefas-usuarios` e `tarefas-lembrete` na versão 2, frontend completo publicado em https://tarefas.thenewads.com.br. Rollback de emergência em `supabase/rollback/antes_0004_0005.sql`.
 
 ## Comportamento
 
@@ -23,13 +23,25 @@ Cadastro e definição de permissões são uma única transação de banco: refe
 
 O frontend fica em `site/public/membros.js`. Enquanto o servidor não expõe a nova configuração, os controles de cadastro e edição ficam desabilitados com explicação, evitando exibir uma restrição que ainda não existe.
 
-## Ativação pendente
+## Ativação (concluída)
 
-1. Conectar o projeto Supabase `xrvjlhseyqfgyvwwlwwb` e conferir quais migrações estão aplicadas.
-2. Aplicar 0004, se pendente, e 0005. A migração 0005 desabilita o cadastro antigo para impedir liberações ambíguas durante a atualização.
-3. Publicar `tarefas-usuarios` e `tarefas-lembrete`, incluindo `push-seguro.ts`. Preservar os segredos e a configuração atual de autenticação da função de cron.
-4. Publicar o frontend atualizado no Cloudflare. As permissões não devem ser anunciadas como ativas antes de concluir o banco e as funções.
-5. Confirmar no ambiente real o fluxo de administrador e um membro restrito, incluindo consulta direta a dados bloqueados.
+1. Conferido o projeto e as migrações aplicadas: só `tarefas_0001` a `0003` existiam.
+2. Antes de aplicar: ninguém tinha 2FA cadastrado (a regra de MFA da 0004 não trava ninguém) e nenhum dado violava as validações novas. Definições antigas salvas no arquivo de rollback.
+3. 0004 aplicada como está. 0005 aplicada sem as linhas `begin;`/`commit;`, porque `apply_migration` já é transacional.
+4. Funções publicadas com os arquivos desta pasta (`tarefas-lembrete` com `push-seguro.ts`, sem JWT obrigatório por causa do cron). Segredos do Vault e o job `tarefas-lembrete-diario` não foram alterados.
+5. Frontend de `site/` publicado com `site/wrangler.jsonc`, mesma CSP de antes. Não foi usado `.toolbar-release`.
+6. Membros que já existiam (Pedro, fabioli, teste) ficaram com `acesso_total = true`. As restrições deles devem ser escolhidas em Ajustes > Membros.
+
+## Validação em produção (18/09/2026)
+
+Com contas de teste reais (admin e membro restrito), logando pela API pública, sem service_role. Dados de teste apagados ao final.
+- Membro restrito: vê só o espaço liberado; pasta bloqueada some com subpasta e listas; lista bloqueada individualmente some; GET direto por id, pela view pública e pelo schema `tarefas` volta vazio; comentários, responsáveis e subtarefas bloqueados não aparecem; ser responsável não dá acesso.
+- Escrita bloqueada: alterar, excluir, criar, mover para lista bloqueada, comentar, se atribuir e pendurar subtarefa foram recusados.
+- Autopromoção: virar admin, ligar `acesso_total`, chamar `tarefas_configurar_membro`, ler regras, inserir direto na tabela de permissões, chamar `tarefas_cadastrar_membro`, cadastro antigo e função de cadastro: tudo recusado.
+- Admin: cadastro pela função (membro novo entra sem ver nada), recadastro não sobrescreve, revogação vale na hora, referência inválida não salva nada pela metade, desativação corta tudo e preserva histórico.
+- Lembrete: membro responsável por 6 tarefas atrasadas recebe contagem 2 (só as liberadas).
+- Último admin: tentar remover todos os admins é recusado e desfeito.
+- Tela no domínio publicado: editor de membros salva e grava no banco, membro restrito não vê itens bloqueados nem controles de admin, celular sem rolagem lateral, sem erro de JavaScript.
 
 ## Validação local
 
