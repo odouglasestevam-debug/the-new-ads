@@ -9,9 +9,13 @@
 <script src="/tema.js?v=10"></script>
 <link rel="icon" type="image/svg+xml" href="/icone.svg">
 <link rel="manifest" href="/manifest.json">
-<link rel="apple-touch-icon" href="/icons/icone-192.png">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tarefas">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="/estilo.css?v=9">
-<link rel="stylesheet" href="/workspace.css?v=14">
+<link rel="stylesheet" href="/workspace.css?v=15">
 <link rel="stylesheet" href="/toolbar.css?v=12">
 </head>
 <body>
@@ -86,6 +90,10 @@ FINISH: revisão visual em desktop e celular, testes funcionais e registro do si
     <div class="arvore" id="arvore"></div>
     <div class="rodape">
       <label class="seletor-tema">Tema <select data-tema aria-label="Tema do aplicativo"><option value="claro">Claro</option><option value="escuro">Escuro</option><option value="sistema">Sistema</option></select></label>
+      <button id="btn-instalar" class="link-rodape" onclick="instalarApp()" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>
+        Instalar app
+      </button>
       <button data-rota="#/ajustes" id="nav-ajustes" class="link-rodape">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
         Ajustes
@@ -107,8 +115,9 @@ FINISH: revisão visual em desktop e celular, testes funcionais e registro do si
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script src="/vendor/supabase.js"></script>
+<script src="/instalar.js?v=1"></script>
 <script src="/filtros.js?v=12"></script>
 <script src="/membros.js?v=14"></script>
-<script src="/app.js?v=13"></script>
+<script src="/app.js?v=14"></script>
 </body>
 </html>

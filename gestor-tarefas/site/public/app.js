@@ -1429,7 +1429,8 @@ function abaConta() {
         <button class="btn">Trocar senha</button>
         <p class="aviso" id="aviso-senha"></p>
       </form>
-    </div>`;
+    </div>
+    ${typeof painelInstalar === "function" ? painelInstalar() : ""}`;
   document.getElementById("form-senha").addEventListener("submit", async (e) => {
     e.preventDefault();
     const nova = document.getElementById("nova-senha").value;

@@ -204,3 +204,5 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 }
 .membros-acoes {gap:10px}
 .membros-acoes #excluir-membro {margin-right:auto}
+.passos-instalar {margin:4px 0 14px 18px;font-size:13.5px;line-height:1.7}
+#instalar-app .btn {margin-top:4px}
