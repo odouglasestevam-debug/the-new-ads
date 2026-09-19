@@ -75,7 +75,7 @@ Deno.serve(async (req) => {
 
   const corpo = await req.text();
   const assinatura = req.headers.get("X-Hub-Signature-256");
-  if (assinatura && s.webhook_secret && !iguais(assinatura, await hmac(s.webhook_secret, corpo))) {
+  if (s.webhook_secret && (!assinatura || !iguais(assinatura, await hmac(s.webhook_secret, corpo)))) {
     return texto(401, "assinatura inválida");
   }
 
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
   // n8n às vezes repassa o envelope dentro de body
   if (payload.body?.event) payload = payload.body;
 
-  if (cfg.instance_id && payload.instanceId && String(payload.instanceId) !== String(cfg.instance_id)) {
+  if (cfg.instance_id && String(payload.instanceId || "") !== String(cfg.instance_id)) {
     return texto(200, "instância de outra empresa ignorada");
   }
   const d = payload.data || {};

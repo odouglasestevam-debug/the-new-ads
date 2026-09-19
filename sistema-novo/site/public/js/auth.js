@@ -172,6 +172,7 @@ async function carregarEmpresas(selecionar) {
 }
 
 async function trocarEmpresa(id) {
+  pararTempoReal();
   empresaAtual = empresas.find((e) => e.id === id);
   papel = empresaAtual.papel;
   formEditando = null;
@@ -179,6 +180,11 @@ async function trocarEmpresa(id) {
   mensagensPorConversa = {};
   integracaoWhats = null;
   canaisWhats = [];
+  filtroConv.busca = "";
+  filtroConv.responsavel = "";
+  filtroConv.canal = "";
+  historicoCompleto.clear();
+  errosMensagens.clear();
   avisosIntegracao = {};
   if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";
   if (abaAjustes === "integracoes" && !pode.administrar()) abaAjustes = "seguranca";
@@ -186,4 +192,5 @@ async function trocarEmpresa(id) {
   document.getElementById("empresa-sel").value = id;
   document.getElementById("papel-atual").textContent = NOME_PAPEL[papel] || "";
   await carregarTudo();
+  if (empresaAtual?.id === id) iniciarTempoReal(id);
 }

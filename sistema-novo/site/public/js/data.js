@@ -62,3 +62,25 @@ async function atualizarConversas() {
 setInterval(() => atualizarConversas().catch(() => {}), 10000);
 window.addEventListener("online", () => atualizarConversas().catch(() => {}));
 document.addEventListener("visibilitychange", () => { if (!document.hidden) atualizarConversas().catch(() => {}); });
+
+let canalTempoReal = null;
+let debounceTempoReal;
+function pararTempoReal() {
+  clearTimeout(debounceTempoReal);
+  if (canalTempoReal) sb.removeChannel(canalTempoReal);
+  canalTempoReal = null;
+}
+function iniciarTempoReal(empresaId) {
+  pararTempoReal();
+  const agendar = () => {
+    clearTimeout(debounceTempoReal);
+    debounceTempoReal = setTimeout(() => {
+      if (empresaAtual?.id === empresaId) atualizarConversas().catch(() => {});
+    },200);
+  };
+  canalTempoReal = sb.channel(`crm:${empresaId}:${usuario.id}`);
+  for (const table of ['conversas','mensagens']) for (const event of ['INSERT','UPDATE']) {
+    canalTempoReal.on('postgres_changes',{event,schema:'public',table,filter:`empresa_id=eq.${empresaId}`},agendar);
+  }
+  canalTempoReal.subscribe();
+}

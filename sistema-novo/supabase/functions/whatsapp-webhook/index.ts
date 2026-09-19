@@ -133,22 +133,29 @@ Deno.serve(async (req) => {
           p_midia: c.midia, p_origem: origem,
           p_quando: m.timestamp ? new Date(Number(m.timestamp) * 1000).toISOString() : null,
         });
-        if (error) console.error("receber_mensagem_whatsapp", m.id, error.message);
+        if (error) {
+          console.error("receber_mensagem_whatsapp", error.code);
+          return texto(503, "falha temporária ao persistir evento");
+        }
       }
 
       for (const st of v.statuses || []) {
         const novo = STATUS_META[st.status];
         if (!novo) continue;
-        const { data: msg } = await admin.from("mensagens").select("id, status").eq("wa_message_id", st.id).maybeSingle();
+        const { data: msg, error: erroBusca } = await admin.from("mensagens").select("id, status")
+          .eq("empresa_id", integ.empresa_id).eq("wa_message_id", st.id).maybeSingle();
+        if (erroBusca) return texto(503, "falha temporária ao consultar recibo");
+        if (novo === "falhou" && ["entregue", "lida"].includes(msg?.status)) continue;
         if (!msg || (ORDEM_STATUS[novo] ?? 0) <= (ORDEM_STATUS[msg.status] ?? 0)) continue;
-        await admin.from("mensagens").update({
+        const { error: erroStatus } = await admin.from("mensagens").update({
           status: novo,
           erro: novo === "falhou" ? (st.errors?.[0]?.error_data?.details || st.errors?.[0]?.title || "falhou") : null,
-        }).eq("id", msg.id);
+        }).eq("id", msg.id).eq("status", msg.status).eq("empresa_id", integ.empresa_id);
+        if (erroStatus) return texto(503, "falha temporária ao persistir recibo");
       }
     }
   }
 
-  // Meta reenvia se não receber 200: responde rápido mesmo com erro pontual já registrado no log.
+  // Confirma somente depois da persistência; falhas transitórias permitem reentrega.
   return texto(200);
 });

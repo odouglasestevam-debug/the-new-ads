@@ -1,0 +1,68 @@
+/* Clash Display */
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/fonts/6de911fc824613ef.woff2') format('woff2'),
+       url('/fonts/a1b68b3b77429ff5.woff') format('woff'),
+       url('/fonts/e25fa4a01bc4b1b9.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/fonts/e748ea11c49f39ae.woff2') format('woff2'),
+       url('/fonts/3c1cb1649614fbc4.woff') format('woff'),
+       url('/fonts/77d8cfd143551af6.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Clash Display';
+  src: url('/fonts/532795f825c5a28b.woff2') format('woff2'),
+       url('/fonts/ae6f186d0ee36ef0.woff') format('woff'),
+       url('/fonts/d3bf1ae52ac8f5a7.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+/* Switzer */
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/ddd9595560c35725.woff2') format('woff2'),
+       url('/fonts/6bcfc7299174857e.woff') format('woff'),
+       url('/fonts/fdc5496101df0913.ttf') format('truetype');
+  font-weight: 400;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/7393d1abac009ede.woff2') format('woff2'),
+       url('/fonts/102c13aea228a2fb.woff') format('woff'),
+       url('/fonts/33ad3fa9de4e9008.ttf') format('truetype');
+  font-weight: 500;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/d6497c264dbf70ae.woff2') format('woff2'),
+       url('/fonts/76a789e2232fdf88.woff') format('woff'),
+       url('/fonts/0a9aa2676d5228d3.ttf') format('truetype');
+  font-weight: 600;
+  font-display: swap;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Switzer';
+  src: url('/fonts/7aecbe035c1e311e.woff2') format('woff2'),
+       url('/fonts/f2a796b35c48a2c4.woff') format('woff'),
+       url('/fonts/00cb673435a72e66.ttf') format('truetype');
+  font-weight: 700;
+  font-display: swap;
+  font-style: normal;
+}
+
+

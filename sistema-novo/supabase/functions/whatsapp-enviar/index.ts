@@ -1,6 +1,7 @@
 // Envia mensagem de texto para o lead pelo WhatsApp da empresa: API oficial ou NeoGo.
 // Confere a mesma permissão de edição de lead do banco; na oficial, também a janela de 24h da Meta.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { neoGoBase, temMfaPendente, UUID } from "../_shared/security.ts";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const ORIGENS = ["https://crm.thenewads.com.br", "http://localhost:8788"];
@@ -19,30 +20,34 @@ const resposta = (req: Request, status: number, corpo: unknown) =>
   new Response(JSON.stringify(corpo), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
 
 // NeoGo: sem janela de 24h. Token da instância no cabeçalho apikey, POST /send/text.
-async function enviarNeoGo(req: Request, admin: any, conversa: any, mensagem: string, autorId: string) {
+async function enviarNeoGo(req: Request, admin: any, conversa: any, mensagem: string, autorId: string, mensagemId: string) {
   const { data: integ } = await admin.from("integracoes").select("*")
     .eq("empresa_id", conversa.empresa_id).eq("tipo", "whatsapp_nao_oficial").maybeSingle();
   if (!integ || integ.status !== "ativa") return resposta(req, 400, { erro: "WhatsApp (NeoGo) não está ativo nesta empresa." });
   const { data: seg } = await admin.rpc("integracao_ler_segredos", { p_integracao: integ.id });
   const s = (seg || {}) as Record<string, string>;
   if (!s.instance_token) return resposta(req, 400, { erro: "Falta o token da instância NeoGo." });
+  let base: string;
+  try { base = neoGoBase(integ.config.base_url); } catch (e) { return resposta(req, 400, { erro: (e as Error).message }); }
 
   const { data: registro, error: erroInsert } = await admin.from("mensagens").insert({
+    id: mensagemId,
     empresa_id: conversa.empresa_id, conversa_id: conversa.id, direcao: "saida", tipo: "texto",
     texto: mensagem, status: "enviando", autor_id: autorId,
   }).select().single();
-  if (erroInsert) return resposta(req, 500, { erro: erroInsert.message });
+  if (erroInsert) return erroInsert.code === '23505' ? repetirEnvio(req, admin, conversa, mensagemId, autorId, mensagem) : resposta(req, 503, { erro: 'Não foi possível registrar o envio. Tente novamente.' });
 
   let r: Response;
   try {
-    r = await fetch(`${(integ.config as Record<string, string>).base_url}/send/text`, {
+    r = await fetch(`${base}/send/text`, {
       method: "POST",
+      signal: AbortSignal.timeout(20000), redirect: 'error',
       headers: { apikey: s.instance_token, "Content-Type": "application/json" },
       body: JSON.stringify({ number: conversa.wa_id, text: mensagem }),
     });
   } catch (e) {
-    await admin.from("mensagens").update({ status: "falhou", erro: "NeoGo fora do ar: " + String(e) }).eq("id", registro.id);
-    return resposta(req, 502, { erro: "Não consegui falar com a NeoGo." });
+    await admin.from("mensagens").update({ erro: "O provedor ainda não confirmou o envio. Confira o histórico antes de reenviar." }).eq("id", registro.id).eq('status','enviando');
+    return resposta(req, 202, { pendente:true, mensagem:registro });
   }
   const d: any = await r.json().catch(() => ({}));
   if (!r.ok) {
@@ -70,12 +75,15 @@ Deno.serve(async (req) => {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data: quem } = await admin.auth.getUser(token);
   if (!quem?.user) return resposta(req, 401, { erro: "Sessão inválida." });
+  if (temMfaPendente(quem.user, token)) return resposta(req, 403, { erro: 'Conclua a autenticação em duas etapas antes de enviar.' });
 
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return resposta(req, 400, { erro: "Corpo inválido." }); }
   const mensagem = String(b.texto || "").trim();
   if (!mensagem) return resposta(req, 400, { erro: "Escreva a mensagem." });
   if (mensagem.length > 4096) return resposta(req, 400, { erro: "Mensagem longa demais (máximo 4096 caracteres)." });
+  const mensagemId = b.mensagem_id ? String(b.mensagem_id) : crypto.randomUUID();
+  if (!UUID.test(mensagemId)) return resposta(req, 400, { erro:'Identificador de envio inválido.' });
 
   const { data: conversa } = await admin.from("conversas").select("*, leads(responsavel_id)").eq("id", String(b.conversa_id || "")).maybeSingle();
   if (!conversa) return resposta(req, 404, { erro: "Conversa não encontrada." });
@@ -88,8 +96,16 @@ Deno.serve(async (req) => {
   const pode = !!agencia || ["dono", "gestor"].includes(membro?.papel) ||
     (membro?.papel === "vendedor" && responsavel === quem.user.id);
   if (!pode) return resposta(req, 403, { erro: "Você não pode responder este lead." });
+  const { data: empresa } = await admin.from('empresas').select('ativo').eq('id',conversa.empresa_id).maybeSingle();
+  if (!empresa?.ativo) return resposta(req,403,{erro:'Esta empresa está inativa.'});
+  const { data: existente } = await admin.from('mensagens').select('*').eq('id',mensagemId).maybeSingle();
+  if (existente) return repetirEnvio(req,admin,conversa,mensagemId,quem.user.id,mensagem);
+  const { count, error: erroLimite } = await admin.from('mensagens').select('id',{count:'exact',head:true})
+    .eq('autor_id',quem.user.id).gte('criado_em',new Date(Date.now()-60000).toISOString());
+  if (erroLimite) return resposta(req,503,{erro:'Não foi possível verificar o envio. Tente novamente.'});
+  if ((count || 0) >= 30) return resposta(req,429,{erro:'Muitos envios em sequência. Aguarde um minuto.'});
 
-  if (conversa.canal === "whatsapp_nao_oficial") return await enviarNeoGo(req, admin, conversa, mensagem, quem.user.id);
+  if (conversa.canal === "whatsapp_nao_oficial") return await enviarNeoGo(req, admin, conversa, mensagem, quem.user.id, mensagemId);
   if (conversa.canal !== "whatsapp_oficial") return resposta(req, 400, { erro: "Canal ainda não suportado para envio." });
   if (!conversa.ultima_entrada_em || Date.now() - new Date(conversa.ultima_entrada_em).getTime() > JANELA_MS) {
     return resposta(req, 422, {
@@ -106,10 +122,11 @@ Deno.serve(async (req) => {
   if (!s.token) return resposta(req, 400, { erro: "Falta o token da integração." });
 
   const { data: registro, error: erroInsert } = await admin.from("mensagens").insert({
+    id: mensagemId,
     empresa_id: conversa.empresa_id, conversa_id: conversa.id, direcao: "saida", tipo: "texto",
     texto: mensagem, status: "enviando", autor_id: quem.user.id,
   }).select().single();
-  if (erroInsert) return resposta(req, 500, { erro: erroInsert.message });
+  if (erroInsert) return erroInsert.code === '23505' ? repetirEnvio(req,admin,conversa,mensagemId,quem.user.id,mensagem) : resposta(req,503,{erro:'Não foi possível registrar o envio. Tente novamente.'});
 
   // Celular brasileiro chega ora com o 9, ora sem. Se a Meta recusar o formato que veio
   // no webhook, tenta o outro antes de desistir e guarda o que funcionou.
@@ -121,9 +138,10 @@ Deno.serve(async (req) => {
   const RECUSA_DE_NUMERO = ["131030", "131026", "131009"];
 
   let r!: Response, d: any = {}, usado = conversa.wa_id;
-  for (const numero of formatos) {
+  try { for (const numero of formatos) {
     r = await fetch(`${GRAPH}/${(integ.config as Record<string, string>).phone_number_id}/messages`, {
       method: "POST",
+      signal: AbortSignal.timeout(20000), redirect:'error',
       headers: { Authorization: `Bearer ${s.token}`, "Content-Type": "application/json" },
       body: JSON.stringify({ messaging_product: "whatsapp", to: numero, type: "text", text: { body: mensagem, preview_url: true } }),
     });
@@ -131,6 +149,9 @@ Deno.serve(async (req) => {
     usado = numero;
     if (r.ok && d?.messages?.[0]?.id) break;
     if (!RECUSA_DE_NUMERO.includes(String(d?.error?.code ?? ""))) break;
+  } } catch {
+    await admin.from('mensagens').update({erro:'A Meta ainda não confirmou o envio. Confira o histórico antes de reenviar.'}).eq('id',registro.id).eq('status','enviando');
+    return resposta(req,202,{pendente:true,mensagem:registro});
   }
   if (r.ok && d?.messages?.[0]?.id && usado !== conversa.wa_id) {
     await admin.from("conversas").update({ wa_id: usado }).eq("id", conversa.id);
@@ -158,3 +179,11 @@ Deno.serve(async (req) => {
     .eq("id", conversa.id);
   return resposta(req, 200, { ok: true, mensagem: enviada });
 });
+
+async function repetirEnvio(req: Request, admin: any, conversa: any, id: string, autor: string, texto: string) {
+  const { data: registro } = await admin.from('mensagens').select('*').eq('id',id)
+    .eq('empresa_id',conversa.empresa_id).eq('conversa_id',conversa.id).eq('autor_id',autor).maybeSingle();
+  if (!registro || registro.texto !== texto) return resposta(req,409,{erro:'Identificador já utilizado por outro envio.'});
+  if (registro.status === 'falhou') return resposta(req,422,{erro:registro.erro || 'O provedor recusou o envio.',mensagem:registro});
+  return resposta(req,registro.status === 'enviando' ? 202 : 200,{ok:registro.status !== 'enviando',pendente:registro.status === 'enviando',mensagem:registro});
+}

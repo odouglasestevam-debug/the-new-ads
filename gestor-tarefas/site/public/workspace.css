@@ -246,3 +246,67 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
   .linha > .col-mais {grid-area:m;align-self:start}
   .mais-tarefa {opacity:1}
 }
+
+/* ---------- Visão "Pasta e lista" (layout ClickUp) ---------- */
+.cu-bloco {border:1px solid var(--linha);border-radius:10px;padding:14px 16px 8px;margin-bottom:14px;background:var(--grafite, transparent)}
+.cu-bloco-cab {display:flex;align-items:flex-start;gap:6px;margin-bottom:12px}
+.cu-seta {width:22px;height:22px;display:inline-flex;align-items:center;justify-content:center;border:0;background:none;color:var(--nevoa);border-radius:5px;flex:none;transition:transform .15s}
+.cu-seta:hover {background:var(--grafite-2);color:var(--branco)}
+.cu-seta svg {width:16px;height:16px}
+.cu-seta.fechada {transform:rotate(-90deg)}
+.cu-bloco-cab .cu-seta {margin-top:14px}
+.cu-caminho {font-size:10.5px;letter-spacing:.02em;text-transform:uppercase;color:var(--nevoa);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cu-bloco-nome .cu-caminho {text-transform:none;font-size:11px}
+.cu-lista {display:flex;align-items:center;gap:6px;margin-top:2px}
+.cu-lista-link {border:0;background:none;padding:0;color:var(--branco);font-size:15px;font-weight:600;text-align:left}
+.cu-lista-link:hover {color:var(--ambar)}
+.cu-grupo {margin:0 0 14px 4px}
+.cu-grupo-cab {display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.cu-selo {display:inline-flex;align-items:center;gap:5px;padding:3px 9px 3px 6px;border-radius:5px;background:var(--st);color:#fff;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.02em}
+.cu-selo svg {width:13px;height:13px}
+.cu-selo svg circle[stroke] {stroke:#fff}
+.cu-selo svg circle[fill="var(--st)"] {fill:#fff}
+.cu-selo svg path {stroke:var(--st)}
+.cu-qtd {font-size:12px;color:var(--nevoa)}
+.cu-tabela {margin-left:22px}
+.cu-cab,.cu-linha {display:grid;grid-template-columns:minmax(240px,1fr) 110px 110px 150px 110px 32px;gap:10px;align-items:center;padding:0 8px}
+.cu-cab {font-size:11.5px;color:var(--nevoa);padding-bottom:6px;border-bottom:1px solid var(--linha)}
+.cu-linha {min-height:52px;border-bottom:1px solid var(--linha);cursor:pointer}
+.cu-linha:hover {background:var(--grafite-2)}
+.cu-nome {display:flex;align-items:center;gap:10px;min-width:0}
+.cu-status {width:22px;height:22px;flex:none;border:0;background:none;padding:0;border-radius:50%;display:inline-flex}
+.cu-status svg {width:22px;height:22px}
+.cu-status:hover {background:color-mix(in srgb,var(--st) 18%,transparent)}
+.cu-texto {min-width:0}
+.cu-titulo-linha {display:flex;align-items:center;gap:8px;min-width:0}
+.cu-titulo {font-size:13.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.cu-linha.concluida .cu-titulo {color:var(--nevoa);text-decoration:line-through}
+.cu-subs {font-size:11px;color:var(--nevoa);white-space:nowrap}
+.cu-rec {display:inline-flex;color:var(--nevoa)}
+.cu-rec svg {width:13px;height:13px}
+.cu-pai {display:inline-flex;align-items:center;gap:3px;font-size:11.5px;color:var(--nevoa);white-space:nowrap}
+.cu-pai svg {width:12px;height:12px}
+.cu-cel {display:flex;align-items:center;gap:6px;min-height:34px;border-radius:6px;padding:0 4px;font-size:12.5px;min-width:0}
+.cu-cel:hover {background:var(--grafite-3, rgba(127,127,127,.12))}
+.cu-vazio {display:inline-flex;color:var(--nevoa);opacity:.45}
+.cu-vazio svg {width:16px;height:16px}
+.cu-linha:hover .cu-vazio {opacity:.8}
+.cu-data {display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.cu-data.atrasada {color:var(--vermelho)}
+.cu-data.vence_hoje {color:#d97706}
+.cu-atraso {font-size:10.5px;color:var(--vermelho);white-space:nowrap}
+.cu-mais {justify-content:flex-end;padding:0}
+.cu-tabela .linha-add {border-top:0;border-bottom:1px solid var(--linha);padding-left:40px}
+@media(max-width:1100px) {
+  .cu-cab,.cu-linha {grid-template-columns:minmax(0,1fr) 90px 120px 32px}
+  .cu-cab span:nth-child(3),.cu-cab span:nth-child(5),.cu-linha > .cu-cel:nth-child(3),.cu-linha > .cu-cel:nth-child(5) {display:none}
+}
+@media(max-width:860px) {
+  .cu-bloco {padding:10px 10px 4px}
+  .cu-tabela {margin-left:0}
+  .cu-cab {display:none}
+  .cu-cab,.cu-linha {grid-template-columns:minmax(0,1fr) auto 32px;gap:6px}
+  .cu-linha > .cu-cel:nth-child(2) {display:none}
+  .cu-titulo {white-space:normal}
+}

@@ -1,6 +1,6 @@
 /* CRM operacional: superfícies discretas, conteúdo e controles compactos. */
 :root{--nevoa:#a3a3a3;--sidebar:208px;--texto:'Switzer',system-ui,sans-serif;--display:var(--texto);color-scheme:dark}
-button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ambar);outline-offset:3px}
+button:focus-visible,a:focus-visible,input:focus-visible,textarea:focus-visible,select:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ambar);outline-offset:3px}
 input::placeholder,textarea::placeholder{color:#9c9c9c;opacity:1}
 main{min-width:0}
 .topo h1{font-size:26px;font-weight:600}
@@ -13,7 +13,7 @@ main{min-width:0}
 .topo-conversas h1{font-size:22px;display:flex;align-items:center;gap:10px}
 .topo-conversas .desc{font-size:12px;margin-top:4px}
 .total-conversas{font-size:12px;color:var(--nevoa);font-weight:400;font-variant-numeric:tabular-nums}
-.inbox{border:0;border-radius:0;height:auto;min-height:0;flex:1;grid-template-columns:320px minmax(0,1fr)}
+.inbox{border:0;border-radius:0;height:auto;min-height:0;flex:1;grid-template-columns:320px minmax(0,1fr);grid-template-rows:minmax(0,1fr)}
 .inbox.com-contexto{grid-template-columns:300px minmax(0,1fr) 260px}
 .inbox-lista{background:#111;min-width:0}
 .inbox-topo{padding:16px 14px;background:#111}
@@ -65,17 +65,20 @@ main{min-width:0}
 #voltar-lista{display:none}
 @media(min-width:861px) and (max-width:1200px){.inbox.com-contexto{grid-template-columns:280px minmax(0,1fr)}.contexto-lead{position:absolute;right:0;top:82px;bottom:0;width:290px;z-index:10;box-shadow:-12px 0 30px #0005}}
 @media(max-width:860px){
- .vista-inbox{height:calc(100dvh - 76px - env(safe-area-inset-bottom));padding-bottom:0!important}
+ :root{--nav-mobile:78px}
+ aside{height:calc(var(--nav-mobile) + env(safe-area-inset-bottom))}
+ nav button{flex:1 1 0;min-width:0;width:auto}
+ .vista-inbox{flex:none;min-height:0;height:calc(100dvh - var(--nav-mobile) - env(safe-area-inset-bottom));max-height:calc(100dvh - var(--nav-mobile) - env(safe-area-inset-bottom));padding-bottom:0!important}
  .vista-inbox .seletor-movel{margin:10px 14px 0}
- .topo-conversas{padding:12px 16px;min-height:70px}
+ .topo-conversas{padding:12px 16px;min-height:70px;flex-direction:row;flex-wrap:nowrap;flex-shrink:0}
  .topo-conversas h1{font-size:20px}
  .inbox,.inbox.com-contexto{grid-template-columns:minmax(0,1fr);position:relative}
  .inbox-itens{overflow-y:auto}
  .inbox:not(.com-chat) .chat-painel{display:none}
- .chat-cabeca{padding:10px 12px;min-height:64px}
+ .chat-cabeca{padding:10px 12px;min-height:64px;flex-shrink:0}
  .chat-cabeca .sub-cel{font-size:11px}
  .chat-msgs{min-height:0;padding:12px}
- .chat-rodape{padding:9px 12px}
+ .chat-rodape{padding:9px 12px;flex-shrink:0}
  .chat-aviso{font-size:10px}
  .contexto-lead{position:absolute;inset:0;z-index:12;border:0;padding:20px}
  #voltar-lista{display:block}

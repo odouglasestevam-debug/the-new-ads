@@ -6,6 +6,7 @@ const PAGINA_MENSAGENS = 50;
 const historicoCompleto = new Set();
 const errosMensagens = new Map();
 const enviosPendentes = new Set();
+const tentativasEnvio = new Map();
 let mostrarContexto = false;
 function chaveRascunho(id) { return `crm:rascunho:${usuario?.id}:${empresaAtual?.id}:${id}`; }
 function lerRascunho(id) { try { return sessionStorage.getItem(chaveRascunho(id)) || ""; } catch { return ""; } }
@@ -349,6 +350,11 @@ function ligarChat(raiz, conversa, aoMudar) {
     if (!texto || enviosPendentes.has(conversa.id)) return;
     const empresaEnvio = empresaAtual.id;
     const chaveEnvio = chaveRascunho(conversa.id);
+    let tentativa = tentativasEnvio.get(chaveEnvio);
+    if (!tentativa || tentativa.texto !== texto) {
+      tentativa = {id:crypto.randomUUID(),texto};
+      tentativasEnvio.set(chaveEnvio,tentativa);
+    }
     enviosPendentes.add(conversa.id);
     campo.readOnly = true;
     const botao = form.querySelector("button");
@@ -361,10 +367,11 @@ function ligarChat(raiz, conversa, aoMudar) {
       const res = await fetch(`${SUPABASE_URL}/functions/v1/whatsapp-enviar`, {
         method: "POST",
         headers: { "Content-Type": "application/json", apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${sessao.session.access_token}` },
-        body: JSON.stringify({ conversa_id: conversa.id, texto }),
+        body: JSON.stringify({ conversa_id: conversa.id, texto, mensagem_id:tentativa.id }),
       });
       const dados = await res.json().catch(() => ({}));
       if (res.ok) {
+        tentativasEnvio.delete(chaveEnvio);
         campo.value = "";
         try { sessionStorage.removeItem(chaveEnvio); } catch {}
       }
@@ -374,6 +381,7 @@ function ligarChat(raiz, conversa, aoMudar) {
       if (atual) Object.assign(conversa, atual);
       enviosPendentes.delete(conversa.id);
       if (!res.ok) {
+        if (res.status === 422) tentativasEnvio.delete(chaveEnvio);
         aoMudar();
         const novoAviso = document.querySelector(`[data-chat-aviso="${conversa.id}"]`);
         if (novoAviso) { novoAviso.className = "aviso erro"; novoAviso.textContent = dados.erro || "Não deu pra enviar."; }
@@ -400,7 +408,9 @@ async function abrirConversa(id) {
   render();
   await garantirMensagens(id);
   if (c?.nao_lidas) {
-    const { error } = await sb.rpc("marcar_conversa_lida", { p_conversa: id });
+    const ultima = mensagensPorConversa[id]?.at(-1);
+    if (!ultima || errosMensagens.has(id)) return;
+    const { error } = await sb.rpc("marcar_conversa_lida_ate", { p_conversa: id, p_mensagem: ultima.id });
     if (!error) { c.nao_lidas = 0; atualizarContadorConversas(); }
   }
   if (vistaAtual === "conversas" && conversaAberta === id) render();

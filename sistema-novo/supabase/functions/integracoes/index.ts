@@ -2,6 +2,7 @@
 // Segredos ficam no Vault e nunca voltam para o navegador; a tela só sabe se estão preenchidos.
 // Quem chama: agência ou dono da empresa.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { neoGoBase, temMfaPendente } from "../_shared/security.ts";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const ORIGENS = ["https://crm.thenewads.com.br", "http://localhost:8788"];
@@ -35,6 +36,7 @@ Deno.serve(async (req) => {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data: quem } = await admin.auth.getUser(token);
   if (!quem?.user) return resposta(req, 401, { erro: "Sessão inválida." });
+  if (temMfaPendente(quem.user,token)) return resposta(req,403,{erro:'Conclua a autenticação em duas etapas.'});
 
   let b: Record<string, unknown>;
   try { b = await req.json(); } catch { return resposta(req, 400, { erro: "Corpo inválido." }); }
@@ -122,7 +124,7 @@ Deno.serve(async (req) => {
       }
 
       if (tipo === "whatsapp_nao_oficial") {
-        const baseUrl = limpo(b.base_url).replace(/\/+$/, "");
+        const baseUrl = neoGoBase(limpo(b.base_url).replace(/\/+$/, ""));
         const instanceId = limpo(b.instance_id);
         if (!/^https:\/\/[^\s/]+/.test(baseUrl)) return resposta(req, 400, { erro: "A URL da NeoGo precisa começar com https://" });
         if (!/^[\w-]{3,80}$/.test(instanceId)) return resposta(req, 400, { erro: "ID da instância inválido." });
@@ -186,9 +188,10 @@ Deno.serve(async (req) => {
 
       if (tipo === "whatsapp_nao_oficial") {
         if (!s.instance_token) return resposta(req, 400, { erro: "Falta o token da instância." });
+        neoGoBase(cfg.base_url);
         // O token da instância só autentica rotas de envio e de chat. Tenta a consulta da instância;
         // se a NeoGo exigir a Global Key, a conexão é confirmada pelo primeiro envio ou mensagem recebida.
-        const r = await fetch(`${cfg.base_url}/instance/info/${encodeURIComponent(cfg.instance_id)}`, { headers: { apikey: s.instance_token } })
+        const r = await fetch(`${cfg.base_url}/instance/info/${encodeURIComponent(cfg.instance_id)}`, { headers: { apikey: s.instance_token }, redirect:'error', signal:AbortSignal.timeout(15000) })
           .catch((e) => ({ ok: false, status: 0, json: async () => ({ message: String(e) }) } as unknown as Response));
         const d = await r.json().catch(() => ({}));
         if (r.ok) {
@@ -197,9 +200,8 @@ Deno.serve(async (req) => {
           return resposta(req, 200, { ok: true, estado: await estado(ok) });
         }
         if (r.status === 0) return resposta(req, 200, { ok: false, erro: "Não consegui alcançar a NeoGo nesse endereço: " + ((d as any)?.message || ""), estado: await estado(await marcar(integ, "erro")) });
-        // servidor respondeu: endereço certo, mas essa rota pede Global Key. Liga e deixa o envio confirmar.
-        const ok = await marcar(integ, "ativa", { teste_parcial: true });
-        return resposta(req, 200, { ok: true, parcial: true, aviso: `A NeoGo respondeu (HTTP ${r.status}), mas o token da instância não consulta dados da instância. Integração ligada: o envio de uma mensagem confirma o token.`, estado: await estado(ok) });
+        const pendente = await marcar(integ, "pendente", { teste_parcial: true });
+        return resposta(req, 200, { ok: false, parcial: true, erro: `Não foi possível validar a instância (HTTP ${r.status}). Confira o endereço, o ID e as permissões do token.`, estado: await estado(pendente) });
       }
 
       if (!s.token) return resposta(req, 400, { erro: "Falta o token." });
@@ -306,12 +308,14 @@ Deno.serve(async (req) => {
       const s = await segredos(integ.id);
       const cfg = integ.config as Record<string, string>;
       const nosso = `${url}/functions/v1/neogo-webhook?i=${integ.id}&t=${s.url_token}`;
+      neoGoBase(cfg.base_url);
       const endereco = `${cfg.base_url}/instance/${encodeURIComponent(cfg.instance_id)}/webhooks/${slot}`;
 
-      const atual = await fetch(endereco, { headers: { apikey: globalKey } });
+      const atual = await fetch(endereco, { headers: { apikey: globalKey }, redirect:'error', signal:AbortSignal.timeout(15000) });
       const existente = await atual.json().catch(() => null);
       const urlExistente = (existente as any)?.url || (existente as any)?.data?.url || "";
       if (atual.status === 401 || atual.status === 403) return resposta(req, 400, { erro: "A NeoGo recusou a Global API Key." });
+      if (!atual.ok || !existente) return resposta(req, 502, { erro: "Não foi possível conferir o slot. Nenhum webhook foi alterado. Tente novamente após verificar a instância." });
       if (atual.ok && urlExistente && urlExistente !== nosso) {
         let host = urlExistente;
         try { host = new URL(urlExistente).host; } catch { /* mantém texto */ }
@@ -320,6 +324,7 @@ Deno.serve(async (req) => {
 
       const r = await fetch(endereco, {
         method: "PUT",
+        redirect:'error', signal:AbortSignal.timeout(15000),
         headers: { apikey: globalKey, "Content-Type": "application/json" },
         body: JSON.stringify({ url: nosso, events: [], enabled: true, secret: s.webhook_secret }),
       });

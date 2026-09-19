@@ -37,7 +37,7 @@ function novoFiltro(extra = {}) {
   return { busca: "", local: "", status: [], responsavel: "", prioridade: "", prazo: [], dias: "7", de: "", ate: "", agrupar: "situacao", visao: "lista", ordenar: "prazo", concluidas: false, ...extra };
 }
 const filtros = {
-  central: novoFiltro({ prazo: ["atrasada", "vence_hoje"] }),
+  central: novoFiltro({ prazo: ["atrasada", "vence_hoje"], agrupar: "pasta" }),
   minhas: novoFiltro({ responsavel: "eu" }),
   local: novoFiltro({ agrupar: "status" }),
 };
@@ -453,6 +453,8 @@ window.addEventListener("hashchange", rotear);
 
 function rotear() {
   if (!S.eu) return;
+  // "Minhas tarefas" saiu do menu: o Modo eu da Central faz o mesmo.
+  if (rotaAtual().tipo === "minhas") history.replaceState(null, "", "#/central");
   const r = rotaAtual();
   if (r.tarefa && S.tarefas.some((t) => t.id === r.tarefa)) abrirTarefa(r.tarefa, true);
   else if (S.aberta && !r.tarefa) fecharTarefa(true);
@@ -477,7 +479,8 @@ function renderContadores() {
   const minhas = S.tarefas.filter((t) => (t.situacao === "atrasada" || t.situacao === "vence_hoje") && t.responsaveis.includes(S.user.id)).length;
   document.getElementById("cont-atraso").textContent = atrasadas || "";
   document.getElementById("cont-atraso").title = atrasadas ? `${atrasadas} em atraso` : "";
-  document.getElementById("cont-minhas").textContent = minhas || "";
+  const contMinhas = document.getElementById("cont-minhas");
+  if (contMinhas) contMinhas.textContent = minhas || "";
 }
 
 function renderArvore() {
@@ -732,6 +735,7 @@ function renderResultado(r, f, escopo) {
   const tarefas = filtrar(f, escopo).sort((a, b) => ordenarVisao(a, b, f.ordenar));
   const alvo = document.getElementById("lista-tarefas");
   if (f.visao === "quadro") return renderQuadro(alvo, tarefas, escopo);
+  if (f.agrupar === "pasta") return renderPorLista(alvo, tarefas, escopo);
   const mostrarCaminho = r.tipo !== "lista";
   const grupos = tarefas.length ? agrupar(tarefas, f.agrupar) : [{ chave: "tudo", nome: "", itens: [] }];
   S.grupos = grupos;

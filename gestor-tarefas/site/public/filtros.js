@@ -85,7 +85,7 @@ function barraFiltros(r,f) {
   const n = contarFiltros(r,f), eu = modoEuAtivo();
   return `<div class="barra-tarefas">
     <label class="agrupar-compacto">${ICONES_BARRA.grupo}<select aria-label="Agrupar tarefas" onchange="mudarFiltro('agrupar',this.value)" ${f.visao==='quadro'?'disabled title="O quadro é organizado por status"':''}>
-      ${[{v:'status',t:'Status'},{v:'situacao',t:'Prazo'},{v:'projeto',t:'Lista'},{v:'responsavel',t:'Responsável'},{v:'',t:'Sem grupos'}].map(o=>`<option value="${o.v}"${(f.visao==='quadro'?'status':f.agrupar)===o.v?' selected':''}>${o.t}</option>`).join('')}</select></label>
+      ${[{v:'pasta',t:'Pasta e lista'},{v:'status',t:'Status'},{v:'situacao',t:'Prazo'},{v:'projeto',t:'Lista'},{v:'responsavel',t:'Responsável'},{v:'',t:'Sem grupos'}].map(o=>`<option value="${o.v}"${(f.visao==='quadro'?'status':f.agrupar)===o.v?' selected':''}>${o.t}</option>`).join('')}</select></label>
     <div class="ferramentas-tarefas">
       <div class="filtros-badge${n?' ligado':''}"><button id="btn-mais-filtros" class="controle-barra" data-menu aria-haspopup="dialog" onclick="abrirMaisFiltros(this)">${ICONES_BARRA.filtro}<span>${n ? `${n} ${n===1?'filtro':'filtros'}` : 'Filtros'}</span></button>
       ${n ? `<button class="remover-filtros" aria-label="Limpar filtros" onclick="limparFiltros()">${ICONES.fechar}</button>` : ''}</div>

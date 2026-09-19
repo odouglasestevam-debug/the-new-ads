@@ -4,7 +4,7 @@ const publicDir = new URL('../site/public/',import.meta.url);
 const cssUrl='https://api.fontshare.com/v2/css?f[]=clash-display@500,600,700&f[]=switzer@400,500,600&display=swap';
 const response=await fetch(cssUrl);
 if(!response.ok)throw new Error(`Fonte HTTP ${response.status}`);
-let css=await response.text();
+let css=(await response.text()).replaceAll("url('//", "url('https://");
 const urls=[...new Set([...css.matchAll(/url\(['"]?(https:[^)'"\s]+)['"]?\)/g)].map(m=>m[1]))];
 await mkdir(new URL('fonts/',publicDir),{recursive:true});
 for(const url of urls){
