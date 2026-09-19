@@ -1,109 +1,149 @@
 ---
 name: central-demandas
 description: >
-  Opera o ClickUp real do Douglas como central de demandas, sem lista nova nem sistema
-  paralelo: cada cliente já tem sua lista operacional (Operacional/Gestão de Tráfego), e
-  demandas internas caem em Geral > Interno (the new ads) ou Interno TBAds > Demandas
-  (Tubarão Ads). O Claude Code lança demanda avulsa direto na lista certa, agrega tudo
-  (inclusive tarefas recorrentes já existentes) numa visão só, executa em conversa
-  movendo status, e gera relatório de produtividade a partir das tarefas concluídas.
-  Resolve "fiz muita coisa com o Claude mas não vejo o trabalho" — visibilidade concreta
-  do que foi feito, sem duplicar a estrutura que já existe. Use quando o usuário disser
-  "lança essa demanda", "anota essa tarefa", "o que eu preciso fazer hoje/amanhã", "lista
-  minhas demandas", "resumo do meu dia", "relatório de produtividade", ou pedir pra marcar
-  algo como feito.
+  Opera o gestor de tarefas próprio do Douglas (tarefas.thenewads.com.br, que substituiu o
+  ClickUp) como central de demandas: cada cliente tem sua pasta com a lista "Gestão de Tráfego"
+  (e Contrato, Pagamento, Onboarding), e demandas internas caem na lista "Interno" de cada
+  agência (The New Ads ou Tubarão Ads). O Claude Code lança demanda direto na lista certa,
+  lista o que está pendente (atrasadas e de hoje primeiro), executa em conversa movendo o
+  status e gera relatório de produtividade pelas tarefas concluídas. Use quando o usuário
+  disser "lança essa demanda", "anota essa tarefa", "o que eu preciso fazer hoje/amanhã",
+  "lista minhas demandas", "resumo do meu dia", "relatório de produtividade", ou pedir pra
+  marcar algo como feito.
 ---
 
 # Central de demandas
 
-Usa o ClickUp que já existe, do jeito que já existe. Cada cliente tem sua própria lista
-operacional com tarefas (inclusive recorrentes, tipo "Revisão Diária de Budget e
-Performance") já rodando — não recriar isso, não criar lista nova. Demanda avulsa lançada
-pelo Douglas se agrega dentro da lista certa, junto com o que já está lá.
+O estado compartilhado é o banco do gestor de tarefas (schema `tarefas` no Supabase
+`xrvjlhseyqfgyvwwlwwb`). Acesso pelo conector MCP `supabase-app`, com `execute_sql`.
+O ClickUp foi abandonado em 19/09/2026: não usar nenhuma ferramenta `clickup_*`.
 
-> Nota: existe uma lista "Central de Demandas" (id `901114321741`) criada por engano no
-> space PESSOAL numa iteração anterior desta skill — está vazia e não é usada por este
-> fluxo. Não há endpoint de delete de lista no MCP; se o Douglas quiser, ele apaga direto
-> no ClickUp.
+O `execute_sql` roda como dono do banco e ignora as permissões por membro (RLS). É o
+Claude agindo pelo Douglas, que é admin, então pode tudo, mas por isso mesmo:
+- nunca mexer em `tarefas.usuarios`, `acesso_espacos`, `bloqueio_*` por esta skill
+  (permissões são decididas pelo Douglas em Ajustes > Membros);
+- sempre passar `criado_por` = Douglas nas inserções;
+- nunca criar tarefa no espaço **Modelos** (é o molde do onboarding, não operação).
 
-**Spaces fixos**: `the new ads` = `90113792830`, `TUBARAO ADS` = `90113792821`.
+Link de uma tarefa pra mostrar ao Douglas:
+`https://tarefas.thenewads.com.br/#/lista/<lista_id>?t=<tarefa_id>`
 
-**Listas de demanda interna/não-cliente** (fixas):
-- The New Ads: `Geral > Interno` = `901110935077`
-- Tubarão Ads: `Interno TBAds > Demandas` = `901113669770`
+## Referências (consultar, não decorar)
 
-**Statuses** (padrão em toda a workspace): `não feito` → `fazendo` → `aguardando cliente` →
-`análise interna` → `feito` → `done` (fechado — é o único que popula `date_closed`, usado
-no relatório de produtividade).
+```sql
+-- pessoas
+select user_id, nome from tarefas.usuarios where ativo order by nome;
+-- status: usar pelo TIPO e pela ORDEM, nunca pelo nome (o Douglas renomeia)
+select id, nome, tipo, ordem from tarefas.status order by ordem;
+-- achar a lista de um cliente (pasta = nome do cliente)
+select l.id, p.nome espaco, pa.nome pasta, l.nome lista
+from tarefas.listas l join tarefas.projetos p on p.id = l.projeto_id
+left join tarefas.pastas pa on pa.id = l.pasta_id
+where p.nome <> 'Modelos' and pa.nome ilike '%<cliente>%' order by 2, 3, 4;
+-- lista interna de uma agência
+select l.id from tarefas.listas l join tarefas.projetos p on p.id = l.projeto_id
+where p.nome = '<The New Ads|Tubarão Ads>' and l.pasta_id is null and l.nome = 'Interno';
+```
+
+Status atuais (conferir com a consulta acima): 1º aberto = "Não Feito", depois
+"Em andamento", "Em revisão", e o de tipo `concluido` = "Concluído". Concluir grava
+`concluida_em` sozinho e, se a tarefa for recorrente, o banco já cria a próxima.
 
 ## Capturar demanda
 
-1. Identificar se a demanda é de um cliente específico ou interna/geral. Se o Douglas não
-   disser a agência (The New Ads vs Tubarão Ads) e o nome do cliente for ambíguo, perguntar
-   — não adivinhar, cliente errado gera tarefa no lugar errado.
-2. Se for de cliente: achar a lista operacional dele. `clickup_get_folder(folder_name=<cliente>,
-   space_name=<agência>)` pra confirmar o folder, depois `clickup_get_workspace_hierarchy`
-   com `space_ids=[<id da agência>]` (retorna todos os folders+listas da agência numa
-   chamada só) pra achar, dentro do folder do cliente, a lista `Operacional` ou
-   `Gestão de Tráfego` (o nome varia por cliente, sempre uma dessas duas).
-3. Se for interna/geral: usar a lista fixa da agência certa (acima).
-4. Antes de criar, checar rapidamente (`clickup_filter_tasks` na lista alvo, ou
-   `clickup_search`) se já não existe uma tarefa recorrente/aberta equivalente — não duplicar
-   o que já está rodando.
-5. `clickup_create_task` na lista resolvida. `name` claro e acionável, `priority` só se ele
-   sinalizar urgência. `assignees` é obrigatório em toda demanda, sem exceção: padrão é
-   Douglas (`270704987`), e só usar outra pessoa (Pedro Henrique `212499201`, Igor Mendes
-   `176467453`, Danilo Patrício `236528857`) quando ele disser explicitamente pra quem é
-   ("lança uma tarefa pro Fulano"). Nunca criar tarefa sem passar `assignees` — mesmo em
-   lote/planejamento com várias tarefas de uma vez.
-6. `start_date` e `due_date` são obrigatórios em toda demanda criada. Se o Douglas passou o
-   vencimento, usar `start_date` = hoje e `due_date` = o que ele falou. Se ele não passou
-   nenhuma data, usar `start_date` = hoje e `due_date` = amanhã por padrão — nunca criar
-   tarefa sem essas duas datas.
-7. **Nunca agendar tarefa para sábado ou domingo.** Se `start_date` ou `due_date` cair num
-   fim de semana, empurrar pra segunda-feira seguinte. Vale pro padrão de "amanhã" (sexta
-   vira segunda) e pro que o Douglas falar em data relativa. Se ele pedir explicitamente uma
-   data que é sábado/domingo, avisar e confirmar antes de criar. Conferir o dia da semana de
-   verdade (`date -d <data> +%A`), não assumir.
+1. Identificar se é de um cliente ou interna. Se o Douglas não disser a agência e o nome
+   do cliente for ambíguo (existe pasta com o mesmo nome nos dois espaços, ou duas listas
+   iguais na mesma pasta), perguntar. Não adivinhar.
+2. Cliente: lista "Gestão de Tráfego" da pasta dele (ou a lista que o assunto pedir:
+   Contrato, Pagamento, Onboarding). Interna: lista "Interno" da agência.
+3. Antes de criar, checar se já existe tarefa aberta equivalente na lista:
+   ```sql
+   select id, titulo, data_entrega from tarefas.tarefas
+   where lista_id = '<lista>' and concluida_em is null and titulo ilike '%<palavra-chave>%';
+   ```
+4. Criar:
+   ```sql
+   with nova as (
+     insert into tarefas.tarefas (lista_id, titulo, status_id, prioridade, data_inicio, data_entrega, criado_por)
+     values ('<lista>', '<Título em sentence case>',
+       (select id from tarefas.status where tipo = 'aberto' order by ordem limit 1),
+       'normal', '<AAAA-MM-DD>', '<AAAA-MM-DD>',
+       (select user_id from tarefas.usuarios where email = 'odouglasestevam@gmail.com'))
+     returning id, lista_id)
+   insert into tarefas.tarefa_responsaveis (tarefa_id, user_id)
+   select id, '<user_id do responsável>' from nova returning tarefa_id;
+   ```
+   - Título em sentence case: só a primeira letra maiúscula, nomes próprios mantêm.
+   - Prioridade: `urgente`, `alta`, `normal` (é a "média") ou `baixa`. Só mudar de `normal`
+     se ele sinalizar urgência.
+   - Responsável é obrigatório: padrão Douglas; outra pessoa só quando ele disser pra quem é.
+     Se a pessoa não estiver em `tarefas.usuarios`, avisar em vez de criar sem responsável.
+   - `data_inicio` e `data_entrega` obrigatórias: sem data dita, início = hoje e entrega =
+     amanhã.
+   - **Nunca agendar pra sábado ou domingo**: se cair em fim de semana, empurrar pra
+     segunda seguinte (conferir o dia da semana de verdade, ex. `select extract(isodow from date '<data>')`).
+     Se ele pedir explicitamente sábado/domingo, avisar e confirmar antes.
+   - Recorrência, se pedida: `recorrencia` = `diaria|semanal|mensal|anual`,
+     `recorrencia_intervalo`, e a regra: `recorrencia_dias_semana` (0 = domingo … 6 = sábado,
+     ex. seg/qua/sex = `'{1,3,5}'`), ou na mensal `recorrencia_mensal = 'dia_mes'` +
+     `recorrencia_dia_mes` (1..31, -1 = último dia), ou `'dia_semana'` + `recorrencia_ordem`
+     (1..4, -1 = última) + `recorrencia_dia_semana`.
+5. Não pedir confirmação campo a campo: criar e mostrar o que foi criado, com o link.
 
-Não pedir confirmação de cada campo — criar direto e mostrar o que foi criado, com link.
+## Listar pendências ("o que eu preciso fazer hoje/essa semana")
 
-## Listar demandas pendentes ("o que eu preciso fazer hoje/essa semana")
-
-`clickup_filter_tasks` com `space_ids: ["90113792830", "90113792821"]`,
-`assignees: ["270704987"]` (ou quem for perguntado), excluindo status `done`, ordenado por
-`due_date`. Isso agrega automaticamente tudo: tarefas recorrentes já existentes, demandas
-antigas e as que o Claude acabou de lançar — não precisa de lista separada pra "ver tudo".
-
-Se o Douglas quiser só demanda avulsa/pessoal (sem misturar operação de cliente), filtrar
-adicionalmente pelas duas listas internas fixas (`list_ids`) em vez do space inteiro.
+```sql
+select v.id, v.lista_id, v.titulo, v.projeto_nome, v.lista_nome, v.status_nome, v.prioridade,
+  v.data_entrega, v.situacao, v.dias_atraso
+from tarefas.tarefas_visao v
+join tarefas.tarefa_responsaveis r on r.tarefa_id = v.id
+where r.user_id = (select user_id from tarefas.usuarios where email = 'odouglasestevam@gmail.com')
+  and v.situacao <> 'concluida' and v.projeto_nome <> 'Modelos'
+order by v.data_entrega nulls last, v.prioridade;
+```
+Mostrar primeiro só **atrasadas** (com os dias de atraso) e **vencem hoje**. O resto
+(a vencer e sem data) vai resumido depois, em contagem ou lista curta. Pra outra pessoa,
+trocar o e-mail. Pasta do cliente sai de `caminho`: juntar `projeto_nome` com a pasta se
+precisar (consulta de lista acima).
 
 ## Executar
 
-Ao começar, mover pra `fazendo` (`clickup_update_task`). Trabalhar a demanda normalmente em
-conversa. Ao concluir, mover pra `done` (fecha e marca `date_closed` — é o dado do
-relatório). Se travar esperando algo do cliente ou decisão do Douglas, mover pra
-`aguardando cliente` ou `análise interna` em vez de deixar em `não feito`.
+1. Antes de começar, reler o status da tarefa. Se já estiver no 2º status aberto
+   ("Em andamento"), outro chat pegou: pular pra próxima. O Douglas pode ter várias sessões
+   do Claude Code abertas ao mesmo tempo, e mover pra "Em andamento" é o sinal entre elas.
+   ```sql
+   update tarefas.tarefas set status_id = (select id from tarefas.status where tipo = 'aberto' order by ordem offset 1 limit 1)
+   where id = '<tarefa>' and status_id = (select id from tarefas.status where tipo = 'aberto' order by ordem limit 1)
+   returning id;  -- sem linha de volta = alguém já pegou
+   ```
+2. Trabalhar a demanda em conversa.
+3. Concluir:
+   ```sql
+   update tarefas.tarefas set status_id = (select id from tarefas.status where tipo = 'concluido' order by ordem limit 1)
+   where id = '<tarefa>' returning proxima_id;  -- proxima_id preenchido = recorrente, próxima criada
+   ```
+4. Travou esperando cliente ou decisão: mover pro 3º status ("Em revisão") e comentar o motivo:
+   ```sql
+   insert into tarefas.comentarios (tarefa_id, autor_id, texto)
+   values ('<tarefa>', (select user_id from tarefas.usuarios where email = 'odouglasestevam@gmail.com'), '<motivo>');
+   ```
 
-**Múltiplos chats em paralelo**: o Douglas pode ter várias sessões do Claude Code abertas
-ao mesmo tempo (abas/janelas diferentes), todas nesta mesma pasta de projeto, cada uma
-puxando e resolvendo tarefas da lista de pendências. Como o ClickUp é o estado
-compartilhado entre elas, antes de começar qualquer tarefa reconferir o status dela
-(`clickup_get_task` ou reler no resultado do `listar demandas`): se já estiver em `fazendo`,
-outro chat já pegou — pular pra próxima da lista em vez de trabalhar em cima. Mover pra
-`fazendo` assim que começar funciona como o sinal pros outros chats.
+## Relatório de produtividade ("resumo do meu dia", "o que eu fiz hoje")
 
-## Relatório de produtividade
-
-Quando pedido ("resumo do meu dia", "o que eu fiz hoje", "relatório de produtividade"):
-
-1. `clickup_filter_tasks` com `space_ids: ["90113792830", "90113792821"]`,
-   `include_closed: true`, `date_closed_from`/`date_closed_to` cobrindo o período (sem
-   período especificado, assumir hoje), `assignees: ["270704987"]`.
-2. Montar a resposta como lista concreta do que foi concluído (nome da tarefa e cliente/lista
-   de origem), não estatística vazia — o objetivo é o Douglas *ver* o trabalho, não só contar.
+```sql
+select v.titulo, v.projeto_nome, v.lista_nome, (v.concluida_em at time zone 'America/Sao_Paulo') as quando, v.dias_atraso
+from tarefas.tarefas_visao v
+join tarefas.tarefa_responsaveis r on r.tarefa_id = v.id
+where r.user_id = (select user_id from tarefas.usuarios where email = 'odouglasestevam@gmail.com')
+  and v.concluida_em is not null
+  and (v.concluida_em at time zone 'America/Sao_Paulo')::date between '<de>' and '<até>'
+order by v.concluida_em;
+```
+Sem período dito, usar hoje. Responder com a lista concreta do que foi concluído (tarefa e
+cliente/lista), não só estatística. Se alguma saiu com atraso, mencionar.
 
 ## Fora de escopo
 
-- Não cria/duplica estrutura de cliente (isso é a skill `onboarding-cliente`).
-- Não cria lista, folder ou space novo — só opera o que já existe.
+- Criar estrutura de cliente novo (pasta + listas + tarefas do modelo): skill `onboarding-cliente`.
+- Criar espaço, pasta ou lista fora do fluxo de onboarding: só se o Douglas pedir.
+- Permissões de membros: só pela tela Ajustes > Membros.
