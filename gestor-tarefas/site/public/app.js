@@ -187,7 +187,7 @@ function escolher({ titulo, rotulo, opcoes, valor, botao = "Mover" }) {
 function abrirMenu(ancora, itens) {
   const menu = document.getElementById("menu-flutuante");
   menu.innerHTML = itens.map((it, i) => it === "-" ? "<hr>" :
-    `<button data-i="${i}" class="${it.perigo ? "perigo" : ""}">${esc(it.t)}</button>`).join("");
+    `<button data-i="${i}" class="${it.perigo ? "perigo" : ""}${it.atual ? " atual" : ""}">${it.cor ? `<span class="bolinha-menu" style="background:${esc(it.cor)}"></span>` : ""}${esc(it.t)}${it.atual ? '<span class="marcado-menu">✓</span>' : ""}</button>`).join("");
   menu.classList.add("ativo");
   const r = ancora.getBoundingClientRect();
   const largura = menu.offsetWidth, altura = menu.offsetHeight;
@@ -739,7 +739,7 @@ function renderResultado(r, f, escopo) {
     <div class="grupo">
       ${g.nome ? `<div class="grupo-cabeca ${g.classe || ""}"><span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>` : ""}
       <div class="tabela" role="list">
-        ${g.itens.length ? '<div class="cab-colunas"><span></span><span>Tarefa</span><span>Status</span><span>Responsável</span><span>Entrega</span><span class="col-prio">Prioridade</span></div>' : ""}
+        ${g.itens.length ? '<div class="cab-colunas"><span></span><span>Tarefa</span><span>Status</span><span>Responsável</span><span>Entrega</span><span class="col-prio">Prioridade</span><span></span></div>' : ""}
         ${g.itens.map((t) => linhaTarefa(t, mostrarCaminho)).join("")}
         ${linhaAdicionar(g, escopo)}
       </div>
@@ -776,11 +776,11 @@ function renderQuadro(alvo, tarefas, escopo) {
   alvo.innerHTML = `<div class="quadro">${S.grupos.map(g => `<section class="quadro-coluna" aria-label="${esc(g.nome)}">
     <div class="grupo-cabeca"><span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>
     <div class="quadro-itens">${g.itens.map(t => `<article class="quadro-cartao">
-      <button class="quadro-titulo" onclick="abrirTarefa('${t.id}')">${esc(t.titulo)}</button>
+      <div class="quadro-topo"><button class="quadro-titulo" onclick="abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${botaoMaisTarefa(t)}</div>
       <p class="quadro-lista">${esc(caminhoLista(t.lista_id).join(' › '))}</p>
       <div class="quadro-meta">${celulaPrazo(t)}<span class="resp">${avatares(t.responsaveis)}</span></div>
       <div class="quadro-meta"><span class="prio ${t.prioridade}">${ICONES.bandeira}${NOME_PRIO[t.prioridade]}</span>
-      <select class="status-sel" aria-label="Status de ${esc(t.titulo)}" onchange="salvarTarefa('${t.id}',{status_id:this.value})">${S.status.map(st => `<option value="${st.id}"${st.id === t.status_id ? ' selected' : ''}>${esc(st.nome)}</option>`).join('')}</select></div>
+      ${botaoStatus(t)}</div>
     </article>`).join('') || '<p class="quadro-vazio">Nenhuma tarefa</p>'}</div>${linhaAdicionar(g, escopo)}</section>`).join('')}</div>`;
   const campo = document.getElementById("add-titulo");
   if (campo) { campo.focus(); campo.setSelectionRange(campo.value.length, campo.value.length); }
@@ -842,16 +842,13 @@ function linhaTarefa(t, mostrarCaminho) {
   if (t.recorrencia) meta.push(`<span class="rec" title="${esc(descreverRecorrencia(t))}">${ICONES.repetir}</span>`);
   const feita = t.situacao === "concluida";
   return `<div class="linha ${t.situacao}" role="listitem" onclick="abrirTarefa('${t.id}')">
-    <div class="col-check"><button class="check${feita ? " feito" : ""}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
+    <div class="col-check"><button class="check${feita ? " feito" : ""}" style="--st:${esc(t.status_cor)}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
     <div class="col-titulo t-principal"><button class="t-titulo tarefa-link" onclick="event.stopPropagation();abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${meta.length ? `<div class="t-meta">${meta.join("")}</div>` : ""}</div>
-    <div class="col-status" onclick="event.stopPropagation()">
-      <select class="status-sel" style="color:${t.status_cor};background-color:${t.status_cor}1f" onchange="salvarTarefa('${t.id}', { status_id: this.value })" aria-label="Status">
-        ${S.status.map((s) => `<option value="${s.id}"${s.id === t.status_id ? " selected" : ""}>${esc(s.nome)}</option>`).join("")}
-      </select>
-    </div>
+    <div class="col-status" onclick="event.stopPropagation()">${botaoStatus(t)}</div>
     <div class="col-resp resp">${avatares(t.responsaveis)}</div>
     <div class="col-prazo">${celulaPrazo(t)}</div>
     <div class="col-prio"><span class="prio ${t.prioridade}">${ICONES.bandeira}${NOME_PRIO[t.prioridade]}</span></div>
+    <div class="col-mais">${botaoMaisTarefa(t)}</div>
   </div>`;
 }
 
@@ -1224,7 +1221,7 @@ function renderGaveta() {
 
   el.innerHTML = `
     <div class="g-topo">
-      <button class="check${t.situacao === "concluida" ? " feito" : ""}" onclick="alternarConclusao('${t.id}')" title="${t.situacao === "concluida" ? "Reabrir" : "Concluir"}" aria-label="${t.situacao === "concluida" ? "Reabrir" : "Concluir"}">${ICONES.check}</button>
+      <button class="check${t.situacao === "concluida" ? " feito" : ""}" style="--st:${esc(t.status_cor)}" onclick="alternarConclusao('${t.id}')" title="${t.situacao === "concluida" ? "Reabrir" : "Concluir"}" aria-label="${t.situacao === "concluida" ? "Reabrir" : "Concluir"}">${ICONES.check}</button>
       <div class="g-caminho">${esc(caminhoLista(t.lista_id).join(" › "))}</div>
       <button class="icone-btn" onclick="fecharTarefa()" aria-label="Fechar">${ICONES.fechar}</button>
     </div>
@@ -1234,9 +1231,7 @@ function renderGaveta() {
       ${faixa}
       <div class="g-grade">
         <span class="rotulo">Status</span>
-        <select onchange="salvarTarefa('${t.id}', { status_id: this.value })" style="color:${t.status_cor}">
-          ${S.status.map((s) => `<option value="${s.id}"${s.id === t.status_id ? " selected" : ""}>${esc(s.nome)}</option>`).join("")}
-        </select>
+        ${botaoStatus(t, true)}
         <span class="rotulo">Prioridade</span>
         <select onchange="salvarTarefa('${t.id}', { prioridade: this.value })">
           ${PRIORIDADES.map((p) => `<option value="${p.id}"${p.id === t.prioridade ? " selected" : ""}>${p.nome}</option>`).join("")}
@@ -1276,7 +1271,7 @@ function renderGaveta() {
       ${pai ? "" : `<div class="g-secao">
         <h3>Subtarefas <span>${subs.length ? `${subs.filter((s) => s.situacao === "concluida").length}/${subs.length}` : ""}</span></h3>
         <div class="sub-lista">${subs.map((s) => `<div class="sub-item ${s.situacao}" onclick="abrirTarefa('${s.id}')">
-          <button class="check${s.situacao === "concluida" ? " feito" : ""}" onclick="event.stopPropagation();alternarConclusao('${s.id}')" aria-label="Concluir">${ICONES.check}</button>
+          <button class="check${s.situacao === "concluida" ? " feito" : ""}" style="--st:${esc(s.status_cor)}" onclick="event.stopPropagation();alternarConclusao('${s.id}')" aria-label="Concluir">${ICONES.check}</button>
           <span class="t">${esc(s.titulo)}</span>
           ${s.data_entrega ? `<span class="d ${s.situacao}">${s.situacao === "atrasada" ? `${dias(s.dias_atraso)} atraso` : dataBR(s.data_entrega)}</span>` : ""}
           <span class="resp">${s.responsaveis.length ? avatares(s.responsaveis) : ""}</span>

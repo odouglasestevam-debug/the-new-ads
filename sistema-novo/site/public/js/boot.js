@@ -1,0 +1,1 @@
+iniciar().catch(() => { const aviso = document.getElementById("aviso-login"); aviso.className = "aviso erro"; aviso.textContent = "Não foi possível verificar sua sessão. Recarregue a página para tentar novamente."; });

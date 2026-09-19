@@ -1,0 +1,85 @@
+/* CRM operacional: superfícies discretas, conteúdo e controles compactos. */
+:root{--nevoa:#a3a3a3;--sidebar:208px;--texto:'Switzer',system-ui,sans-serif;--display:var(--texto);color-scheme:dark}
+button:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--ambar);outline-offset:3px}
+input::placeholder,textarea::placeholder{color:#9c9c9c;opacity:1}
+main{min-width:0}
+.topo h1{font-size:26px;font-weight:600}
+.campo label{font-family:var(--texto);font-size:12px;letter-spacing:0;text-transform:none}
+.btn{font-family:var(--texto);font-size:13px;padding:10px 15px}
+.mini{min-height:32px}
+.desc{max-width:75ch}
+.vista-inbox{padding:0!important;height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+.topo-conversas{margin:0;padding:18px 24px;min-height:82px;align-items:center;border-bottom:1px solid var(--linha)}
+.topo-conversas h1{font-size:22px;display:flex;align-items:center;gap:10px}
+.topo-conversas .desc{font-size:12px;margin-top:4px}
+.total-conversas{font-size:12px;color:var(--nevoa);font-weight:400;font-variant-numeric:tabular-nums}
+.inbox{border:0;border-radius:0;height:auto;min-height:0;flex:1;grid-template-columns:320px minmax(0,1fr)}
+.inbox.com-contexto{grid-template-columns:300px minmax(0,1fr) 260px}
+.inbox-lista{background:#111;min-width:0}
+.inbox-topo{padding:16px 14px;background:#111}
+.inbox-topo input[type=search]{border:0;background:#202020;border-radius:7px;padding:11px 12px;font-size:13px}
+.chips{gap:6px}
+.chip{font-size:12px;padding:5px 10px;border:0;background:#222;color:#bcbcbc}
+.chip.ativo{background:#3c291d;color:#ffc79e}
+.chip b{color:inherit}
+.chip-sel{font-family:var(--texto);border-radius:6px;font-size:12px;padding:6px;max-width:100%;background:#191919}
+.conv-item{min-height:84px;padding:14px;border-bottom:0}
+.conv-item.ativa{background:#29231f}
+.conv-item:hover{background:#242424}
+.conv-ava{width:42px;height:42px;border:0;background:#30302e;color:#d4d1cc}
+.conv-hora,.conv-dono,.bolha-meta,.dia-chat{font-family:var(--texto);font-variant-numeric:tabular-nums}
+.conv-previa{font-size:13px}
+.conv-pe{margin-top:4px}
+.chat-cabeca{min-height:72px;background:#1b1b1b;padding:12px 20px}
+.chat-cabeca>div:first-child{min-width:0}
+.chat-cabeca .nome-cel{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-msgs{padding:22px clamp(16px,3vw,48px);background:#101211;gap:5px;min-height:0;overscroll-behavior:contain;overflow-anchor:none}
+.bolha{max-width:min(82%,560px);border-radius:8px;padding:8px 11px}
+.bolha.entrada{background:#262928}
+.bolha.saida{background:#164437;border:0;color:#f2faf6}
+.bolha.saida .bolha-meta{color:#add4c2}
+.bolha.falhou{background:#422625}
+.bolha.falhou .bolha-meta{color:#efc2be}
+.bolha-meta{font-size:10px;line-height:1.3;gap:7px}
+.dia-chat{border:0;border-radius:5px;background:#232725;color:#c1c9c4;font-size:11px;margin:12px 0}
+.chat-rodape{background:#1b1b1b;border-top:0;padding:10px 16px 14px}
+.chat-form{gap:10px}
+.chat-form textarea{background:#2a2a2a;border:0;border-radius:8px;font-size:14px;min-height:44px}
+.chat-form .btn{background:#4ade80;color:#072311;min-height:44px}
+.chat-aviso{font-size:11px;margin:0 0 7px}
+.chat-vazio{display:flex;align-items:center;justify-content:center;padding:28px;background:#101211;text-align:center}
+.chat-vazio h2{font-size:22px;font-weight:500;color:var(--branco);margin-bottom:12px}
+.chat-vazio p{font-size:14px;max-width:340px;margin:0 auto 28px}
+.chat-vazio span{font-size:12px;color:var(--nevoa)}
+.historico{align-self:center;margin:0 0 12px}
+.contexto-lead{border-left:1px solid var(--linha);background:#171717;padding:18px;overflow-y:auto;min-width:0}
+.contexto-topo{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.contexto-topo h2{font-size:15px}
+.contexto-identidade{padding:30px 0;text-align:center}
+.contexto-identidade .conv-ava{width:64px;height:64px;font-size:20px;margin:0 auto 14px}
+.contexto-identidade h3{font-size:17px;overflow-wrap:anywhere}
+.contexto-identidade p{font-size:13px;color:var(--nevoa);margin-top:6px}
+.contexto-lead dt{font-size:12px;color:var(--nevoa);margin:0 0 4px}
+.contexto-lead dd{font-size:13px;overflow-wrap:anywhere;margin:0 0 20px}
+.contexto-lead .ajuda{margin-top:12px;font-size:12px;line-height:1.5}
+#voltar-lista{display:none}
+@media(min-width:861px) and (max-width:1200px){.inbox.com-contexto{grid-template-columns:280px minmax(0,1fr)}.contexto-lead{position:absolute;right:0;top:82px;bottom:0;width:290px;z-index:10;box-shadow:-12px 0 30px #0005}}
+@media(max-width:860px){
+ .vista-inbox{height:calc(100dvh - 76px - env(safe-area-inset-bottom));padding-bottom:0!important}
+ .vista-inbox .seletor-movel{margin:10px 14px 0}
+ .topo-conversas{padding:12px 16px;min-height:70px}
+ .topo-conversas h1{font-size:20px}
+ .inbox,.inbox.com-contexto{grid-template-columns:minmax(0,1fr);position:relative}
+ .inbox-itens{overflow-y:auto}
+ .inbox:not(.com-chat) .chat-painel{display:none}
+ .chat-cabeca{padding:10px 12px;min-height:64px}
+ .chat-cabeca .sub-cel{font-size:11px}
+ .chat-msgs{min-height:0;padding:12px}
+ .chat-rodape{padding:9px 12px}
+ .chat-aviso{font-size:10px}
+ .contexto-lead{position:absolute;inset:0;z-index:12;border:0;padding:20px}
+ #voltar-lista{display:block}
+ .chip{min-height:34px}
+ .mini{min-height:36px}
+}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;transition:none!important;animation:none!important}}

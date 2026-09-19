@@ -157,7 +157,9 @@ try {
   await page.getByRole('button',{name:'Quadro',exact:true}).click();
   assert.equal(await page.locator('.quadro-coluna').count(),4);
   await page.screenshot({path:'tests/artifacts/desktop-quadro.png',fullPage:true});
-  await page.locator('.quadro-cartao').first().getByRole('combobox').selectOption('s3');
+  await page.locator('.quadro-cartao').first().locator('.status-pill').click();
+  assert.equal(await page.locator('#menu-flutuante .bolinha-menu').count(),4,'Menu de status mostra cor de cada status');
+  await page.locator('#menu-flutuante button',{hasText:'Em revisão'}).click();
   await page.waitForFunction(()=>!gravacoesPendentes.size);
   await page.getByRole('button',{name:'Lista',exact:true}).click();
   await page.getByRole('button',{name:'Revisar campanha de captação',exact:true}).click();
