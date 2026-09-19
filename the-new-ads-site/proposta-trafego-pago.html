@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposta · Tráfego pago</title>
+<meta name="robots" content="noindex">
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --surface: #171717;
+    --surface-2: #212121;
+    --amber: #FF6A00;
+    --amber-glow: #FFA24D;
+    --text: #FAFAFA;
+    --muted: #8A8A8A;
+    --line: rgba(255,255,255,.09);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .wrap {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 64px 28px 96px;
+  }
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 40px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--line);
+  }
+  header svg { width: 160px; height: auto; display: block; }
+  header .data {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--amber);
+    margin-bottom: 12px;
+    display: block;
+  }
+  .titulo-proposta {
+    font-size: 34px;
+    line-height: 1.15;
+    margin-bottom: 56px;
+  }
+  .titulo-proposta span { color: var(--muted); }
+  section { margin-bottom: 48px; }
+  section h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+  }
+  section h2 .num {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--amber);
+    font-size: 14px;
+  }
+  p { margin: 0 0 14px; color: var(--text); }
+  p.lead { color: var(--muted); }
+  ul { margin: 0; padding: 0; list-style: none; }
+  ul.check li, ul.cross li {
+    position: relative;
+    padding-left: 26px;
+    margin-bottom: 10px;
+    color: var(--text);
+  }
+  ul.check li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    background: var(--amber);
+  }
+  ul.cross li {
+    color: var(--muted);
+  }
+  ul.cross li::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 8px;
+    height: 8px;
+    border: 1px solid var(--muted);
+    background: transparent;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 28px;
+  }
+  .investimento .card {
+    padding: 32px 28px;
+  }
+  .investimento .linha {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 16px 0;
+    border-bottom: 1px solid var(--line);
+    gap: 24px;
+  }
+  .investimento .linha:last-child { border-bottom: none; }
+  .investimento .linha .label {
+    color: var(--muted);
+    font-size: 14px;
+    max-width: 60%;
+  }
+  .investimento .linha .valor {
+    font-family: 'Clash Display', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--amber);
+    white-space: nowrap;
+  }
+  .nota {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+  }
+  .prazo-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--amber);
+    border: 1px solid rgba(255,106,0,.3);
+    padding: 8px 14px;
+  }
+  .cta {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    padding: 32px 28px;
+    text-align: left;
+  }
+  .cta h2 { margin-bottom: 12px; }
+  .cta ol {
+    margin: 20px 0 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: passo;
+  }
+  .cta ol li {
+    counter-increment: passo;
+    position: relative;
+    padding-left: 34px;
+    margin-bottom: 14px;
+    color: var(--text);
+  }
+  .cta ol li::before {
+    content: counter(passo);
+    position: absolute;
+    left: 0;
+    top: -1px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    border: 1px solid rgba(255,106,0,.35);
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--line);
+    color: var(--muted);
+    font-size: 14px;
+  }
+  footer strong { color: var(--text); }
+  @media (max-width: 560px) {
+    .wrap { padding: 40px 20px 72px; }
+    header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .titulo-proposta { font-size: 26px; }
+    .investimento .linha { flex-direction: column; gap: 4px; }
+    .investimento .linha .label { max-width: 100%; }
+  }
+  .planos { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .plano { background: var(--surface); border: 1px solid var(--line); padding: 28px 24px; display: flex; flex-direction: column; }
+  .plano.destaque { border-color: rgba(255,106,0,.45); }
+  .plano .nome { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); margin-bottom: 10px; }
+  .plano .preco { font-family: 'Clash Display', sans-serif; font-size: 34px; font-weight: 600; line-height: 1; margin-bottom: 6px; }
+  .plano .preco small { font-family: 'Switzer', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .plano .midia { font-size: 13px; color: var(--muted); padding-bottom: 20px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+  .plano .para { font-size: 14px; color: var(--muted); margin-top: auto; padding-top: 16px; }
+  .plano ul.check li { font-size: 15px; }
+  @media (max-width: 640px) { .planos { grid-template-columns: 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 110">
+      <g transform="translate(4.25,4) scale(1)"><path d="M24 78 L48 26 L48 58 L78 24" fill="none" stroke="#FF6A00" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round"/></g><g transform="translate(110.5,78) scale(0.6571)"><path d="M26.09 -0.00 Q21.30 -0.00 18.44 -2.84 Q15.59 -5.70 15.59 -10.59 L15.59 -39.91 L2.70 -39.91 L2.70 -49.41 L15.59 -49.41 L15.59 -65.30 L27.09 -65.30 L27.09 -49.41 L41.30 -49.41 L41.30 -39.91 L27.09 -39.91 L27.09 -12.50 Q27.09 -9.50 29.91 -9.50 L39.80 -9.50 L39.80 -0.00 L26.09 -0.00 Z M53.00 -0.00 L53.00 -70.00 L64.50 -70.00 L64.50 -42.91 L66.20 -42.91 Q67.00 -44.59 68.79 -46.30 Q70.61 -48.00 73.54 -49.09 Q76.50 -50.20 81.00 -50.20 Q86.70 -50.20 91.09 -47.64 Q95.50 -45.09 97.95 -40.50 Q100.40 -35.91 100.40 -29.59 L100.40 -0.00 L88.90 -0.00 L88.90 -28.70 Q88.90 -34.70 85.95 -37.64 Q83.00 -40.59 77.61 -40.59 Q71.50 -40.59 68.00 -36.55 Q64.50 -32.50 64.50 -25.00 L64.50 -0.00 L53.00 -0.00 Z M137.11 1.41 Q129.70 1.41 124.04 -1.75 Q118.40 -4.91 115.25 -10.66 Q112.11 -16.41 112.11 -24.09 L112.11 -25.30 Q112.11 -33.09 115.20 -38.80 Q118.29 -44.50 123.89 -47.64 Q129.50 -50.80 136.79 -50.80 Q144.00 -50.80 149.39 -47.64 Q154.79 -44.50 157.79 -38.80 Q160.79 -33.09 160.79 -25.50 L160.79 -21.41 L123.70 -21.41 Q123.90 -15.59 127.79 -12.09 Q131.70 -8.59 137.40 -8.59 Q143.00 -8.59 145.70 -11.05 Q148.40 -13.50 149.79 -16.59 L159.29 -11.70 Q157.90 -9.00 155.25 -5.95 Q152.61 -2.91 148.20 -0.75 Q143.79 1.41 137.11 1.41 Z M123.79 -30.09 L149.11 -30.09 Q148.70 -35.00 145.34 -37.89 Q142.00 -40.80 136.70 -40.80 Q131.20 -40.80 127.90 -37.89 Q124.61 -35.00 123.79 -30.09 Z M198.10 -0.00 L198.10 -49.41 L209.39 -49.41 L209.39 -42.50 L211.10 -42.50 Q212.39 -45.30 215.80 -47.80 Q219.21 -50.30 226.10 -50.30 Q231.80 -50.30 236.19 -47.69 Q240.60 -45.09 243.05 -40.50 Q245.50 -35.91 245.50 -29.59 L245.50 -0.00 L234.00 -0.00 L234.00 -28.70 Q234.00 -34.70 231.05 -37.64 Q228.10 -40.59 222.71 -40.59 Q216.60 -40.59 213.10 -36.55 Q209.60 -32.50 209.60 -25.00 L209.60 -0.00 L198.10 -0.00 Z M282.21 1.41 Q274.80 1.41 269.14 -1.75 Q263.50 -4.91 260.35 -10.66 Q257.21 -16.41 257.21 -24.09 L257.21 -25.30 Q257.21 -33.09 260.30 -38.80 Q263.39 -44.50 268.99 -47.64 Q274.60 -50.80 281.89 -50.80 Q289.10 -50.80 294.49 -47.64 Q299.89 -44.50 302.89 -38.80 Q305.89 -33.09 305.89 -25.50 L305.89 -21.41 L268.80 -21.41 Q269.00 -15.59 272.89 -12.09 Q276.80 -8.59 282.50 -8.59 Q288.10 -8.59 290.80 -11.05 Q293.50 -13.50 294.89 -16.59 L304.39 -11.70 Q303.00 -9.00 300.35 -5.95 Q297.71 -2.91 293.30 -0.75 Q288.89 1.41 282.21 1.41 Z M268.89 -30.09 L294.21 -30.09 Q293.80 -35.00 290.44 -37.89 Q287.10 -40.80 281.80 -40.80 Q276.30 -40.80 273.00 -37.89 Q269.71 -35.00 268.89 -30.09 Z M322.40 -0.00 L314.70 -49.41 L326.10 -49.41 L331.40 -7.70 L333.10 -7.70 L340.60 -49.41 L358.99 -49.41 L366.49 -7.70 L368.20 -7.70 L373.49 -49.41 L384.90 -49.41 L377.20 -0.00 L358.10 -0.00 L350.70 -41.70 L348.99 -41.70 L341.49 -0.00 L322.40 -0.00 Z M437.29 1.41 Q432.11 1.41 427.90 -0.44 Q423.70 -2.30 421.25 -5.80 Q418.79 -9.30 418.79 -14.41 Q418.79 -19.41 421.25 -22.80 Q423.70 -26.20 428.00 -27.95 Q432.29 -29.70 437.79 -29.70 L452.11 -29.70 L452.11 -32.70 Q452.11 -36.59 449.70 -39.05 Q447.29 -41.50 442.20 -41.50 Q437.20 -41.50 434.65 -39.14 Q432.11 -36.80 431.29 -33.09 L420.70 -36.59 Q421.90 -40.50 424.54 -43.70 Q427.20 -46.91 431.59 -48.84 Q436.00 -50.80 442.40 -50.80 Q452.11 -50.80 457.65 -45.94 Q463.20 -41.09 463.20 -31.91 L463.20 -12.50 Q463.20 -9.50 466.00 -9.50 L470.20 -9.50 L470.20 -0.00 L462.11 -0.00 Q458.50 -0.00 456.20 -1.80 Q453.90 -3.59 453.90 -6.70 L453.90 -6.91 L452.20 -6.91 Q451.61 -5.50 450.11 -3.50 Q448.61 -1.50 445.54 -0.05 Q442.50 1.41 437.29 1.41 Z M439.20 -8.00 Q444.90 -8.00 448.50 -11.25 Q452.11 -14.50 452.11 -20.00 L452.11 -21.00 L438.50 -21.00 Q434.79 -21.00 432.50 -19.39 Q430.20 -17.80 430.20 -14.70 Q430.20 -11.70 432.59 -9.84 Q435.00 -8.00 439.20 -8.00 Z M499.90 1.41 Q493.90 1.41 488.70 -1.55 Q483.49 -4.50 480.40 -10.20 Q477.31 -15.91 477.31 -23.91 L477.31 -25.50 Q477.31 -33.50 480.40 -39.20 Q483.49 -44.91 488.65 -47.84 Q493.81 -50.80 499.90 -50.80 Q504.49 -50.80 507.70 -49.69 Q510.90 -48.59 512.85 -46.89 Q514.81 -45.20 515.90 -43.20 L517.60 -43.20 L517.60 -70.00 L528.99 -70.00 L528.99 -0.00 L517.81 -0.00 L517.81 -6.50 L516.10 -6.50 Q514.31 -3.50 510.60 -1.05 Q506.90 1.41 499.90 1.41 Z M503.31 -8.59 Q509.49 -8.59 513.59 -12.64 Q517.70 -16.70 517.70 -24.20 L517.70 -25.20 Q517.70 -32.80 513.65 -36.80 Q509.60 -40.80 503.31 -40.80 Q497.10 -40.80 492.95 -36.80 Q488.81 -32.80 488.81 -25.20 L488.81 -24.20 Q488.81 -16.70 492.95 -12.64 Q497.10 -8.59 503.31 -8.59 Z M564.00 1.41 Q554.39 1.41 548.19 -2.80 Q542.00 -7.00 540.71 -15.09 L551.30 -17.80 Q552.00 -14.00 553.80 -11.80 Q555.60 -9.59 558.24 -8.69 Q560.89 -7.80 564.00 -7.80 Q568.71 -7.80 571.05 -9.50 Q573.39 -11.20 573.39 -13.80 Q573.39 -16.50 571.14 -17.80 Q568.89 -19.09 564.30 -20.00 L561.21 -20.50 Q556.10 -21.50 551.89 -23.25 Q547.71 -25.00 545.14 -28.05 Q542.60 -31.09 542.60 -35.80 Q542.60 -43.00 547.94 -46.89 Q553.30 -50.80 562.00 -50.80 Q570.30 -50.80 575.69 -47.09 Q581.10 -43.41 582.71 -37.20 L572.10 -34.00 Q571.30 -38.20 568.60 -39.95 Q565.89 -41.70 562.00 -41.70 Q558.00 -41.70 555.85 -40.30 Q553.71 -38.91 553.71 -36.30 Q553.71 -33.70 555.89 -32.39 Q558.10 -31.09 561.80 -30.50 L564.89 -29.91 Q570.39 -28.91 574.85 -27.30 Q579.30 -25.70 581.89 -22.70 Q584.50 -19.70 584.50 -14.59 Q584.50 -6.91 578.94 -2.75 Q573.39 1.41 564.00 1.41 Z" fill="#FAFAFA" fill-rule="nonzero"/></g>
+    </svg>
+    <span class="data">19 de setembro de 2026</span>
+  </header>
+
+  <span class="kicker">Proposta comercial</span>
+  <h1 class="titulo-proposta">Gestão de tráfego pago <span>no Google e no Meta</span></h1>
+
+  <section>
+    <h2><span class="num">01</span> O problema</h2>
+    <p>Anúncio sem gestão vira gasto: campanha rodando sem ajuste, criativo que cansa e nenhuma clareza sobre quanto custa cada cliente novo. O dinheiro sai todo mês e ninguém sabe dizer o que voltou.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">02</span> A solução</h2>
+    <p>A The New Ads assume a operação: monta as campanhas, produz os criativos, acompanha os números e ajusta toda semana. São dois planos, conforme a verba que você quer investir em mídia e a estrutura que já tem hoje.</p>
+  </section>
+
+  <section>
+    <h2><span class="num">03</span> Planos</h2>
+    <div class="planos">
+      <div class="plano">
+        <span class="nome">Essencial</span>
+        <div class="preco">R$ 1.000<small>/mês</small></div>
+        <div class="midia">Pra investimento em mídia a partir de R$ 1.000/mês</div>
+        <ul class="check">
+          <li>Gestão de Google Ads e/ou Meta Ads</li>
+          <li>Criativos estáticos</li>
+          <li>Otimização do perfil no Google Meu Negócio</li>
+        </ul>
+        <p class="para">Pra quem está começando e quer presença paga com o perfil local bem resolvido.</p>
+      </div>
+      <div class="plano destaque">
+        <span class="nome">Completo</span>
+        <div class="preco">R$ 1.500<small>/mês</small></div>
+        <div class="midia">Pra investimento em mídia de R$ 1.500 a R$ 3.000/mês</div>
+        <ul class="check">
+          <li>Gestão de Google Ads e Meta Ads</li>
+          <li>Landing page de conversão</li>
+          <li>Criativos estáticos</li>
+          <li>Trackeamento de conversões (GTM, GA4 e API de Conversões)</li>
+          <li>Estratégia de campanha</li>
+          <li>Pesquisa de mercado</li>
+          <li>Pesquisa de concorrentes</li>
+        </ul>
+        <p class="para">Pra quem quer a estrutura inteira: página própria, dado rastreado e decisão baseada em número.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">04</span> O que não está incluído</h2>
+    <ul class="cross">
+      <li>Verba de mídia, paga direto pela sua empresa ao Google e ao Meta</li>
+      <li>Vídeo e motion, orçados à parte</li>
+      <li>Landing page e trackeamento no plano Essencial (dá pra migrar pro Completo a qualquer momento)</li>
+    </ul>
+  </section>
+
+  <section class="investimento">
+    <h2><span class="num">05</span> Investimento</h2>
+    <div class="card">
+      <div class="linha">
+        <span class="label">Essencial · mídia a partir de R$ 1.000/mês</span>
+        <span class="valor">R$ 1.000/mês</span>
+      </div>
+      <div class="linha">
+        <span class="label">Completo · mídia de R$ 1.500 a R$ 3.000/mês</span>
+        <span class="valor">R$ 1.500/mês</span>
+      </div>
+      <p class="nota">O fee de gestão é separado da verba de mídia. Exemplo no plano Completo com R$ 2.000 em mídia: R$ 1.500 de fee pra The New Ads + R$ 2.000 pagos direto às plataformas.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2><span class="num">06</span> Próximos passos</h2>
+    <div class="cta">
+      <h2>Como começamos</h2>
+      <ol>
+        <li>Escolha do plano e assinatura do contrato</li>
+        <li>Acesso às contas: Google Ads, Meta Business e Google Meu Negócio</li>
+        <li>Briefing de produto, público e histórico de campanhas, se existir</li>
+        <li>Primeiras campanhas no ar em até [X] dias após os acessos</li>
+      </ol>
+    </div>
+  </section>
+
+  <footer>
+    <p><strong>The New Ads</strong> é a agência de performance de Douglas Estevam. Dado antes de opinião, estrutura antes de criativo bonito. Ads que vendem, não que aparecem.</p>
+  </footer>
+
+</div>
+</body>
+</html>
