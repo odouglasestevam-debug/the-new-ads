@@ -134,6 +134,20 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Conversa é única por lead e canal, então a mesma pessoa falando nos dois números vira duas conversas no mesmo lead, cada uma com o seu histórico. É o comportamento desejado
 - Testado no navegador com dois números ligados: 10 verificações passaram; dados de teste apagados
 
+**19 e 20/09/2026, feito por outra sessão sem registro aqui (reconstituído na auditoria de 21/09):**
+- Migrations `0012` a `0019` aplicadas (no banco aparecem agrupadas como `crm_conversas_seguranca_midias`, `crm_busca_recibos` e `crm_limites_atomicos`): Realtime em conversas e mensagens, `marcar_conversa_lida_ate`, bucket privado `crm-midias`, **sessão exige 2FA (aal2) de quem tem fator cadastrado** (`privado.crm_sessao_ok`), `empresas.ativo` (empresa desativada some para quem é de dentro), conversa única por empresa+lead+canal, `buscar_conversas_crm` (busca também no texto das mensagens, security invoker), recibos fora de ordem (`privado.whatsapp_recibos_pendentes`), limites por minuto (envio 30, conversa 20, equipe 10)
+- Edge Functions novas: `whatsapp-modelos`, `whatsapp-midia`, `whatsapp-lida`; código compartilhado em `functions/_shared`
+- Site reestruturado em módulos (`public/js/*.js`, `app.css`, `workspace.css`, `_headers` com CSP fechada)
+- **NeoGo agora exige o domínio em `NEOGO_ALLOWED_HOSTS`** (secret das Edge Functions) e a URL base **sem caminho**. Proteção contra o CRM ser usado para chamar endereço arbitrário
+
+**21/09/2026, auditoria para liberar testes:**
+- `tests/isolamento.sql`: 37/37. Novo `tests/isolamento_conversas.sql` (conversas, mensagens, funções do navegador, mídia, 2FA, empresa desativada): 37/37 depois de corrigir a entrada do próprio teste (número sem 55 é tratado como estrangeiro; a tela sempre manda +55)
+- Tela no ar testada como dono e vendedor, computador e celular: todas as telas abrem, sem erro de JS, sem requisição falhando, sem rolagem lateral; vendedor só vê o que é dele e não vê Formulários nem Integrações
+- **`0020_distribuicao_leads.sql` e `public/js/distribution.js` estão no disco e NÃO estão no banco nem no ar** (trabalho em andamento de 21/09). Não rodar `wrangler deploy` a partir do disco antes de aplicar a 0020, senão o site no ar passa a chamar funções que não existem
+- Pendências de segurança: conta da agência sem 2FA; "Leaked password protection" desligado; Auth é compartilhado com o gestor de tarefas (usuários de lá conseguem logar no CRM e não veem nada; existe `teste@teste.com`)
+- Não validado depois da reescrita: envio real pela API oficial e pela NeoGo, modelos e mídia com número real
+- Menor: Cloudflare injeta o script de Web Analytics e a CSP bloqueia (só ruído no console)
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
