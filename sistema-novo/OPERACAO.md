@@ -2,6 +2,8 @@
 
 Destino exclusivo: crm.thenewads.com.br, Worker tna-crm, Supabase xrvjlhseyqfgyvwwlwwb.
 
+Distribuição de leads (migration 0020): implementação local concluída, publicação pendente da reconexão OAuth do MCP. Guia, testes, regras de fila/presença e sequência de publicação em [DISTRIBUICAO-LEADS.md](DISTRIBUICAO-LEADS.md). Reverter o frontend não desliga regras automáticas já ativadas no banco; para isso, salvar Manual em cada empresa.
+
 ## Validação
 
 `npm test` roda PostgreSQL descartável com migrations e testes de funções sem rede real. `npm run test:browser` usa fixtures e captura desktop/mobile. Não executar `supabase/tests/isolamento.sql` em produção: a suíte só o utiliza no banco descartável.

@@ -62,6 +62,18 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
    await db.exec('begin');await db.query('insert into leads(empresa_id) values($1)',[company]);await db.exec('rollback');
    const after=await config();assert.deepEqual(after.participantes,before.participantes);assert.equal(after.historico.length,before.historico.length);assert(await responsible(lead));
   });
+  await t.test('formulários e WhatsApp usam o mesmo rodízio e reentregas não trocam responsável',async()=>{
+   const c=await config(),next=c.participantes[0];await server();
+   await db.query(`insert into formularios(empresa_id,nome,chave) values($1,'Fixture distribuição','fixture-distribution')`,[company]);
+   const site=async()=>db.query(`select * from receber_lead_site('fixture-distribution','Fixture site','+5511999977777',null,'{}','{}')`);
+   const id=(await site()).rows[0].lead_id;assert.equal(await responsible(id),next);
+   const before=await config();await server();await site();assert.deepEqual((await config()).participantes,before.participantes);
+   await server();const whats=async()=>db.query(`select * from receber_mensagem_whatsapp($1,'whatsapp_oficial','5511999966666','Fixture Whats','fixture-assignment-message','texto','Olá',null,null,now(),'entrada')`,[company]);
+   await whats();const wa=(await db.query(`select id,responsavel_id from leads where empresa_id=$1 and telefone='+5511999966666'`,[company])).rows[0];
+   assert.equal(wa.responsavel_id,before.participantes[0]);
+   const after=await config();await server();await whats();assert.deepEqual((await config()).participantes,after.participantes);
+   assert.equal(await responsible(wa.id),wa.responsavel_id);
+  });
   await t.test('inteligente aguarda sem online e entrega quando um participante fica disponível',async()=>{
    await save('inteligente');const waiting=await insert();assert.equal(await responsible(waiting),null);assert.equal((await config()).pendentes,1);
    assert.equal((await beat(a,sessionA)).disponivel,false);assert.equal(await responsible(waiting),null);

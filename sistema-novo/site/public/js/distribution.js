@@ -21,6 +21,7 @@ function painelDistribuicao(){
   return `<section class="bloco distribuicao-painel">
     <div class="distribuicao-titulo"><div><h2 id="titulo-distribuicao" tabindex="-1">Distribuição de leads</h2><p>Defina quem recebe os novos leads de ${escapar(empresaAtual.nome)}.</p></div>
       <button class="mini" data-recarregar-distribuicao ${alterada?'disabled title="Salve ou descarte suas alterações antes de atualizar"':''}>Atualizar situação</button></div>
+    ${distribuicaoErro?'<p class="aviso erro" role="alert">Não foi possível atualizar. Os dados exibidos são da consulta anterior. Use Atualizar situação para tentar novamente.</p>':''}
     <form id="form-distribuicao">
       <fieldset class="modos-distribuicao"><legend>Como os leads serão entregues</legend>
         ${[['manual','Manual','Você escolhe o responsável de cada lead. A automação fica desligada.'],
@@ -56,7 +57,7 @@ function painelDistribuicao(){
   </section>`;
 }
 
-async function carregarDistribuicao(){
+async function carregarDistribuicao(restaurarFoco=false){
   if(!empresaAtual||!pode.administrar()||distribuicaoCarregando)return;
   const id=empresaAtual.id;distribuicaoCarregando=true;distribuicaoErro='';
   try{
@@ -65,11 +66,11 @@ async function carregarDistribuicao(){
     if(empresaAtual?.id!==id)return;
     distribuicaoAtual=data;distribuicaoRascunho={modo:data.modo,participantes:[...data.participantes]};
   }catch{if(empresaAtual?.id===id)distribuicaoErro='carregamento';}
-  finally{if(empresaAtual?.id===id){distribuicaoCarregando=false;if(vistaAtual==='config'&&abaAjustes==='distribuicao')render();}}
+  finally{if(empresaAtual?.id===id){distribuicaoCarregando=false;if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();if(restaurarFoco)document.querySelector('[data-recarregar-distribuicao]')?.focus({preventScroll:true});}}}
 }
 
 function ligarDistribuicao(){
-  document.querySelectorAll('[data-recarregar-distribuicao]').forEach(b=>b.onclick=()=>{b.disabled=true;carregarDistribuicao();});
+  document.querySelectorAll('[data-recarregar-distribuicao]').forEach(b=>b.onclick=()=>{b.disabled=true;b.textContent='Atualizando…';document.querySelectorAll('#form-distribuicao input,#form-distribuicao button').forEach(el=>el.disabled=true);carregarDistribuicao(true);});
   if(vistaAtual==='config'&&abaAjustes==='distribuicao'&&!distribuicaoAtual&&!distribuicaoErro)carregarDistribuicao();
   const form=document.getElementById('form-distribuicao');
   if(form){
@@ -81,7 +82,7 @@ function ligarDistribuicao(){
       const name=e.target.name,value=e.target.value;render();
       [...document.getElementsByName(name)].find(x=>x.value===value)?.focus({preventScroll:true});
     };
-    document.getElementById('descartar-distribuicao').onclick=()=>{distribuicaoRascunho={modo:distribuicaoAtual.modo,participantes:[...distribuicaoAtual.participantes]};render();};
+    document.getElementById('descartar-distribuicao').onclick=()=>{distribuicaoRascunho={modo:distribuicaoAtual.modo,participantes:[...distribuicaoAtual.participantes]};render();document.getElementById('titulo-distribuicao')?.focus({preventScroll:true});};
     form.onsubmit=async e=>{
       e.preventDefault();const id=empresaAtual.id,aviso=document.getElementById('aviso-distribuicao');
       if(distribuicaoRascunho.modo!=='manual'&&!distribuicaoRascunho.participantes.length){aviso.textContent='Selecione pelo menos um atendente.';return;}
@@ -90,7 +91,7 @@ function ligarDistribuicao(){
         const {data,error}=await sb.rpc('crm_salvar_distribuicao',{p_empresa:id,p_modo:distribuicaoRascunho.modo,p_participantes:distribuicaoRascunho.participantes,p_revisao:distribuicaoAtual.revisao});
         if(error||!data)throw error||new Error('sem_dados');
         if(empresaAtual?.id!==id)return;
-        distribuicaoAtual=data;distribuicaoRascunho={modo:data.modo,participantes:[...data.participantes]};
+        distribuicaoErro='';distribuicaoAtual=data;distribuicaoRascunho={modo:data.modo,participantes:[...data.participantes]};
         if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();document.getElementById('aviso-distribuicao').textContent='Distribuição salva.';document.getElementById('titulo-distribuicao').focus({preventScroll:true});}
         pulsarPresenca().catch(()=>{});
         processarDistribuicao().catch(()=>{});

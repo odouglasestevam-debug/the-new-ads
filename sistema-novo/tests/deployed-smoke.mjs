@@ -23,6 +23,16 @@ for(const name of ['whatsapp-enviar','whatsapp-modelos','whatsapp-midia','whatsa
  const r=await fetch(`${api}/functions/v1/${name}`,{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:'{}'});
  assert.ok([401,403].includes(r.status),'Função autenticada: '+name);
 }
+// Chamadas sem autenticação devem ser recusadas antes de qualquer mutação.
+for(const [name,args] of [
+ ['crm_obter_distribuicao',{p_empresa:'00000000-0000-0000-0000-000000000000'}],
+ ['crm_salvar_distribuicao',{p_empresa:'00000000-0000-0000-0000-000000000000',p_modo:'manual',p_participantes:[],p_revisao:0}],
+ ['crm_presenca',{p_empresa:'00000000-0000-0000-0000-000000000000',p_sessao:'00000000-0000-0000-0000-000000000000'}],
+ ['crm_processar_distribuicao',{p_empresa:'00000000-0000-0000-0000-000000000000'}]
+]){
+ const r=await fetch(`${api}/rest/v1/rpc/${name}`,{method:'POST',headers:{apikey:key,'Content-Type':'application/json'},body:JSON.stringify(args)});
+ assert.ok([401,403].includes(r.status),'RPC de distribuição exige autenticação: '+name);
+}
 const browser=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Users/odoug/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe'});
 try{
  const page=await browser.newPage({viewport:{width:1440,height:960}});const errors=[];

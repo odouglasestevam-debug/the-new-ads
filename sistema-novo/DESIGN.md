@@ -101,6 +101,8 @@ Este registro descreve o código construído em `sistema-novo`, com identidade h
 
 A validação informada desta rodada registra teste de navegador e sintaxe JavaScript passando. A revisão de UX por `crm_ux_finish` retornou `ship` em cinco seções. A checagem final de Mais filtros foi resolvida com alinhamento à direita; a captura `tests/artifacts/leads-filtros-desktop.png`, o teste geométrico e a aplicação/limpeza do filtro passaram. O verdict final registra `remaining: Clear` e `disposition: ship`, sem regressão nas recapturas. O detector foi executado uma vez, com saída longa truncada e avisos sobre paleta, escala tipográfica e raios; não há declaração de detector limpo. Os 17/17 testes registrados anteriormente pertencem à etapa funcional anterior, sem reexecução alegada nesta rodada. Testes reais das APIs continuam pendentes. Este documento não declara o plano inteiro concluído nem substitui auditoria completa de acessibilidade.
 
+A extensão de distribuição mantém o mesmo mundo operacional: configurar a entrega com clareza, passando por modo, participantes, regra, salvar e acompanhamento. O código local de `site/public/js/distribution.js` e o bloco final de `workspace.css` fundamentam estes controles. As capturas `tests/artifacts/distribuicao-desktop.png`, `distribuicao-mobile.png`, `disponibilidade-mobile.png` e `distribuicao-erro-mobile.png` usam fixtures. A revisão informada de `distribution_finish` resolveu o aviso de dados antigos, o retorno de foco ao descartar/atualizar e a sobreposição do link de salto, com `remaining: Clear` e `disposition: ship`. A validação final informada registra `npm test` com 28/28 testes e teste de navegador passando após as correções, sem erros. Publicação e validação remota continuam pendentes de autenticação OAuth do MCP; o status operacional está em `DISTRIBUICAO-LEADS.md`.
+
 **Key Characteristics:**
 
 - Grafite como superfície, âmbar para orientação e verde no atendimento.
@@ -145,6 +147,8 @@ Em Ajustes, a faixa de abas possui rolagem horizontal própria e itens que não 
 
 Na lista de leads, a tabela vira cartões de duas colunas até 700px, com contato ocupando a largura total e rótulos visíveis por campo. O quadro usa colunas de 280px no desktop; até 860px, cada coluna ocupa `calc(100vw - 66px)`, limitada a 320px, com rolagem horizontal e aproximação por scroll snap. O seletor Ir para etapa aparece até 1100px e desloca o quadro sem mudar a etapa do lead. Mais filtros é uma sobreposição no desktop e conteúdo no fluxo no celular.
 
+Distribuição ocupa a largura disponível do painel de Ajustes e organiza opções e participantes em linhas separadas por divisórias. Até 700px, nome e papel do participante ficam acima de demanda e disponibilidade; histórico e cabeçalho passam a uma coluna, e as ações compartilham a largura disponível. A disponibilidade pessoal aparece no rodapé lateral do desktop e na aba Disponibilidade de Ajustes, também acessível no celular. A faixa de abas mantém a aba ativa visível dentro da própria rolagem.
+
 **The Uma Região no Celular Rule.** Mantenha lista, chat e detalhes como etapas visuais distintas no celular, preservando o composer acima da navegação.
 
 ## Elevation & Depth
@@ -172,6 +176,14 @@ O raio final dos balões é uniforme na cascata atual: a regra posterior de `wor
 **Chips.** Filtros da conversa são cápsulas neutras quando inativas e verdes quando selecionadas, com `aria-pressed`. Responsável e canal ficam em `details` recolhível, aberto quando há filtro aplicado. Leads e quadro usam segmentos de responsabilidade com seleção cinza, preservando a distinção entre filtros comerciais e atendimento.
 
 **Cards / Containers.** Cards comerciais têm fundo cinza elevado, borda discreta, raio card e espaçamento interno de 14px. Hover clareia fundo e borda. Nome acionável, contato, origem, responsável e seletor de etapa organizam o conteúdo; selos de cadastro aparecem quando pertinentes. A conversa usa painéis contínuos; não herda a composição de cards do kanban.
+
+**Distribution controls.** Agência e dono configuram a automação em Ajustes → Distribuição. As três opções usam radios nativos com legenda, nome e explicação; participantes usam checkboxes nativos com nome, papel, demanda e estado textual. Contas de leitura não participam. O título do painel usa 20px; opções usam 14px e descrições e linhas da equipe usam 13px. Números de demanda são tabulares; Disponível, Pausado e Offline permanecem legíveis sem depender de cor. Fila rotativa entrega mesmo com o participante pausado ou offline; Menor demanda exige disponibilidade e conexão e exclui Cliente e Perdido da contagem. O bloco da regra acompanha a escolha e explica rodízio, empate e espera sem participante elegível.
+
+**Explicit save and feedback.** Alterar modo ou participantes cria um rascunho com aviso Alterações não salvas; Salvar distribuição e Descartar alterações ficam ativos apenas quando há mudança. Atualizar situação fica bloqueado enquanto o rascunho existe. Durante uma operação, os controles envolvidos ficam indisponíveis e o texto informa o progresso. Falha ao atualizar preserva a consulta anterior e identifica os dados como antigos; erro inicial oferece Tentar novamente. Conflitos de revisão ou equipe orientam descartar e atualizar antes de salvar. Alterações de controles preservam o foco; salvar e descartar devolvem foco ao título, e atualizar devolve ao acionador. O acompanhamento informa pendentes e últimas entregas como a situação da última consulta.
+
+**Personal availability.** O mesmo controle de disponibilidade é compartilhado pela lateral e pela aba de Ajustes. Seu texto combina estado e próxima ação, com `aria-pressed`; a descrição explica participação, modo e conexão. Falha de presença oferece Reconectar disponibilidade e não confirma conexão. Pausar interrompe novas entregas por Menor demanda, preservando os leads atuais; a fila rotativa ignora a pausa. Mensagens de disponibilidade e salvamento usam regiões de status; o aviso de dados antigos usa alerta.
+
+**The Estado Confirmado Rule.** Distinga rascunho, configuração salva, disponibilidade confirmada e dados da última consulta; preserve o foco quando um controle redesenha o painel.
 
 **Shared lead filters.** Lista e quadro compartilham busca, Todos/Meus leads/Sem responsável, etapa, cadastro incompleto e ordenação por mais recentes ou nome. Sem responsável depende da permissão de distribuir leads. Mais filtros agrupa cadastro e ordenação; Limpar filtros oferece retorno ao conjunto completo. A busca comercial percorre os leads carregados, incluindo dados de origem, e é distinta da busca remota do histórico de conversas. Etapa e responsável têm seletores contextuais conforme permissão; arrastar o card é alternativa ao seletor, não a única maneira de mover um lead.
 
@@ -205,10 +217,15 @@ Transições de botões e abas duram .18s para fundo, texto e borda; a base cons
 - **Do** manter o histórico rolável e o composer acima da navegação móvel.
 - **Do** manter busca e filtros consistentes entre lista e quadro e oferecer seletor como alternativa ao arrasto.
 
+- **Do** distinguir rascunho de configuração salva e identificar dados antigos quando uma atualização falhar.
+- **Do** restaurar o foco após redesenhar controles e manter o link de salto fora do conteúdo quando não estiver focado.
+
 ### Don't:
 
 - **Don't** tratar configuração, conexão e entrega de mensagem como o mesmo estado.
 - **Don't** apresentar fixture ou screenshot como prova de conexão real.
 - **Don't** usar a seleção de cor como único indicador de falha ou entrega.
+
+- **Don't** tratar pausa e ausência de conexão como impedimento da fila rotativa.
 
 Não canonizado: valores avulsos de paleta, tamanho e raio não entram no sistema para silenciar o detector. Alvos compactos e defeitos de sobreposição não definem um piso de acessibilidade. Fontes de fallback e rótulos técnicos residuais não autorizam uma nova linguagem de display nem kickers decorativos. O recorte anterior de Mais filtros foi resolvido; não integra as regras do sistema.
