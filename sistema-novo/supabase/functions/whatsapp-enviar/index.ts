@@ -1,3 +1,4 @@
+import {jsonLimitado,headersSeguros} from '../_shared/security.ts';
 // Envia mensagem de texto para o lead pelo WhatsApp da empresa: API oficial ou NeoGo.
 // Confere a mesma permissão de edição de lead do banco; na oficial, também a janela de 24h da Meta.
 import { createClient } from "npm:@supabase/supabase-js@2";
@@ -17,7 +18,7 @@ function cors(req: Request) {
   };
 }
 const resposta = (req: Request, status: number, corpo: unknown) =>
-  new Response(JSON.stringify(corpo), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
+  new Response(JSON.stringify(corpo), { status, headers: { ...cors(req), ...headersSeguros(status), "Content-Type": "application/json" } });
 
 // NeoGo: sem janela de 24h. Token da instância no cabeçalho apikey, POST /send/text.
 async function enviarNeoGo(req: Request, admin: any, conversa: any, mensagem: string, autorId: string, mensagemId: string) {
@@ -82,7 +83,7 @@ Deno.serve(async (req) => {
   if (temMfaPendente(quem.user, token)) return resposta(req, 403, { erro: 'Conclua a autenticação em duas etapas antes de enviar.' });
 
   let b: Record<string, unknown>;
-  try { b = await req.json(); } catch { return resposta(req, 400, { erro: "Corpo inválido." }); }
+  try { b = await jsonLimitado(req); } catch (e) { return resposta(req, (e as any).status||400, { erro: "Corpo inválido ou acima do limite." }); }
   const mensagem = String(b.texto || "").trim();
   if (!mensagem) return resposta(req, 400, { erro: "Escreva a mensagem." });
   if (mensagem.length > 4096) return resposta(req, 400, { erro: "Mensagem longa demais (máximo 4096 caracteres)." });

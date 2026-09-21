@@ -4,13 +4,13 @@
 // Mensagem com referral (clique em anúncio) vira origem CTWA com nomes buscados pelo ad_id.
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { copiarMidiaRecebida } from '../_shared/incoming-media.ts';
-import { UUID } from '../_shared/security.ts';
+import { UUID, textoLimitado, headersSeguros } from '../_shared/security.ts';
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const ORDEM_STATUS: Record<string, number> = { enviando: 0, enviada: 1, entregue: 2, lida: 3, falhou: 4 };
 const STATUS_META: Record<string, string> = { sent: "enviada", delivered: "entregue", read: "lida", failed: "falhou" };
 
-const texto = (status: number, corpo = "ok") => new Response(corpo, { status });
+const texto = (status: number, corpo = "ok") => new Response(corpo, { status,headers:headersSeguros(status) });
 
 async function assinaturaValida(segredo: string, corpo: string, cabecalho: string | null) {
   if (!segredo || !cabecalho?.startsWith("sha256=")) return false;
@@ -71,13 +71,15 @@ Deno.serve(async (req) => {
   }
   if (req.method !== "POST") return texto(405, "método não permitido");
 
-  const corpo = await req.text();
+  let corpo:string;
+  try{corpo=await textoLimitado(req,2*1024*1024);}catch(e){return texto((e as any).status||400,'corpo inválido ou acima do limite');}
   if (!(await assinaturaValida(s.app_secret, corpo, req.headers.get("X-Hub-Signature-256")))) {
     return texto(401, "assinatura inválida");
   }
 
   let payload: Record<string, any>;
   try { payload = JSON.parse(corpo); } catch { return texto(400, "json inválido"); }
+  if(!payload||typeof payload!=='object'||Array.isArray(payload)||!Array.isArray(payload.entry))return texto(400,'evento inválido');
 
   // Nomes do anúncio: cache por empresa, senão a API de Marketing com o mesmo token.
   async function nomesDoAnuncio(adId: string) {

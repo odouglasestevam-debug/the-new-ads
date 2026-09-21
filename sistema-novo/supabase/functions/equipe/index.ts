@@ -1,3 +1,4 @@
+import {jsonLimitado,headersSeguros} from '../_shared/security.ts';
 // Convites e links de acesso da equipe de uma empresa.
 // Precisa da service_role (criar usuário e gerar link), por isso roda no servidor.
 // Quem chama: agência ou dono da empresa, conferido aqui antes de qualquer ação.
@@ -21,7 +22,7 @@ function cors(req: Request) {
 function resposta(req: Request, status: number, corpo: unknown) {
   return new Response(JSON.stringify(corpo), {
     status,
-    headers: { ...cors(req), "Content-Type": "application/json" },
+    headers: { ...cors(req), ...headersSeguros(status), "Content-Type": "application/json" },
   });
 }
 
@@ -41,12 +42,14 @@ Deno.serve(async (req) => {
 
   let corpo: Record<string, string>;
   try {
-    corpo = await req.json();
-  } catch {
-    return resposta(req, 400, { erro: "Corpo inválido." });
+    corpo = await jsonLimitado(req);
+  } catch (e) {
+    return resposta(req, (e as any).status||400, { erro: "Corpo inválido ou acima do limite." });
   }
   const { acao, empresa_id } = corpo;
   if (!empresa_id) return resposta(req, 400, { erro: "Empresa não informada." });
+  const {data:empresa}=await admin.from('empresas').select('ativo').eq('id',empresa_id).maybeSingle();
+  if(!empresa?.ativo)return resposta(req,403,{erro:'Esta empresa está inativa.'});
 
   const [{ data: agencia }, { data: meuPapel }] = await Promise.all([
     admin.from("agencia_admins").select("user_id").eq("user_id", eu).maybeSingle(),

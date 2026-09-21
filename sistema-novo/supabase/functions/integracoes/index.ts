@@ -1,8 +1,9 @@
+import {jsonLimitado,headersSeguros} from '../_shared/security.ts';
 // Credenciais de integração por empresa: WhatsApp API oficial, NeoGo (não oficial) e Meta (nomes de anúncio).
 // Segredos ficam no Vault e nunca voltam para o navegador; a tela só sabe se estão preenchidos.
 // Quem chama: agência ou dono da empresa.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { neoGoBase, temMfaPendente } from "../_shared/security.ts";
+import { neoGoBase, temMfaPendente, checarLimiteCRM } from "../_shared/security.ts";
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const ORIGENS = ["https://crm.thenewads.com.br", "http://localhost:8788"];
@@ -18,7 +19,7 @@ function cors(req: Request) {
   };
 }
 const resposta = (req: Request, status: number, corpo: unknown) =>
-  new Response(JSON.stringify(corpo), { status, headers: { ...cors(req), "Content-Type": "application/json" } });
+  new Response(JSON.stringify(corpo), { status, headers: { ...cors(req), ...headersSeguros(status), "Content-Type": "application/json" } });
 
 function aleatorio(bytes = 24) {
   return Array.from(crypto.getRandomValues(new Uint8Array(bytes)), (b) => b.toString(16).padStart(2, "0")).join("");
@@ -42,9 +43,11 @@ Deno.serve(async (req) => {
   if (temMfaPendente(quem.user,token)) return resposta(req,403,{erro:'Conclua a autenticação em duas etapas.'});
 
   let b: Record<string, unknown>;
-  try { b = await req.json(); } catch { return resposta(req, 400, { erro: "Corpo inválido." }); }
+  try { b = await jsonLimitado(req); } catch (e) { return resposta(req, (e as any).status||400, { erro: "Corpo inválido ou acima do limite." }); }
   const empresaId = limpo(b.empresa_id);
   if (!empresaId) return resposta(req, 400, { erro: "Empresa não informada." });
+  const {data:empresa}=await admin.from('empresas').select('ativo').eq('id',empresaId).maybeSingle();
+  if(!empresa?.ativo)return resposta(req,403,{erro:'Esta empresa está inativa.'});
 
   const [{ data: agencia }, { data: membro }] = await Promise.all([
     admin.from("agencia_admins").select("user_id").eq("user_id", quem.user.id).maybeSingle(),
@@ -54,6 +57,8 @@ Deno.serve(async (req) => {
     return resposta(req, 403, { erro: "Só a agência ou o dono da empresa configuram integrações." });
   }
 
+  const limite=await checarLimiteCRM(admin,quem.user.id,'integracoes');
+  if(limite)return resposta(req,limite.status,{erro:limite.erro});
   const tipo = limpo(b.tipo) || "whatsapp_oficial";
   if (b.acao !== "ver" && !TIPOS.includes(tipo)) return resposta(req, 400, { erro: "Tipo de integração inválido." });
 

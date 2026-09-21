@@ -1,3 +1,4 @@
+import {jsonLimitado} from '../_shared/security.ts';
 import { contexto, json, headers, fail, meta, limitarEnvios } from '../_shared/whatsapp.ts';
 import { UUID } from '../_shared/security.ts';
 
@@ -24,7 +25,7 @@ Deno.serve(async(req)=>{
   if(req.method==='OPTIONS')return new Response(null,{headers:headers(req)});
   if(req.method!=='POST')return json(req,405,{erro:'Método não permitido.'});
   try{
-    const b=await req.json().catch(()=>fail(400,'Corpo inválido.'));
+    const b=await jsonLimitado(req);
     const ctx=await contexto(req,String(b.conversa_id||''),true);
     const {admin,conversa,integration,token,user}=ctx;
     if(!integration.config.waba_id)fail(422,'Cadastre o ID da conta WhatsApp em Integrações.');

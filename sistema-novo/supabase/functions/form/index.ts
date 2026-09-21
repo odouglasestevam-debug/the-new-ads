@@ -3,20 +3,19 @@
 // POST           recebe o envio, filtra robô, valida e grava pelo receber_lead_site.
 // Sem login: a chave só identifica o formulário, quem decide o que grava é o servidor.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {jsonLimitado,headersSeguros,redirectSeguro} from '../_shared/security.ts';
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "content-type",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
 };
-const LIMITE_ENVIOS = 6;         // por IP, por janela
-const JANELA_MIN = 10;
 const TEMPO_MINIMO_MS = 3000;    // humano não preenche em menos que isso
 const CAMPOS_ORIGEM = ["utm_source", "utm_medium", "utm_campaign", "utm_content", "utm_term", "utm_placement",
   "ad_id", "fbclid", "gclid", "pagina_url", "referrer"];
 
 function json(status: number, corpo: unknown, extra: Record<string, string> = {}) {
-  return new Response(JSON.stringify(corpo), { status, headers: { ...CORS, "Content-Type": "application/json", ...extra } });
+  return new Response(JSON.stringify(corpo), { status, headers: { ...CORS, ...headersSeguros(status), "Content-Type": "application/json", ...extra } });
 }
 
 // Configuração que o navegador pode ver. Nunca devolve empresa_id nem dados internos.
@@ -24,7 +23,7 @@ function configPublica(c: Record<string, unknown>) {
   return {
     titulo: c.titulo || "", subtitulo: c.subtitulo || "", botao: c.botao || "Enviar",
     sucesso: c.sucesso || "Recebemos seus dados. Em breve entraremos em contato.",
-    redirect_url: c.redirect_url || "", email: c.email || "opcional",
+    redirect_url: redirectSeguro(c.redirect_url), email: c.email || "opcional",
     campos: Array.isArray(c.campos) ? c.campos : [], visual: c.visual || { modo: "auto" },
   };
 }
@@ -37,8 +36,8 @@ function normalizarTelefone(bruto: string) {
 }
 
 async function hashIp(ip: string) {
-  const dados = new TextEncoder().encode("crm-tna:" + ip);
-  const bytes = new Uint8Array(await crypto.subtle.digest("SHA-256", dados));
+  const chave=await crypto.subtle.importKey('raw',new TextEncoder().encode(Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!),{name:'HMAC',hash:'SHA-256'},false,['sign']);
+  const bytes = new Uint8Array(await crypto.subtle.sign('HMAC',chave,new TextEncoder().encode('crm-form:'+ip)));
   return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
 }
 
@@ -62,9 +61,9 @@ Deno.serve(async (req) => {
 
   let b: Record<string, unknown>;
   try {
-    b = await req.json();
-  } catch {
-    return json(400, { erro: "Envio inválido." });
+    b = await jsonLimitado(req);
+  } catch (e) {
+    return json((e as any).status||400, { erro: "Envio inválido ou acima do limite." });
   }
 
   const chave = texto(b.k, 64);
@@ -79,10 +78,9 @@ Deno.serve(async (req) => {
 
   const ip = (req.headers.get("cf-connecting-ip") || req.headers.get("x-forwarded-for") || "").split(",")[0].trim();
   const ipHash = await hashIp(ip || "sem-ip");
-  const desde = new Date(Date.now() - JANELA_MIN * 60000).toISOString();
-  const { count } = await admin.from("formulario_envios").select("id", { count: "exact", head: true })
-    .eq("ip_hash", ipHash).gte("criado_em", desde);
-  if ((count || 0) >= LIMITE_ENVIOS) return json(200, sucesso);
+  const {data:permitido,error:erroLimite}=await admin.rpc('crm_reservar_formulario',{p_formulario:form.id,p_ip_hash:ipHash});
+  if(erroLimite||typeof permitido!=='boolean')return json(503,{erro:'Não foi possível verificar o envio. Tente novamente em instantes.'});
+  if(!permitido)return json(429,{erro:'Muitos envios em sequência. Aguarde alguns minutos e tente novamente.'},{'Retry-After':'600'});
 
   const nome = texto(b.nome, 150);
   const telefone = normalizarTelefone(texto(b.telefone, 40));
@@ -122,10 +120,9 @@ Deno.serve(async (req) => {
     p_chave: chave, p_nome: nome, p_telefone: telefone, p_email: email || null, p_origem: origem, p_respostas: respostas,
   });
   if (error) {
-    console.error("receber_lead_site", error.message);
+    console.error("receber_lead_site", error.code);
     return json(500, { erro: "Não conseguimos enviar agora. Tente de novo em instantes." });
   }
 
-  await admin.from("formulario_envios").insert({ formulario_id: form.id, ip_hash: ipHash });
   return json(200, sucesso);
 });

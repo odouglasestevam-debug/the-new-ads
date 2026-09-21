@@ -1,12 +1,12 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { temMfaPendente, checarLimiteCRM } from './security.ts';
+import { temMfaPendente, checarLimiteCRM, headersSeguros } from './security.ts';
 export const WHATSAPP_GRAPH = `https://graph.facebook.com/${Deno.env.get('WHATSAPP_GRAPH_VERSION') || 'v21.0'}`;
 export function headers(req: Request) {
   const origin=req.headers.get('origin');
   return {'Content-Type':'application/json','Access-Control-Allow-Origin':origin==='http://localhost:8788'?origin:'https://crm.thenewads.com.br',
     'Access-Control-Allow-Headers':'authorization,apikey,content-type','Access-Control-Allow-Methods':'POST,OPTIONS','Vary':'Origin'};
 }
-export function json(req: Request,status: number,data: unknown) { return new Response(JSON.stringify(data),{status,headers:headers(req)}); }
+export function json(req: Request,status: number,data: unknown) { return new Response(JSON.stringify(data),{status,headers:{...headers(req),...headersSeguros(status)}}); }
 export function fail(status: number,message: string): never { throw Object.assign(new Error(message),{status}); }
 export async function contexto(req: Request,id: string,send=false) {
   const url=Deno.env.get('SUPABASE_URL')!,key=Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
@@ -15,6 +15,8 @@ export async function contexto(req: Request,id: string,send=false) {
   const {data:auth,error}=await admin.auth.getUser(token);
   if(error||!auth.user)fail(401,'Sua sessão expirou. Entre novamente.');
   if(temMfaPendente(auth.user,token))fail(403,'Conclua a autenticação em duas etapas.');
+  const limite=await checarLimiteCRM(admin,auth.user.id,'recurso_whatsapp');
+  if(limite)fail(limite.status,limite.erro);
   const client=createClient(url,Deno.env.get('SUPABASE_ANON_KEY')!,{global:{headers:{Authorization:`Bearer ${token}`}},auth:{persistSession:false}});
   const {data:conversa,error:err}=await client.from('conversas').select('*,leads(responsavel_id)').eq('id',id).maybeSingle();
   if(err||!conversa)fail(404,'Conversa não encontrada.');

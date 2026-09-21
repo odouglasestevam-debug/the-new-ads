@@ -21,7 +21,7 @@ function database(){
 async function load(name,options={}){
  const db=database();let handler;
  const env={SUPABASE_URL:'https://fixture.invalid',SUPABASE_SERVICE_ROLE_KEY:'fixture',SUPABASE_ANON_KEY:'fixture',NEOGO_ALLOWED_HOSTS:'api.example.test'};
- const ctx=vm.createContext({Request,Response,URL,FormData,File,Headers,Uint8Array,TextEncoder,crypto,atob,AbortSignal,console,Date,setTimeout,clearTimeout,
+ const ctx=vm.createContext({Request,Response,URL,FormData,File,Headers,Uint8Array,TextEncoder,TextDecoder,crypto,atob,AbortSignal,console,Date,setTimeout,clearTimeout,
    createClient:()=>db.admin,fetch:options.fetch||(()=>{throw new Error('Rede real bloqueada em teste')}),Deno:{env:{get:key=>env[key]},serve:fn=>handler=fn}});
  for(const file of ['_shared/security.ts',...(['whatsapp-modelos','whatsapp-midia','whatsapp-webhook','whatsapp-lida'].includes(name)?['_shared/whatsapp.ts']:[]),...(name==='whatsapp-webhook'?['_shared/incoming-media.ts']:[]),`${name}/index.ts`]){
    let code=await readFile(new URL(file,ROOT),'utf8');code=code.replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'');

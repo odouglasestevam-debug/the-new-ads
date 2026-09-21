@@ -55,8 +55,9 @@ try {
             if(action!=='select')fixture.writes.push({table,action,payload});
             if(table==='tarefas_responsaveis'&&fixture.failResponsaveis)return resolve({error:{message:'Falha simulada'}});
             if(action==='insert'){
-              const data={id:'new-'+fixture.writes.length,...payload};rows.push(data);found=[data];
-              if(table==='tarefas_tarefas')fixture.tables.tarefas_visao.push({...fixture.template,...data,responsaveis:[],situacao:'sem_data'});
+              const itens=(Array.isArray(payload)?payload:[payload]).map((p,i)=>({id:'new-'+fixture.writes.length+'-'+i,...p}));
+              rows.push(...itens);found=itens;
+              if(table==='tarefas_tarefas')for(const data of itens)fixture.tables.tarefas_visao.push({...fixture.template,...data,responsaveis:[],situacao:'sem_data'});
             }
             if(action==='update'){
               found.forEach(r=>Object.assign(r,payload));
@@ -329,6 +330,21 @@ try {
   await page.getByRole('searchbox').fill('');
   await page.locator('#sel-todas').click();
   await page.screenshot({path:'tests/artifacts/selecao-lote.png',fullPage:true});
+  const dup=await page.evaluate(()=>{const ids=idsSelecionados();
+    return {topo:S.tarefas.filter(t=>ids.includes(t.id)&&(!t.tarefa_pai_id||!ids.includes(t.tarefa_pai_id))).length,
+      listas:S.listas.filter(l=>l.projeto_id==='p1').length};});
+  await page.locator('.lote-btn',{hasText:'Mais'}).click();
+  const opcoesMais=await page.locator('#menu-flutuante button').allInnerTexts();
+  for(const o of ['Duplicar para…','Mover para…','Copiar links','Excluir'])assert.ok(opcoesMais.includes(o),'Mais do lote tem '+o);
+  await page.locator('#menu-flutuante button',{hasText:'Duplicar para'}).click();
+  assert.equal(await page.locator('.espaco-listas').count(),2,'listas separadas por espaço');
+  await page.locator('[data-marca-espaco="p1"]').check();
+  assert.equal(await page.locator('[data-lista][data-de="p1"]:checked').count(),dup.listas,'marcar o espaço marca todas as listas dele');
+  assert.match(await page.locator('#btn-listas').innerText(),new RegExp(`Duplicar em ${dup.listas} lista`));
+  await page.locator('#btn-listas').click();
+  await page.waitForFunction(n=>document.getElementById('toast').textContent.includes('cópia'),null);
+  assert.match(await page.locator('#toast').innerText(),new RegExp(`^${dup.topo*dup.listas} cópias? criadas? em ${dup.listas} lista`));
+  await page.evaluate(()=>{document.getElementById('toast').className='toast';});
   const paraExcluir=await page.evaluate(()=>idsSelecionados().length);
   const totalAntes=await page.evaluate(()=>S.tarefas.length);
   await page.locator('.lote-btn',{hasText:'Mais'}).click();

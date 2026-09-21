@@ -4,11 +4,12 @@
 // quando a assinatura vem, ela também é conferida).
 // Formato: { event: "Message" | "Receipt" | ..., data: {...whatsmeow}, instanceId, instanceName }
 import { createClient } from "npm:@supabase/supabase-js@2";
+import {textoLimitado,headersSeguros} from '../_shared/security.ts';
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const ORDEM_STATUS: Record<string, number> = { enviando: 0, enviada: 1, entregue: 2, lida: 3, falhou: 4 };
 
-const texto = (status: number, corpo = "ok") => new Response(corpo, { status });
+const texto = (status: number, corpo = "ok") => new Response(corpo, { status,headers:headersSeguros(status) });
 
 function iguais(a: string, b: string) {
   if (!a || !b || a.length !== b.length) return false;
@@ -73,7 +74,8 @@ Deno.serve(async (req) => {
   const cfg = integ.config as Record<string, string>;
   if (!iguais(tokenUrl, s.url_token || "")) return texto(401, "token inválido");
 
-  const corpo = await req.text();
+  let corpo:string;
+  try{corpo=await textoLimitado(req,2*1024*1024);}catch(e){return texto((e as any).status||400,'corpo inválido ou acima do limite');}
   const assinatura = req.headers.get("X-Hub-Signature-256");
   if (s.webhook_secret && (!assinatura || !iguais(assinatura, await hmac(s.webhook_secret, corpo)))) {
     return texto(401, "assinatura inválida");
@@ -81,6 +83,7 @@ Deno.serve(async (req) => {
 
   let payload: Record<string, any>;
   try { payload = JSON.parse(corpo); } catch { return texto(400, "json inválido"); }
+  if(!payload||typeof payload!=='object'||Array.isArray(payload))return texto(400,'evento inválido');
   // n8n às vezes repassa o envelope dentro de body
   if (payload.body?.event) payload = payload.body;
 

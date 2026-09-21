@@ -90,9 +90,9 @@
     var manual = visual.modo === "manual";
     return {
       escuro: tema,
-      corBotao: (manual && visual.cor_botao) || botao.fundo || (tema ? "#ffffff" : "#111111"),
-      corTextoBotao: (manual && visual.cor_texto_botao) || botao.texto || (tema ? "#111111" : "#ffffff"),
-      raio: (manual && visual.raio != null && visual.raio !== "") ? visual.raio + "px" : (botao.raio || "8px"),
+      corBotao: (manual && /^#[0-9a-f]{6}$/i.test(visual.cor_botao) && visual.cor_botao) || botao.fundo || (tema ? "#ffffff" : "#111111"),
+      corTextoBotao: (manual && /^#[0-9a-f]{6}$/i.test(visual.cor_texto_botao) && visual.cor_texto_botao) || botao.texto || (tema ? "#111111" : "#ffffff"),
+      raio: (manual && Number.isFinite(Number(visual.raio))) ? Math.max(0,Math.min(40,Number(visual.raio))) + "px" : (botao.raio || "8px"),
       fonte: getComputedStyle(host.parentElement || document.body).fontFamily,
       corTexto: getComputedStyle(host.parentElement || document.body).color,
     };
@@ -113,6 +113,9 @@
   }
 
   function css(v) {
+    // Valores herdados da página também não podem encerrar o elemento style.
+    v = Object.assign({},v);
+    ["fonte","corTexto","corBotao","corTextoBotao","raio"].forEach(function(k){v[k]=String(v[k]||"").replace(/[<>{};]/g,"");});
     var borda = v.escuro ? "rgba(255,255,255,.22)" : "rgba(0,0,0,.18)";
     var campo = v.escuro ? "rgba(255,255,255,.06)" : "#ffffff";
     var apoio = v.escuro ? "rgba(255,255,255,.65)" : "rgba(0,0,0,.6)";
@@ -255,7 +258,9 @@
           return falhar(res.dados.erro || "Não conseguimos enviar agora. Tente de novo.", res.dados.campo);
         }
         try { (window.dataLayer = window.dataLayer || []).push({ event: "tna_crm_lead", formulario: opcoes.chave }); } catch (err) {}
-        if (res.dados.redirect) { location.href = res.dados.redirect; return; }
+        if (res.dados.redirect) {
+          try { var destino = new URL(res.dados.redirect); if(destino.protocol === "https:" && !destino.username && !destino.password) { location.href = destino.href; return; } } catch (_) {}
+        }
         raiz.innerHTML = "<style>" + css(v) + '</style><div class="ok" role="status">' + esc(config.sucesso) + "</div>";
       }).catch(function () {
         botao.disabled = false;

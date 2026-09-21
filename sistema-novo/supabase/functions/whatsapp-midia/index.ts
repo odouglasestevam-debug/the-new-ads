@@ -1,3 +1,4 @@
+import {jsonLimitado} from '../_shared/security.ts';
 import {contexto,headers,json,fail,meta,limitarEnvios} from '../_shared/whatsapp.ts';
 import {UUID} from '../_shared/security.ts';
 const BUCKET='crm-midias';
@@ -69,7 +70,7 @@ Deno.serve(async(req)=>{
       await admin.from('conversas').update({ultima_mensagem_em:registro.criado_em,ultima_previa:(caption||file.name).slice(0,140)}).eq('id',conversa.id).lte('ultima_mensagem_em',registro.criado_em);
       return json(req,updateError?202:200,{mensagem:registro,pendente:!!updateError});
     }
-    const body=await req.json().catch(()=>fail(400,'Corpo inválido.'));
+    const body=await jsonLimitado(req);
     const {admin,client,conversa,token}=await contexto(req,String(body.conversa_id||''));
     const {data:message}=await client.from('mensagens').select('*').eq('id',String(body.mensagem_id||'')).eq('conversa_id',conversa.id).maybeSingle();
     if(!message)fail(404,'Mensagem não encontrada.');

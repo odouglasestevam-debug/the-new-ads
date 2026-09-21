@@ -29,7 +29,7 @@ function menuTarefa(ancora, id) {
   abrirMenu(ancora, [
     { t: "Abrir", acao: () => abrirTarefa(id) },
     ...(sub ? [] : [{ t: "Mover para…", acao: () => moverTarefaPara(id) }]),
-    { t: sub ? "Duplicar" : "Duplicar para…", acao: () => duplicarTarefa(id) },
+    { t: "Duplicar para…", acao: () => duplicarTarefa(id) },
     { t: "Copiar link", acao: () => copiarLinkTarefa(id) },
     "-",
     { t: "Excluir", perigo: true, acao: () => excluirTarefa(id) },
@@ -99,44 +99,7 @@ async function moverTarefaPara(id) {
   toast(`Movida para ${caminhoLista(r.lista).join(" › ")}.`);
 }
 
-async function duplicarTarefa(id) {
-  const t = S.tarefas.find((x) => x.id === id);
-  const subs = S.tarefas.filter((s) => s.tarefa_pai_id === id);
-  let destino = t.lista_id, comSubs = false, comResp = true, nome = t.titulo;
-  if (!t.tarefa_pai_id) {
-    const r = await escolherDestino({
-      titulo: `Duplicar "${t.titulo}"`, botao: "Duplicar", listaAtual: t.lista_id,
-      extra: `<div class="campo"><label for="dup-nome">Nome da cópia</label><input type="text" id="dup-nome" data-extra="nome" maxlength="300" value="${esc(t.titulo)}"></div>
-        ${subs.length ? `<label class="caixa-check"><input type="checkbox" data-extra="subs" checked> Incluir ${subs.length} ${subs.length === 1 ? "subtarefa" : "subtarefas"}</label>` : ""}
-        <label class="caixa-check" style="margin-top:6px"><input type="checkbox" data-extra="resp" checked> Manter responsáveis</label>`,
-    });
-    if (!r) return;
-    destino = r.lista; comSubs = !!r.subs; comResp = r.resp !== false; nome = (r.nome || "").trim() || t.titulo;
-  }
-  const copia = (x, extra) => ({
-    lista_id: destino, titulo: x.titulo, descricao: x.descricao, status_id: x.status_id, prioridade: x.prioridade,
-    data_inicio: x.data_inicio, data_entrega: x.data_entrega, recorrencia: x.recorrencia,
-    recorrencia_intervalo: x.recorrencia_intervalo, recorrencia_dias_semana: x.recorrencia_dias_semana,
-    recorrencia_mensal: x.recorrencia_mensal, recorrencia_dia_mes: x.recorrencia_dia_mes,
-    recorrencia_ordem: x.recorrencia_ordem, recorrencia_dia_semana: x.recorrencia_dia_semana, ...extra,
-  });
-  const { data: nova, error } = await db().from("tarefas").insert(copia(t, { titulo: nome, tarefa_pai_id: t.tarefa_pai_id })).select().single();
-  if (error) return toast(erroBanco(error, "Não deu pra duplicar"), true);
-  const avisos = [];
-  const copiarResp = async (de, para) => {
-    if (!comResp || !de.responsaveis.length) return;
-    const { error: e } = await db().from("tarefa_responsaveis").insert(de.responsaveis.map((user_id) => ({ tarefa_id: para, user_id })));
-    if (e) avisos.push("responsáveis");
-  };
-  await copiarResp(t, nova.id);
-  if (comSubs) {
-    for (const s of subs) {
-      const { data: ns, error: e } = await db().from("tarefas").insert(copia(s, { tarefa_pai_id: nova.id })).select().single();
-      if (e) { avisos.push("subtarefas"); break; }
-      await copiarResp(s, ns.id);
-    }
-  }
-  await recarregarERender();
-  const onde = destino === t.lista_id ? "na mesma lista" : `em ${caminhoLista(destino).join(" › ")}`;
-  toast(avisos.length ? `Duplicada ${onde}, mas sem copiar: ${[...new Set(avisos)].join(" e ")}.` : `Duplicada ${onde}.`, avisos.length > 0);
+// Mesma janela do lote: escolhe uma ou várias listas, agrupadas por espaço (duplicar.js).
+function duplicarTarefa(id) {
+  return duplicarTarefas([id]);
 }

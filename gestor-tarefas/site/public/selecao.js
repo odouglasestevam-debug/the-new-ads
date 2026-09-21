@@ -216,8 +216,10 @@ function loteConcluir() {
 
 function menuLoteMais(ancora) {
   abrirMenu(ancora, [
-    { t: "Data de início…", acao: () => menuLoteData(ancora, "data_inicio") },
+    { t: "Duplicar para…", acao: () => duplicarTarefas(idsSelecionados()) },
     { t: "Mover para…", acao: () => loteMover() },
+    { t: "Copiar links", acao: () => copiarLinksTarefas(idsSelecionados()) },
+    { t: "Data de início…", acao: () => menuLoteData(ancora, "data_inicio") },
     "-",
     { t: "Excluir", perigo: true, acao: () => loteExcluir() },
   ]);
