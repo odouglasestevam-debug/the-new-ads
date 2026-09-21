@@ -1,9 +1,9 @@
 // Envia mensagem de texto para o lead pelo WhatsApp da empresa: API oficial ou NeoGo.
 // Confere a mesma permissão de edição de lead do banco; na oficial, também a janela de 24h da Meta.
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { neoGoBase, temMfaPendente, UUID } from "../_shared/security.ts";
+import { neoGoBase, temMfaPendente, UUID, checarLimiteCRM } from "../_shared/security.ts";
 
-const GRAPH = "https://graph.facebook.com/v21.0";
+const GRAPH = `https://graph.facebook.com/${Deno.env.get('WHATSAPP_GRAPH_VERSION') || 'v21.0'}`;
 const ORIGENS = ["https://crm.thenewads.com.br", "http://localhost:8788"];
 const JANELA_MS = 24 * 3600 * 1000;
 
@@ -58,10 +58,14 @@ async function enviarNeoGo(req: Request, admin: any, conversa: any, mensagem: st
 
   // O ID pode vir em formatos diferentes conforme a versão; sem ele, o eco do webhook amarra depois.
   const waId = d?.id || d?.messageId || d?.message_id || d?.key?.id || d?.data?.id || d?.data?.Info?.ID || d?.data?.ID || null;
+  if (!waId) {
+    await admin.from('mensagens').update({erro:'A NeoGo respondeu sem identificador. Aguardando confirmação pelo webhook.'}).eq('id',registro.id).eq('status','enviando');
+    return resposta(req,202,{pendente:true,mensagem:registro});
+  }
   const { data: enviada } = await admin.from("mensagens")
-    .update({ status: "enviada", wa_message_id: waId }).eq("id", registro.id).select().single();
-  await admin.from("conversas").update({ ultima_mensagem_em: new Date().toISOString(), ultima_previa: mensagem.slice(0, 140) })
-    .eq("id", conversa.id);
+    .update({ status: "enviada", wa_message_id: waId }).eq("id", registro.id).eq('status','enviando').select().maybeSingle();
+  await admin.from("conversas").update({ ultima_mensagem_em: registro.criado_em, ultima_previa: mensagem.slice(0, 140) })
+    .eq("id", conversa.id).lte('ultima_mensagem_em',registro.criado_em);
   return resposta(req, 200, { ok: true, mensagem: enviada });
 }
 
@@ -84,6 +88,8 @@ Deno.serve(async (req) => {
   if (mensagem.length > 4096) return resposta(req, 400, { erro: "Mensagem longa demais (máximo 4096 caracteres)." });
   const mensagemId = b.mensagem_id ? String(b.mensagem_id) : crypto.randomUUID();
   if (!UUID.test(mensagemId)) return resposta(req, 400, { erro:'Identificador de envio inválido.' });
+  const responderId = b.responder_id ? String(b.responder_id) : null;
+  if (responderId && !UUID.test(responderId)) return resposta(req,400,{erro:'Mensagem citada inválida.'});
 
   const { data: conversa } = await admin.from("conversas").select("*, leads(responsavel_id)").eq("id", String(b.conversa_id || "")).maybeSingle();
   if (!conversa) return resposta(req, 404, { erro: "Conversa não encontrada." });
@@ -99,13 +105,14 @@ Deno.serve(async (req) => {
   const { data: empresa } = await admin.from('empresas').select('ativo').eq('id',conversa.empresa_id).maybeSingle();
   if (!empresa?.ativo) return resposta(req,403,{erro:'Esta empresa está inativa.'});
   const { data: existente } = await admin.from('mensagens').select('*').eq('id',mensagemId).maybeSingle();
-  if (existente) return repetirEnvio(req,admin,conversa,mensagemId,quem.user.id,mensagem);
-  const { count, error: erroLimite } = await admin.from('mensagens').select('id',{count:'exact',head:true})
-    .eq('autor_id',quem.user.id).gte('criado_em',new Date(Date.now()-60000).toISOString());
-  if (erroLimite) return resposta(req,503,{erro:'Não foi possível verificar o envio. Tente novamente.'});
-  if ((count || 0) >= 30) return resposta(req,429,{erro:'Muitos envios em sequência. Aguarde um minuto.'});
+  if (existente) return repetirEnvio(req,admin,conversa,mensagemId,quem.user.id,mensagem,responderId);
+  const limite=await checarLimiteCRM(admin,quem.user.id,'envio');
+  if(limite)return resposta(req,limite.status,{erro:limite.erro});
 
-  if (conversa.canal === "whatsapp_nao_oficial") return await enviarNeoGo(req, admin, conversa, mensagem, quem.user.id, mensagemId);
+  if (conversa.canal === "whatsapp_nao_oficial") {
+    if(responderId)return resposta(req,422,{erro:'Resposta citada ainda não está disponível neste canal.'});
+    return await enviarNeoGo(req, admin, conversa, mensagem, quem.user.id, mensagemId);
+  }
   if (conversa.canal !== "whatsapp_oficial") return resposta(req, 400, { erro: "Canal ainda não suportado para envio." });
   if (!conversa.ultima_entrada_em || Date.now() - new Date(conversa.ultima_entrada_em).getTime() > JANELA_MS) {
     return resposta(req, 422, {
@@ -121,12 +128,21 @@ Deno.serve(async (req) => {
   const s = (seg || {}) as Record<string, string>;
   if (!s.token) return resposta(req, 400, { erro: "Falta o token da integração." });
 
+  let referencia: {id:string;wa_message_id:string;texto:string} | null = null;
+  if(responderId){
+    const {data:original,error}=await admin.from('mensagens').select('id,wa_message_id,texto,tipo')
+      .eq('id',responderId).eq('conversa_id',conversa.id).eq('empresa_id',conversa.empresa_id).maybeSingle();
+    if(error)return resposta(req,503,{erro:'Não foi possível consultar a mensagem citada.'});
+    if(!original?.wa_message_id)return resposta(req,422,{erro:'A mensagem citada não está disponível nesta conversa.'});
+    referencia={id:original.id,wa_message_id:original.wa_message_id,texto:String(original.texto||original.tipo||'Mensagem').slice(0,4096)};
+  }
+
   const { data: registro, error: erroInsert } = await admin.from("mensagens").insert({
     id: mensagemId,
     empresa_id: conversa.empresa_id, conversa_id: conversa.id, direcao: "saida", tipo: "texto",
-    texto: mensagem, status: "enviando", autor_id: quem.user.id,
+    texto: mensagem, status: "enviando", autor_id: quem.user.id, midia:referencia?{resposta:referencia}:null,
   }).select().single();
-  if (erroInsert) return erroInsert.code === '23505' ? repetirEnvio(req,admin,conversa,mensagemId,quem.user.id,mensagem) : resposta(req,503,{erro:'Não foi possível registrar o envio. Tente novamente.'});
+  if (erroInsert) return erroInsert.code === '23505' ? repetirEnvio(req,admin,conversa,mensagemId,quem.user.id,mensagem,responderId) : resposta(req,503,{erro:'Não foi possível registrar o envio. Tente novamente.'});
 
   // Celular brasileiro chega ora com o 9, ora sem. Se a Meta recusar o formato que veio
   // no webhook, tenta o outro antes de desistir e guarda o que funcionou.
@@ -143,7 +159,7 @@ Deno.serve(async (req) => {
       method: "POST",
       signal: AbortSignal.timeout(20000), redirect:'error',
       headers: { Authorization: `Bearer ${s.token}`, "Content-Type": "application/json" },
-      body: JSON.stringify({ messaging_product: "whatsapp", to: numero, type: "text", text: { body: mensagem, preview_url: true } }),
+      body: JSON.stringify({ messaging_product: "whatsapp", to: numero, biz_opaque_callback_data:registro.id, ...(referencia?{context:{message_id:referencia.wa_message_id}}:{}), type: "text", text: { body: mensagem, preview_url: true } }),
     });
     d = await r.json().catch(() => ({}));
     usado = numero;
@@ -174,16 +190,16 @@ Deno.serve(async (req) => {
   }
 
   const { data: enviada } = await admin.from("mensagens")
-    .update({ status: "enviada", wa_message_id: d.messages[0].id }).eq("id", registro.id).select().single();
-  await admin.from("conversas").update({ ultima_mensagem_em: new Date().toISOString(), ultima_previa: mensagem.slice(0, 140) })
-    .eq("id", conversa.id);
+    .update({ status: "enviada", wa_message_id: d.messages[0].id }).eq("id", registro.id).eq('status','enviando').select().maybeSingle();
+  await admin.from("conversas").update({ ultima_mensagem_em: registro.criado_em, ultima_previa: mensagem.slice(0, 140) })
+    .eq("id", conversa.id).lte('ultima_mensagem_em',registro.criado_em);
   return resposta(req, 200, { ok: true, mensagem: enviada });
 });
 
-async function repetirEnvio(req: Request, admin: any, conversa: any, id: string, autor: string, texto: string) {
+async function repetirEnvio(req: Request, admin: any, conversa: any, id: string, autor: string, texto: string, responderId: string | null = null) {
   const { data: registro } = await admin.from('mensagens').select('*').eq('id',id)
     .eq('empresa_id',conversa.empresa_id).eq('conversa_id',conversa.id).eq('autor_id',autor).maybeSingle();
-  if (!registro || registro.texto !== texto) return resposta(req,409,{erro:'Identificador já utilizado por outro envio.'});
+  if (!registro || registro.texto !== texto || (registro.midia?.resposta?.id || null)!==responderId) return resposta(req,409,{erro:'Identificador já utilizado por outro envio.'});
   if (registro.status === 'falhou') return resposta(req,422,{erro:registro.erro || 'O provedor recusou o envio.',mensagem:registro});
   return resposta(req,registro.status === 'enviando' ? 202 : 200,{ok:registro.status !== 'enviando',pendente:registro.status === 'enviando',mensagem:registro});
 }

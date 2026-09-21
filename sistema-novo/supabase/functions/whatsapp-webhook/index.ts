@@ -3,6 +3,8 @@
 // POST mensagens e status, com assinatura X-Hub-Signature-256 conferida pelo App Secret.
 // Mensagem com referral (clique em anúncio) vira origem CTWA com nomes buscados pelo ad_id.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { copiarMidiaRecebida } from '../_shared/incoming-media.ts';
+import { UUID } from '../_shared/security.ts';
 
 const GRAPH = "https://graph.facebook.com/v21.0";
 const ORDEM_STATUS: Record<string, number> = { enviando: 0, enviada: 1, entregue: 2, lida: 3, falhou: 4 };
@@ -115,15 +117,12 @@ Deno.serve(async (req) => {
 
       for (const m of v.messages || []) {
         const c = conteudo(m);
+        if(m.context?.id)c.midia={...(c.midia||{}),context:{id:String(m.context.id),from:m.context.from||null}};
         let origem: Record<string, unknown> | null = null;
         const ref = m.referral;
         if (ref?.source_id && ref?.source_type === "ad") {
-          const n = await nomesDoAnuncio(String(ref.source_id));
           origem = {
             ad_id: String(ref.source_id), ctwa_clid: ref.ctwa_clid || null,
-            campanha_id: n?.campanha_id || null, campanha_nome: n?.campanha_nome || null,
-            conjunto_id: n?.conjunto_id || null, conjunto_nome: n?.conjunto_nome || null,
-            anuncio_nome: n?.anuncio_nome || null,
             dados: { headline: ref.headline || null, source_url: ref.source_url || null, media_type: ref.media_type || null },
           };
         }
@@ -137,20 +136,49 @@ Deno.serve(async (req) => {
           console.error("receber_mensagem_whatsapp", error.code);
           return texto(503, "falha temporária ao persistir evento");
         }
+        if (c.midia?.id) {
+          const {data:gravada,error:erroGravada}=await admin.from('mensagens').select('*').eq('empresa_id',integ.empresa_id).eq('wa_message_id',m.id).maybeSingle();
+          if(erroGravada)return texto(503,'falha ao consultar mídia');
+          if(gravada)try{await copiarMidiaRecebida(admin,s.token,String(cfg.phone_number_id),gravada);}catch(e){
+            if((e as any).status===410)await admin.from('mensagens').update({midia:{...gravada.midia,erro_arquivo:'Arquivo expirado na Meta'}}).eq('id',gravada.id);
+            else return texto(503,'falha temporária ao guardar mídia');
+          }
+        }
+        // O evento principal já está durável; enriquecimento existente não segura o recebimento.
+        if(ref?.source_id && ref?.source_type==='ad'){
+          const enriquecer=async()=>{
+            const nomes=await nomesDoAnuncio(String(ref.source_id));if(!nomes)return;
+            const {data:gravada}=await admin.from('mensagens').select('conversa_id').eq('empresa_id',integ.empresa_id).eq('wa_message_id',m.id).maybeSingle();
+            if(!gravada)return;
+            const {data:conversa}=await admin.from('conversas').select('lead_id').eq('id',gravada.conversa_id).maybeSingle();
+            if(!conversa)return;
+            await admin.from('lead_origens').update({campanha_id:nomes.campanha_id,campanha_nome:nomes.campanha_nome,conjunto_id:nomes.conjunto_id,conjunto_nome:nomes.conjunto_nome,anuncio_nome:nomes.anuncio_nome})
+              .eq('empresa_id',integ.empresa_id).eq('lead_id',conversa.lead_id).eq('ad_id',String(ref.source_id)).eq('canal','ctwa');
+          };
+          if(typeof EdgeRuntime!=='undefined')EdgeRuntime.waitUntil(enriquecer().catch(()=>console.error('enriquecimento_ctwa_pendente')));
+        }
       }
 
       for (const st of v.statuses || []) {
         const novo = STATUS_META[st.status];
         if (!novo) continue;
-        const { data: msg, error: erroBusca } = await admin.from("mensagens").select("id, status")
-          .eq("empresa_id", integ.empresa_id).eq("wa_message_id", st.id).maybeSingle();
-        if (erroBusca) return texto(503, "falha temporária ao consultar recibo");
-        if (novo === "falhou" && ["entregue", "lida"].includes(msg?.status)) continue;
-        if (!msg || (ORDEM_STATUS[novo] ?? 0) <= (ORDEM_STATUS[msg.status] ?? 0)) continue;
-        const { error: erroStatus } = await admin.from("mensagens").update({
-          status: novo,
-          erro: novo === "falhou" ? (st.errors?.[0]?.error_data?.details || st.errors?.[0]?.title || "falhou") : null,
-        }).eq("id", msg.id).eq("status", msg.status).eq("empresa_id", integ.empresa_id);
+        if(UUID.test(String(st.biz_opaque_callback_data||''))){
+          const {data:original,error:erroOriginal}=await admin.from('mensagens').select('id,conversa_id')
+            .eq('id',st.biz_opaque_callback_data).eq('empresa_id',integ.empresa_id).eq('direcao','saida').is('wa_message_id',null).maybeSingle();
+          if(erroOriginal)return texto(503,'falha ao reconciliar envio');
+          if(original){
+            const {data:canal}=await admin.from('conversas').select('canal').eq('id',original.conversa_id).maybeSingle();
+            if(canal?.canal==='whatsapp_oficial'){
+              const {error:erroId}=await admin.from('mensagens').update({wa_message_id:String(st.id)}).eq('id',original.id).is('wa_message_id',null);
+              if(erroId)return texto(503,'falha ao associar recibo');
+            }
+          }
+        }
+        const { error: erroStatus } = await admin.rpc('registrar_recibo_whatsapp',{
+          p_empresa:integ.empresa_id,p_canal:'whatsapp_oficial',p_wa_id:String(st.id),p_status:novo,
+          p_evento:st.timestamp?new Date(Number(st.timestamp)*1000).toISOString():new Date().toISOString(),
+          p_erro:novo==='falhou'?{codigo:st.errors?.[0]?.code,detalhe:String(st.errors?.[0]?.error_data?.details||st.errors?.[0]?.title||'Falha no envio').slice(0,500)}:null,
+        });
         if (erroStatus) return texto(503, "falha temporária ao persistir recibo");
       }
     }

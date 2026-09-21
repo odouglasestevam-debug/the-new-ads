@@ -13,7 +13,7 @@ async function iniciar() {
     pedirNovaSenha(TIPO_LINK);
     return;
   }
-  if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+  if (await bloquearEntrada()) return;
   entrarNoApp(data.session);
 }
 
@@ -40,7 +40,7 @@ document.getElementById("form-definir-senha").addEventListener("submit", async (
   btn.disabled = false;
   if (error) { aviso.className = "aviso erro"; aviso.textContent = "Não deu pra salvar: " + error.message; return; }
   document.getElementById("form-definir-senha").style.display = "none";
-  if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+  if (await bloquearEntrada()) return;
   const { data } = await sb.auth.getSession();
   entrarNoApp(data.session);
 });
@@ -49,6 +49,18 @@ async function precisaSegundaEtapa() {
   const { data, error } = await sb.auth.mfa.getAuthenticatorAssuranceLevel();
   if (error || !data) throw new Error("Não foi possível verificar a segurança da sessão. Tente novamente.");
   return data.nextLevel === "aal2" && data.currentLevel !== "aal2";
+}
+
+async function bloquearEntrada() {
+  try { if (await precisaSegundaEtapa()) { pedirCodigo(); return true; } return false; }
+  catch {
+    document.getElementById('form-login').style.display = '';
+    document.getElementById('form-definir-senha').style.display = 'none';
+    const aviso = document.getElementById('aviso-login');
+    aviso.className = 'aviso erro';
+    aviso.textContent = 'Não foi possível verificar a segurança da sessão. Tente entrar novamente.';
+    return true;
+  }
 }
 
 function pedirCodigo() {
@@ -108,11 +120,13 @@ document.getElementById("form-login").addEventListener("submit", async (e) => {
     return;
   }
   aviso.textContent = "";
-  if (await precisaSegundaEtapa()) { pedirCodigo(); return; }
+  if (await bloquearEntrada()) return;
   entrarNoApp(data.session);
 });
 
 async function sair() {
+  pararTempoReal();
+  try { for (const key of Object.keys(sessionStorage)) if (key.startsWith(`crm:rascunho:${usuario?.id}:`)) sessionStorage.removeItem(key); } catch {}
   await sb.auth.signOut();
   location.reload();
 }
@@ -178,12 +192,21 @@ async function trocarEmpresa(id) {
   formEditando = null;
   conversaAberta = null;
   mensagensPorConversa = {};
+  leads = [];
+  notas = [];
+  conversas = [];
+  equipe = [];
+  document.querySelectorAll('.fundo-modal').forEach(el=>el.remove());
+  document.getElementById('conteudo').innerHTML = '<p role="status">Carregando empresa…</p>';
   integracaoWhats = null;
   canaisWhats = [];
+  busca='';filtroCadastro='todos';Object.assign(filtrosLeads,{responsavel:'todos',etapa:'todas',ordem:'recentes'});
   filtroConv.busca = "";
   filtroConv.responsavel = "";
   filtroConv.canal = "";
   historicoCompleto.clear();
+  listaConversaIds=null;totalNaoLidas=null;totalConversas=0;chaveListaConv='';
+  clearTimeout(timerBuscaConv);sequenciaBuscaConv++;
   errosMensagens.clear();
   avisosIntegracao = {};
   if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";

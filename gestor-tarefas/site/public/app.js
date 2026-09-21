@@ -221,7 +221,14 @@ document.addEventListener("click", (e) => {
 document.addEventListener("scroll", (e) => {
   if (menuAberto() && !(e.target instanceof Element && e.target.closest("#menu-flutuante"))) fecharMenu();
 }, true);
-window.addEventListener("resize", () => { if (menuAberto()) fecharMenu(); });
+// Só a mudança de largura fecha o menu: no celular, esconder a barra do navegador ou abrir o
+// teclado dispara resize de altura e fechava a janelinha na cara do usuário sem motivo.
+let larguraJanela = innerWidth;
+window.addEventListener("resize", () => {
+  if (innerWidth === larguraJanela) return;
+  larguraJanela = innerWidth;
+  if (menuAberto()) fecharMenu();
+});
 document.addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (document.getElementById("modal-veu").classList.contains("ativo")) fecharModal(null);
@@ -471,6 +478,7 @@ function rotear() {
   if (!S.eu) return;
   // "Minhas tarefas" saiu do menu: o Modo eu da Central faz o mesmo.
   if (rotaAtual().tipo === "minhas") history.replaceState(null, "", "#/central");
+  limparSelecao(false);
   const r = rotaAtual();
   if (r.tarefa && S.tarefas.some((t) => t.id === r.tarefa)) abrirTarefa(r.tarefa, true);
   else if (S.aberta && !r.tarefa) fecharTarefa(true);
@@ -753,8 +761,8 @@ function renderResultado(r, f, escopo) {
 
   const tarefas = filtrar(f, escopo).sort((a, b) => ordenarVisao(a, b, f.ordenar));
   const alvo = document.getElementById("lista-tarefas");
-  if (f.visao === "quadro") return renderQuadro(alvo, tarefas, escopo);
-  if (f.agrupar === "pasta") return renderPorLista(alvo, tarefas, escopo);
+  if (f.visao === "quadro") { renderQuadro(alvo, tarefas, escopo); return renderBarraLote(); }
+  if (f.agrupar === "pasta") { renderPorLista(alvo, tarefas, escopo); return renderBarraLote(); }
   const mostrarCaminho = r.tipo !== "lista";
   const grupos = tarefas.length ? agrupar(tarefas, f.agrupar) : [{ chave: "tudo", nome: "", itens: [] }];
   S.grupos = grupos;
@@ -762,7 +770,7 @@ function renderResultado(r, f, escopo) {
     <div class="grupo">
       ${g.nome ? `<div class="grupo-cabeca ${g.classe || ""}"><span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>` : ""}
       <div class="tabela" role="list">
-        ${g.itens.length ? '<div class="cab-colunas"><span></span><span>Tarefa</span><span>Status</span><span>Responsável</span><span>Entrega</span><span class="col-prio">Prioridade</span><span></span></div>' : ""}
+        ${g.itens.length ? `<div class="cab-colunas"><span class="col-check">${caixaGrupo(g)}</span><span>Tarefa</span><span>Status</span><span>Responsável</span><span>Entrega</span><span class="col-prio">Prioridade</span><span></span></div>` : ""}
         ${g.itens.map((t) => linhaTarefa(t, mostrarCaminho)).join("")}
         ${linhaAdicionar(g, escopo)}
       </div>
@@ -772,6 +780,7 @@ function renderResultado(r, f, escopo) {
     campo.focus();
     campo.setSelectionRange(campo.value.length, campo.value.length);
   }
+  renderBarraLote();
 }
 
 function renderResultadoAtual() {
@@ -797,9 +806,9 @@ function renderQuadro(alvo, tarefas, escopo) {
   S.grupos = S.status.map(st => ({ chave: st.id, nome: st.nome, cor: st.cor,
     preset: { status_id: st.id }, itens: tarefas.filter(t => t.status_id === st.id) }));
   alvo.innerHTML = `<div class="quadro">${S.grupos.map(g => `<section class="quadro-coluna" aria-label="${esc(g.nome)}">
-    <div class="grupo-cabeca"><span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>
+    <div class="grupo-cabeca">${caixaGrupo(g)}<span class="bolinha" style="background:${g.cor}"></span><h2>${esc(g.nome)}</h2><span class="n">${g.itens.length}</span></div>
     <div class="quadro-itens">${g.itens.map(t => `<article class="quadro-cartao">
-      <div class="quadro-topo"><button class="quadro-titulo" onclick="abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${botaoMaisTarefa(t)}</div>
+      <div class="quadro-topo">${caixaSel(t)}<button class="quadro-titulo" onclick="abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${botaoMaisTarefa(t)}</div>
       <p class="quadro-lista">${esc(caminhoLista(t.lista_id).join(' › '))}</p>
       <div class="quadro-meta">${celulaPrazo(t)}<span class="resp">${avatares(t.responsaveis)}</span></div>
       <div class="quadro-meta"><span class="prio ${t.prioridade}">${ICONES.bandeira}${NOME_PRIO[t.prioridade]}</span>
@@ -865,7 +874,7 @@ function linhaTarefa(t, mostrarCaminho) {
   if (t.recorrencia) meta.push(`<span class="rec" title="${esc(descreverRecorrencia(t))}">${ICONES.repetir}</span>`);
   const feita = t.situacao === "concluida";
   return `<div class="linha ${t.situacao}" role="listitem" onclick="abrirTarefa('${t.id}')">
-    <div class="col-check"><button class="check${feita ? " feito" : ""}" style="--st:${esc(t.status_cor)}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
+    <div class="col-check">${caixaSel(t)}<button class="check${feita ? " feito" : ""}" style="--st:${esc(t.status_cor)}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
     <div class="col-titulo t-principal"><button class="t-titulo tarefa-link" onclick="event.stopPropagation();abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${meta.length ? `<div class="t-meta">${meta.join("")}</div>` : ""}</div>
     <div class="col-status" onclick="event.stopPropagation()">${botaoStatus(t)}</div>
     <div class="col-resp resp">${avatares(t.responsaveis)}</div>

@@ -50,7 +50,7 @@ Deno.serve(async(req)=>{
     if(error)fail(error.code==='23505'?409:503,'Não foi possível registrar o envio. Consulte o histórico antes de repetir.');
     let resposta;
     try{resposta=await meta(token,`${integration.config.phone_number_id}/messages`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({messaging_product:'whatsapp',to:conversa.wa_id,type:'template',template:{name:m.name,language:{code:m.language},components}})});
+      body:JSON.stringify({messaging_product:'whatsapp',to:conversa.wa_id,biz_opaque_callback_data:id,type:'template',template:{name:m.name,language:{code:m.language},components}})});
     }catch(e){
       const recusado=(e as any).status===502;
       await admin.from('mensagens').update({status:recusado?'falhou':'enviando',erro:recusado?(e as Error).message:'Confirmação do provedor pendente. Confira o histórico antes de reenviar.'}).eq('id',id).eq('status','enviando');

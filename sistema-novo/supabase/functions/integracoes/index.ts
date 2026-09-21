@@ -25,6 +25,9 @@ function aleatorio(bytes = 24) {
 }
 const limpo = (v: unknown) => String(v ?? "").trim();
 const erroMeta = (d: any, status: number) => d?.error?.error_user_msg || d?.error?.message || `HTTP ${status}`;
+function consultaOficial(url: string, options: RequestInit = {}) {
+  return fetch(url.replace(GRAPH,`https://graph.facebook.com/${Deno.env.get('WHATSAPP_GRAPH_VERSION')||'v21.0'}`),{...options,redirect:'error',signal:AbortSignal.timeout(15000)});
+}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: cors(req) });
@@ -64,7 +67,10 @@ Deno.serve(async (req) => {
     const s = await segredos(integ.id);
     const base = { existe: true, status: integ.status, config: integ.config };
     if (integ.tipo === "whatsapp_oficial") {
+      const {data:ultima,error}=await admin.from('conversas').select('ultima_entrada_em')
+        .eq('empresa_id',empresaId).eq('canal','whatsapp_oficial').order('ultima_entrada_em',{ascending:false,nullsFirst:false}).limit(1).maybeSingle();
       return { ...base, token_salvo: !!s.token, app_secret_salvo: !!s.app_secret, verify_token: s.verify_token || null,
+        ultima_entrada_em:ultima?.ultima_entrada_em||null, consulta_entrada_ok:!error,
         webhook_url: `${url}/functions/v1/whatsapp-webhook?i=${integ.id}` };
     }
     if (integ.tipo === "whatsapp_nao_oficial") {
@@ -152,34 +158,45 @@ Deno.serve(async (req) => {
 
       if (tipo === "whatsapp_oficial") {
         if (!s.token) return resposta(req, 400, { erro: "Falta o token." });
-        const r = await fetch(`${GRAPH}/${cfg.phone_number_id}?fields=display_phone_number,verified_name,quality_rating`, {
+        const r = await consultaOficial(`${GRAPH}/${cfg.phone_number_id}?fields=display_phone_number,verified_name,quality_rating`, {
           headers: { Authorization: `Bearer ${s.token}` },
         });
         const d = await r.json().catch(() => ({}));
-        if (!r.ok) return resposta(req, 200, { ok: false, erro: "A Meta recusou: " + erroMeta(d, r.status), estado: await estado(await marcar(integ, "erro")) });
+        if (!r.ok) return resposta(req, 200, { ok: false, erro: "A Meta recusou: " + erroMeta(d, r.status), estado: await estado(await marcar(integ, "erro",{ultimo_teste_em:new Date().toISOString(),ultimo_erro_codigo:d?.error?.code||r.status})) });
 
         // O número responder só prova que dá para enviar. Receber depende deste app estar
         // inscrito no webhook da conta, e isso a Meta sabe dizer.
         let inscrito: boolean | null = null;
+        let tokenValido: boolean | null = null, permissoes: string[] | null = null, expiraEm: number | null = null;
         try {
           const [rToken, rApps] = await Promise.all([
-            fetch(`${GRAPH}/debug_token?input_token=${encodeURIComponent(s.token)}&access_token=${encodeURIComponent(s.token)}`),
-            fetch(`${GRAPH}/${cfg.waba_id}/subscribed_apps`, { headers: { Authorization: `Bearer ${s.token}` } }),
+            consultaOficial(`${GRAPH}/debug_token?input_token=${encodeURIComponent(s.token)}`,{headers:{Authorization:`Bearer ${s.token}`}}),
+            consultaOficial(`${GRAPH}/${cfg.waba_id}/subscribed_apps`, { headers: { Authorization: `Bearer ${s.token}` } }),
           ]);
           const dToken = await rToken.json().catch(() => ({}));
           const dApps = await rApps.json().catch(() => ({}));
+          if(rToken.ok && dToken.data){
+            tokenValido=typeof dToken.data.is_valid==='boolean'?dToken.data.is_valid:null;
+            permissoes=Array.isArray(dToken.data.scopes)?dToken.data.scopes.filter((p:unknown)=>typeof p==='string'&&p.startsWith('whatsapp_business_')):null;
+            expiraEm=Number.isFinite(dToken.data.expires_at)?dToken.data.expires_at:null;
+          }
           const meuApp = dToken?.data?.app_id ? String(dToken.data.app_id) : null;
           if (rApps.ok && Array.isArray(dApps.data) && meuApp) {
             inscrito = dApps.data.some((x: any) => String(x?.whatsapp_business_api_data?.id || "") === meuApp);
           }
-        } catch (e) { console.error("subscribed_apps", String(e)); }
+        } catch { console.error("whatsapp_diagnostico_indisponivel"); }
 
-        const ok = await marcar(integ, "ativa", {
+        const semEnvio=permissoes!==null&&!permissoes.includes('whatsapp_business_messaging');
+        const invalido=tokenValido===false || (expiraEm!==null&&expiraEm>0&&expiraEm*1000<=Date.now());
+
+        const ok = await marcar(integ, invalido||semEnvio?'erro':"ativa", {
           numero_exibido: d.display_phone_number, nome_verificado: d.verified_name,
           qualidade: d.quality_rating, webhook_inscrito: inscrito,
+          token_valido:tokenValido,token_expira_em:expiraEm,permissoes,ultimo_teste_em:new Date().toISOString(),ultimo_erro_codigo:invalido?'token_invalido':semEnvio?'sem_permissao_envio':null,
         });
+        if(invalido||semEnvio)return resposta(req,200,{ok:false,erro:invalido?'Token inválido ou expirado. Salve um novo token do usuário do sistema.':'O token consulta o número, mas não tem permissão whatsapp_business_messaging para enviar.',estado:await estado(ok)});
         const aviso = inscrito === true
-          ? `Conectado como ${d.display_phone_number}. O webhook está inscrito, as mensagens chegam em Conversas.`
+          ? `Número ${d.display_phone_number} acessível e app inscrito. Confirme o recebimento enviando uma mensagem do seu telefone para este número.`
           : inscrito === false
             ? `Conectado como ${d.display_phone_number}, mas este app ainda não está inscrito no webhook da conta. Enquanto isso, o CRM envia mas não recebe. Configure o webhook na Meta e marque o campo messages.`
             : `Conectado como ${d.display_phone_number}. Não consegui conferir o webhook com este token: confirme na Meta que o webhook aponta para o CRM e que o campo messages está marcado.`;
@@ -196,6 +213,8 @@ Deno.serve(async (req) => {
         const d = await r.json().catch(() => ({}));
         if (r.ok) {
           const info = (d as any)?.data || d;
+          const conectado = info?.connected === true || info?.isConnected === true || ['connected','open'].includes(String(info?.state || info?.status || '').toLowerCase());
+          if (!conectado) return resposta(req,200,{ok:false,parcial:true,erro:'A API respondeu, mas não confirmou que o WhatsApp está conectado. Confira o pareamento da instância.',estado:await estado(await marcar(integ,'pendente'))});
           const ok = await marcar(integ, "ativa", { numero_exibido: info?.phone || info?.number || info?.jid || null, nome_instancia: info?.name || null });
           return resposta(req, 200, { ok: true, estado: await estado(ok) });
         }
@@ -223,7 +242,7 @@ Deno.serve(async (req) => {
       const waba = limpo(b.waba_id) || (integ.config as Record<string, string>).waba_id;
       if (!/^\d{5,25}$/.test(waba || "")) return resposta(req, 400, { erro: "Informe o ID da conta do WhatsApp (WABA)." });
 
-      const r = await fetch(`${GRAPH}/${waba}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`, {
+      const r = await consultaOficial(`${GRAPH}/${waba}/phone_numbers?fields=id,display_phone_number,verified_name,quality_rating`, {
         headers: { Authorization: `Bearer ${s.token}` },
       });
       const d = await r.json().catch(() => ({}));
@@ -252,7 +271,7 @@ Deno.serve(async (req) => {
       if (!s.token || !s.app_secret) return resposta(req, 400, { erro: "Preciso do token e do App Secret salvos." });
       if (!cfg.waba_id) return resposta(req, 400, { erro: "Preencha o WhatsApp Business Account ID." });
 
-      const rToken = await fetch(`${GRAPH}/debug_token?input_token=${encodeURIComponent(s.token)}&access_token=${encodeURIComponent(s.token)}`);
+      const rToken = await consultaOficial(`${GRAPH}/debug_token?input_token=${encodeURIComponent(s.token)}`,{headers:{Authorization:`Bearer ${s.token}`}});
       const dToken = await rToken.json().catch(() => ({}));
       const appId = dToken?.data?.app_id ? String(dToken.data.app_id) : null;
       if (!appId) return resposta(req, 400, { erro: "Não consegui descobrir o app deste token: " + erroMeta(dToken, rToken.status) });
@@ -261,7 +280,7 @@ Deno.serve(async (req) => {
       const nosso = `${url}/functions/v1/whatsapp-webhook?i=${integ.id}`;
 
       // O endereço do webhook é do app inteiro: sobrescrever derruba quem já usa esse app.
-      const rAtual = await fetch(`${GRAPH}/${appId}/subscriptions?access_token=${encodeURIComponent(tokenApp)}`);
+      const rAtual = await consultaOficial(`${GRAPH}/${appId}/subscriptions`,{headers:{Authorization:`Bearer ${tokenApp}`}});
       const dAtual = await rAtual.json().catch(() => ({}));
       if (!rAtual.ok) return resposta(req, 400, { erro: "A Meta recusou o App Secret: " + erroMeta(dAtual, rAtual.status) });
       const jaTem = (dAtual?.data || []).find((x: any) => x?.object === "whatsapp_business_account");
@@ -277,12 +296,12 @@ Deno.serve(async (req) => {
         object: "whatsapp_business_account", callback_url: nosso,
         verify_token: s.verify_token || "", fields: "messages", access_token: tokenApp,
       });
-      const rSub = await fetch(`${GRAPH}/${appId}/subscriptions`, { method: "POST", body: corpo });
+      const rSub = await consultaOficial(`${GRAPH}/${appId}/subscriptions`, { method: "POST", body: corpo });
       const dSub = await rSub.json().catch(() => ({}));
       if (!rSub.ok) return resposta(req, 400, { erro: "A Meta recusou o webhook: " + erroMeta(dSub, rSub.status) });
 
       // Inscreve o app nesta conta do WhatsApp (sem isso a conta não manda nada para o app).
-      const rApp = await fetch(`${GRAPH}/${cfg.waba_id}/subscribed_apps`, {
+      const rApp = await consultaOficial(`${GRAPH}/${cfg.waba_id}/subscribed_apps`, {
         method: "POST", headers: { Authorization: `Bearer ${s.token}` },
       });
       const dApp = await rApp.json().catch(() => ({}));

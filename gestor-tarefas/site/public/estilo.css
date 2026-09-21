@@ -157,7 +157,7 @@ main{flex:1;min-width:0;padding:28px 32px 90px}
 .grupo-cabeca .n{font-family:var(--mono);font-size:11.5px;color:var(--nevoa)}
 .grupo-cabeca.atrasada h2{color:var(--vermelho)}
 .tabela{border:1px solid var(--linha);border-radius:12px;background:var(--grafite);overflow:hidden}
-.cab-colunas,.linha{display:grid;grid-template-columns:34px minmax(0,1fr) 150px 110px 170px 92px;align-items:center;gap:10px;padding:0 14px}
+.cab-colunas,.linha{display:grid;grid-template-columns:56px minmax(0,1fr) 150px 110px 170px 92px;align-items:center;gap:10px;padding:0 14px}
 .cab-colunas{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa);
   padding-top:9px;padding-bottom:9px;border-bottom:1px solid var(--linha)}
 .linha{min-height:52px;border-bottom:1px solid var(--linha);cursor:pointer;position:relative;padding-top:7px;padding-bottom:7px}
@@ -293,7 +293,7 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
 
 /* ---------------- celular ---------------- */
 @media (max-width:1100px){
-  .cab-colunas,.linha{grid-template-columns:30px minmax(0,1fr) 130px 90px 150px}
+  .cab-colunas,.linha{grid-template-columns:52px minmax(0,1fr) 130px 90px 150px}
   .col-prio{display:none}
 }
 @media (max-width:860px){
@@ -314,7 +314,7 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
   .filtros input[type=search]{width:100%}
   .filtros select{flex:1 1 140px;max-width:none}
   .cab-colunas{display:none}
-  .linha{grid-template-columns:28px minmax(0,1fr) auto;grid-template-areas:"c t p" "c s r";row-gap:6px;padding:10px 12px}
+  .linha{grid-template-columns:48px minmax(0,1fr) auto;grid-template-areas:"c t p" "c s r";row-gap:6px;padding:10px 12px}
   .linha > .col-check{grid-area:c;align-self:start;padding-top:2px}
   .linha > .col-titulo{grid-area:t}
   .linha > .col-status{grid-area:s;justify-self:start}
@@ -404,3 +404,39 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
 .campo-data.atrasada{border-color:rgba(239,68,68,.6);color:var(--vermelho)}
 .campo-data.atrasada svg{color:var(--vermelho)}
 .add-btn.ligado{color:var(--azul);border-color:rgba(96,165,250,.35)}
+
+/* ---------------- seleção múltipla e ações em lote ---------------- */
+.col-check{display:flex;align-items:center;gap:6px}
+.sel-box{width:18px;height:18px;flex:none;border-radius:5px;border:1.6px solid rgba(255,255,255,.3);background:none;
+  display:inline-flex;align-items:center;justify-content:center;color:transparent;opacity:.55;transition:all .15s}
+.sel-box svg{width:12px;height:12px}
+.sel-box:hover{opacity:1;border-color:var(--ambar);color:var(--ambar)}
+.linha:hover .sel-box,.cu-linha:hover .sel-box,.quadro-cartao:hover .sel-box,.sel-box:focus-visible{opacity:1}
+.sel-box.on,.sel-box.parcial{opacity:1;background:var(--ambar);border-color:var(--ambar);color:#0A0A0A}
+.grupo-cabeca .sel-box,.cu-grupo-cab .sel-box{margin-right:2px}
+.quadro-topo .sel-box{margin-top:2px}
+
+.barra-lote{position:fixed;left:50%;bottom:20px;transform:translate(-50%,24px);z-index:60;display:none;align-items:center;gap:14px;
+  width:max-content;
+  padding:9px 12px;border-radius:12px;background:#161616;border:1px solid rgba(255,255,255,.16);
+  box-shadow:0 18px 40px rgba(0,0,0,.45);opacity:0;transition:opacity .16s,transform .16s;max-width:calc(100vw - 24px)}
+.barra-lote.ativa{display:flex;opacity:1;transform:translate(-50%,0)}
+.lote-n{font-size:12.5px;color:var(--nevoa);white-space:nowrap}
+.lote-acoes{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.lote-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px;border:1px solid transparent;
+  background:none;color:var(--branco);font-size:13px;white-space:nowrap}
+.lote-btn:hover{background:rgba(255,255,255,.08);border-color:rgba(255,255,255,.14)}
+.lote-btn svg{width:14px;height:14px;opacity:.8}
+.lote-x{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:8px;
+  border:0;background:none;color:var(--nevoa)}
+.lote-x:hover{background:rgba(255,255,255,.08);color:var(--branco)}
+.lote-x svg{width:14px;height:14px}
+body.com-lote .toast{bottom:92px}
+@media(max-width:860px){
+  .barra-lote{left:8px;right:8px;transform:translateY(24px);width:auto;max-width:none;flex-wrap:wrap;gap:8px;bottom:12px}
+  .barra-lote.ativa{transform:none}
+  .lote-n{order:-1;flex:1 1 100%}
+  .lote-acoes{flex:1 1 auto;overflow-x:auto}
+  .lote-btn{padding:8px 9px}
+  body.com-lote .toast{bottom:132px}
+}

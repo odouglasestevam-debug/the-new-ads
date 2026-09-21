@@ -22,7 +22,7 @@ function abrirLead(id, abaInicial) {
           <div class="nota">
             <div class="nota-topo">
               <span class="nota-data">${dataHora(n.criado_em)} · ${escapar(nomeResponsavel(n.autor_id) || "")}</span>
-              ${n.autor_id === usuario.id || pode.excluir() ? `<button class="nota-apagar" data-nota="${n.id}" type="button" title="Apagar">✕</button>` : ""}
+              ${n.autor_id === usuario.id || pode.excluir() ? `<button class="nota-apagar" data-nota="${n.id}" type="button" aria-label="Apagar anotação"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>` : ""}
             </div>
             <p>${escapar(n.texto)}</p>
           </div>`).join("")
@@ -81,7 +81,8 @@ function abrirLead(id, abaInicial) {
       ${pode.excluir() ? '<div class="grupo"><button class="ver-lead perigo" type="button" id="excluir-lead">Excluir lead</button></div>' : ""}`;
   }
 
-  const conversa = conversas.find((c) => c.lead_id === l.id) || null;
+  const conversasLead = conversas.filter((c) => c.lead_id === l.id);
+  let conversa = conversasLead.find(c=>c.id===conversaAberta) || conversasLead[0] || null;
   if (!conversa && abaAtual === "conversa") abaAtual = "anotacoes";
   if (conversa && !abaInicial) abaAtual = "conversa";
 
@@ -101,6 +102,7 @@ function abrirLead(id, abaInicial) {
   fechar = () => { document.removeEventListener("conversas-atualizadas", aoAtualizar); fecharOriginal(); };
 
   function desenhar() {
+    const estadoChat = capturarEstadoChat();
     if (abaAtual === "conversa" && conversa) {
       const carregando = garantirMensagens(conversa.id);
       if (carregando && !carregando.redesenhoFicha) {
@@ -109,9 +111,7 @@ function abrirLead(id, abaInicial) {
       }
     }
     if (abaAtual === "conversa" && conversa?.nao_lidas) {
-      conversa.nao_lidas = 0;
-      atualizarContadorConversas();
-      sb.rpc("marcar_conversa_lida", { p_conversa: conversa.id });
+      marcarVistaComoLida(conversa);
     }
     const corpo = abaAtual === "conversa" ? htmlChat(conversa)
       : abaAtual === "anotacoes" ? abaAnotacoes() : abaAtual === "origem" ? abaOrigem() : abaDados();
@@ -122,7 +122,7 @@ function abrirLead(id, abaInicial) {
             <h2>${escapar(l.nome || "Lead sem nome")}</h2>
             <div class="sub-cel">${escapar(NOME_ETAPA[l.etapa] || l.etapa)} ${l.cadastro_incompleto ? '· <span style="color:var(--vermelho)">cadastro incompleto</span>' : ""}</div>
           </div>
-          <button class="fechar" type="button" aria-label="Fechar">✕</button>
+          <button class="fechar" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
         </div>
         ${conversa ? "" : botaoWhatsApp(l, "Conversar no WhatsApp")}
         ${l.cadastro_incompleto && pode.editarLead(l) ? '<button class="btn btn-largo" id="completar" type="button" style="margin-bottom:22px">Completar cadastro</button>' : ""}
@@ -132,12 +132,15 @@ function abrirLead(id, abaInicial) {
             return `<button class="aba${a.id === abaAtual ? " ativa" : ""}" data-aba="${a.id}" type="button">${a.nome}${n ? `<span class="aba-conta">${n}</span>` : ""}</button>`;
           }).join("")}
         </div>
+        ${abaAtual === 'conversa' && conversasLead.length > 1 ? `<label class="campo">Número de atendimento<select id="conversa-canal-lead">${conversasLead.map(c=>`<option value="${c.id}" ${c.id===conversa.id?'selected':''}>${escapar(rotuloCanal(c.canal))}</option>`).join('')}</select></label>` : ''}
         <div class="aba-corpo">${corpo}</div>
       </div>`;
 
     div.querySelector(".fechar").addEventListener("click", fechar);
     div.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => { abaAtual = b.dataset.aba; desenhar(); }));
     if (abaAtual === "conversa" && conversa) ligarChat(div, conversa, () => { desenhar(); if (vistaAtual === "conversas") render(); });
+    div.querySelector('#conversa-canal-lead')?.addEventListener('change', e=>{conversa=conversasLead.find(c=>c.id===e.target.value);desenhar();});
+    restaurarEstadoChat(estadoChat);
     const completar = div.querySelector("#completar");
     if (completar) completar.addEventListener("click", () => { fechar(); formularioLead(l); });
 
@@ -174,4 +177,3 @@ function abrirLead(id, abaInicial) {
 
   desenhar();
 }
-

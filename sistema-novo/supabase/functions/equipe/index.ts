@@ -2,6 +2,7 @@
 // Precisa da service_role (criar usuário e gerar link), por isso roda no servidor.
 // Quem chama: agência ou dono da empresa, conferido aqui antes de qualquer ação.
 import { createClient } from "npm:@supabase/supabase-js@2";
+import { temMfaPendente, checarLimiteCRM } from '../_shared/security.ts';
 
 const ORIGENS = ["https://crm.thenewads.com.br", "http://localhost:8788"];
 const DESTINO = "https://crm.thenewads.com.br/";
@@ -35,6 +36,7 @@ Deno.serve(async (req) => {
   const token = (req.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "");
   const { data: quem, error: erroQuem } = await admin.auth.getUser(token);
   if (erroQuem || !quem?.user) return resposta(req, 401, { erro: "Sessão inválida." });
+  if (temMfaPendente(quem.user,token)) return resposta(req,403,{erro:'Conclua a autenticação em duas etapas.'});
   const eu = quem.user.id;
 
   let corpo: Record<string, string>;
@@ -52,6 +54,10 @@ Deno.serve(async (req) => {
   ]);
   if (!agencia && meuPapel?.papel !== "dono") {
     return resposta(req, 403, { erro: "Só a agência ou o dono da empresa gerenciam a equipe." });
+  }
+  if(['convidar','link_acesso'].includes(acao)){
+    const limite=await checarLimiteCRM(admin,eu,'equipe');
+    if(limite)return resposta(req,limite.status,{erro:limite.erro});
   }
 
   if (acao === "convidar") {
@@ -92,14 +98,10 @@ Deno.serve(async (req) => {
     const { data: usuario } = await admin.auth.admin.getUserById(alvo);
     if (!usuario?.user?.email) return resposta(req, 404, { erro: "Usuário não encontrado." });
 
-    // Link de definir senha: serve para quem não aceitou o convite e para quem esqueceu a senha.
-    const { data, error } = await admin.auth.admin.generateLink({
-      type: "recovery",
-      email: usuario.user.email,
-      options: { redirectTo: DESTINO },
-    });
-    if (error) return resposta(req, 500, { erro: "Não deu pra gerar o link: " + error.message });
-    return resposta(req, 200, { ok: true, link: data.properties.action_link });
+    // Uma conta pode participar de outras empresas. Somente seu titular recebe a recuperação.
+    const { error } = await admin.auth.resetPasswordForEmail(usuario.user.email, { redirectTo: DESTINO });
+    if (error) return resposta(req, error.status === 429 ? 429 : 503, { erro: "Não foi possível enviar a recuperação. Aguarde alguns minutos ou confira a configuração de e-mail do projeto." });
+    return resposta(req, 200, { ok: true, enviado: true });
   }
 
   return resposta(req, 400, { erro: "Ação desconhecida." });

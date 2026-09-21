@@ -4,6 +4,23 @@ Data da análise: 19/09/2026
 Modelo recomendado: GPT-6 Astra, raciocínio alto  
 Orçamento total: 350.000 tokens
 
+## Execução registrada em 20/09/2026
+
+Publicado exclusivamente no CRM. Evidências e versões em [EXECUCAO-CRM.md](EXECUCAO-CRM.md); operação, conexão e reversão em [OPERACAO.md](OPERACAO.md).
+
+Os valores de tokens abaixo são estimativas de planejamento. Esta execução não dispõe de um contador verificável por etapa; portanto não há consumo real ou saldo alegado, nem comprovação dos marcos de 75% e 90%. Entregas são registradas pelo código publicado e pelos testes, sem declarar todas as etapas concluídas.
+
+| Etapa | Situação desta entrega |
+|---|---|
+| 0 | Baseline, contrato visual e procedimento de reversão registrados; consulta de logs documentada no Dashboard. |
+| 1 | Frontend separado, assets locais, headers e testes SQL/Edge/navegador implementados. A cobertura não representa teste de todos os fluxos existentes. |
+| 2 | Navegação, estilos compartilhados, Conversas, Leads, Kanban e ajustes mobile atualizados. Rodada Impeccable de refinamento concluída com revisão ship; detalhes em UX-CRM.md. Formulários/Ajustes herdam controles e tipografia; não houve reconstrução integral de seus fluxos. |
+| 3 | Busca no histórico, filtros, paginação, realtime, rascunhos, scroll, envio otimista, recibos, painel do lead, mídia e resposta citada oficial implementados. Histórico anterior usa botão; reações são exibidas como eventos, sem envio próprio. |
+| 4 | Recursos oficiais e diagnóstico implementados e testados com fixtures. Faltam ida/volta real e atualização da Graph com compatibilidade confirmada. Templates avançados com botões/cabeçalhos de mídia não estão incluídos. |
+| 5 | Host autorizado, proteção de slots, assinatura e recibos reforçados. Implementação completa permanece dependente da URL, versão e instância NeoGo reais. |
+| 6 | RLS/MFA, integridade, índices, limites atômicos, recuperação de equipe, bucket privado e testes de volume implementados. Proteção global de senhas vazadas, expurgo e exportação integral permanecem pendentes. |
+| 7 | Publicação e smoke público conferidos. Homologação autenticada com provedores reais continua pendente. |
+
 ## Objetivo
 
 Evoluir o CRM multitenant para uma ferramenta diária de atendimento e gestão comercial, com interface consistente e uma área de Conversas tão familiar e eficiente quanto o WhatsApp Web. Completar e endurecer as integrações com a API oficial do WhatsApp e com a NeoGo, preservando o isolamento entre empresas.

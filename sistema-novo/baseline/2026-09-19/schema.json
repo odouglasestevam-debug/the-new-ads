@@ -1,0 +1,562 @@
+{
+  "capturado": "2026-09-20T02:38:00.543812+00:00",
+  "columns": [
+    {
+      "table_name": "conversas",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "empresa_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "lead_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "canal",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "wa_id",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "ultima_mensagem_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "ultima_entrada_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "ultima_previa",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "nao_lidas",
+      "data_type": "integer",
+      "is_nullable": "NO",
+      "column_default": "0"
+    },
+    {
+      "table_name": "conversas",
+      "column_name": "criado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "empresas",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_name": "empresas",
+      "column_name": "nome",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "empresas",
+      "column_name": "slug",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "empresas",
+      "column_name": "ativo",
+      "data_type": "boolean",
+      "is_nullable": "NO",
+      "column_default": "true"
+    },
+    {
+      "table_name": "empresas",
+      "column_name": "criado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "empresa_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "tipo",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'pendente'::text"
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "config",
+      "data_type": "jsonb",
+      "is_nullable": "NO",
+      "column_default": "'{}'::jsonb"
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "segredo_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "integracoes",
+      "column_name": "atualizado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "empresa_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "nome",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "telefone",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "etapa",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'novo'::text"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "responsavel_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "valor",
+      "data_type": "numeric",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "cadastro_incompleto",
+      "data_type": "boolean",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "leads",
+      "column_name": "criado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "leads",
+      "column_name": "atualizado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "membros",
+      "column_name": "empresa_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "membros",
+      "column_name": "user_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "membros",
+      "column_name": "papel",
+      "data_type": "USER-DEFINED",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "membros",
+      "column_name": "criado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": "gen_random_uuid()"
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "empresa_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "conversa_id",
+      "data_type": "uuid",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "direcao",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "tipo",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'texto'::text"
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "texto",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "midia",
+      "data_type": "jsonb",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "wa_message_id",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "status",
+      "data_type": "text",
+      "is_nullable": "NO",
+      "column_default": "'recebida'::text"
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "erro",
+      "data_type": "text",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "autor_id",
+      "data_type": "uuid",
+      "is_nullable": "YES",
+      "column_default": null
+    },
+    {
+      "table_name": "mensagens",
+      "column_name": "criado_em",
+      "data_type": "timestamp with time zone",
+      "is_nullable": "NO",
+      "column_default": "now()"
+    }
+  ],
+  "policies": [
+    {
+      "tablename": "conversas",
+      "policyname": "conversas_ver",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "SELECT",
+      "qual": "privado.pode_ver_lead_id(lead_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "empresas",
+      "policyname": "empresas_apagar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "DELETE",
+      "qual": "privado.eh_agencia()",
+      "with_check": null
+    },
+    {
+      "tablename": "empresas",
+      "policyname": "empresas_criar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "privado.eh_agencia()"
+    },
+    {
+      "tablename": "empresas",
+      "policyname": "empresas_editar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "UPDATE",
+      "qual": "privado.pode_administrar_empresa(id)",
+      "with_check": "privado.pode_administrar_empresa(id)"
+    },
+    {
+      "tablename": "empresas",
+      "policyname": "empresas_ver",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "SELECT",
+      "qual": "privado.pode_ver_empresa(id)",
+      "with_check": null
+    },
+    {
+      "tablename": "integracoes",
+      "policyname": "integracoes_apagar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "DELETE",
+      "qual": "privado.pode_administrar_empresa(empresa_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "integracoes",
+      "policyname": "integracoes_criar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "privado.pode_administrar_empresa(empresa_id)"
+    },
+    {
+      "tablename": "integracoes",
+      "policyname": "integracoes_editar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "UPDATE",
+      "qual": "privado.pode_administrar_empresa(empresa_id)",
+      "with_check": "privado.pode_administrar_empresa(empresa_id)"
+    },
+    {
+      "tablename": "integracoes",
+      "policyname": "integracoes_ver",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "SELECT",
+      "qual": "privado.pode_administrar_empresa(empresa_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "leads",
+      "policyname": "leads_apagar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "DELETE",
+      "qual": "privado.pode_administrar_empresa(empresa_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "leads",
+      "policyname": "leads_criar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "privado.pode_editar_lead(empresa_id, responsavel_id)"
+    },
+    {
+      "tablename": "leads",
+      "policyname": "leads_editar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "UPDATE",
+      "qual": "privado.pode_editar_lead(empresa_id, responsavel_id)",
+      "with_check": "privado.pode_editar_lead(empresa_id, responsavel_id)"
+    },
+    {
+      "tablename": "leads",
+      "policyname": "leads_ver",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "SELECT",
+      "qual": "privado.pode_ver_lead(empresa_id, responsavel_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "membros",
+      "policyname": "membros_apagar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "DELETE",
+      "qual": "privado.pode_administrar_empresa(empresa_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "membros",
+      "policyname": "membros_criar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "INSERT",
+      "qual": null,
+      "with_check": "privado.pode_administrar_empresa(empresa_id)"
+    },
+    {
+      "tablename": "membros",
+      "policyname": "membros_editar",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "UPDATE",
+      "qual": "privado.pode_administrar_empresa(empresa_id)",
+      "with_check": "privado.pode_administrar_empresa(empresa_id)"
+    },
+    {
+      "tablename": "membros",
+      "policyname": "membros_ver",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "SELECT",
+      "qual": "privado.pode_ver_empresa(empresa_id)",
+      "with_check": null
+    },
+    {
+      "tablename": "mensagens",
+      "policyname": "mensagens_ver",
+      "roles": [
+        "authenticated"
+      ],
+      "cmd": "SELECT",
+      "qual": "(EXISTS ( SELECT 1\n   FROM conversas c\n  WHERE ((c.id = mensagens.conversa_id) AND privado.pode_ver_lead_id(c.lead_id))))",
+      "with_check": null
+    }
+  ],
+  "functions": [
+    {
+      "schema": "privado",
+      "name": "eh_agencia",
+      "definition": "CREATE OR REPLACE FUNCTION privado.eh_agencia()\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select exists (select 1 from public.agencia_admins where user_id = (select auth.uid()));\n$function$\n"
+    },
+    {
+      "schema": "privado",
+      "name": "papel_na_empresa",
+      "definition": "CREATE OR REPLACE FUNCTION privado.papel_na_empresa(p_empresa uuid)\n RETURNS papel_membro\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select papel from public.membros where empresa_id = p_empresa and user_id = (select auth.uid());\n$function$\n"
+    },
+    {
+      "schema": "privado",
+      "name": "pode_administrar_empresa",
+      "definition": "CREATE OR REPLACE FUNCTION privado.pode_administrar_empresa(p_empresa uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select privado.eh_agencia() or privado.papel_na_empresa(p_empresa) = 'dono';\n$function$\n"
+    },
+    {
+      "schema": "privado",
+      "name": "pode_editar_lead",
+      "definition": "CREATE OR REPLACE FUNCTION privado.pode_editar_lead(p_empresa uuid, p_responsavel uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select privado.eh_agencia()\n      or privado.papel_na_empresa(p_empresa) in ('dono', 'gestor')\n      or (privado.papel_na_empresa(p_empresa) = 'vendedor' and p_responsavel = (select auth.uid()));\n$function$\n"
+    },
+    {
+      "schema": "privado",
+      "name": "pode_ver_empresa",
+      "definition": "CREATE OR REPLACE FUNCTION privado.pode_ver_empresa(p_empresa uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select privado.eh_agencia() or privado.papel_na_empresa(p_empresa) is not null;\n$function$\n"
+    },
+    {
+      "schema": "privado",
+      "name": "pode_ver_lead",
+      "definition": "CREATE OR REPLACE FUNCTION privado.pode_ver_lead(p_empresa uuid, p_responsavel uuid)\n RETURNS boolean\n LANGUAGE sql\n STABLE SECURITY DEFINER\n SET search_path TO ''\nAS $function$\n  select privado.eh_agencia()\n      or privado.papel_na_empresa(p_empresa) in ('dono', 'gestor', 'leitura')\n      or (privado.papel_na_empresa(p_empresa) = 'vendedor' and p_responsavel = (select auth.uid()));\n$function$\n"
+    }
+  ]
+}

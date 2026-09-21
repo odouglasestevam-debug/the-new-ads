@@ -46,11 +46,12 @@ function renderPorLista(alvo, tarefas, escopo) {
       return `<div class="cu-grupo">
         <div class="cu-grupo-cab">
           <button class="cu-seta${grupoAberto ? "" : " fechada"}" onclick="alternarColapso('s:${chave}')" aria-label="${grupoAberto ? "Recolher" : "Expandir"} ${esc(st.nome)}">${SETA_BLOCO}</button>
+          ${caixaGrupo(g)}
           <span class="cu-selo" style="--st:${esc(st.cor)}">${iconeStatus(st.tipo)}${esc(st.nome)}</span>
           <span class="cu-qtd">${doStatus.length}</span>
         </div>
         ${grupoAberto ? `<div class="cu-tabela" role="list">
-          ${doStatus.length ? '<div class="cu-cab"><span>Nome</span><span>Responsável</span><span>Data inicial</span><span>Data de vencimento</span><span>Prioridade</span><span></span></div>' : ""}
+          ${doStatus.length ? `<div class="cu-cab"><span>Nome</span><span>Responsável</span><span>Data inicial</span><span>Data de vencimento</span><span>Prioridade</span><span></span></div>` : ""}
           ${doStatus.map((t) => linhaClickup(t)).join("")}
           ${linhaAdicionar(g, escopo)}
         </div>` : ""}
@@ -85,6 +86,7 @@ function linhaClickup(t) {
     : `<span class="cu-vazio">${icoCal}</span>`;
   return `<div class="cu-linha ${t.situacao}" role="listitem" onclick="abrirTarefa('${t.id}')">
     <div class="cu-nome">
+      ${caixaSel(t)}
       <button class="cu-status" style="--st:${esc(t.status_cor)}" data-menu onclick="event.stopPropagation();menuStatus(this,'${t.id}')"
         aria-label="Status: ${esc(t.status_nome)}" title="${esc(t.status_nome)}">${iconeStatus(t.status_tipo)}</button>
       <div class="cu-texto">

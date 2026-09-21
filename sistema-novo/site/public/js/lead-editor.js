@@ -27,7 +27,9 @@ function formularioLead(lead) {
     </div>`;
   document.body.appendChild(div);
 
-  const fechar = () => div.remove();
+  const fechar = () => {div.remove();document.removeEventListener('keydown',aoTeclar);};
+  const aoTeclar = event => {if(event.key==='Escape')fechar();};
+  document.addEventListener('keydown',aoTeclar);
   div.addEventListener("click", (e) => { if (e.target === div) fechar(); });
   div.querySelector("#fl-cancelar").addEventListener("click", fechar);
   div.querySelector("#fl-nome").focus();
@@ -83,4 +85,3 @@ async function excluirLead(l) {
   notas = notas.filter((n) => n.lead_id !== l.id);
   return true;
 }
-

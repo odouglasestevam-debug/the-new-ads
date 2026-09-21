@@ -59,7 +59,7 @@ let canaisWhats = [];       // números ligados da empresa: [{canal, numero}]
 const pode = {
   editarTodos: () => ["agencia", "dono", "gestor"].includes(papel),
   editarLead: (l) => pode.editarTodos() || (papel === "vendedor" && l.responsavel_id === usuario.id),
-  criarLead: () => papel !== "leitura",
+  criarLead: () => ["agencia", "dono", "gestor", "vendedor"].includes(papel),
   distribuir: () => pode.editarTodos(),
   administrar: () => ["agencia", "dono"].includes(papel),
   excluir: () => ["agencia", "dono"].includes(papel),

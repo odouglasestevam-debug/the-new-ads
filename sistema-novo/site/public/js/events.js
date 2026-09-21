@@ -15,6 +15,17 @@ function ligarEventos() {
   }
   const filtro = document.getElementById("filtro-cadastro");
   if (filtro) filtro.addEventListener("change", (e) => { filtroCadastro = e.target.value; render(); });
+  document.querySelectorAll('[data-responsabilidade]').forEach(b=>b.onclick=()=>{
+    filtrosLeads.responsavel=b.dataset.responsabilidade;render();document.querySelector(`[data-responsabilidade="${filtrosLeads.responsavel}"]`)?.focus({preventScroll:true});
+  });
+  document.getElementById('filtro-etapa')?.addEventListener('change',e=>{filtrosLeads.etapa=e.target.value;render();document.getElementById('filtro-etapa')?.focus({preventScroll:true});});
+  document.getElementById('ordem-leads')?.addEventListener('change',e=>{filtrosLeads.ordem=e.target.value;render();const painel=document.querySelector('.filtros-adicionais');if(painel)painel.open=true;document.getElementById('ordem-leads')?.focus({preventScroll:true});});
+  document.querySelectorAll('[data-limpar-leads]').forEach(b=>b.onclick=()=>{limparFiltrosLeads();document.getElementById('busca')?.focus();});
+  document.querySelectorAll('[data-abrir-lead]').forEach(b=>b.onclick=()=>abrirLead(b.dataset.abrirLead));
+  document.getElementById('ir-etapa')?.addEventListener('change',e=>{
+    const coluna=document.querySelector(`.coluna[data-etapa="${e.target.value}"]`),quadro=document.querySelector('.kanban');
+    if(coluna&&quadro)quadro.scrollTo({left:coluna.offsetLeft-quadro.offsetLeft,behavior:matchMedia('(prefers-reduced-motion:reduce)').matches?'instant':'smooth'});
+  });
 
   document.querySelectorAll(".lead-etapa").forEach((sel) => {
     sel.addEventListener("click", (e) => e.stopPropagation());
@@ -143,10 +154,10 @@ function ligarEquipe() {
       const aviso = document.getElementById("aviso-equipe");
       b.disabled = true;
       try {
-        const r = await chamarEquipe({ acao: "link_acesso", user_id: b.dataset.user });
-        const email = equipe.find((m) => m.user_id === b.dataset.user)?.email || "";
-        mostrarLink("link-membro", r.link, `Link para ${escapar(email)} criar uma nova senha. Mande só para essa pessoa, ele vale uma vez.`);
-        aviso.textContent = "";
+        await chamarEquipe({ acao: "link_acesso", user_id: b.dataset.user });
+        document.getElementById('link-membro')?.replaceChildren();
+        aviso.className = 'aviso ok';
+        aviso.textContent = 'Recuperação enviada ao e-mail da pessoa. Peça que confira a caixa de entrada e o spam.';
       } catch (err) {
         aviso.className = "aviso erro";
         aviso.textContent = err.message;
@@ -234,4 +245,3 @@ function ligarArrasto() {
     });
   });
 }
-

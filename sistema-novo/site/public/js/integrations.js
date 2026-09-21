@@ -21,6 +21,24 @@ function seloIntegracao(e) {
 // Guarda o aviso de cada bloco entre redesenhos (salvar redesenha a tela).
 let avisosIntegracao = {};
 
+function diagnosticoWhatsApp(e) {
+  if(!e.existe)return '';
+  const c=e.config||{},data=iso=>iso?new Date(iso).toLocaleString('pt-BR'):'Ainda não registrado';
+  const permissoes=Array.isArray(c.permissoes)?c.permissoes:null;
+  const linhas=[
+    ['Token',c.token_valido===true?'Validado no último teste':c.token_valido===false?'Inválido':e.token_salvo?'Salvo; validade ainda não conferida':'Falta salvar'],
+    ['Validade',c.token_expira_em===0?'Sem expiração informada pela Meta':c.token_expira_em?data(c.token_expira_em*1000):'Não conferida'],
+    ['Permissão de envio',permissoes?(permissoes.includes('whatsapp_business_messaging')?'Confirmada':'Ausente'):'Não conferida'],
+    ['Permissão de modelos',permissoes?(permissoes.includes('whatsapp_business_management')?'Confirmada':'Ausente'):'Não conferida'],
+    ['Webhook',c.webhook_inscrito===true?'App inscrito; confira a entrada abaixo':c.webhook_inscrito===false?'App não inscrito':'Não conferido'],
+    ['Última entrada',e.consulta_entrada_ok===false?'Consulta indisponível':data(e.ultima_entrada_em)],
+    ['Qualidade do número',({GREEN:'Boa',YELLOW:'Atenção',RED:'Baixa',UNKNOWN:'Não informada'})[c.qualidade]||'Não conferida'],
+    ['Último teste',data(c.ultimo_teste_em)],
+    ...(c.ultimo_erro_codigo?[['Erro do último teste',String(c.ultimo_erro_codigo)]]:[]),
+  ];
+  return `<details class="manual diagnostico-whatsapp"><summary>Diagnóstico da conexão</summary>${linhas.map(([nome,valor])=>`<div class="par"><span class="r">${escapar(nome)}</span><span class="v">${escapar(valor)}</span></div>`).join('')}<p class="ajuda">O teste consulta a conexão sem enviar mensagens. Recebimento recente confirma que mensagens chegaram ao CRM.</p></details>`;
+}
+
 function painelIntegracoes() {
   const todas = integracaoWhats;
   if (!todas) return '<div class="bloco" style="grid-column:1/-1"><p>Carregando integrações...</p></div>';
@@ -85,6 +103,8 @@ function painelIntegracoes() {
     <div class="bloco">
       <h3>WhatsApp API oficial ${seloIntegracao(of)}</h3>
       <p>${of.existe && ofc.numero_exibido ? `Número ${escapar(ofc.numero_exibido)}${ofc.nome_verificado ? ` · ${escapar(ofc.nome_verificado)}` : ""}. ` : ""}Cloud API da Meta. Token e App Secret ficam cifrados e nunca aparecem de novo.</p>
+      <details class="manual"><summary>Como conectar este número</summary><ol><li>No app da Meta e na conta do WhatsApp, identifique o Phone Number ID e o WhatsApp Business Account ID.</li><li>Vincule o app e a conta ao usuário do sistema. Gere seu token com whatsapp_business_messaging e whatsapp_business_management.</li><li>Preencha os IDs, o token e o App Secret abaixo. Salve e teste a conexão.</li><li>Configure o webhook pelo botão abaixo. Use um app dedicado ao CRM.</li><li>Envie uma mensagem do seu telefone para o número conectado. Confira a entrada em Conversas e responda por lá.</li></ol></details>
+      ${diagnosticoWhatsApp(of)}
       <div class="campo"><label for="wa-pnid">Phone Number ID</label><input type="text" id="wa-pnid" inputmode="numeric" value="${escapar(ofc.phone_number_id || "")}" autocomplete="off"></div>
       <div class="campo"><label for="wa-waba">WhatsApp Business Account ID</label><input type="text" id="wa-waba" inputmode="numeric" value="${escapar(ofc.waba_id || "")}" autocomplete="off">
         ${of.token_salvo ? '<button class="mini" type="button" id="wa-numeros" style="margin-top:8px">Buscar números desta conta</button><span class="ajuda">Troque o ID da conta acima e busque: o CRM lista os números e preenche o Phone Number ID.</span>' : ""}</div>
@@ -241,4 +261,3 @@ function ligarIntegracoes() {
     }
   });
 }
-

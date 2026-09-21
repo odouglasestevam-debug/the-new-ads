@@ -1,5 +1,12 @@
 {
+  "capturado": "2026-09-20T02:33:21.519Z",
+  "domain": "crm.thenewads.com.br",
   "localSha256": "4f07a9d63034da3352faed144fc70d1b58726afa95d93bbce9b50d713dadc679",
-  "project": "xrvjlhseyqfgyvwwlwwb",
-  "domain": "crm.thenewads.com.br"
+  "publishedSha256": "4f07a9d63034da3352faed144fc70d1b58726afa95d93bbce9b50d713dadc679",
+  "igualSemAnalytics": true,
+  "headers": {
+    "content-security-policy": null,
+    "x-content-type-options": null,
+    "x-frame-options": null
+  }
 }

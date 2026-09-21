@@ -94,12 +94,10 @@ Deno.serve(async (req) => {
     const novo = tipo === "read" || tipo === "read-self" ? "lida" : tipo === "" || tipo === "delivered" ? "entregue" : null;
     const ids: string[] = Array.isArray(d.MessageIDs) ? d.MessageIDs : [];
     if (novo && ids.length) {
-      const { data: msgs } = await admin.from("mensagens").select("id, status")
-        .eq("empresa_id", integ.empresa_id).in("wa_message_id", ids.slice(0, 50));
-      for (const m of msgs || []) {
-        if ((ORDEM_STATUS[novo] ?? 0) > (ORDEM_STATUS[m.status] ?? 0)) {
-          await admin.from("mensagens").update({ status: novo }).eq("id", m.id);
-        }
+      for (const id of ids.slice(0,200)) {
+        const {error}=await admin.rpc('registrar_recibo_whatsapp',{p_empresa:integ.empresa_id,p_canal:'whatsapp_nao_oficial',p_wa_id:id,p_status:novo,
+          p_evento:d.Timestamp?new Date(d.Timestamp).toISOString():new Date().toISOString(),p_erro:null});
+        if(error)return texto(503,'falha ao guardar recibo');
       }
     }
     return texto(200);
@@ -108,6 +106,7 @@ Deno.serve(async (req) => {
   if (payload.event !== "Message") return texto(200, "evento ignorado");
 
   const info = d.Info || {};
+  if (!info.ID) return texto(400,'evento sem identificador');
   const chat = String(info.Chat || "");
   if (info.IsGroup || chat.endsWith("@g.us") || chat.endsWith("@broadcast") || chat.endsWith("@newsletter")) {
     return texto(200, "grupo ignorado");
@@ -121,7 +120,9 @@ Deno.serve(async (req) => {
 
   const c = conteudo(d.Message);
   if (!c) return texto(200, "mensagem de controle");
-  const quando = info.Timestamp ? new Date(info.Timestamp).toISOString() : new Date().toISOString();
+  const dataEvento = info.Timestamp ? new Date(info.Timestamp) : new Date();
+  if (!Number.isFinite(dataEvento.getTime())) return texto(400,'data do evento inválida');
+  const quando = dataEvento.toISOString();
 
   // Eco do que o próprio CRM enviou: amarra o ID em vez de duplicar a mensagem.
   if (deMim && c.texto) {

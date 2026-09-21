@@ -1,6 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2';
-import { temMfaPendente } from './security.ts';
-export const GRAPH = `https://graph.facebook.com/${Deno.env.get('WHATSAPP_GRAPH_VERSION') || 'v21.0'}`;
+import { temMfaPendente, checarLimiteCRM } from './security.ts';
+export const WHATSAPP_GRAPH = `https://graph.facebook.com/${Deno.env.get('WHATSAPP_GRAPH_VERSION') || 'v21.0'}`;
 export function headers(req: Request) {
   const origin=req.headers.get('origin');
   return {'Content-Type':'application/json','Access-Control-Allow-Origin':origin==='http://localhost:8788'?origin:'https://crm.thenewads.com.br',
@@ -34,13 +34,12 @@ export async function contexto(req: Request,id: string,send=false) {
   return {admin,client,conversa,integration,token:secrets.token,user:auth.user};
 }
 export async function meta(token: string,path: string,options: RequestInit={}) {
-  const res=await fetch(`${GRAPH}/${path}`,{...options,redirect:'error',signal:AbortSignal.timeout(20000),headers:{Authorization:`Bearer ${token}`,...options.headers}});
+  const res=await fetch(`${WHATSAPP_GRAPH}/${path}`,{...options,redirect:'error',signal:AbortSignal.timeout(20000),headers:{Authorization:`Bearer ${token}`,...options.headers}});
   const body=await res.json().catch(()=>({}));
   if(!res.ok)fail(502,body?.error?.error_user_msg||'A Meta recusou a operação. Confira o token e as permissões da integração.');
   return body;
 }
 export async function limitarEnvios(admin: any,user: string) {
-  const {count,error}=await admin.from('mensagens').select('id',{count:'exact',head:true}).eq('autor_id',user).gte('criado_em',new Date(Date.now()-60000).toISOString());
-  if(error)fail(503,'Não foi possível verificar o envio.');
-  if((count||0)>=30)fail(429,'Muitos envios em sequência. Aguarde um minuto.');
+  const limite=await checarLimiteCRM(admin,user,'envio');
+  if(limite)fail(limite.status,limite.erro);
 }

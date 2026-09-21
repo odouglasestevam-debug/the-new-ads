@@ -10,7 +10,7 @@ document.querySelectorAll("#nav button").forEach((b) => {
 
 function seletorMovel() {
   if (empresas.length < 2) return "";
-  return `<select class="seletor-movel" id="empresa-sel-movel" style="display:none">
+  return `<select class="seletor-movel" id="empresa-sel-movel" aria-label="Empresa" style="display:none">
     ${empresas.map((e) => `<option value="${e.id}"${e.id === empresaAtual.id ? " selected" : ""}>${escapar(e.nome)}</option>`).join("")}
   </select>`;
 }
@@ -19,9 +19,10 @@ function render() {
   const estadoChat = capturarEstadoChat();
   // clique no menu antes da empresa terminar de carregar: espera o carregamento redesenhar
   if (!empresaAtual) return;
-  document.querySelectorAll("#nav button").forEach((b) => b.classList.toggle("ativo", b.dataset.vista === vistaAtual));
+  document.querySelectorAll("#nav button").forEach((b) => {const ativa=b.dataset.vista===vistaAtual;b.classList.toggle('ativo',ativa);if(ativa)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   const alvo = document.getElementById("conteudo");
   alvo.classList.toggle("vista-inbox", vistaAtual === "conversas");
+  alvo.dataset.tela=vistaAtual;
   let html = "";
   if (vistaAtual === "leads") html = vistaLeads();
   if (vistaAtual === "kanban") html = vistaKanban();

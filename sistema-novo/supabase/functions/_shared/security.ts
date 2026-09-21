@@ -19,3 +19,9 @@ export function temMfaPendente(user: any, token: string) {
 }
 
 export const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+export async function checarLimiteCRM(admin: any, user: string, acao: 'envio' | 'equipe') {
+  const {data,error}=await admin.rpc('crm_limitar_acao',{p_ator:user,p_acao:acao});
+  if(error || typeof data!=='boolean')return {status:503,erro:'Não foi possível verificar o limite. Tente novamente.'};
+  return data?null:{status:429,erro:'Muitas tentativas em sequência. Aguarde um minuto.'};
+}

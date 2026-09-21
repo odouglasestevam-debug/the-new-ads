@@ -41,14 +41,14 @@ function paineisConfig() {
       </div>` : ""}
       <div class="bloco" style="grid-column:1/-1">
         <h3>Equipe de ${escapar(empresaAtual.nome)}</h3>
-        <p>${pode.administrar() ? "Troque o nível, gere um link de acesso para quem não conseguiu entrar ou remova da empresa." : "Quem tem acesso a esta empresa e com qual nível."}</p>
+        <p>${pode.administrar() ? "Troque o nível, envie a recuperação de acesso ao e-mail do membro ou remova da empresa." : "Quem tem acesso a esta empresa e com qual nível."}</p>
         ${equipe.length ? equipe.map((m) => `
           <div class="par" style="grid-template-columns:1fr auto;align-items:center">
             <span class="v">${escapar(m.email)}${m.user_id === usuario.id ? ' <span class="sub-cel">(você)</span>' : ""}</span>
             ${pode.administrar() ? `
               <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
                 <select class="etapa-sel membro-papel" data-user="${m.user_id}">${opcoesPapel(m.papel)}</select>
-                <button class="mini membro-link" data-user="${m.user_id}" type="button">Link de acesso</button>
+                <button class="mini membro-link" data-user="${m.user_id}" type="button">Enviar recuperação</button>
                 <button class="mini membro-remover" data-user="${m.user_id}" data-email="${escapar(m.email)}" type="button">Remover</button>
               </span>` : `<span class="num">${escapar(NOME_PAPEL[m.papel] || m.papel)}</span>`}
           </div>`).join("")
@@ -170,4 +170,3 @@ async function desenhar2FA() {
     });
   });
 }
-

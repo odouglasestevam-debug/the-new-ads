@@ -1,0 +1,10 @@
+import {readFile,writeFile} from 'node:fs/promises';
+import {createHash} from 'node:crypto';
+const baseline=new URL('../baseline/2026-09-19/',import.meta.url);
+const r=await fetch('https://crm.thenewads.com.br/');if(!r.ok)throw new Error('Frontend indisponível');
+const live=await r.text(),local=await readFile(new URL('index.html',baseline),'utf8');
+await writeFile(new URL('published.html',baseline),live);
+const normalize=s=>s.replace(/<script defer src="https:\/\/static\.cloudflareinsights\.com[\s\S]*?<\/script>/g,'').replace(/\r/g,'').trim();
+const sha=s=>createHash('sha256').update(s).digest('hex');
+const report={capturado:new Date().toISOString(),domain:'crm.thenewads.com.br',localSha256:sha(local),publishedSha256:sha(live),igualSemAnalytics:normalize(local)===normalize(live),headers:Object.fromEntries(['content-security-policy','x-content-type-options','x-frame-options'].map(k=>[k,r.headers.get(k)]))};
+await writeFile(new URL('frontend.json',baseline),JSON.stringify(report,null,2));console.log(report);

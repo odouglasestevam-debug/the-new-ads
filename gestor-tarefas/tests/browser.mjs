@@ -43,13 +43,15 @@ try {
         let action='select', payload, filters=[], single=false;
         const q={select:()=>q,order:()=>q,range:()=>q,
           eq:(k,v)=>{filters.push([k,v]);return q},
+          in:(k,v)=>{filters.push([k,v,'in']);return q},
           insert:p=>{action='insert';payload=p;return q},
           update:p=>{action='update';payload=p;return q},
           delete:()=>{action='delete';return q},
           single:()=>{single=true;return q},maybeSingle:()=>{single=true;return q},
           then:(ok,no)=>new Promise(resolve=>setTimeout(()=>{
             let rows=fixture.tables[table]||[];
-            let found=rows.filter(r=>filters.every(([k,v])=>r[k]===v));
+            const casa=r=>filters.every(([k,v,op])=>op==='in'?v.includes(r[k]):r[k]===v);
+            let found=rows.filter(casa);
             if(action!=='select')fixture.writes.push({table,action,payload});
             if(table==='tarefas_responsaveis'&&fixture.failResponsaveis)return resolve({error:{message:'Falha simulada'}});
             if(action==='insert'){
@@ -58,7 +60,13 @@ try {
             }
             if(action==='update'){
               found.forEach(r=>Object.assign(r,payload));
-              if(table==='tarefas_tarefas')for(const r of fixture.tables.tarefas_visao.filter(r=>filters.every(([k,v])=>r[k]===v))){Object.assign(r,payload);const st=fixture.tables.tarefas_status.find(s=>s.id===r.status_id);Object.assign(r,{status_nome:st.nome,status_tipo:st.tipo,status_cor:st.cor,situacao:st.tipo==='concluido'?'concluida':!r.data_entrega?'sem_data':r.data_entrega<hojeSP()?'atrasada':r.data_entrega===hojeSP()?'vence_hoje':'a_vencer'});}
+              if(table==='tarefas_tarefas')for(const r of fixture.tables.tarefas_visao.filter(casa)){Object.assign(r,payload);const st=fixture.tables.tarefas_status.find(s=>s.id===r.status_id);Object.assign(r,{status_nome:st.nome,status_tipo:st.tipo,status_cor:st.cor,situacao:st.tipo==='concluido'?'concluida':!r.data_entrega?'sem_data':r.data_entrega<hojeSP()?'atrasada':r.data_entrega===hojeSP()?'vence_hoje':'a_vencer'});}
+            }
+            if(action==='delete'){
+              for(const nome of [table,table==='tarefas_tarefas'?'tarefas_visao':null].filter(Boolean)){
+                const alvo=fixture.tables[nome]||[];
+                for(const r of alvo.filter(casa))alvo.splice(alvo.indexOf(r),1);
+              }
             }
             resolve({data:single?found[0]||null:found,error:null});
           },60)).then(ok,no)
@@ -66,6 +74,14 @@ try {
       }
     })};
   `}));
+  await page.addInitScript(()=>{window.__resizes=0;addEventListener('resize',()=>{window.__resizes++;});});
+  // Trocar de viewport só devolve o controle depois que o resize chega na página: o evento
+  // atrasado fechava um menu aberto logo em seguida e deixava o teste na sorte.
+  const redimensionar=async(width,height)=>{
+    const antes=await page.evaluate(()=>window.__resizes);
+    await page.setViewportSize({width,height});
+    await page.waitForFunction(n=>window.__resizes>n,antes,{timeout:3000}).catch(()=>{});
+  };
   await page.goto(`http://127.0.0.1:${server.address().port}/`);
   await page.getByLabel('Tema da tela de acesso').selectOption('escuro');
   await page.reload();
@@ -126,12 +142,12 @@ try {
   await page.getByLabel('Combinar filtros',{exact:true}).selectOption('ou');
   assert.equal(await page.locator('.linha, .cu-linha').count(),4);
   await page.screenshot({path:'tests/artifacts/filtros-desktop.png',fullPage:true});
-  await page.setViewportSize({width:390,height:844});
+  await redimensionar(390,844);
   await page.evaluate(()=>abrirMaisFiltros(document.getElementById('btn-mais-filtros')));
   assert.equal(await page.evaluate(()=>{const r=document.querySelector('.filtros-popover').getBoundingClientRect();return r.left>=0&&r.right<=innerWidth&&r.top>=0;}),true);
   await page.screenshot({path:'tests/artifacts/filtros-mobile.png',fullPage:true});
   await page.getByRole('button',{name:'Fechar filtros',exact:true}).click();
-  await page.setViewportSize({width:1440,height:1000});
+  await redimensionar(1440,1000);
   await page.getByRole('button',{name:'Modo eu',exact:true}).click();
   assert.equal(await page.locator('.linha, .cu-linha').count(),3,'OU não expande além do Modo eu');
   await page.locator('#btn-mais-filtros').click();
@@ -185,7 +201,7 @@ try {
   assert.match(await page.locator('#toast').innerText(),/responsáveis não foram salvos/);
   await page.getByRole('button',{name:'Fechar',exact:true}).click();
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
-  await page.setViewportSize({width:390,height:844});
+  await redimensionar(390,844);
   await page.screenshot({path:'tests/artifacts/mobile-lista.png',fullPage:true});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'Sem overflow no celular');
   await page.getByRole('button',{name:'Quadro',exact:true}).click();
@@ -204,7 +220,7 @@ try {
     assert.equal(corpo.admin,false);
     await route.fulfill({contentType:'application/json',body:JSON.stringify({ok:true,conta_nova:true})});
   });
-  await page.setViewportSize({width:1440,height:1000});
+  await redimensionar(1440,1000);
   await page.evaluate(()=>{
     S.eu.acesso_total=true;
     S.pastas=[{id:'pa1',projeto_id:'p1',pasta_pai_id:null,nome:'Financeiro'},{id:'pa2',projeto_id:'p1',pasta_pai_id:'pa1',nome:'Contratos'}];
@@ -228,7 +244,7 @@ try {
   assert.match(await page.locator('#regras-membro').innerText(),/Administradores têm acesso a todos/);
   await page.getByLabel('Função',{exact:true}).selectOption('membro');
   assert.equal(await page.locator('[data-regra="pastas"][data-id="pa1"]').isChecked(),false);
-  await page.setViewportSize({width:390,height:844});
+  await redimensionar(390,844);
   await page.evaluate(()=>window.scrollTo(0,0));
   await page.screenshot({path:'tests/artifacts/membros-mobile.png',fullPage:true});
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
@@ -250,9 +266,44 @@ try {
   await page.evaluate(()=>{S.eu.admin=false;renderTudo();});
   assert.equal(await page.locator('[data-editar-membro]').count(),0);
   }
+
+  // ---- Seleção múltipla e ações em lote (dados fictícios) ----
+  await redimensionar(1440,1000);
+  await page.evaluate(()=>{document.getElementById('toast').className='toast';});
+  await page.evaluate(()=>{S.eu.admin=true;fixture.failResponsaveis=false;Object.assign(filtros.central,{visao:'lista',agrupar:'pasta',prazo:[],busca:''});
+    history.replaceState(null,'','#/central');renderTudo();});
+  const caixas=page.locator('.cu-linha .sel-box, .linha .sel-box');
+  assert.ok(await caixas.count()>=4,'toda tarefa tem caixa de seleção');
+  await caixas.nth(0).click();
+  assert.equal(await page.locator('#barra-lote').isVisible(),true,'a barra de lote aparece com 1 selecionada');
+  assert.match(await page.locator('.lote-n').innerText(),/1 tarefa selecionada/);
+  await caixas.nth(2).click({modifiers:['Shift']});
+  assert.equal(await page.evaluate(()=>selecionadas.size),3,'shift+clique pega o intervalo');
+  await page.locator('.lote-btn',{hasText:'Prioridade'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Urgente'}).click();
+  await page.waitForFunction(()=>!loteOcupado&&document.getElementById('toast').innerText.includes('prioridade alterada'));
+  assert.match(await page.locator('#toast').innerText(),/3 tarefas: prioridade alterada para Urgente/);
+  assert.equal(await page.evaluate(()=>[...selecionadas].every(id=>S.tarefas.find(t=>t.id===id).prioridade==='urgente')),true);
+  await page.locator('.lote-btn',{hasText:'Responsável'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Rafael'}).click();
+  await page.waitForFunction(()=>document.getElementById('toast').innerText.includes('Rafael'));
+  assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_responsaveis'&&x.action==='insert').at(-1).payload.length),3);
+  const antesGrupo=await page.evaluate(()=>selecionadas.size);
+  await page.locator('.cu-grupo-cab .sel-box, .cab-colunas .sel-box').first().click();
+  assert.ok(await page.evaluate(()=>selecionadas.size)>antesGrupo,'o cabeçalho do grupo marca todas de uma vez');
+  await page.screenshot({path:'tests/artifacts/selecao-lote.png',fullPage:true});
+  const paraExcluir=await page.evaluate(()=>idsSelecionados().length);
+  const totalAntes=await page.evaluate(()=>S.tarefas.length);
+  await page.locator('.lote-btn',{hasText:'Mais'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Excluir'}).click();
+  await page.locator('#btn-confirmar').click();
+  await page.waitForFunction(t=>S.tarefas.length<t,totalAntes);
+  assert.equal(await page.evaluate(()=>S.tarefas.length),totalAntes-paraExcluir);
+  assert.equal(await page.locator('#barra-lote').isVisible(),false,'a barra some quando a seleção esvazia');
+  await page.evaluate(()=>{document.getElementById('toast').className='toast';});
   await page.evaluate(()=>authEvent('SIGNED_OUT'));
   assert.equal(await page.locator('#conteudo').innerText(),'');
   assert.equal(await page.locator('#form-login').isVisible(),true);
   assert.deepEqual(errors,[]);
-  console.log('UI: Modo eu por usuário/escopo, filtros E/OU, remoção de condições, topo compacto, mobile e fluxos existentes: OK. Dados exclusivamente fictícios.');
+  console.log('UI: seleção múltipla e ações em lote, Modo eu por usuário/escopo, filtros E/OU, remoção de condições, topo compacto, mobile e fluxos existentes: OK. Dados exclusivamente fictícios.');
 } finally {await browser.close();server.close();}
