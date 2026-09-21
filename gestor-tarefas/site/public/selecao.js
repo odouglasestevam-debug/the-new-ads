@@ -161,7 +161,23 @@ function menuLotePrio(ancora) {
 function menuLoteData(ancora, campo = "data_entrega") {
   const nome = campo === "data_inicio" ? "data de início" : "data de entrega";
   abrirCalendario(ancora, null, (iso) => aplicarLote({ [campo]: iso }, iso ? `${nome} para ${dataBR(iso, true)}.` : `${nome} removida.`),
-    campo === "data_entrega" ? loteRecorrencia : null);
+    campo === "data_entrega" ? loteRecorrencia : null, campo === "data_entrega" ? regraComum() : null);
+}
+
+// Quando todas as marcadas repetem igual, o calendário circula os dias dessa regra.
+function regraComum() {
+  const ids = idsSelecionados();
+  const tarefas = S.tarefas.filter((t) => ids.includes(t.id));
+  const chave = (t) => JSON.stringify([t.recorrencia, t.recorrencia_intervalo || 1, t.recorrencia_dias_semana || [],
+    t.recorrencia_mensal, t.recorrencia_dia_mes, t.recorrencia_ordem, t.recorrencia_dia_semana]);
+  if (!tarefas.length || !tarefas[0].recorrencia || tarefas.some((t) => chave(t) !== chave(tarefas[0]))) return null;
+  return tarefas[0];
+}
+
+// Depois de configurar a repetição, reabre o calendário para escolher o dia de início já com os dias circulados.
+function reabrirEntregaLote() {
+  const btn = [...document.querySelectorAll("#barra-lote .lote-btn")].find((b) => b.textContent.includes("Entrega"));
+  if (btn && idsSelecionados().length) menuLoteData(btn);
 }
 
 // Recorrência em lote: semanal pergunta os dias; o banco limpa as regras do tipo anterior.
@@ -169,7 +185,8 @@ async function loteRecorrencia(rec) {
   if (!rec) return aplicarLote({ recorrencia: null }, "recorrência removida.");
   if (rec !== "semanal") {
     const nomes = { diaria: "diária", mensal: "mensal", anual: "anual" };
-    return aplicarLote({ recorrencia: rec }, `repetição ${nomes[rec]}.`);
+    await aplicarLote({ recorrencia: rec }, `repetição ${nomes[rec]}.`);
+    return reabrirEntregaLote();
   }
   const dias = await abrirModal(`
     <form id="form-dias-lote">
@@ -194,6 +211,7 @@ async function loteRecorrencia(rec) {
   if (!dias) return;
   const quais = dias.length ? `, ${dias.length === 7 ? "todos os dias" : "na " + listaNatural(BOTOES_SEMANA.filter(([d]) => dias.includes(d)).map(([d]) => DIAS_SEMANA[d]))}` : "";
   await aplicarLote({ recorrencia: "semanal", recorrencia_dias_semana: dias.length ? dias : null }, `repete toda semana${quais}.`);
+  reabrirEntregaLote();
 }
 
 function menuLoteResp(ancora) {

@@ -357,6 +357,18 @@ try {
   const w=await page.evaluate(a=>fixture.writes.slice(a).find(x=>x.payload?.recorrencia==='semanal'),antes);
   assert.deepEqual(w?.payload?.recorrencia_dias_semana,[1,3,5],'lote grava seg/qua/sex');
   assert.match(await page.locator('#toast').innerText(),new RegExp(`^${nRec} tarefas?: repete toda semana, na seg, qua e sex`,'i'));
+  // O calendário reabre sozinho com seg/qua/sex circulados; escolher um dia pinta e grava a entrega.
+  await page.waitForSelector('.cal .dia.recorre');
+  const circulados=await page.evaluate(()=>[...new Set([...document.querySelectorAll('.cal .dia.recorre')].map(b=>diaDaSemana(b.getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0])))].sort());
+  assert.deepEqual(circulados,[1,3,5],'lote: calendário circula seg, qua e sex');
+  const inicio=await page.evaluate(()=>document.querySelector('.cal .dia.recorre').getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0]);
+  await page.locator('.cal .dia.recorre').first().click();
+  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('data de entrega'),null);
+  assert.ok(await page.evaluate(d=>{const ids=idsSelecionados();return S.tarefas.filter(t=>ids.includes(t.id)).every(t=>t.data_entrega===d);},inicio),'entrega gravada em todas');
+  await page.locator('.lote-btn',{hasText:'Entrega'}).click();
+  assert.equal(await page.locator('.cal .dia.marcado').count(),0,'lote abre sem dia marcado');
+  assert.ok(await page.locator('.cal .dia.recorre').count()>0,'lote reabre com os dias circulados');
+  await page.keyboard.press('Escape');await page.evaluate(()=>{fecharMenu();calendario=null;});
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
   // Recorrência seg/qua/sex sem data: o calendário circula esses dias; o dia escolhido fica pintado.
   const rec=await page.evaluate(()=>{const r={recorrencia:'semanal',recorrencia_dias_semana:[1,3,5]};
