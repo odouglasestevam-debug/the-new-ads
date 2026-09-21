@@ -90,6 +90,15 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
    await beat(a,sessionA,false);const released=await insert();await save('manual');await save('fila');
    assert.equal(await responsible(released),null);assert.equal((await config()).pendentes,0);
   });
+  await t.test('backlog é processado em lotes, sem depender de atendente online na fila',async()=>{
+   await save('inteligente');await beat(a,sessionA,false);await beat(b,sessionB,false);
+   await server();await db.query('insert into leads(empresa_id) select $1 from generate_series(1,62)',[company]);
+   assert.equal((await config()).pendentes,62);
+   assert.equal((await save('fila')).pendentes,12);
+   await login(a);await assert.rejects(db.query('select crm_processar_distribuicao($1)',[company]),/sem_acesso/);
+   await login(owner);assert.equal((await db.query('select crm_processar_distribuicao($1) n',[company])).rows[0].n,12);
+   assert.equal((await config()).pendentes,0);
+  });
   await t.test('leitura/rebaixamento, membro removido, tenant e MFA falham fechados',async()=>{
    await server();await db.query(`update membros set papel='leitura' where empresa_id=$1 and user_id=$2`,[company,b]);
    assert.equal(await responsible(await insert()),a);

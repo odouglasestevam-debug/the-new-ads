@@ -11,14 +11,14 @@ create table privado.crm_distribuidores (
   ordem integer not null,
   ultimo_turno bigint not null default 0,
   primary key(empresa_id,user_id),
-  foreign key(empresa_id,user_id) references public.membros(empresa_id,user_id) on delete cascade on update cascade
+  foreign key(empresa_id,user_id) references public.membros(empresa_id,user_id) on delete cascade
 );
 create table privado.crm_disponibilidade (
   empresa_id uuid not null,
   user_id uuid not null,
   disponivel boolean not null default false,
   primary key(empresa_id,user_id),
-  foreign key(empresa_id,user_id) references public.membros(empresa_id,user_id) on delete cascade on update cascade
+  foreign key(empresa_id,user_id) references public.membros(empresa_id,user_id) on delete cascade
 );
 create table privado.crm_presencas (
   empresa_id uuid not null,
@@ -26,7 +26,7 @@ create table privado.crm_presencas (
   sessao uuid not null,
   visto_em timestamptz not null default clock_timestamp(),
   primary key(empresa_id,user_id,sessao),
-  foreign key(empresa_id,user_id) references public.membros(empresa_id,user_id) on delete cascade on update cascade
+  foreign key(empresa_id,user_id) references public.membros(empresa_id,user_id) on delete cascade
 );
 create table privado.crm_distribuicao_pendentes (
   empresa_id uuid not null,
@@ -118,6 +118,18 @@ end;
 $$;
 create trigger trg_crm_lead_entrou after insert on public.leads for each row execute function privado.crm_lead_entrou();
 
+create function privado.crm_limpar_pendente() returns trigger
+language plpgsql security definer set search_path='' as $$
+begin
+  if new.responsavel_id is not null or new.etapa in ('cliente','perdido') then
+    delete from privado.crm_distribuicao_pendentes where lead_id=new.id;
+  end if;
+  return null;
+end;
+$$;
+create trigger trg_crm_limpar_pendente after update of responsavel_id,etapa on public.leads
+  for each row execute function privado.crm_limpar_pendente();
+
 create function privado.crm_validar_admin_distribuicao(p_empresa uuid) returns void
 language plpgsql security definer set search_path='' as $$
 begin
@@ -133,7 +145,8 @@ begin
   perform privado.crm_validar_admin_distribuicao(p_empresa);
   select jsonb_build_object('modo',coalesce(c.modo,'manual'),'revisao',coalesce(c.revisao,0),
     'participantes',coalesce((select jsonb_agg(d.user_id order by d.ultimo_turno,d.ordem,d.user_id)
-      from privado.crm_distribuidores d where d.empresa_id=p_empresa),'[]'::jsonb),
+      from privado.crm_distribuidores d join public.membros m on (m.empresa_id,m.user_id)=(d.empresa_id,d.user_id)
+      where d.empresa_id=p_empresa and m.papel in ('dono','gestor','vendedor')),'[]'::jsonb),
     'equipe',coalesce((select jsonb_agg(jsonb_build_object('user_id',m.user_id,'email',u.email,'papel',m.papel,
       'demanda',(select count(*) from public.leads l where l.empresa_id=p_empresa and l.responsavel_id=m.user_id and l.etapa not in ('cliente','perdido')),
       'disponivel',coalesce(a.disponivel,false),
@@ -200,14 +213,23 @@ begin
     on conflict(empresa_id,user_id,sessao) do update set visto_em=clock_timestamp();
   select modo into v_modo from privado.crm_distribuicao where empresa_id=p_empresa;
   select exists(select 1 from privado.crm_distribuidores where empresa_id=p_empresa and user_id=v_user) into v_participa;
-  if v_participa then v_total:=privado.crm_distribuir_pendentes(p_empresa); end if;
+  if v_participa or v_modo='fila' then v_total:=privado.crm_distribuir_pendentes(p_empresa); end if;
   return jsonb_build_object('disponivel',v_disponivel,'online',true,'participa',v_participa,'modo',coalesce(v_modo,'manual'),'distribuidos',v_total);
 end;
 $$;
 
+-- Permite que administradores sem participação no rodízio também escoem lotes pendentes.
+create function public.crm_processar_distribuicao(p_empresa uuid) returns integer
+language plpgsql security definer set search_path='' as $$
+begin
+  perform privado.crm_validar_admin_distribuicao(p_empresa);
+  return privado.crm_distribuir_pendentes(p_empresa);
+end;
+$$;
+
 revoke all on function privado.crm_distribuir_lead(uuid,uuid),privado.crm_distribuir_pendentes(uuid),
-  privado.crm_lead_entrou(),privado.crm_validar_admin_distribuicao(uuid) from public,anon,authenticated;
+  privado.crm_lead_entrou(),privado.crm_limpar_pendente(),privado.crm_validar_admin_distribuicao(uuid) from public,anon,authenticated;
 revoke all on function public.crm_obter_distribuicao(uuid),public.crm_salvar_distribuicao(uuid,text,uuid[],bigint),
-  public.crm_presenca(uuid,uuid,boolean,boolean) from public,anon;
+  public.crm_presenca(uuid,uuid,boolean,boolean),public.crm_processar_distribuicao(uuid) from public,anon;
 grant execute on function public.crm_obter_distribuicao(uuid),public.crm_salvar_distribuicao(uuid,text,uuid[],bigint),
-  public.crm_presenca(uuid,uuid,boolean,boolean) to authenticated;
+  public.crm_presenca(uuid,uuid,boolean,boolean),public.crm_processar_distribuicao(uuid) to authenticated;

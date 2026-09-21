@@ -173,3 +173,12 @@ async function desenhar2FA() {
     });
   });
 }
+
+// A aba ativa continua visível quando a navegação de ajustes rola no celular.
+function mostrarAbaAjustes(){
+  const abas=document.querySelector('.abas-ajustes'),ativa=abas?.querySelector('.ativa');
+  if(!abas||!ativa||abas.scrollWidth<=abas.clientWidth)return;
+  const a=abas.getBoundingClientRect(),b=ativa.getBoundingClientRect();
+  if(b.left<a.left||b.right>a.right)abas.scrollLeft+=b.left-a.left-12;
+}
+window.addEventListener('resize',mostrarAbaAjustes);

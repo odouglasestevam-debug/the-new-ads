@@ -35,9 +35,24 @@ try{
  });
  await page.route('**/vendor/supabase.js',route=>route.fulfill({contentType:'text/javascript',body:`
  window.fixture={tables:{},session:null,requests:[]};
- window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:fixture.session}}),mfa:{getAuthenticatorAssuranceLevel:async()=>fixture.mfa||({data:{currentLevel:'aal1',nextLevel:'aal1'}})}},
+ window.supabase={createClient:()=>({auth:{getSession:async()=>({data:{session:fixture.session}}),mfa:{listFactors:async()=>({data:{totp:[]}}),getAuthenticatorAssuranceLevel:async()=>fixture.mfa||({data:{currentLevel:'aal1',nextLevel:'aal1'}})}},
  channel:()=>({on(){return this},subscribe(){return this}}),removeChannel:async()=>{},
  rpc:async(name,args)=>{
+   if(name==='crm_obter_distribuicao'){
+     if(fixture.distributionError)return{error:{message:'offline'}};
+     return{data:structuredClone(fixture.distribution)};
+   }
+   if(name==='crm_salvar_distribuicao'){
+     fixture.savedDistribution=structuredClone(args);
+     if(fixture.saveDistributionError)return{error:{message:fixture.saveDistributionError}};
+     Object.assign(fixture.distribution,{modo:args.p_modo,participantes:args.p_participantes,revisao:args.p_revisao+1});return{data:structuredClone(fixture.distribution)};
+   }
+   if(name==='crm_presenca'){
+     if(fixture.presenceError)return{error:{message:'offline'}};
+     if(args.p_sair)return{data:{online:false}};
+     if(args.p_disponivel!==null)fixture.available=args.p_disponivel;
+     return{data:{online:true,disponivel:!!fixture.available,participa:true,modo:fixture.distribution?.modo||'manual',distribuidos:0}};
+   }
    if(name==='buscar_conversas_crm'){
      const all=(fixture.tables.conversas||[]).filter(c=>c.empresa_id===args.p_empresa);
      const rows=all.filter(c=>{const l=fixture.tables.leads.find(l=>l.id===c.lead_id);if(args.p_estado==='minhas'&&l.responsavel_id!=='u1')return false;if(args.p_estado==='nao_lidas'&&!c.nao_lidas)return false;if(args.p_responsavel&&l.responsavel_id!==args.p_responsavel)return false;if(args.p_canal&&c.canal!==args.p_canal)return false;return !args.p_busca||[l.nome,l.telefone,...fixture.tables.mensagens.filter(m=>m.conversa_id===c.id).map(m=>m.texto)].join(' ').toLowerCase().includes(args.p_busca.toLowerCase());});
@@ -53,7 +68,8 @@ try{
  await page.evaluate(async()=>{
   const now=Date.now();
   fixture.session={access_token:'fixture',user:{id:'u1',email:'demo@example.test'}};
-  fixture.team=[{user_id:'u1',email:'marina@example.test'},{user_id:'u2',email:'rafael@example.test'}];
+  fixture.team=[{user_id:'u1',email:'marina@example.test',papel:'dono'},{user_id:'u2',email:'rafael@example.test',papel:'vendedor'}];
+  fixture.distribution={modo:'manual',revisao:0,participantes:[],pendentes:0,historico:[],equipe:fixture.team.map(m=>({...m,demanda:m.user_id==='u1'?7:2,disponivel:true,online:true}))};
   fixture.channels=[{canal:'whatsapp_oficial',numero:'+5511000000000'}];
   fixture.tables={agencia_admins:[{user_id:'u1'}],empresas:[{id:'e1',nome:'Empresa demonstrativa',ativo:true}],membros:[],leads:[
     {id:'l1',empresa_id:'e1',nome:'Ana Oliveira',telefone:'+5511999990001',email:'ana@example.test',etapa:'proposta',responsavel_id:'u1',criado_em:new Date(now).toISOString(),lead_origens:[]},
@@ -201,6 +217,52 @@ try{
  await page.getByText('Recuperação enviada ao e-mail da pessoa.',{exact:false}).waitFor();
  assert.equal(await page.locator('#link-membro').textContent(),'');
  assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.setViewportSize({width:1440,height:960});
+ await page.getByRole('button',{name:'Distribuição',exact:true}).click();
+ await page.getByRole('radio',{name:'Fila rotativa',exact:false}).waitFor();
+ await page.getByRole('radio',{name:'Fila rotativa',exact:false}).check();
+ await page.getByRole('button',{name:'Salvar distribuição',exact:true}).click();
+ await page.getByText('Selecione pelo menos um atendente.',{exact:true}).last().waitFor();
+ await page.getByRole('checkbox',{name:'marina@example.test',exact:false}).check();
+ await page.getByRole('checkbox',{name:'rafael@example.test',exact:false}).check();
+ await page.getByRole('button',{name:'Salvar distribuição',exact:true}).click();
+ await page.getByText('Distribuição salva.',{exact:true}).waitFor();
+ assert.deepEqual(await page.evaluate(()=>fixture.savedDistribution.p_participantes),['u1','u2']);
+ assert.equal(await page.evaluate(()=>fixture.savedDistribution.p_modo),'fila');
+ await page.evaluate(()=>window.scrollTo(0,0));
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/distribuicao-desktop.png',fullPage:true});
+ await page.getByRole('radio',{name:'Menor demanda',exact:false}).check();
+ await page.evaluate(()=>{fixture.saveDistributionError='configuracao_alterada'});
+ await page.getByRole('button',{name:'Salvar distribuição',exact:true}).click();
+ await page.getByText('Outro administrador alterou as regras.',{exact:false}).waitFor();
+ assert.equal(await page.getByRole('radio',{name:'Menor demanda',exact:false}).isChecked(),true);
+ await page.evaluate(()=>{fixture.saveDistributionError=null});
+ await page.getByRole('button',{name:'Salvar distribuição',exact:true}).click();
+ await page.getByText('Distribuição salva.',{exact:true}).waitFor();
+ await page.setViewportSize({width:390,height:844});
+ await page.evaluate(()=>mostrarAbaAjustes());
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/distribuicao-mobile.png',fullPage:true});
+ await page.getByRole('button',{name:'Disponibilidade',exact:true}).click();
+ const presenceButton=page.locator('main [data-alternar-presenca]');
+ await presenceButton.click();
+ await page.getByText('Você está disponível para receber novos leads.',{exact:true}).waitFor();
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/disponibilidade-mobile.png',fullPage:true});
+ assert.equal(await page.evaluate(()=>fixture.available),true);
+ await presenceButton.click();
+ await page.getByText('Você está pausado para novas entregas por menor demanda.',{exact:true}).waitFor();
+ await page.evaluate(async()=>{fixture.presenceError=true;await pulsarPresenca()});
+ await page.getByRole('button',{name:'Reconectar disponibilidade',exact:true}).last().waitFor();
+ await page.evaluate(()=>{fixture.presenceError=false});await presenceButton.click();
+ assert.equal(await page.evaluate(()=>fixture.available),false,'Reconectar não deve desfazer pausa');
+ await page.evaluate(()=>{papel='vendedor';render()});
+ assert.equal(await page.getByRole('button',{name:'Distribuição',exact:true}).count(),0);
+ assert.equal(await page.getByRole('button',{name:'Disponibilidade',exact:true}).count(),1);
+ await page.evaluate(()=>{papel='agencia';distribuicaoAtual=null;distribuicaoRascunho=null;fixture.distributionError=true;abaAjustes='distribuicao';render()});
+ await page.getByRole('button',{name:'Tentar novamente',exact:true}).waitFor();
+ await page.evaluate(()=>{fixture.distributionError=false});
+ await page.getByRole('button',{name:'Tentar novamente',exact:true}).click();
+ await page.getByRole('radio',{name:'Menor demanda',exact:false}).waitFor();
  await page.evaluate(async()=>{fixture.mfa={error:{message:'offline'}};let blocked=false;try{await precisaSegundaEtapa()}catch{blocked=true}if(!blocked)throw new Error('MFA falhou aberto')});
  assert.deepEqual(errors,[]);
  console.log('OK: paginação, rascunhos, atualização, busca, filtro Minhas, permissões, MFA, desktop e celular.');

@@ -58,6 +58,7 @@ function ligarEventos() {
   ligarConversas();
   ligarIntegracoes();
   ligarDistribuicao();
+  mostrarAbaAjustes();
 
   ligarArrasto();
 

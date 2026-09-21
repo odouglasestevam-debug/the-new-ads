@@ -1,6 +1,7 @@
 /* Distribuição por empresa: decisões no banco; esta tela apenas configura e informa presença. */
 let distribuicaoAtual=null,distribuicaoRascunho=null,distribuicaoErro='',distribuicaoCarregando=false;
 let presencaAtual=null,presencaEmpresa=null,presencaTimer=null,presencaEmCurso=false;
+let processandoDistribuicao=false;
 const sessaoPresenca=crypto.randomUUID();
 const NOMES_DISTRIBUICAO={manual:'Manual',fila:'Fila rotativa',inteligente:'Menor demanda'};
 
@@ -18,7 +19,7 @@ function painelDistribuicao(){
   const participantes=ids.map(id=>distribuicaoAtual.equipe.find(m=>m.user_id===id)).filter(Boolean);
   const alterada=JSON.stringify([d.modo,ids])!==JSON.stringify([distribuicaoAtual.modo,distribuicaoAtual.participantes]);
   return `<section class="bloco distribuicao-painel">
-    <div class="distribuicao-titulo"><div><h2>Distribuição de leads</h2><p>Defina quem recebe os novos leads de ${escapar(empresaAtual.nome)}.</p></div>
+    <div class="distribuicao-titulo"><div><h2 id="titulo-distribuicao" tabindex="-1">Distribuição de leads</h2><p>Defina quem recebe os novos leads de ${escapar(empresaAtual.nome)}.</p></div>
       <button class="mini" data-recarregar-distribuicao ${alterada?'disabled title="Salve ou descarte suas alterações antes de atualizar"':''}>Atualizar situação</button></div>
     <form id="form-distribuicao">
       <fieldset class="modos-distribuicao"><legend>Como os leads serão entregues</legend>
@@ -90,8 +91,9 @@ function ligarDistribuicao(){
         if(error||!data)throw error||new Error('sem_dados');
         if(empresaAtual?.id!==id)return;
         distribuicaoAtual=data;distribuicaoRascunho={modo:data.modo,participantes:[...data.participantes]};
-        if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();document.getElementById('aviso-distribuicao').textContent='Distribuição salva.';}
+        if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();document.getElementById('aviso-distribuicao').textContent='Distribuição salva.';document.getElementById('titulo-distribuicao').focus({preventScroll:true});}
         pulsarPresenca().catch(()=>{});
+        processarDistribuicao().catch(()=>{});
       }catch(error){
         if(!aviso.isConnected)return;
         aviso.textContent=error.message?.includes('configuracao_alterada')?'Outro administrador alterou as regras. Descarte suas alterações e atualize a situação antes de salvar.':
@@ -147,22 +149,32 @@ function pararPresenca(){
 }
 function iniciarPresenca(id){
   presencaEmpresa=id;pulsarPresenca().catch(()=>{});
+  processarDistribuicao().catch(()=>{});
   clearInterval(presencaTimer);
-  presencaTimer=setInterval(()=>{pulsarPresenca().catch(()=>{});sincronizarLeadsDistribuidos().catch(()=>{});},25000);
+  presencaTimer=setInterval(()=>{pulsarPresenca().catch(()=>{});processarDistribuicao().catch(()=>{});sincronizarLeadsDistribuidos().catch(()=>{});},25000);
+}
+async function processarDistribuicao(){
+  if(!empresaAtual||!pode.administrar()||processandoDistribuicao)return;
+  const id=empresaAtual.id;processandoDistribuicao=true;
+  try{await sb.rpc('crm_processar_distribuicao',{p_empresa:id});}finally{processandoDistribuicao=false;}
 }
 window.addEventListener('online',()=>pulsarPresenca().catch(()=>{}));
 document.addEventListener('visibilitychange',()=>{if(!document.hidden){pulsarPresenca().catch(()=>{});sincronizarLeadsDistribuidos().catch(()=>{});}});
 
-let sincronizandoDistribuicao=false;
+let sincronizandoDistribuicao=false,leadsDistribuicaoRender=false;
 async function sincronizarLeadsDistribuidos(){
   if(!empresaAtual||document.hidden||sincronizandoDistribuicao)return;
   const id=empresaAtual.id;sincronizandoDistribuicao=true;
   try{
     const {data,error}=await sb.from('leads').select('*, lead_origens(*)').eq('empresa_id',id).order('criado_em',{ascending:false});
-    if(error||!data||empresaAtual?.id!==id||JSON.stringify(data)===JSON.stringify(leads))return;
+    if(error||!data||empresaAtual?.id!==id)return;
+    if(JSON.stringify(data)===JSON.stringify(leads)){
+      if(leadsDistribuicaoRender&&['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea')){leadsDistribuicaoRender=false;render();}
+      return;
+    }
     const ids=new Set(data.map(l=>l.id));
     const perdeuAcesso=papel==='vendedor'&&leads.some(l=>!ids.has(l.id));
-    leads=data;document.getElementById('cont-leads').textContent=leads.length||'';
+    leads=data;leadsDistribuicaoRender=true;document.getElementById('cont-leads').textContent=leads.length||'';
     if(perdeuAcesso){
       document.querySelectorAll('.fundo-modal').forEach(el=>el.remove());
       notas=notas.filter(n=>ids.has(n.lead_id));
@@ -170,7 +182,7 @@ async function sincronizarLeadsDistribuidos(){
       conversas=conversas.filter(c=>ids.has(c.lead_id));
       await atualizarConversas();
     }
-    if(['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea'))render();
+    if(['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea')){leadsDistribuicaoRender=false;render();}
     if(perdeuAcesso&&vistaAtual==='conversas')render();
   }finally{sincronizandoDistribuicao=false;}
 }
