@@ -4,7 +4,7 @@ Destino: CRM em crm.thenewads.com.br, Supabase xrvjlhseyqfgyvwwlwwb. Nenhuma alt
 
 ## Situação desta entrega
 
-Implementada e testada localmente. Publicação **pendente**: o MCP `supabase-tarefas` falhou ao renovar OAuth. A migration 0020 e o frontend desta entrega ainda não foram publicados. A autenticação do conector deve ser restabelecida antes da inspeção do schema remoto, aplicação da migration e deploy do Worker. Não habilitar a automação em uma empresa por suposição: o administrador escolhe e salva a regra.
+Implementada e testada localmente, com `npm test` final **28/28** e teste de navegador passando. Publicação **pendente**: a falha de registro OAuth foi contornada com escopos explícitos (`organizations:read,projects:read,database:read,database:write`); o CLI confirmou `Successfully logged in to MCP server 'supabase-tarefas'`. O conector já carregado nesta conversa ainda retorna `Authentication required`, inclusive para consulta simples. Próximo passo: recarregar a janela do VS Code e continuar esta conversa para reinicializar o MCP, então inspecionar o schema remoto, aplicar a migration e publicar o Worker. A migration 0020 e o frontend desta entrega **ainda não foram publicados**. Não habilitar a automação em uma empresa por suposição: o administrador escolhe e salva a regra.
 
 ## Como configurar
 

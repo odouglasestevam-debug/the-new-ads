@@ -2,7 +2,7 @@
 
 Destino exclusivo: crm.thenewads.com.br, Worker tna-crm, Supabase xrvjlhseyqfgyvwwlwwb.
 
-Distribuição de leads (migration 0020): implementação local concluída, publicação pendente da reconexão OAuth do MCP. Guia, testes, regras de fila/presença e sequência de publicação em [DISTRIBUICAO-LEADS.md](DISTRIBUICAO-LEADS.md). Reverter o frontend não desliga regras automáticas já ativadas no banco; para isso, salvar Manual em cada empresa.
+Distribuição de leads (migration 0020): implementação local concluída, 28/28 testes passando. Login OAuth do MCP concluído com escopos explícitos; publicação pendente da reinicialização do conector da conversa, que ainda retorna Authentication required. Guia, regras de fila/presença e sequência de publicação em [DISTRIBUICAO-LEADS.md](DISTRIBUICAO-LEADS.md). Reverter o frontend não desliga regras automáticas já ativadas no banco; para isso, salvar Manual em cada empresa.
 
 ## Validação
 
