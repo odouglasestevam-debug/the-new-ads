@@ -160,7 +160,40 @@ function menuLotePrio(ancora) {
 
 function menuLoteData(ancora, campo = "data_entrega") {
   const nome = campo === "data_inicio" ? "data de início" : "data de entrega";
-  abrirCalendario(ancora, null, (iso) => aplicarLote({ [campo]: iso }, iso ? `${nome} para ${dataBR(iso, true)}.` : `${nome} removida.`));
+  abrirCalendario(ancora, null, (iso) => aplicarLote({ [campo]: iso }, iso ? `${nome} para ${dataBR(iso, true)}.` : `${nome} removida.`),
+    campo === "data_entrega" ? loteRecorrencia : null);
+}
+
+// Recorrência em lote: semanal pergunta os dias; o banco limpa as regras do tipo anterior.
+async function loteRecorrencia(rec) {
+  if (!rec) return aplicarLote({ recorrencia: null }, "recorrência removida.");
+  if (rec !== "semanal") {
+    const nomes = { diaria: "diária", mensal: "mensal", anual: "anual" };
+    return aplicarLote({ recorrencia: rec }, `repetição ${nomes[rec]}.`);
+  }
+  const dias = await abrirModal(`
+    <form id="form-dias-lote">
+      <h2>Repetir toda semana</h2>
+      <p style="color:var(--nevoa);font-size:13.5px;margin:6px 0 12px">Escolha os dias. Sem nenhum, repete no mesmo dia da semana da entrega.</p>
+      <div class="dias-semana" role="group" aria-label="Dias da semana">
+        ${BOTOES_SEMANA.map(([i, l]) => `<button type="button" class="dia-semana" aria-pressed="false" data-dia="${i}" title="${NOMES_SEMANA[i]}">${l}</button>`).join("")}
+      </div>
+      <div class="acoes"><button type="button" class="btn btn-fantasma" onclick="fecharModal(null)">Cancelar</button>
+        <button class="btn">Aplicar</button></div>
+    </form>`, (m) => {
+    m.querySelectorAll("[data-dia]").forEach((b) => b.addEventListener("click", () => {
+      const on = !b.classList.contains("ligado");
+      b.classList.toggle("ligado", on);
+      b.setAttribute("aria-pressed", on);
+    }));
+    m.querySelector("#form-dias-lote").addEventListener("submit", (e) => {
+      e.preventDefault();
+      fecharModal([...m.querySelectorAll("[data-dia].ligado")].map((b) => Number(b.dataset.dia)).sort());
+    });
+  });
+  if (!dias) return;
+  const quais = dias.length ? `, ${dias.length === 7 ? "todos os dias" : "na " + listaNatural(BOTOES_SEMANA.filter(([d]) => dias.includes(d)).map(([d]) => DIAS_SEMANA[d]))}` : "";
+  await aplicarLote({ recorrencia: "semanal", recorrencia_dias_semana: dias.length ? dias : null }, `repete toda semana${quais}.`);
 }
 
 function menuLoteResp(ancora) {

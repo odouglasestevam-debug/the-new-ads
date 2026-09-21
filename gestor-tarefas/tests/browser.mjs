@@ -345,6 +345,19 @@ try {
   await page.waitForFunction(n=>document.getElementById('toast').textContent.includes('cópia'),null);
   assert.match(await page.locator('#toast').innerText(),new RegExp(`^${dup.topo*dup.listas} cópias? criadas? em ${dup.listas} lista`));
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
+  // Barra de baixo: Entrega > Configurar recorrência > Semanal > dias, em todas as marcadas.
+  const nRec=await page.evaluate(()=>idsSelecionados().length);
+  await page.locator('.lote-btn',{hasText:'Entrega'}).click();
+  await page.locator('.cal-rodape button',{hasText:'Configurar recorrência'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Semanal'}).click();
+  for(const d of ['Seg','Qua','Sex'])await page.locator('#form-dias-lote .dia-semana',{hasText:d}).click();
+  const antes=await page.evaluate(()=>fixture.writes.length);
+  await page.locator('#form-dias-lote .btn',{hasText:'Aplicar'}).click();
+  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('repete toda semana'),null);
+  const w=await page.evaluate(a=>fixture.writes.slice(a).find(x=>x.payload?.recorrencia==='semanal'),antes);
+  assert.deepEqual(w?.payload?.recorrencia_dias_semana,[1,3,5],'lote grava seg/qua/sex');
+  assert.match(await page.locator('#toast').innerText(),new RegExp(`^${nRec} tarefas?: repete toda semana, na seg, qua e sex`,'i'));
+  await page.evaluate(()=>{document.getElementById('toast').className='toast';});
   // Recorrência seg/qua/sex sem data: o calendário circula esses dias; o dia escolhido fica pintado.
   const rec=await page.evaluate(()=>{const r={recorrencia:'semanal',recorrencia_dias_semana:[1,3,5]};
     abrirCalendario(document.body,null,()=>{},()=>{},r);
