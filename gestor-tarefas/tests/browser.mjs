@@ -267,6 +267,14 @@ try {
   assert.equal(await page.locator('[data-editar-membro]').count(),0);
   }
 
+  // ---- Prévia da recorrência espelha o banco: a série anda pela âncora, não pela entrega remarcada ----
+  const serie=(base,entrega)=>page.evaluate(([b,e])=>proximaRecorrencia({recorrencia:'semanal',recorrencia_intervalo:1,
+    recorrencia_dias_semana:[1,3,5],recorrencia_base:b,data_entrega:e}),[base,entrega]);
+  assert.equal(await serie('2026-09-21','2026-09-21'),'2026-09-23','segunda no dia: próxima é quarta');
+  assert.equal(await serie('2026-09-21','2026-09-22'),'2026-09-23','segunda remarcada para terça: próxima continua quarta');
+  assert.equal(await serie('2026-09-21','2026-09-24'),'2026-09-25','remarcada para quinta: pula a quarta que já passou');
+  assert.equal(await serie(null,'2026-09-21'),'2026-09-23','tarefa antiga, sem âncora, usa a entrega');
+
   // ---- Seleção múltipla e ações em lote (dados fictícios) ----
   await redimensionar(1440,1000);
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});

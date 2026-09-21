@@ -20,7 +20,7 @@ test('recorrência por dias da semana, dia do mês e dia da semana do mês', asy
     await db.exec(await ler('0001_estrutura.sql'));
     const m2 = await ler('0002_servidor_e_lembrete.sql');
     await db.exec(m2.slice(0, m2.indexOf('create extension')));
-    for (const f of ['0003_views_publicas.sql', '0004_integridade_e_seguranca.sql', '0005_acessos_por_membro.sql', '0006_excluir_membro.sql', '0007_recorrencia_avancada.sql']) {
+    for (const f of ['0003_views_publicas.sql', '0004_integridade_e_seguranca.sql', '0005_acessos_por_membro.sql', '0006_excluir_membro.sql', '0007_recorrencia_avancada.sql', '0008_recorrencia_ancorada.sql']) {
       await db.exec(await ler(f));
     }
 
@@ -60,6 +60,47 @@ test('recorrência por dias da semana, dia do mês e dia da semana do mês', asy
       from tarefas.tarefas t join tarefas.tarefas n on n.id=t.proxima_id where t.id='${t}'`)).rows[0];
     assert.deepEqual(prox, { i: '2026-09-20', e: '2026-09-21', d: '{1,3,5}' }, 'próxima gerada pelo gatilho');
 
+    // Remarcar uma ocorrência não desloca a série: 21/09 é segunda, 23 quarta, 25 sexta.
+    const criarRotina = async (entrega) => (await db.query(`insert into tarefas.tarefas(lista_id,titulo,status_id,data_entrega,recorrencia,recorrencia_dias_semana)
+      values ('${l}','Rotina','${aberto}','${entrega}','semanal','{1,3,5}') returning id`)).rows[0].id;
+    const proximaDe = async (id) => (await db.query(`select n.data_entrega::text e, n.recorrencia_base::text b
+      from tarefas.tarefas t join tarefas.tarefas n on n.id=t.proxima_id where t.id='${id}'`)).rows[0];
+
+    const segunda = await criarRotina('2026-09-21');
+    assert.equal((await db.query(`select recorrencia_base::text b from tarefas.tarefas where id='${segunda}'`)).rows[0].b,
+      '2026-09-21', 'a âncora nasce na data de entrega');
+    await db.exec(`update tarefas.tarefas set data_entrega='2026-09-22' where id='${segunda}'`);
+    assert.equal((await db.query(`select recorrencia_base::text b from tarefas.tarefas where id='${segunda}'`)).rows[0].b,
+      '2026-09-21', 'remarcar a entrega não mexe na âncora');
+    await db.exec(`update tarefas.tarefas set status_id='${feito}' where id='${segunda}'`);
+    assert.deepEqual(await proximaDe(segunda), { e: '2026-09-23', b: '2026-09-23' },
+      'segunda empurrada para terça: a próxima continua sendo a quarta');
+
+    // Empurrada para além da próxima data da série, ela não nasce atrasada: pula para a seguinte.
+    const pulada = await criarRotina('2026-09-21');
+    await db.exec(`update tarefas.tarefas set data_entrega='2026-09-24' where id='${pulada}'`);
+    await db.exec(`update tarefas.tarefas set status_id='${feito}' where id='${pulada}'`);
+    assert.deepEqual(await proximaDe(pulada), { e: '2026-09-25', b: '2026-09-25' },
+      'segunda empurrada para quinta: a quarta já passou, vai para a sexta');
+
+    // Trocar a regra reancora na entrega atual, senão a série nova herdaria o ritmo antigo.
+    const trocada = await criarRotina('2026-09-21');
+    await db.exec(`update tarefas.tarefas set data_entrega='2026-09-24', recorrencia_dias_semana='{4}' where id='${trocada}'`);
+    assert.equal((await db.query(`select recorrencia_base::text b from tarefas.tarefas where id='${trocada}'`)).rows[0].b,
+      '2026-09-24', 'mudar a regra reancora a série');
+    await db.exec(`update tarefas.tarefas set status_id='${feito}' where id='${trocada}'`);
+    assert.equal((await proximaDe(trocada)).e, '2026-10-01', 'série nova segue a regra nova');
+
+    // Sem remarcação, o comportamento é o mesmo de antes.
+    const normal = await criarRotina('2026-09-21');
+    await db.exec(`update tarefas.tarefas set status_id='${feito}' where id='${normal}'`);
+    assert.equal((await proximaDe(normal)).e, '2026-09-23', 'sem remarcar, nada muda');
+
+    // Tirar a recorrência limpa a âncora.
+    await db.exec(`update tarefas.tarefas set recorrencia=null where id=(select proxima_id from tarefas.tarefas where id='${normal}')`);
+    assert.equal((await db.query(`select recorrencia_base b from tarefas.tarefas where id=(select proxima_id from tarefas.tarefas where id='${normal}')`)).rows[0].b,
+      null, 'sem recorrência, sem âncora');
+
     // Trocar o tipo apaga a regra que não serve mais.
     await db.exec(`update tarefas.tarefas set recorrencia='diaria' where id=(select proxima_id from tarefas.tarefas where id='${t}')`);
     const limpo = (await db.query(`select recorrencia_dias_semana from tarefas.tarefas where id=(select proxima_id from tarefas.tarefas where id='${t}')`)).rows[0];
@@ -71,7 +112,7 @@ test('recorrência por dias da semana, dia do mês e dia da semana do mês', asy
 
     // A visão pública expõe os campos novos.
     const cols = (await db.query(`select column_name from information_schema.columns where table_schema='public' and table_name='tarefas_visao' and column_name like 'recorrencia_%'`)).rows.map(r => r.column_name);
-    assert.ok(cols.includes('recorrencia_dias_semana') && cols.includes('recorrencia_dia_semana'), 'colunas novas na view');
-    console.log(`Recorrência: ${casos.length} regras de data, gatilho, limpeza e validação OK.`);
+    assert.ok(cols.includes('recorrencia_dias_semana') && cols.includes('recorrencia_dia_semana') && cols.includes('recorrencia_base'), 'colunas novas na view');
+    console.log(`Recorrência: ${casos.length} regras de data, gatilho, âncora da série ao remarcar, limpeza e validação OK.`);
   } finally { await db.close(); }
 });

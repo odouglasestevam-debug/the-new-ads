@@ -6,8 +6,16 @@ const NOMES_SEMANA = ["domingo", "segunda", "terça", "quarta", "quinta", "sexta
 const ORDENS = [[1, "1ª"], [2, "2ª"], [3, "3ª"], [4, "4ª"], [-1, "Última"]];
 
 // Mesma conta do banco, só para a prévia. Semana começa no domingo.
+// A série anda a partir da data que a regra previu (recorrencia_base), não da entrega remarcada:
+// empurrar a tarefa de segunda para terça não pode adiantar nem atrasar quarta e sexta.
 function proximaRecorrencia(t) {
-  const base = t.data_entrega || hojeSP();
+  const ancora = t.recorrencia_base || t.data_entrega || hojeSP();
+  let prox = dataDaSerie(t, ancora);
+  for (let i = 0; i < 60 && t.data_entrega && prox <= t.data_entrega; i++) prox = dataDaSerie(t, prox);
+  return prox;
+}
+
+function dataDaSerie(t, base) {
   const n = t.recorrencia_intervalo || 1;
   if (t.recorrencia === "diaria") return somarDias(base, n);
   if (t.recorrencia === "anual") return String(Number(base.slice(0, 4)) + n) + base.slice(4);
@@ -111,7 +119,10 @@ function blocoRegraRecorrencia(t) {
 function resumoRecorrencia(t) {
   if (!t.recorrencia) return "";
   const prox = proximaRecorrencia(t);
-  return `<p class="resumo-recorrencia">${esc(descreverRecorrencia(t))}. Ao concluir, a próxima é criada para <b>${esc(rotuloData(prox))}</b>.</p>`;
+  // Quando a entrega foi remarcada, avisa que a série não se mexeu junto.
+  const remarcada = t.recorrencia_base && t.data_entrega && t.recorrencia_base !== t.data_entrega
+    ? ` Esta foi remarcada de ${esc(dataBR(t.recorrencia_base, true))} para ${esc(dataBR(t.data_entrega, true))}; a série segue no ritmo de sempre.` : "";
+  return `<p class="resumo-recorrencia">${esc(descreverRecorrencia(t))}. Ao concluir, a próxima é criada para <b>${esc(rotuloData(prox))}</b>.${remarcada}</p>`;
 }
 
 function alternarDiaRecorrencia(id, dia) {
