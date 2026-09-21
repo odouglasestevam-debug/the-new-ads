@@ -291,6 +291,15 @@ try {
   const antesGrupo=await page.evaluate(()=>selecionadas.size);
   await page.locator('.cu-grupo-cab .sel-box, .cab-colunas .sel-box').first().click();
   assert.ok(await page.evaluate(()=>selecionadas.size)>antesGrupo,'o cabeçalho do grupo marca todas de uma vez');
+  await page.locator('#sel-todas').click();
+  assert.equal(await page.evaluate(()=>idsSelecionados().length),await page.locator('.cu-linha').count(),'a caixa geral marca todas as filtradas');
+  await page.locator('#sel-todas').click();
+  assert.equal(await page.evaluate(()=>selecionadas.size),0,'clicar de novo na caixa geral desmarca tudo');
+  await page.getByRole('searchbox').fill('relatório');
+  await page.locator('#sel-todas').click();
+  assert.equal(await page.evaluate(()=>idsSelecionados().length),1,'a caixa geral respeita o filtro da tela');
+  await page.getByRole('searchbox').fill('');
+  await page.locator('#sel-todas').click();
   await page.screenshot({path:'tests/artifacts/selecao-lote.png',fullPage:true});
   const paraExcluir=await page.evaluate(()=>idsSelecionados().length);
   const totalAntes=await page.evaluate(()=>S.tarefas.length);

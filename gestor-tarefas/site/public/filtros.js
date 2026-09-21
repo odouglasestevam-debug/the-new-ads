@@ -84,6 +84,7 @@ function contarFiltros(r,f) { return camposAtivos(f).length; }
 function barraFiltros(r,f) {
   const n = contarFiltros(r,f), eu = modoEuAtivo();
   return `<div class="barra-tarefas">
+    ${caixaTodas()}
     <label class="agrupar-compacto">${ICONES_BARRA.grupo}<select aria-label="Agrupar tarefas" onchange="mudarFiltro('agrupar',this.value)" ${f.visao==='quadro'?'disabled title="O quadro é organizado por status"':''}>
       ${[{v:'pasta',t:'Pasta e lista'},{v:'status',t:'Status'},{v:'situacao',t:'Prazo'},{v:'projeto',t:'Lista'},{v:'responsavel',t:'Responsável'},{v:'',t:'Sem grupos'}].map(o=>`<option value="${o.v}"${(f.visao==='quadro'?'status':f.agrupar)===o.v?' selected':''}>${o.t}</option>`).join('')}</select></label>
     <div class="ferramentas-tarefas">

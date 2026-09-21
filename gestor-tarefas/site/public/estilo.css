@@ -157,7 +157,7 @@ main{flex:1;min-width:0;padding:28px 32px 90px}
 .grupo-cabeca .n{font-family:var(--mono);font-size:11.5px;color:var(--nevoa)}
 .grupo-cabeca.atrasada h2{color:var(--vermelho)}
 .tabela{border:1px solid var(--linha);border-radius:12px;background:var(--grafite);overflow:hidden}
-.cab-colunas,.linha{display:grid;grid-template-columns:56px minmax(0,1fr) 150px 110px 170px 92px;align-items:center;gap:10px;padding:0 14px}
+.cab-colunas,.linha{display:grid;grid-template-columns:50px minmax(0,1fr) 150px 110px 170px 92px;align-items:center;gap:10px;padding:0 14px}
 .cab-colunas{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--nevoa);
   padding-top:9px;padding-bottom:9px;border-bottom:1px solid var(--linha)}
 .linha{min-height:52px;border-bottom:1px solid var(--linha);cursor:pointer;position:relative;padding-top:7px;padding-bottom:7px}
@@ -293,7 +293,7 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
 
 /* ---------------- celular ---------------- */
 @media (max-width:1100px){
-  .cab-colunas,.linha{grid-template-columns:52px minmax(0,1fr) 130px 90px 150px}
+  .cab-colunas,.linha{grid-template-columns:48px minmax(0,1fr) 130px 90px 150px}
   .col-prio{display:none}
 }
 @media (max-width:860px){
@@ -314,7 +314,7 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
   .filtros input[type=search]{width:100%}
   .filtros select{flex:1 1 140px;max-width:none}
   .cab-colunas{display:none}
-  .linha{grid-template-columns:48px minmax(0,1fr) auto;grid-template-areas:"c t p" "c s r";row-gap:6px;padding:10px 12px}
+  .linha{grid-template-columns:44px minmax(0,1fr) auto;grid-template-areas:"c t p" "c s r";row-gap:6px;padding:10px 12px}
   .linha > .col-check{grid-area:c;align-self:start;padding-top:2px}
   .linha > .col-titulo{grid-area:t}
   .linha > .col-status{grid-area:s;justify-self:start}
@@ -406,10 +406,10 @@ select.status-sel{padding:5px 26px 5px 10px;font-size:12.5px;border-radius:99px;
 .add-btn.ligado{color:var(--azul);border-color:rgba(96,165,250,.35)}
 
 /* ---------------- seleção múltipla e ações em lote ---------------- */
-.col-check{display:flex;align-items:center;gap:6px}
-.sel-box{width:18px;height:18px;flex:none;border-radius:5px;border:1.6px solid rgba(255,255,255,.3);background:none;
+.col-check{display:flex;align-items:center;gap:5px}
+.sel-box{width:15px;height:15px;flex:none;border-radius:4px;border:1.5px solid rgba(255,255,255,.3);background:none;
   display:inline-flex;align-items:center;justify-content:center;color:transparent;opacity:.55;transition:all .15s}
-.sel-box svg{width:12px;height:12px}
+.sel-box svg{width:10px;height:10px}
 .sel-box:hover{opacity:1;border-color:var(--ambar);color:var(--ambar)}
 .linha:hover .sel-box,.cu-linha:hover .sel-box,.quadro-cartao:hover .sel-box,.sel-box:focus-visible{opacity:1}
 .sel-box.on,.sel-box.parcial{opacity:1;background:var(--ambar);border-color:var(--ambar);color:#0A0A0A}
@@ -440,3 +440,9 @@ body.com-lote .toast{bottom:92px}
   .lote-btn{padding:8px 9px}
   body.com-lote .toast{bottom:132px}
 }
+
+/* a caixa geral fica na barra de ferramentas, antes do agrupamento */
+.barra-tarefas{justify-content:flex-start}
+.barra-tarefas .ferramentas-tarefas{margin-left:auto}
+.sel-todas{margin-right:2px}
+.sel-todas:disabled{opacity:.25}

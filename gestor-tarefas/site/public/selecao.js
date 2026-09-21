@@ -63,6 +63,39 @@ function caixaSel(t) {
     onclick="event.stopPropagation();alternarSel('${t.id}',event)">${MARCA_SEL}</button>`;
 }
 
+// Caixa geral da barra: pega tudo que está passando pelos filtros, em todos os grupos da tela.
+function caixaTodas() {
+  return `<button type="button" id="sel-todas" class="sel-box sel-todas" role="checkbox" aria-checked="false"
+    aria-label="Marcar todas as tarefas filtradas" title="Marcar todas as tarefas filtradas"
+    onclick="marcarTodas()">${MARCA_SEL}</button>`;
+}
+
+function marcarTodas() {
+  const ids = idsVisiveis();
+  if (!ids.length) return;
+  const todas = ids.every((id) => selecionadas.has(id));
+  if (todas) selecionadas.clear();
+  else for (const id of ids) selecionadas.add(id);
+  ancoraSel = null;
+  renderResultadoAtual();
+  renderBarraLote();
+}
+
+// O estado vem depois do render da lista, porque a barra é montada antes de os grupos existirem.
+function atualizarCaixaTodas() {
+  const el = document.getElementById("sel-todas");
+  if (!el) return;
+  const ids = idsVisiveis();
+  const n = ids.filter((id) => selecionadas.has(id)).length;
+  el.classList.toggle("on", !!ids.length && n === ids.length);
+  el.classList.toggle("parcial", n > 0 && n < ids.length);
+  el.setAttribute("aria-checked", !ids.length ? "false" : n === ids.length ? "true" : n ? "mixed" : "false");
+  el.disabled = !ids.length;
+  el.innerHTML = n && n < ids.length ? TRACO_SEL : MARCA_SEL;
+  el.title = !ids.length ? "Nenhuma tarefa para marcar"
+    : n === ids.length ? "Desmarcar todas" : `Marcar as ${ids.length} tarefas filtradas`;
+}
+
 function caixaGrupo(g) {
   const ids = (g.itens || []).map((t) => t.id);
   if (!ids.length) return "";
@@ -76,6 +109,7 @@ function caixaGrupo(g) {
 /* ---------------- barra de ações ---------------- */
 function renderBarraLote() {
   const barra = document.getElementById("barra-lote");
+  atualizarCaixaTodas();
   if (!barra) return;
   const n = idsSelecionados().length;
   document.body.classList.toggle("com-lote", n > 0);
