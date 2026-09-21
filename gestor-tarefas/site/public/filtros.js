@@ -22,7 +22,9 @@ function podeGerenciarEstrutura() {
 }
 
 function filtrar(f, escopo, { ignorarPrazo } = {}) {
-  const local = f.local ? listasDoLocal(f.local) : null;
+  // Local aceita vários (ex.: Tubarão Ads e The New Ads): a tarefa entra se estiver em qualquer um deles.
+  if (!Array.isArray(f.local)) f.local = f.local ? [f.local] : [];
+  const local = f.local.length ? new Set(f.local.flatMap(ref => [...(listasDoLocal(ref) || [])])) : null;
   const busca = norm(f.busca), eu = modoEuAtivo();
   return S.tarefas.filter(t => {
     // O escopo da visualização e o Modo eu sempre restringem, mesmo ao combinar filtros com OU.
@@ -108,7 +110,7 @@ function definicoesFiltros() {
     responsavel:{nome:'Responsável',opcoes:[{v:'eu',t:'Eu'},...S.usuarios.filter(u=>u.ativo && u.user_id!==S.user.id).map(u=>({v:u.user_id,t:u.nome})),{v:'ninguem',t:'Sem responsável'}]},
     prioridade:{nome:'Prioridade',opcoes:PRIORIDADES.map(p=>({v:p.id,t:p.nome}))},
     prazo:{nome:'Prazo',multi:true,opcoes:SITUACOES.map(s=>({v:s.id,t:s.nome}))},
-    local:{nome:'Local',opcoes:locais},periodo:{nome:'Data de entrega'}
+    local:{nome:'Local',multi:true,opcoes:locais},periodo:{nome:'Data de entrega'}
   };
 }
 

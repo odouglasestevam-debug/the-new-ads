@@ -34,7 +34,7 @@ const S = {
 const expandidos = new Set(lerLocal("tf_expandidos", []));
 
 function novoFiltro(extra = {}) {
-  return { busca: "", local: "", status: [], responsavel: "", prioridade: "", prazo: [], dias: "7", de: "", ate: "", agrupar: "situacao", visao: "lista", ordenar: "prazo", concluidas: false, ...extra };
+  return { busca: "", local: [], status: [], responsavel: "", prioridade: "", prazo: [], dias: "7", de: "", ate: "", agrupar: "situacao", visao: "lista", ordenar: "prazo", concluidas: false, ...extra };
 }
 const filtros = {
   central: novoFiltro({ prazo: ["atrasada", "vence_hoje"], agrupar: "pasta" }),

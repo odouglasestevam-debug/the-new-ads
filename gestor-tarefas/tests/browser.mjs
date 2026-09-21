@@ -132,6 +132,18 @@ try {
   await page.getByRole('button',{name:'Modo eu',exact:true}).click();
   await page.locator('#btn-mais-filtros').click();
   await page.getByRole('button',{name:'Limpar tudo',exact:true}).click();
+  // Local aceita vários espaços ao mesmo tempo: o resultado é a soma dos dois.
+  await page.getByLabel('Adicionar filtro',{exact:true}).selectOption('local');
+  await page.locator('[data-multi="local"] summary').click();
+  await page.locator('[data-multiplo="local"][value="projeto:p1"]').check();
+  await page.locator('[data-multiplo="local"][value="projeto:p2"]').check();
+  const locais=await page.evaluate(()=>{const f=filtroDaRota(rotaAtual());
+    return {ambos:filtrar(f,null).length,p1:filtrar({...f,local:['projeto:p1']},null).length,p2:filtrar({...f,local:['projeto:p2']},null).length,marcados:f.local};});
+  assert.deepEqual(locais.marcados,['projeto:p1','projeto:p2'],'dois espaços marcados no filtro Local');
+  assert.ok(locais.p1>0 && locais.p2>0,'cada espaço tem tarefas no teste');
+  assert.equal(locais.ambos,locais.p1+locais.p2,'Local com dois espaços mostra as tarefas dos dois');
+  assert.match(await page.locator('[data-multi="local"] summary').innerText(),/Demandas da agência.*Operação interna/);
+  await page.locator('[data-excluir="local"]').click();
   await page.getByLabel('Adicionar filtro',{exact:true}).selectOption('status');
   await page.locator('[data-multi="status"] summary').click();
   await page.getByLabel('A fazer',{exact:true}).check();

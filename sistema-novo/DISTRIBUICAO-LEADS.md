@@ -4,7 +4,7 @@ Destino: CRM em crm.thenewads.com.br, Supabase xrvjlhseyqfgyvwwlwwb. Nenhuma alt
 
 ## Situação desta entrega
 
-Implementada e testada localmente, com `npm test` final **28/28** e teste de navegador passando. Publicação **pendente**: a falha de registro OAuth foi contornada com escopos explícitos (`organizations:read,projects:read,database:read,database:write`); o CLI confirmou `Successfully logged in to MCP server 'supabase-tarefas'`. O conector já carregado nesta conversa ainda retorna `Authentication required`, inclusive para consulta simples. Próximo passo: recarregar a janela do VS Code e continuar esta conversa para reinicializar o MCP, então inspecionar o schema remoto, aplicar a migration e publicar o Worker. A migration 0020 e o frontend desta entrega **ainda não foram publicados**. Não habilitar a automação em uma empresa por suposição: o administrador escolhe e salva a regra.
+Publicado em 21/09/2026: Worker `6519bab1-5e53-45d3-ad58-2a8f51ebae9d`, migration `20260921174437`; smoke remoto aprovou 19 assets, headers, login e bloqueio anônimo, sem mensagens reais. Validação local: 28/28 testes e navegador aprovados. A automação permanece desligada até o administrador escolher modo e participantes. Registro em `DISTRIBUICAO-LEADS.md`.
 
 ## Como configurar
 
@@ -50,7 +50,7 @@ Revisão Impeccable final: **ship**, remaining **Clear**.
 
 Capturas e relatório do detector estão em `tests/artifacts/distribuicao-*` e `disponibilidade-mobile.png`. Detector executado uma vez nos alvos alterados: 89 avisos advisory da cascata/paleta/rampas, zero achados não-advisory. Não equivale a afirmar ausência de todo problema de acessibilidade.
 
-`node tests/deployed-smoke.mjs`: após publicar, confere assets, headers, login e bloqueio anônimo das quatro RPCs de distribuição. Não envia mensagens. Não executar antes da publicação esperando êxito: os hashes locais serão diferentes e as RPCs ainda não existirão.
+`node tests/deployed-smoke.mjs`: após publicar, confere assets, headers, login e bloqueio anônimo das quatro RPCs de distribuição. Não envia mensagens. Executado com sucesso após a publicação.
 
 ## Publicar e reverter
 

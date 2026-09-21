@@ -2,7 +2,7 @@
 
 Destino exclusivo: crm.thenewads.com.br, Worker tna-crm, Supabase xrvjlhseyqfgyvwwlwwb.
 
-Distribuição de leads (migration 0020): implementação local concluída, 28/28 testes passando. Login OAuth do MCP concluído com escopos explícitos; publicação pendente da reinicialização do conector da conversa, que ainda retorna Authentication required. Guia, regras de fila/presença e sequência de publicação em [DISTRIBUICAO-LEADS.md](DISTRIBUICAO-LEADS.md). Reverter o frontend não desliga regras automáticas já ativadas no banco; para isso, salvar Manual em cada empresa.
+Distribuição de leads (migration 0020): Publicado em 21/09/2026: Worker `6519bab1-5e53-45d3-ad58-2a8f51ebae9d`, migration `20260921174437`; smoke remoto aprovou 19 assets, headers, login e bloqueio anônimo, sem mensagens reais. Validação local: 28/28 testes e navegador aprovados. A automação permanece desligada até o administrador escolher modo e participantes. Registro em `DISTRIBUICAO-LEADS.md`. Reverter o frontend não desliga regras já ativadas; salvar Manual em cada empresa.
 
 ## Validação
 
