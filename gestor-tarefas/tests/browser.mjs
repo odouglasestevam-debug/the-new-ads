@@ -110,7 +110,7 @@ try {
     expandidos.add('projeto:p1');expandidos.add('projeto:p2');
     document.getElementById('tela-login').style.display='none';
     document.getElementById('app').classList.add('ativo');
-    document.getElementById('usuario-nome').textContent='Ambiente de teste · Dados fictícios';
+    const nomeUsuario=document.getElementById('usuario-nome'); if(nomeUsuario) nomeUsuario.textContent='Ambiente de teste · Dados fictícios';
     history.replaceState(null,'','#/central');renderTudo();
   });
   assert.equal(await page.locator('.linha, .cu-linha').count(),7);
@@ -165,7 +165,7 @@ try {
   assert.equal(await page.locator('.linha, .cu-linha').count(),7);
   assert.ok(await page.locator('.cabecalho-tarefas').evaluate(el=>el.getBoundingClientRect().height<135),'Cabeçalho compacto');
   await page.screenshot({path:'tests/artifacts/desktop-lista.png',fullPage:true});
-  await page.getByLabel('Tema do aplicativo').selectOption('escuro');
+  await page.evaluate(v=>{const s=document.createElement('select');s.dataset.tema='';s.innerHTML=`<option value="${v}">`;s.value=v;document.body.append(s);s.dispatchEvent(new Event('change',{bubbles:true}));s.remove();},'escuro');
   await page.screenshot({path:'tests/artifacts/desktop-lista-escuro.png',fullPage:true});
   await page.getByRole('searchbox').fill('relatório');
   assert.equal(await page.locator('.linha, .cu-linha').count(),1);
@@ -207,10 +207,18 @@ try {
   await page.getByRole('button',{name:'Quadro',exact:true}).click();
   await page.screenshot({path:'tests/artifacts/mobile-quadro.png',fullPage:true});
   await page.getByRole('button',{name:'Abrir menu',exact:true}).click();
+  const lateral=await page.locator('aside').innerText();
+  assert.ok(!/Tema|Instalar app|\bSair\b/.test(lateral),'Barra lateral sem tema, instalar e sair');
+  await page.evaluate(()=>{fecharMenuLateral();location.hash='#/ajustes';});
+  await page.waitForTimeout(150);
+  assert.ok(await page.getByRole('button',{name:'Sair da conta',exact:true}).isVisible(),'Sair fica em Ajustes');
+  assert.ok(await page.locator('#instalar-app').isVisible(),'Instalar fica em Ajustes');
   await page.getByLabel('Tema do aplicativo').selectOption('claro');
   assert.equal(await page.locator('html').getAttribute('data-tema'),'claro');
   await page.getByLabel('Tema do aplicativo').selectOption('escuro');
-  await page.evaluate(()=>fecharMenuLateral());
+  assert.equal(await page.locator('html').getAttribute('data-tema'),'escuro');
+  await page.evaluate(()=>{location.hash='#/central';});
+  await page.waitForTimeout(150);
   assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
   if(!process.env.LEGACY_RELEASE) {
   // Editor de permissões usa fixtures. Nenhuma chamada de cadastro chega ao servidor real.

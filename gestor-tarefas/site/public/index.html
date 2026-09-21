@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-title" content="Tarefas">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="/estilo.css?v=11">
-<link rel="stylesheet" href="/workspace.css?v=23">
+<link rel="stylesheet" href="/workspace.css?v=24">
 <link rel="stylesheet" href="/toolbar.css?v=12">
 </head>
 <body>
@@ -85,17 +85,10 @@ FINISH: revisão visual em desktop e celular, testes funcionais e registro do si
     </div>
     <div class="arvore" id="arvore"></div>
     <div class="rodape">
-      <label class="seletor-tema">Tema <select data-tema aria-label="Tema do aplicativo"><option value="claro">Claro</option><option value="escuro">Escuro</option><option value="sistema">Sistema</option></select></label>
-      <button id="btn-instalar" class="link-rodape" onclick="instalarApp()" hidden>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M12 7v7M9 11l3 3 3-3"/></svg>
-        Instalar app
-      </button>
       <button data-rota="#/ajustes" id="nav-ajustes" class="link-rodape">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
         Ajustes
       </button>
-      <div class="usuario" id="usuario-nome"></div>
-      <button class="sair" data-acao="sair">Sair</button>
     </div>
   </aside>
   <div class="veu" data-acao="fechar-menu"></div>
@@ -119,6 +112,6 @@ FINISH: revisão visual em desktop e celular, testes funcionais e registro do si
 <script src="/acoes-tarefa.js?v=1"></script>
 <script src="/selecao.js?v=2"></script>
 <script src="/visao-pastas.js?v=3"></script>
-<script src="/app.js?v=20"></script>
+<script src="/app.js?v=21"></script>
 </body>
 </html>

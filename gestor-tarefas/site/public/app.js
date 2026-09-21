@@ -330,7 +330,8 @@ async function entrar(sessao) {
   S.eu = eu;
   document.getElementById("tela-login").style.display = "none";
   document.getElementById("app").classList.add("ativo");
-  document.getElementById("usuario-nome").textContent = eu.nome + " · " + eu.email;
+  const usuarioNome = document.getElementById("usuario-nome");
+  if (usuarioNome) usuarioNome.textContent = eu.nome + " · " + eu.email;
   try {
     await carregar();
   } catch (e) {
@@ -1449,6 +1450,11 @@ function renderAjustes() {
   ({ conta: abaConta, notificacoes: abaNotificacoes, usuarios: abaUsuarios, status: abaStatus })[S.abaAjustes]();
 }
 
+function temaAtual() {
+  try { return ["claro", "escuro", "sistema"].includes(localStorage.getItem("tf_tema")) ? localStorage.getItem("tf_tema") : "claro"; }
+  catch { return "claro"; }
+}
+
 function abaConta() {
   document.getElementById("aba").innerHTML = `
     <div class="painel">
@@ -1461,7 +1467,20 @@ function abaConta() {
         <p class="aviso" id="aviso-senha"></p>
       </form>
     </div>
-    ${typeof painelInstalar === "function" ? painelInstalar() : ""}`;
+    <div class="painel">
+      <h2>Aparência</h2>
+      <p class="desc">Vale só neste aparelho.</p>
+      <label class="campo" style="display:block;max-width:360px"><span class="rotulo">Tema</span>
+        <select data-tema aria-label="Tema do aplicativo">
+          ${[["claro", "Claro"], ["escuro", "Escuro"], ["sistema", "Igual ao sistema"]].map(([v, n]) => `<option value="${v}"${temaAtual() === v ? " selected" : ""}>${n}</option>`).join("")}
+        </select></label>
+    </div>
+    ${typeof painelInstalar === "function" ? painelInstalar() : ""}
+    <div class="painel">
+      <h2>Sair</h2>
+      <p class="desc">Encerra a sessão neste aparelho. Os lembretes de prazo continuam chegando se a notificação estiver ativada.</p>
+      <button class="btn btn-perigo" data-acao="sair">Sair da conta</button>
+    </div>`;
   document.getElementById("form-senha").addEventListener("submit", async (e) => {
     e.preventDefault();
     const nova = document.getElementById("nova-senha").value;
@@ -1659,7 +1678,7 @@ function bloquearInterface() {
   for (const k of ["usuarios", "status", "projetos", "pastas", "listas", "tarefas", "comentarios", "grupos"]) S[k] = [];
   S.ultimo = null;
   document.getElementById("app").className = "app";
-  for (const id of ["conteudo", "arvore", "gaveta", "usuario-nome"]) document.getElementById(id).innerHTML = "";
+  for (const id of ["conteudo", "arvore", "gaveta", "usuario-nome"]) { const el = document.getElementById(id); if (el) el.innerHTML = ""; }
   fecharModal(null); fecharMenu();
   document.getElementById("tela-login").style.display = "";
   document.getElementById("form-login").style.display = "";
