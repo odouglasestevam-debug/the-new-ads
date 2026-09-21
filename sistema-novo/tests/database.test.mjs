@@ -79,6 +79,27 @@ test('migrações, isolamento CRM, integridade da conversa e leitura com limite'
   assert.equal((await db.query('select status from mensagens where id=$1',[outgoing])).rows[0].status,'lida');
   await db.query(`select registrar_recibo_whatsapp($1,'whatsapp_oficial','future-id','falhou',$2,null)`,[b,when]);
   assert.equal((await db.query('select status from mensagens where id=$1',[outgoing])).rows[0].status,'lida');
-  console.log(`Baseline ${result.ok}/${result.total}; FK multitenant, RLS e watermark OK.`);
+  // Reservas de formulário são decididas e consumidas na mesma transação.
+  const form=crypto.randomUUID();await db.query(`insert into formularios(id,empresa_id,nome,chave) values($1,$2,'Fixture segurança','security-fixture')`,[form,a]);
+  const reservations=await Promise.all(Array.from({length:12},()=>db.query('select crm_reservar_formulario($1,$2) ok',[form,'a'.repeat(64)])));
+  assert.equal(reservations.filter(r=>r.rows[0].ok).length,6);
+  for(let i=0;i<114;i++)assert.equal((await db.query('select crm_reservar_formulario($1,$2) ok',[form,i.toString(16).padStart(64,'0')])).rows[0].ok,true);
+  assert.equal((await db.query('select crm_reservar_formulario($1,$2) ok',[form,'b'.repeat(64)])).rows[0].ok,false,'limite total independe do IP');
+  await db.query('update empresas set ativo=false where id=$1',[a]);
+  await assert.rejects(db.query(`select * from receber_lead_site('security-fixture','Fixture','+5511999955555',null,'{}','{}')`),/formulario_invalido/);
+  await db.query('update empresas set ativo=true where id=$1',[a]);
+  // Satura cotas em duas janelas adjacentes para o teste não oscilar na virada do minuto.
+  await db.query(`insert into privado.crm_limites(ator,acao,minuto,quantidade)
+    select $1,a,m,case a when 'presenca' then 60 else 120 end from unnest(array['presenca','gravacao','busca']) a
+    cross join generate_series(date_trunc('minute',clock_timestamp()),date_trunc('minute',clock_timestamp())+interval '1 minute',interval '1 minute') m
+    on conflict(ator,acao,minuto) do update set quantidade=excluded.quantidade`,[user]);
+  await db.query(`select set_config('request.jwt.claims',$1,false)`,[JSON.stringify({sub:user,role:'authenticated',aal:'aal2'})]);await db.exec('set role authenticated');
+  await assert.rejects(db.query('select crm_reservar_formulario($1,$2)',[form,'c'.repeat(64)]),/permission denied/);
+  for(const [sql,params]of [
+    ['select crm_presenca($1,$2)',[b,crypto.randomUUID()]],
+    ['select buscar_conversas_crm($1)',[b]],
+    ['insert into leads(empresa_id,responsavel_id) values($1,$2)',[b,user]]
+  ])await assert.rejects(db.query(sql,params),e=>e.code==='PT429');
+  console.log(`Baseline ${result.ok}/${result.total}; isolamento, quotas, reserva atômica e RLS OK.`);
  }finally{await db.close();}
 });

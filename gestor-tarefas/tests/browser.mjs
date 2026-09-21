@@ -345,6 +345,19 @@ try {
   await page.waitForFunction(n=>document.getElementById('toast').textContent.includes('cópia'),null);
   assert.match(await page.locator('#toast').innerText(),new RegExp(`^${dup.topo*dup.listas} cópias? criadas? em ${dup.listas} lista`));
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
+  // Recorrência seg/qua/sex sem data: o calendário circula esses dias; o dia escolhido fica pintado.
+  const rec=await page.evaluate(()=>{const r={recorrencia:'semanal',recorrencia_dias_semana:[1,3,5]};
+    abrirCalendario(document.body,null,()=>{},()=>{},r);
+    const dias=[...document.querySelectorAll('.cal .dia.recorre')].map(b=>diaDaSemana(b.getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0]));
+    const alvo=document.querySelector('.cal .dia.recorre').getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0];
+    fecharMenu();abrirCalendario(document.body,alvo,()=>{},()=>{},r);
+    const pintado=document.querySelector('.cal .dia.marcado').classList.contains('recorre');fecharMenu();calendario=null;
+    const mensal=diaDaRecorrencia({recorrencia:'mensal',recorrencia_mensal:'dia_semana',recorrencia_ordem:1,recorrencia_dia_semana:1},'2026-10-05')
+      &&!diaDaRecorrencia({recorrencia:'mensal',recorrencia_mensal:'dia_semana',recorrencia_ordem:1,recorrencia_dia_semana:1},'2026-10-12')
+      &&diaDaRecorrencia({recorrencia:'mensal',recorrencia_mensal:'dia_mes',recorrencia_dia_mes:-1},'2026-02-28');
+    return {dias:[...new Set(dias)].sort(),n:dias.length,pintado,mensal};});
+  assert.deepEqual(rec.dias,[1,3,5],'só seg, qua e sex circulados');
+  assert.ok(rec.n>0&&rec.pintado&&rec.mensal,'dia escolhido pintado e regras mensais');
   const paraExcluir=await page.evaluate(()=>idsSelecionados().length);
   const totalAntes=await page.evaluate(()=>S.tarefas.length);
   await page.locator('.lote-btn',{hasText:'Mais'}).click();

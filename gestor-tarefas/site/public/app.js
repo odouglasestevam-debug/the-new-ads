@@ -1001,8 +1001,9 @@ function atalhosDeData() {
 let calendario = null;
 
 // aoEscolher(iso | null) grava a data; aoRepetir, quando existe, abre a recorrência.
-function abrirCalendario(ancora, valor, aoEscolher, aoRepetir) {
-  calendario = { ancora, valor: valor || null, mes: (valor || hojeSP()).slice(0, 7), aoEscolher, aoRepetir };
+// regra: tarefa (ou rascunho) com recorrência, para circular os dias em que ela cai.
+function abrirCalendario(ancora, valor, aoEscolher, aoRepetir, regra) {
+  calendario = { ancora, valor: valor || null, mes: (valor || hojeSP()).slice(0, 7), aoEscolher, aoRepetir, regra };
   renderCalendario();
 }
 
@@ -1019,7 +1020,7 @@ function mudarMes(passo) {
 }
 
 function renderCalendario() {
-  const { valor, mes, aoRepetir } = calendario;
+  const { valor, mes, aoRepetir, regra } = calendario;
   const hoje = hojeSP();
   const [ano, m] = mes.split("-").map(Number);
   const primeiro = new Date(Date.UTC(ano, m - 1, 1));
@@ -1033,7 +1034,9 @@ function renderCalendario() {
     if (foraDoMes) classes.push("fora");
     if (iso === hoje) classes.push("hoje");
     if (iso === valor) classes.push("marcado");
-    celulas.push(`<button type="button" class="${classes.join(" ")}" onclick="escolherData('${iso}')">${Number(iso.slice(8))}</button>`);
+    const recorre = regra?.recorrencia && iso >= hoje && diaDaRecorrencia(regra, iso);
+    if (recorre) classes.push("recorre");
+    celulas.push(`<button type="button" class="${classes.join(" ")}"${recorre ? ' title="Dia da recorrência"' : ""} onclick="escolherData('${iso}')">${Number(iso.slice(8))}</button>`);
   }
   abrirPainel(calendario.ancora, `
     <div class="cal">
@@ -1073,7 +1076,7 @@ function abrirDataAdd(ancora) {
   }, (rec) => {
     S.add.recorrencia = rec;
     renderResultadoAtual();
-  });
+  }, S.add);
 }
 
 function menuAddLista(ancora) {
@@ -1368,7 +1371,8 @@ function renderGaveta() {
 function calendarioDaTarefa(ancora, id, campo) {
   const t = S.tarefas.find((x) => x.id === id);
   abrirCalendario(ancora, t[campo], (iso) => salvarTarefa(id, { [campo]: iso }),
-    campo === "data_entrega" ? (rec) => salvarTarefa(id, { recorrencia: rec }) : null);
+    campo === "data_entrega" ? (rec) => salvarTarefa(id, { recorrencia: rec }) : null,
+    campo === "data_entrega" ? t : null);
 }
 
 function renderComentarios() {

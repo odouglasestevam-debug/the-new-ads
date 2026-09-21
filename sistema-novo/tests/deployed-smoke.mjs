@@ -5,11 +5,11 @@ import {createHash} from 'node:crypto';
 import assert from 'node:assert/strict';
 const origin='https://crm.thenewads.com.br';
 const response=await fetch(origin+'/?release=20260920');assert.equal(response.status,200);
-for(const header of ['content-security-policy','x-content-type-options','x-frame-options','referrer-policy','permissions-policy'])assert.ok(response.headers.get(header),header);
+for(const header of ['content-security-policy','x-content-type-options','x-frame-options','referrer-policy','permissions-policy','strict-transport-security'])assert.ok(response.headers.get(header),header);
 const html=await response.text();
 const paths=[...html.matchAll(/<script[^>]+src="([^"?]+)[^"]*"/g)].map(m=>m[1]).filter(p=>p.startsWith('/'));
 const hash=s=>createHash('sha256').update(s).digest('hex');
-for(const path of [...paths,'/app.css','/workspace.css']){
+for(const path of [...paths,'/app.css','/workspace.css','/f.js']){
   const r=await fetch(origin+path);assert.equal(r.status,200,path);
   assert.equal(hash(await r.text()),hash(await readFile(new URL('../site/public'+path,import.meta.url),'utf8')),path+' deve coincidir com a versão testada');
 }
@@ -25,6 +25,7 @@ for(const name of ['whatsapp-enviar','whatsapp-modelos','whatsapp-midia','whatsa
 }
 // Chamadas sem autenticação devem ser recusadas antes de qualquer mutação.
 for(const [name,args] of [
+ ['crm_reservar_formulario',{p_formulario:'00000000-0000-0000-0000-000000000000',p_ip_hash:'0'.repeat(64)}],
  ['crm_obter_distribuicao',{p_empresa:'00000000-0000-0000-0000-000000000000'}],
  ['crm_salvar_distribuicao',{p_empresa:'00000000-0000-0000-0000-000000000000',p_modo:'manual',p_participantes:[],p_revisao:0}],
  ['crm_presenca',{p_empresa:'00000000-0000-0000-0000-000000000000',p_sessao:'00000000-0000-0000-0000-000000000000'}],
@@ -43,5 +44,5 @@ try{
  assert.deepEqual(errors,[]);
  await page.screenshot({path:'tests/artifacts/login-publicado.png'});
 }finally{await browser.close();}
-const report={validatedAt:new Date().toISOString(),domain:origin,headers:true,assets:paths.length+2,anonymousBlocked:true,login:true,realMessagesSent:0};
+const report={validatedAt:new Date().toISOString(),domain:origin,headers:true,assets:paths.length+3,anonymousBlocked:true,login:true,realMessagesSent:0};
 await writeFile('tests/artifacts/deploy.json',JSON.stringify(report,null,2));console.log(report);

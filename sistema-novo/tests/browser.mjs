@@ -283,6 +283,19 @@ try{
  await page.getByRole('button',{name:'Atualizar situação',exact:true}).focus();
  assert.notEqual(await page.locator('.pular-conteudo').evaluate(el=>getComputedStyle(el).clipPath),'none');
  await page.evaluate(async()=>{fixture.mfa={error:{message:'offline'}};let blocked=false;try{await precisaSegundaEtapa()}catch{blocked=true}if(!blocked)throw new Error('MFA falhou aberto')});
+ await page.addScriptTag({url:'/f.js'});
+ const widget=await page.evaluate(()=>{
+   const host=document.createElement('div');document.body.append(host);
+   const attack='</style><img src=x onerror="window.widgetCompromised=true"><style>';
+   const config={titulo:attack,sucesso:'Enviado',campos:[],visual:{modo:'manual',cor_botao:attack,cor_texto_botao:attack,raio:attack}};
+   TNACRMForm.render(host,config,{preview:true});
+   const injected=host.shadowRoot.querySelectorAll('img,script,[onerror]').length;
+   TNACRMForm.render(host,{...config,visual:{modo:'manual',cor_botao:'#123456',cor_texto_botao:'#ffffff',raio:12}},{preview:true});
+   const button=host.shadowRoot.querySelector('button');
+   const result={injected,executed:!!window.widgetCompromised,color:getComputedStyle(button).backgroundColor,radius:getComputedStyle(button).borderRadius};
+   host.remove();return result;
+ });
+ assert.deepEqual(widget,{injected:0,executed:false,color:'rgb(18, 52, 86)',radius:'12px'});
  assert.deepEqual(errors,[]);
  console.log('OK: paginação, rascunhos, atualização, busca, filtro Minhas, permissões, MFA, desktop e celular.');
 }finally{await browser.close();server.close();}

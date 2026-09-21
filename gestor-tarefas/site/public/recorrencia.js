@@ -53,6 +53,34 @@ function dataDaSerie(t, base) {
   return base;
 }
 
+// O dia cai na regra da recorrência? Usado para circular os dias no calendário.
+// Sem data ainda, o intervalo "a cada N" conta a partir de hoje.
+function diaDaRecorrencia(t, iso) {
+  if (!t?.recorrencia) return false;
+  const ancora = t.recorrencia_base || t.data_entrega || hojeSP();
+  const n = t.recorrencia_intervalo || 1;
+  const dias = Math.round((comoData(iso) - comoData(ancora)) / 86400000);
+  if (t.recorrencia === "diaria") return dias % n === 0;
+  if (t.recorrencia === "anual") return iso.slice(5) === ancora.slice(5) && (Number(iso.slice(0, 4)) - Number(ancora.slice(0, 4))) % n === 0;
+  if (t.recorrencia === "semanal") {
+    const semanas = Math.round((comoData(somarDias(iso, -diaDaSemana(iso))) - comoData(somarDias(ancora, -diaDaSemana(ancora)))) / 604800000);
+    if (semanas % n !== 0) return false;
+    const quais = t.recorrencia_dias_semana?.length ? t.recorrencia_dias_semana : [diaDaSemana(ancora)];
+    return quais.includes(diaDaSemana(iso));
+  }
+  const [a, m] = iso.split("-").map(Number);
+  const [aa, ma] = ancora.split("-").map(Number);
+  if (((a - aa) * 12 + (m - ma)) % n !== 0) return false;
+  const ultimo = new Date(Date.UTC(a, m, 0)).getUTCDate();
+  const dia = Number(iso.slice(8));
+  if (t.recorrencia_mensal === "dia_mes") return dia === (t.recorrencia_dia_mes === -1 ? ultimo : Math.min(t.recorrencia_dia_mes, ultimo));
+  if (t.recorrencia_mensal === "dia_semana") {
+    if (diaDaSemana(iso) !== t.recorrencia_dia_semana) return false;
+    return t.recorrencia_ordem === -1 ? dia + 7 > ultimo : Math.ceil(dia / 7) === t.recorrencia_ordem;
+  }
+  return dia === Math.min(Number(ancora.slice(8)), ultimo);
+}
+
 function listaNatural(itens) {
   return itens.length <= 1 ? itens.join("") : itens.slice(0, -1).join(", ") + " e " + itens.at(-1);
 }

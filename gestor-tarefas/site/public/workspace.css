@@ -359,3 +359,10 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 .lista-op {padding:4px 0 4px 22px;font-size:13px}
 .lista-op[hidden],.espaco-listas[hidden] {display:none!important}
 .form-listas .caixa-check input {width:15px;height:15px;flex:none}
+
+/* Dias em que a recorrência cai: circulados; o dia escolhido fica pintado (.marcado). */
+.cal .dia.recorre {box-shadow:inset 0 0 0 1.5px var(--ambar);font-weight:600}
+.cal .dia.recorre.hoje {box-shadow:inset 0 0 0 1.5px var(--ambar),inset 0 0 0 3px rgba(239,68,68,.35)}
+.cal .dia.recorre.marcado {box-shadow:none}
+[data-tema=escuro] .cal .dia.recorre {box-shadow:inset 0 0 0 1.5px #9b7be6}
+[data-tema=escuro] .cal .dia.recorre.marcado {box-shadow:none}

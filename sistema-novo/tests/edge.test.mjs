@@ -7,8 +7,8 @@ const ROOT=new URL('../supabase/functions/',import.meta.url);
 const uid='11111111-1111-4111-8111-111111111111',cid='22222222-2222-4222-8222-222222222222',eid='33333333-3333-4333-8333-333333333333',mid='44444444-4444-4444-8444-444444444444';
 function database(){
  const state={user:{id:uid,factors:[]},tables:{conversas:[{id:cid,empresa_id:eid,canal:'whatsapp_oficial',wa_id:'5511999990000',ultima_entrada_em:new Date().toISOString(),leads:{responsavel_id:uid}}],empresas:[{id:eid,ativo:true}],agencia_admins:[],membros:[{empresa_id:eid,user_id:uid,papel:'vendedor'}],integracoes:[{id:'55555555-5555-4555-8555-555555555555',empresa_id:eid,tipo:'whatsapp_oficial',status:'ativa',config:{phone_number_id:'123',waba_id:'456'}}],mensagens:[]},secrets:{token:'fixture',app_secret:'signature-test',url_token:'url-secret',webhook_secret:'signature-test'},rpcError:null};
- state.uploads=[];state.recoveries=[];state.limite=true;
- const admin={storage:{from:()=>({upload:async(path,bytes)=>{state.uploads.push({path,size:bytes.byteLength||bytes.size});return{error:null}},createSignedUrl:async(path)=>({data:{signedUrl:'https://fixture.invalid/'+path}})})},auth:{getUser:async()=>({data:{user:state.user}}),admin:{getUserById:async id=>({data:{user:{id,email:'titular@example.test'}}}),generateLink:async()=>{throw new Error('Recuperação não pode gerar link para o administrador')}},resetPasswordForEmail:async(email,options)=>{state.recoveries.push({email,options});return{error:null}}},rpc:async name=>name==='integracao_ler_segredos'?{data:state.secrets}:name==='crm_limitar_acao'?{data:state.limite,error:state.limitError}:{error:state.rpcError},from:table=>{
+ state.uploads=[];state.recoveries=[];state.limite=true;state.formLimit=true;state.captures=0;
+ const admin={storage:{from:()=>({upload:async(path,bytes)=>{state.uploads.push({path,size:bytes.byteLength||bytes.size});return{error:null}},createSignedUrl:async(path)=>({data:{signedUrl:'https://fixture.invalid/'+path}})})},auth:{getUser:async()=>({data:{user:state.user}}),admin:{getUserById:async id=>({data:{user:{id,email:'titular@example.test'}}}),generateLink:async()=>{throw new Error('Recuperação não pode gerar link para o administrador')}},resetPasswordForEmail:async(email,options)=>{state.recoveries.push({email,options});return{error:null}}},rpc:async name=>name==='integracao_ler_segredos'?{data:state.secrets}:name==='crm_limitar_acao'?{data:state.limite,error:state.limitError}:name==='crm_reservar_formulario'?{data:state.formLimit,error:state.limitError}:name==='receber_lead_site'?(state.captures++,{data:{ok:true},error:state.rpcError}):{error:state.rpcError},from:table=>{
   let filters=[],action='select',payload,one=false,count=false;
   const q={select:(s,o)=>{count=!!o?.count;return q},eq:(k,v)=>{filters.push(r=>r[k]===v);return q},in:(k,v)=>{filters.push(r=>v.includes(r[k]));return q},is:(k,v)=>{filters.push(r=>r[k]===v);return q},gte:(k,v)=>{filters.push(r=>r[k]>=v);return q},lte:(k,v)=>{filters.push(r=>r[k]<=v);return q},limit:()=>q,order:()=>q,
    maybeSingle:()=>{one=true;return q},single:()=>{one=true;return q},insert:v=>{action='insert';payload=v;return q},update:v=>{action='update';payload=v;return q},upsert:v=>{action='insert';payload=v;return q},
@@ -93,6 +93,45 @@ test('recuperação da equipe vai somente ao titular e não revela link de acess
  assert.equal(x.state.recoveries.length,1);
 });
 async function signature(body){const key=await crypto.subtle.importKey('raw',new TextEncoder().encode('signature-test'),{name:'HMAC',hash:'SHA-256'},false,['sign']);return 'sha256='+Buffer.from(await crypto.subtle.sign('HMAC',key,new TextEncoder().encode(body))).toString('hex');}
+
+test('JSON tem limite real, rejeita null/array e encerra leitura lenta',async()=>{
+ const x=await load('whatsapp-enviar');
+ for(const body of [null,[],42])assert.equal((await x.handler(request(body))).status,400);
+ const big=request({texto:'a'.repeat(70000)});assert.equal((await x.handler(big)).status,413);
+ const r=await x.ctx.jsonLimitado(request({texto:'ok'}));assert.equal(r.texto,'ok');
+ const stream=new ReadableStream({start(controller){controller.enqueue(new Uint8Array(80));controller.enqueue(new Uint8Array(80));}});
+ await assert.rejects(x.ctx.textoLimitado(new Request('https://fixture.invalid',{method:'POST',body:stream,duplex:'half'}),100),e=>e.status===413);
+ const slow=new ReadableStream({start(){}});
+ await assert.rejects(x.ctx.textoLimitado(new Request('https://fixture.invalid',{method:'POST',body:slow,duplex:'half'}),100,10),e=>e.status===408);
+});
+test('integrações e recursos WhatsApp têm quota e Retry-After, sem chamar provedor',async()=>{
+ for(const name of ['integracoes','whatsapp-modelos','whatsapp-lida','whatsapp-midia']){
+  const x=await load(name);x.state.tables.membros[0].papel='dono';x.state.limite=false;
+  const res=await x.handler(request({empresa_id:eid,conversa_id:cid,acao:'ver'}));
+  assert.equal(res.status,429,name);assert.equal(res.headers.get('Retry-After'),'60');assert.equal(res.headers.get('Cache-Control'),'no-store');
+  x.state.limitError={code:'offline'};assert.equal((await x.handler(request({empresa_id:eid,conversa_id:cid,acao:'ver'}))).status,503,name);
+ }
+});
+test('formulário reserva antes de capturar, falha fechado e bloqueia redirect ativo',async()=>{
+ const x=await load('form');x.state.tables.formularios=[{id:mid,chave:'fixture',ativo:true,config:{redirect_url:'javascript:alert(1)'}}];
+ const b={k:'fixture',nome:'Pessoa fictícia',telefone:'11999990000',tempo_ms:5000};
+ x.state.formLimit=false;const limited=await x.handler(request(b));assert.equal(limited.status,429);assert.equal(limited.headers.get('Retry-After'),'600');assert.equal(x.state.captures,0);
+ x.state.limitError={code:'offline'};assert.equal((await x.handler(request(b))).status,503);assert.equal(x.state.captures,0);
+ x.state.formLimit=true;x.state.limitError=null;
+ const ok=await x.handler(request(b));assert.equal(ok.status,200);assert.equal((await ok.json()).redirect,'');assert.equal(x.state.captures,1);
+ assert.equal((await x.handler(request(null))).status,400);assert.equal((await x.handler(request({data:'a'.repeat(70000)}))).status,413);
+ assert.equal(x.ctx.redirectSeguro('https://example.test/obrigado'),'https://example.test/obrigado');
+ for(const url of ['data:text/html,test','javascript:alert(1)','https://user:pass@example.test'])assert.equal(x.ctx.redirectSeguro(url),'');
+});
+test('empresa inativa bloqueia equipe e integrações; leitura não envia recibo',async()=>{
+ for(const name of ['equipe','integracoes']){const x=await load(name);x.state.tables.empresas[0].ativo=false;x.state.tables.membros[0].papel='dono';assert.equal((await x.handler(request({empresa_id:eid,acao:'ver'}))).status,403);}
+ const x=await load('whatsapp-lida');x.state.tables.membros[0].papel='leitura';assert.equal((await x.handler(request({conversa_id:cid,mensagem_id:mid}))).status,403);
+});
+test('webhook oficial limita payload e recusa evento nulo mesmo com assinatura válida',async()=>{
+ const x=await load('whatsapp-webhook');
+ assert.equal((await x.handler(new Request('https://fixture.invalid/?i=55555555-5555-4555-8555-555555555555',{method:'POST',body:'x'.repeat(2*1024*1024+1)}))).status,413);
+ const body='null';assert.equal((await x.handler(new Request('https://fixture.invalid/?i=55555555-5555-4555-8555-555555555555',{method:'POST',body,headers:{'X-Hub-Signature-256':await signature(body)}}))).status,400);
+});
 test('webhook oficial retorna 503 em falha persistente e exige assinatura',async()=>{
  const x=await load('whatsapp-webhook');x.state.rpcError={code:'08006',message:'offline'};
  const body=JSON.stringify({entry:[{changes:[{field:'messages',value:{metadata:{phone_number_id:'123'},messages:[{id:'in1',from:'5511999990000',type:'text',text:{body:'Fixture'}}]}}]}]});

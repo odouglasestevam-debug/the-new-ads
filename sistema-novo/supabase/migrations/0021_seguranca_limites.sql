@@ -97,6 +97,7 @@ do $$
 declare definicao text;
 begin
   definicao:=pg_get_functiondef('public.receber_lead_site(text,text,text,text,jsonb,jsonb)'::regprocedure);
+  if position('where chave = p_chave and ativo;' in definicao)=0 then raise exception 'corpo_inesperado: receber_lead_site'; end if;
   definicao:=replace(definicao,'where chave = p_chave and ativo;',
     'where chave = p_chave and ativo and exists(select 1 from public.empresas e where e.id=formularios.empresa_id and e.ativo);');
   execute definicao;
