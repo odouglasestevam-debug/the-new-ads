@@ -125,6 +125,7 @@ document.getElementById("form-login").addEventListener("submit", async (e) => {
 });
 
 async function sair() {
+  pararPresenca();
   pararTempoReal();
   try { for (const key of Object.keys(sessionStorage)) if (key.startsWith(`crm:rascunho:${usuario?.id}:`)) sessionStorage.removeItem(key); } catch {}
   await sb.auth.signOut();
@@ -186,6 +187,8 @@ async function carregarEmpresas(selecionar) {
 }
 
 async function trocarEmpresa(id) {
+  pararPresenca();
+  resetarDistribuicao();
   pararTempoReal();
   empresaAtual = empresas.find((e) => e.id === id);
   papel = empresaAtual.papel;
@@ -210,10 +213,10 @@ async function trocarEmpresa(id) {
   errosMensagens.clear();
   avisosIntegracao = {};
   if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";
-  if (abaAjustes === "integracoes" && !pode.administrar()) abaAjustes = "seguranca";
+  if (["integracoes","distribuicao"].includes(abaAjustes) && !pode.administrar()) abaAjustes = "seguranca";
   try { localStorage.setItem(CHAVE_EMPRESA, id); } catch (err) {}
   document.getElementById("empresa-sel").value = id;
   document.getElementById("papel-atual").textContent = NOME_PAPEL[papel] || "";
   await carregarTudo();
-  if (empresaAtual?.id === id) iniciarTempoReal(id);
+  if (empresaAtual?.id === id) { iniciarTempoReal(id); iniciarPresenca(id); }
 }

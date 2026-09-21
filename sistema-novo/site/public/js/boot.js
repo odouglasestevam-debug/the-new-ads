@@ -1,6 +1,7 @@
 iniciar().catch(() => { const aviso = document.getElementById("aviso-login"); aviso.className = "aviso erro"; aviso.textContent = "Não foi possível verificar sua sessão. Recarregue a página para tentar novamente."; });
 sb.auth.onAuthStateChange?.((event) => {
   if (event === 'SIGNED_OUT' && usuario) {
+    pararPresenca();
     pararTempoReal();
     document.getElementById('app').replaceChildren();
     location.reload();

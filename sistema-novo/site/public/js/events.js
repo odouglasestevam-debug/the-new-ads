@@ -57,6 +57,7 @@ function ligarEventos() {
   ligarFormularios();
   ligarConversas();
   ligarIntegracoes();
+  ligarDistribuicao();
 
   ligarArrasto();
 

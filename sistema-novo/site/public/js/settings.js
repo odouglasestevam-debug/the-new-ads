@@ -58,6 +58,8 @@ function paineisConfig() {
       </div>`,
 
     integracoes: () => painelIntegracoes(),
+    distribuicao: () => painelDistribuicao(),
+    disponibilidade: () => painelDisponibilidade(),
 
     empresas: () => `
       <div class="bloco">
@@ -91,7 +93,8 @@ function paineisConfig() {
 function vistaConfig() {
   const painel = paineisConfig();
   const ABAS = [["seguranca", "Segurança"], ["equipe", "Equipe"],
-    ...(pode.administrar() ? [["integracoes", "Integrações"]] : []),
+    ["disponibilidade", "Disponibilidade"],
+    ...(pode.administrar() ? [["distribuicao", "Distribuição"], ["integracoes", "Integrações"]] : []),
     ...(ehAgencia ? [["empresas", "Empresas"]] : []), ["dados", "Dados"]];
   return `
     <div class="topo"><div><h1>Ajustes</h1><div class="desc">Conta, equipe e manutenção.</div></div></div>

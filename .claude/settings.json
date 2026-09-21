@@ -118,6 +118,7 @@
       "mcp__supabase-app__list_tables",
       "mcp__supabase-app__list_migrations",
       "mcp__supabase-app__execute_sql",
+      "mcp__supabase-app__apply_migration",
       "Bash(timeout 60 rg -il --no-ignore -g '*.md' -g '*.txt' -g '!node_modules' \"fase 0|fase zero|sistema novo|xrvjlhseyqfgyvwwlwwb\" .)"
     ],
     "additionalDirectories": [

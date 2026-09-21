@@ -18,7 +18,8 @@ function formularioLead(lead) {
       <div class="campo"><label for="fl-email">E-mail</label><input type="email" id="fl-email" value="${escapar(lead?.email || "")}" autocomplete="off"></div>
       ${pode.distribuir() ? `
       <div class="campo"><label for="fl-resp">Responsável</label>
-        <select id="fl-resp"><option value="">sem responsável</option>${opcoesResponsavel}</select></div>` : ""}
+        <select id="fl-resp"><option value="">${novo?'Usar distribuição da empresa':'sem responsável'}</option>${opcoesResponsavel}</select>
+        ${novo?'<p class="ajuda">Se a automação estiver desligada, fica sem responsável.</p>':''}</div>` : ""}
       <div class="aviso" id="fl-aviso"></div>
       <div class="acoes-modal">
         <button class="btn btn-fantasma" type="button" id="fl-cancelar">Cancelar</button>
