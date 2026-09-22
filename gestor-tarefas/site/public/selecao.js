@@ -135,8 +135,12 @@ async function aplicarLote(patch, mensagem) {
   const ids = idsSelecionados();
   if (!ids.length || loteOcupado) return;
   loteOcupado = true;
-  const { error } = await db().from("tarefas").update(patch).in("id", ids);
-  loteOcupado = false;
+  let error;
+  try {
+    ({ error } = await db().from("tarefas").update(patch).in("id", ids));
+  } finally {
+    loteOcupado = false;
+  }
   if (error) return toast(erroBanco(error, "Não deu pra salvar em lote"), true);
   if (patch.lista_id) await db().from("tarefas").update({ lista_id: patch.lista_id }).in("tarefa_pai_id", ids);
   await recarregarERender();

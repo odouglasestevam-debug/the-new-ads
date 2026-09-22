@@ -99,7 +99,7 @@ async function duplicarTarefas(ids) {
   const comSubs = !!r.subs, comResp = r.resp !== false, nome = uma ? (r.nome || "").trim() || topo[0].titulo : null;
   duplicando = true;
   toast(`Duplicando em ${r.listas.length} ${r.listas.length === 1 ? "lista" : "listas"}…`);
-  let copias = 0, falhas = 0;
+  let copias = 0, falhas = 0, motivo = "";
   const avisos = new Set();
   const copiarResp = async (pares) => {
     const linhas = comResp ? pares.flatMap(([de, para]) => de.responsaveis.map((user_id) => ({ tarefa_id: para, user_id }))) : [];
@@ -107,26 +107,44 @@ async function duplicarTarefas(ids) {
     const { error } = await db().from("tarefa_responsaveis").insert(linhas);
     if (error) avisos.add("responsáveis");
   };
-  for (const lista of r.listas) {
-    const linhas = topo.map((t) => copiaDaTarefa(t, { lista_id: lista, tarefa_pai_id: null, ...(nome ? { titulo: nome } : {}) }));
-    const { data: novas, error } = await db().from("tarefas").insert(linhas).select("id");
-    if (error || !novas || novas.length !== topo.length) { falhas++; continue; }
-    copias += novas.length;
-    await copiarResp(topo.map((t, i) => [t, novas[i].id]));
-    if (!comSubs) continue;
-    for (let i = 0; i < topo.length; i++) {
-      const subs = subsDe(topo[i]);
-      if (!subs.length) continue;
-      const { data: ns, error: e } = await db().from("tarefas")
-        .insert(subs.map((s) => copiaDaTarefa(s, { lista_id: lista, tarefa_pai_id: novas[i].id }))).select("id");
-      if (e || !ns) { avisos.add("subtarefas"); continue; }
-      await copiarResp(subs.map((s, j) => [s, ns[j].id]));
+  // O finally é obrigatório: sem ele, um erro no meio deixaria a trava ligada e os próximos cliques não fariam nada.
+  try {
+    for (const lista of r.listas) {
+      const linhas = topo.map((t) => copiaDaTarefa(t, { lista_id: lista, tarefa_pai_id: null, ...(nome ? { titulo: nome } : {}) }));
+      const { data: novas, error } = await db().from("tarefas").insert(linhas).select("id");
+      if (error || !novas || novas.length !== topo.length) {
+        falhas++;
+        motivo = motivo || (error ? (error.message || error.code || "o banco recusou") : `o banco devolveu ${novas ? novas.length : 0} de ${topo.length} cópias`);
+        console.error("duplicar: falhou em", caminhoLista(lista).join(" › "), error);
+        continue;
+      }
+      copias += novas.length;
+      await copiarResp(topo.map((t, i) => [t, novas[i].id]));
+      if (!comSubs) continue;
+      for (let i = 0; i < topo.length; i++) {
+        const subs = subsDe(topo[i]);
+        if (!subs.length) continue;
+        const { data: ns, error: e } = await db().from("tarefas")
+          .insert(subs.map((s) => copiaDaTarefa(s, { lista_id: lista, tarefa_pai_id: novas[i].id }))).select("id");
+        if (e || !ns) { avisos.add("subtarefas"); console.error("duplicar: subtarefas", e); continue; }
+        await copiarResp(subs.map((s, j) => [s, ns[j].id]));
+      }
     }
+  } catch (e) {
+    falhas = r.listas.length - Math.min(falhas, r.listas.length);
+    motivo = motivo || String(e?.message || e);
+    console.error("duplicar:", e);
+  } finally {
+    duplicando = false;
   }
-  duplicando = false;
   await recarregarERender();
-  const base = `${copias} ${copias === 1 ? "cópia criada" : "cópias criadas"} em ${r.listas.length - falhas} ${r.listas.length - falhas === 1 ? "lista" : "listas"}`;
-  const problemas = [falhas ? `${falhas} ${falhas === 1 ? "lista falhou" : "listas falharam"}` : "", avisos.size ? `sem copiar ${[...avisos].join(" e ")}` : ""].filter(Boolean);
+  const ok = r.listas.length - falhas;
+  // Com um destino só, o aviso diz o caminho, para dar pra conferir onde a cópia caiu.
+  const onde = ok === 1 && r.listas.length === 1 ? caminhoLista(r.listas[0]).join(" › ") : `${ok} ${ok === 1 ? "lista" : "listas"}`;
+  const base = `${copias} ${copias === 1 ? "cópia criada" : "cópias criadas"} em ${onde}`;
+  const problemas = [falhas ? `${falhas} ${falhas === 1 ? "lista falhou" : "listas falharam"}${motivo ? ` (${motivo})` : ""}` : "",
+    avisos.size ? `sem copiar ${[...avisos].join(" e ")}` : ""].filter(Boolean);
+  if (!copias && falhas) return toast(`Não deu pra duplicar${motivo ? ": " + motivo : "."}`, true);
   toast(problemas.length ? `${base}, mas ${problemas.join("; ")}.` : `${base}.`, problemas.length > 0);
 }
 

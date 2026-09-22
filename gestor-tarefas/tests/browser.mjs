@@ -27,7 +27,7 @@ try {
   const errors = [];
   page.on('pageerror', e => errors.push(e.message));
   await page.route('**/vendor/supabase.js', route => route.fulfill({contentType:'text/javascript',body:`
-    window.fixture={writes:[], tables:{}, failResponsaveis:false};
+    window.fixture={writes:[], tables:{}, failResponsaveis:false, failTarefas:false};
     window.supabase={createClient:()=>({
       auth:{getSession:async()=>({data:{session:fixture.session||null}}),onAuthStateChange:fn=>{window.authEvent=fn},mfa:{getAuthenticatorAssuranceLevel:async()=>({error:{message:'offline'}})}},
       rpc:async(name,args)=>{
@@ -54,6 +54,7 @@ try {
             let found=rows.filter(casa);
             if(action!=='select')fixture.writes.push({table,action,payload});
             if(table==='tarefas_responsaveis'&&fixture.failResponsaveis)return resolve({error:{message:'Falha simulada'}});
+            if(table==='tarefas_tarefas'&&action==='insert'&&fixture.failTarefas)return resolve({data:null,error:{message:'lista bloqueada (simulado)'}});
             if(action==='insert'){
               const itens=(Array.isArray(payload)?payload:[payload]).map((p,i)=>({id:'new-'+fixture.writes.length+'-'+i,...p}));
               rows.push(...itens);found=itens;
@@ -383,6 +384,24 @@ try {
     return {dias:[...new Set(dias)].sort(),n:dias.length,pintado,mensal};});
   assert.deepEqual(rec.dias,[1,3,5],'só seg, qua e sex circulados');
   assert.ok(rec.n>0&&rec.pintado&&rec.mensal,'dia escolhido pintado e regras mensais');
+  // Falha do banco: o aviso mostra o motivo e a trava é liberada, senão os cliques seguintes morriam calados.
+  await page.evaluate(()=>{fixture.failTarefas=true;});
+  await page.locator('.lote-btn',{hasText:'Mais'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Duplicar para'}).click();
+  await page.locator('[data-lista]').first().check();
+  await page.locator('#btn-listas').click();
+  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('Não deu pra duplicar'),null);
+  assert.match(await page.locator('#toast').innerText(),/lista bloqueada \(simulado\)/,'o motivo do banco aparece');
+  await page.evaluate(()=>{fixture.failTarefas=false;document.getElementById('toast').className='toast';});
+  // Mesmo depois do erro, duplicar volta a funcionar (trava liberada) e o aviso diz o caminho do destino.
+  await page.locator('.lote-btn',{hasText:'Mais'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Duplicar para'}).click();
+  await page.locator('[data-lista]').first().check();
+  const destino=await page.evaluate(()=>caminhoLista(document.querySelector('[data-lista]').dataset.lista).join(' › '));
+  await page.locator('#btn-listas').click();
+  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('criada'),null);
+  assert.ok((await page.locator('#toast').innerText()).includes(destino),'o aviso diz onde a cópia caiu');
+  await page.evaluate(()=>{document.getElementById('toast').className='toast';});
   const paraExcluir=await page.evaluate(()=>idsSelecionados().length);
   const totalAntes=await page.evaluate(()=>S.tarefas.length);
   await page.locator('.lote-btn',{hasText:'Mais'}).click();
