@@ -369,3 +369,12 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 
 /* Lançamento em pasta/espaço: enquanto a lista não for escolhida, o botão pede atenção. */
 .add-btn.precisa {border:1px dashed var(--ambar);color:var(--ambar)}
+
+/* Índice de espaço e pasta: só o que mora dentro, sem tarefa nenhuma. */
+.indice-local {display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:8px;padding:14px 0}
+.cartao-local {display:flex;align-items:center;gap:9px;width:100%;padding:12px 13px;background:var(--grafite);border:1px solid var(--linha);
+  border-radius:10px;color:var(--branco);font-size:14px;text-align:left;cursor:pointer}
+.cartao-local:hover {border-color:var(--ambar)}
+.cartao-local .nome {flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.cartao-local .dentro {font-size:11.5px;color:var(--nevoa);white-space:nowrap}
+.cartao-local svg {width:16px;height:16px;flex:none;color:var(--nevoa)}

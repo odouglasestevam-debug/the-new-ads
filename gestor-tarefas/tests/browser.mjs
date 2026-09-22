@@ -413,23 +413,34 @@ try {
   assert.equal(await page.evaluate(()=>S.tarefas.length),totalAntes-paraExcluir);
   assert.equal(await page.locator('#barra-lote').isVisible(),false,'a barra some quando a seleção esvazia');
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
-  // Tarefa mora em lista: na pasta com mais de uma lista, o lançamento exige escolher onde ela vai.
+  // Tarefa mora em lista: pasta e espaço não mostram tarefa nenhuma, só o que têm dentro.
   await page.evaluate(()=>{limparSelecao();location.hash='#/pasta/pa1';});
   await page.waitForFunction(()=>rotaAtual().tipo==='pasta');
+  await page.waitForSelector('.indice-local');
+  assert.equal(await page.locator('.linha, .cu-linha').count(),0,'pasta não lista tarefa');
+  assert.equal(await page.locator('.linha-add').count(),0,'pasta não deixa lançar tarefa');
+  assert.equal(await page.locator('#barra-lote').isVisible(),false);
+  const dentroDaPasta=await page.locator('.cartao-local .nome').allInnerTexts();
+  for(const nome of ['Gestão de Tráfego','Contrato'])assert.ok(dentroDaPasta.includes(nome),'pasta mostra a lista '+nome);
+  await page.evaluate(()=>{location.hash='#/projeto/p1';});
+  await page.waitForFunction(()=>rotaAtual().tipo==='projeto');
+  assert.equal(await page.locator('.linha, .cu-linha').count(),0,'espaço não lista tarefa');
+  assert.ok(await page.locator('.cartao-local').count()>=3,'espaço mostra pastas e listas');
+  // Na árvore, contador só na lista.
+  assert.equal(await page.locator('.no.pasta .qtd').count(),0,'pasta não tem contador');
+  assert.equal(await page.locator('.no.projeto .qtd').count(),0,'espaço não tem contador');
+  assert.ok(await page.locator('.no.lista .qtd').count()>0,'lista tem contador');
+  // Abrindo a lista, aparece tudo como antes e o lançamento já sabe a lista.
+  await page.evaluate(()=>{location.hash='#/pasta/pa1';});
+  await page.waitForFunction(()=>rotaAtual().tipo==='pasta');
+  await page.locator('.cartao-local',{hasText:'Gestão de Tráfego'}).click();
+  await page.waitForFunction(()=>rotaAtual().tipo==='lista');
   await page.locator('.linha-add',{hasText:'Adicionar tarefa'}).first().click();
-  assert.equal(await page.locator('#add-lista span').innerText(),'Escolher lista','na pasta, nenhuma lista vem escolhida');
-  assert.equal(await page.evaluate(()=>S.add.lista_id),null);
-  await page.evaluate(()=>{fecharMenu();});
-  await page.locator('#add-titulo').fill('Tarefa sem lista escolhida');
-  const antesPasta=await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length);
-  await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
-  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('Escolha a lista'),null);
-  assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length),antesPasta,'sem lista, nada é criado');
-  await page.locator('#menu-flutuante button',{hasText:'Gestão de Tráfego'}).click();
-  assert.equal(await page.evaluate(()=>S.add.lista_id),'l7');
+  assert.equal(await page.evaluate(()=>S.add.lista_id),'l7','dentro da lista o destino é ela mesma');
+  await page.locator('#add-titulo').fill('Tarefa criada dentro da lista');
   await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
   await page.waitForFunction(()=>!criandoTarefa);
-  assert.equal(await page.evaluate(a=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').at(-1).payload.lista_id,antesPasta),'l7','a tarefa cai na lista escolhida');
+  assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').at(-1).payload.lista_id),'l7');
   await page.evaluate(()=>{cancelarAdicionar();document.getElementById('toast').className='toast';location.hash='#/central';});
   await page.waitForFunction(()=>rotaAtual().tipo==='central');
   await page.evaluate(()=>authEvent('SIGNED_OUT'));

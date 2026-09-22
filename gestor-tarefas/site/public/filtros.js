@@ -45,23 +45,25 @@ function filtrar(f, escopo, { ignorarPrazo } = {}) {
 
 function renderVisao(r) {
   const main = document.getElementById('conteudo');
-  let f = filtroDaRota(r), titulo, caminho = '', escopo = null, acoes = '';
+  let f = filtroDaRota(r), titulo, caminho = '', escopo = null, acoes = '', obj = () => null;
   if (r.tipo === 'central') titulo = 'Central';
   else if (r.tipo === 'minhas') titulo = 'Minhas tarefas';
   else if (TABELA[r.tipo]) {
-    const obj = objeto(r.tipo,r.id);
-    if (!obj) { main.innerHTML = '<div class="vazio"><h3>Não encontrado</h3>Este local foi excluído ou não está disponível para você.</div>'; return; }
+    const alvo = objeto(r.tipo,r.id); obj = () => alvo;
+    if (!alvo) { main.innerHTML = '<div class="vazio"><h3>Não encontrado</h3>Este local foi excluído ou não está disponível para você.</div>'; return; }
     if (f._escopo !== `${r.tipo}:${r.id}`) {
       filtros.local = novoFiltro({agrupar:f.agrupar,visao:f.visao,ordenar:f.ordenar,_escopo:`${r.tipo}:${r.id}`});
       f = filtros.local;
     }
-    titulo = obj.nome; escopo = listasDoLocal(`${r.tipo}:${r.id}`); expandirAte(r.tipo,r.id);
+    titulo = alvo.nome; escopo = listasDoLocal(`${r.tipo}:${r.id}`); expandirAte(r.tipo,r.id);
     if (r.tipo === 'lista') caminho = caminhoLista(r.id).slice(0,-1).join(' › ');
-    if (r.tipo === 'pasta') caminho = [S.projetos.find(p=>p.id===obj.projeto_id)?.nome,...caminhoPasta(r.id).slice(0,-1)].filter(Boolean).join(' › ');
+    if (r.tipo === 'pasta') caminho = [S.projetos.find(p=>p.id===alvo.projeto_id)?.nome,...caminhoPasta(r.id).slice(0,-1)].filter(Boolean).join(' › ');
     if (podeGerenciarEstrutura()) acoes = `<button class="icone-btn mini" data-menu onclick="menuDe('${r.tipo}','${r.id}',this)" aria-label="Opções do local">${ICONES.mais}</button>`;
   } else { irPara('#/central'); return; }
   document.getElementById('barra-titulo').textContent = titulo;
   document.title = `${titulo} | Tarefas`;
+  // Tarefa mora em lista. Espaço e pasta só mostram o que têm dentro, nunca tarefas.
+  if (r.tipo === 'projeto' || r.tipo === 'pasta') { renderIndiceLocal(main, r, obj(), titulo, caminho, acoes); return; }
   const semLista = !opcoesListas(escopo).length;
   main.innerHTML = `<header class="cabecalho-tarefas">
     <div class="titulo-compacto">${caminho ? `<span class="caminho-compacto" title="${esc(caminho)}">${esc(caminho)} <span aria-hidden="true">›</span></span>` : ''}<h1>${esc(titulo)}</h1>${acoes}</div>
@@ -174,4 +176,32 @@ function mudarFiltroPainel(campo,valor,multiplo=false) {
     const details=menu.querySelector(`[data-multi="${campo}"]`);if(details)details.open=true;
     [...menu.querySelectorAll('[data-multiplo]')].find(el=>el.dataset.multiplo===campo&&el.value===valor)?.focus();
   }else menu.querySelector(`[data-valor="${campo}"]`)?.focus();
+}
+
+// Índice de um espaço ou pasta: só o que mora dentro dele. Tarefa aparece somente ao abrir a lista.
+function renderIndiceLocal(main, r, alvo, titulo, caminho, acoes) {
+  const projetoId = r.tipo === 'projeto' ? r.id : alvo.projeto_id;
+  const pastaId = r.tipo === 'pasta' ? r.id : null;
+  const pastas = pastasFilhas(projetoId, pastaId);
+  const listas = listasEm(projetoId, pastaId);
+  const cartao = (tipo, o, icone, extra) => `<button class="cartao-local" onclick="irPara('#/${tipo}/${o.id}')">
+    ${icone}<span class="nome">${esc(o.nome)}</span>${extra}</button>`;
+  const contaLista = (id) => {
+    const c = contagemAbertas(new Set([id]));
+    return `<span class="qtd${c.atrasadas ? ' alerta' : ''}"${c.atrasadas ? ` title="${c.atrasadas} em atraso"` : ''}>${c.abertas || ''}</span>`;
+  };
+  const dentro = [
+    ...pastas.map(p => cartao('pasta', p, ICONES.pasta, `<span class="dentro">${rotuloDentro(projetoId, p.id)}</span>`)),
+    ...listas.map(l => cartao('lista', l, ICONES.lista, contaLista(l.id))),
+  ].join('');
+  main.innerHTML = `<header class="cabecalho-tarefas">
+    <div class="titulo-compacto">${caminho ? `<span class="caminho-compacto" title="${esc(caminho)}">${esc(caminho)} <span aria-hidden="true">›</span></span>` : ''}<h1>${esc(titulo)}</h1>${acoes}</div>
+  </header>
+  ${dentro ? `<div class="indice-local">${dentro}</div>` : vazioSemLista(r)}`;
+}
+
+function rotuloDentro(projetoId, pastaId) {
+  const n = listasEm(projetoId, pastaId).length, sub = pastasFilhas(projetoId, pastaId).length;
+  const partes = [n ? `${n} ${n === 1 ? 'lista' : 'listas'}` : '', sub ? `${sub} ${sub === 1 ? 'pasta' : 'pastas'}` : ''].filter(Boolean);
+  return partes.join(' · ') || 'vazia';
 }

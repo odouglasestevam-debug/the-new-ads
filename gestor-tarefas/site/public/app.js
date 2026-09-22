@@ -521,7 +521,7 @@ function renderArvore() {
     const aberto = expandidos.has(chave);
     return `<div class="no ${tipo}${chave === ativo ? " ativo" : ""}" style="padding-left:${6 + nivel * 14}px" onclick="irPara('#/${tipo}/${obj.id}')">
       ${tipo === "lista" ? '<span class="seta vazia"></span>' : `<button class="seta${aberto ? " aberta" : ""}${temFilhos ? "" : " vazia"}" onclick="event.stopPropagation();alternar('${chave}')" aria-label="${aberto ? "Recolher" : "Expandir"}">${ICONES.seta}</button>`}
-      ${conteudoIcone}<span class="nome">${esc(obj.nome)}</span>${qtd(listasDoLocal(chave))}
+      ${conteudoIcone}<span class="nome">${esc(obj.nome)}</span>${tipo === "lista" ? qtd(listasDoLocal(chave)) : ""}
       ${S.eu.admin ? `<button class="icone-btn mini mais" data-menu onclick="event.stopPropagation();menuDe('${tipo}','${obj.id}',this)" aria-label="Opções">${ICONES.mais}</button>` : ''}
     </div>`;
   };
@@ -898,9 +898,7 @@ function emDias(n) {
 // a tela tem uma só (página da lista). Com várias, quem escolhe é o usuário.
 function listaPadraoAdd(escopo) {
   const opcoes = opcoesListas(escopo);
-  if (opcoes.length === 1) return opcoes[0].v;
-  const ultima = lerLocal("tf_ultima_lista", "");
-  return opcoes.find((o) => o.v === ultima) && opcoes.length === 1 ? ultima : null;
+  return opcoes.length === 1 ? opcoes[0].v : null;
 }
 
 function linhaAdicionar(g, escopo) {
