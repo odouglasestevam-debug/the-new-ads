@@ -34,3 +34,11 @@ O token atual da agência está com **explorer access**, que bloqueia `KeywordPl
 
 - Não prometer pesquisa de volume de busca antes de checar. Como alternativa, usar os dados reais da própria conta: `search_term_view` com filtro `LIKE '%termo%'` dá volume, CPC real e conversões do que a conta já captura, que costuma ser mais confiável que a estimativa do Planner.
 - Para liberar, é preciso solicitar basic access no API Center do MCC.
+
+## Refresh token: expiração e "Scope has changed"
+
+**Incidente (2026-09-22):** o refresh token gerado em 03/09 expirou por volta de 10/09 (`invalid_grant: Token has been expired or revoked`). O app OAuth estava em modo Teste quando o token foi emitido, e token emitido em modo Teste morre em 7 dias mesmo que o app seja publicado depois. Com o app em produção, o token não tem prazo: só cai com troca de senha, revogação manual ou 6 meses sem uso.
+
+- O mesmo OAuth client (`700074366695-...`) autoriza também o Google Calendar (`ferramentas/agendamento-calendar/`). Com `include_granted_scopes=true`, o Google devolve `adwords` + `calendar` juntos e o oauthlib aborta com `Warning: Scope has changed`. Por isso `setup.py` define `OAUTHLIB_RELAX_TOKEN_SCOPE=1`, igual ao `oauth_calendar.py`. Não remover.
+- Pra diagnosticar token morto sem adivinhar: testar o refresh do token do Calendar (mesmo client e conta). Se ele funciona e o do Ads não, o client e a conta estão saudáveis e o problema é só a data de emissão do token do Ads.
+- O `setup.py oauth` precisa rodar no PowerShell de dentro da pasta do projeto, não com `!` (isso só funciona no chat do Claude Code).
