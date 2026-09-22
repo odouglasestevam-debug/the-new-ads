@@ -528,19 +528,23 @@ function renderArvore() {
   const no = (tipo, obj, nivel, temFilhos, conteudoIcone) => {
     const chave = `${tipo}:${obj.id}`;
     const aberto = expandidos.has(chave);
-    return `<div class="no ${tipo}${chave === ativo ? " ativo" : ""}" style="padding-left:${6 + nivel * 14}px" onclick="irPara('#/${tipo}/${obj.id}')">
+    const caminho = tipo === "lista" ? caminhoLista(obj.id).join(" › ")
+      : tipo === "pasta" ? [S.projetos.find((x) => x.id === obj.projeto_id)?.nome, ...caminhoPasta(obj.id)].filter(Boolean).join(" › ") : obj.nome;
+    return `<div class="no ${tipo}${chave === ativo ? " ativo" : ""}${nivel ? " com-guia" : ""}" title="${esc(caminho)}"
+      style="padding-left:${6 + nivel * 14}px;--guia:${6 + (nivel - 1) * 14 + 9}px" onclick="irPara('#/${tipo}/${obj.id}')">
       ${tipo === "lista" ? '<span class="seta vazia"></span>' : `<button class="seta${aberto ? " aberta" : ""}${temFilhos ? "" : " vazia"}" onclick="event.stopPropagation();alternar('${chave}')" aria-label="${aberto ? "Recolher" : "Expandir"}">${ICONES.seta}</button>`}
       ${conteudoIcone}<span class="nome">${esc(obj.nome)}</span>${tipo === "lista" ? qtd(listasDoLocal(chave)) : ""}
       ${S.eu.admin ? `<button class="icone-btn mini mais" data-menu onclick="event.stopPropagation();menuDe('${tipo}','${obj.id}',this)" aria-label="Opções">${ICONES.mais}</button>` : ''}
     </div>`;
   };
   const desenharConteudo = (projetoId, pastaId, nivel) => {
+    // Listas primeiro: uma lista logo abaixo de uma pasta fechada não pode parecer de dentro dela.
+    for (const l of listasEm(projetoId, pastaId)) html.push(no("lista", l, nivel, false, ICONES.lista));
     for (const p of pastasFilhas(projetoId, pastaId)) {
       const temFilhos = pastasFilhas(projetoId, p.id).length || listasEm(projetoId, p.id).length;
       html.push(no("pasta", p, nivel, temFilhos, ICONES.pasta));
       if (expandidos.has("pasta:" + p.id)) desenharConteudo(projetoId, p.id, nivel + 1);
     }
-    for (const l of listasEm(projetoId, pastaId)) html.push(no("lista", l, nivel, false, ICONES.lista));
   };
   for (const p of S.projetos) {
     const temFilhos = S.pastas.some((x) => x.projeto_id === p.id) || S.listas.some((x) => x.projeto_id === p.id);

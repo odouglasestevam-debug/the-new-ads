@@ -383,3 +383,8 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 .toast-acao {background:transparent;border:1px solid currentColor;border-radius:7px;color:inherit;
   font:inherit;font-weight:600;padding:2px 9px;margin-left:6px;cursor:pointer}
 .toast-acao:hover {background:rgba(255,255,255,.12)}
+
+/* Linha-guia da árvore: mostra de qual pasta cada item desce. */
+.arvore .no {position:relative}
+.arvore .no.com-guia::before {content:"";position:absolute;left:var(--guia);top:0;bottom:0;border-left:1px solid var(--linha)}
+.arvore .no.com-guia:hover::before,.arvore .no.com-guia.ativo::before {border-color:var(--nevoa)}
