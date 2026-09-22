@@ -102,12 +102,14 @@ try {
     S.user={id:'u1'};S.eu={user_id:'u1',nome:'Douglas',email:'demo@example.test',admin:true,ativo:true};
     S.usuarios=[S.eu,{user_id:'u2',nome:'Lucas',ativo:true},{user_id:'u3',nome:'Rafael',ativo:true}];
     S.projetos=[{id:'p1',nome:'Demandas da agência',cor:'#6941c6'},{id:'p2',nome:'Operação interna',cor:'#245eaf'}];
-    S.listas=[{id:'l1',projeto_id:'p1',pasta_id:null,nome:'Campanhas'},{id:'l2',projeto_id:'p1',pasta_id:null,nome:'Criação'},{id:'l3',projeto_id:'p2',pasta_id:null,nome:'Planejamento'}];
+    S.pastas=[{id:'pa1',projeto_id:'p1',pasta_mae_id:null,nome:'Cliente fictício'}];
+    S.listas=[{id:'l1',projeto_id:'p1',pasta_id:null,nome:'Campanhas'},{id:'l2',projeto_id:'p1',pasta_id:null,nome:'Criação'},{id:'l3',projeto_id:'p2',pasta_id:null,nome:'Planejamento'},
+      {id:'l7',projeto_id:'p1',pasta_id:'pa1',nome:'Gestão de Tráfego'},{id:'l8',projeto_id:'p1',pasta_id:'pa1',nome:'Contrato'}];
     S.status=[{id:'s1',nome:'A fazer',tipo:'aberto',cor:'#616675',ordem:1},{id:'s2',nome:'Em andamento',tipo:'aberto',cor:'#245eaf',ordem:2},{id:'s3',nome:'Em revisão',tipo:'aberto',cor:'#895a09',ordem:3},{id:'s4',nome:'Concluído',tipo:'concluido',cor:'#187549',ordem:4}];
     const nomes=['Revisar campanha de captação','Ajustar criativos da próxima semana','Conferir eventos de conversão','Preparar relatório de resultados','Revisar briefing da landing page','Organizar demandas da semana','Enviar material para aprovação','Conferir orçamento das campanhas'];
     S.tarefas=nomes.map((titulo,i)=>({id:'t'+i,titulo,descricao:'Dados fictícios para teste local.',lista_id:i===5?'l3':'l1',projeto_id:i===5?'p2':'p1',projeto_cor:'#6941c6',status_id:S.status[i%3].id,status_nome:S.status[i%3].nome,status_cor:S.status[i%3].cor,status_tipo:'aberto',status_ordem:i%3,prioridade:['alta','normal','urgente','baixa'][i%4],data_entrega:i===5?null:hojeSP(),situacao:i<2?'atrasada':i===5?'sem_data':'vence_hoje',dias_atraso:i<2?2:0,dias_para_vencer:0,criado_em:'2026-09-17T12:00:00Z',responsaveis:[i%2?'u2':'u1'],recorrencia:null,tarefa_pai_id:null}));
     S.tarefas.filter(t=>t.situacao==='atrasada').forEach(t=>{t.data_entrega=emDias(-2);t.dias_para_vencer=-2;});
-    fixture.tables={tarefas_usuarios:S.usuarios,tarefas_projetos:S.projetos,tarefas_pastas:[],tarefas_listas:S.listas,tarefas_status:S.status,tarefas_tarefas:S.tarefas.map(t=>({...t})),tarefas_visao:S.tarefas,tarefas_comentarios:[],tarefas_responsaveis:[]};
+    fixture.tables={tarefas_usuarios:S.usuarios,tarefas_projetos:S.projetos,tarefas_pastas:S.pastas,tarefas_listas:S.listas,tarefas_status:S.status,tarefas_tarefas:S.tarefas.map(t=>({...t})),tarefas_visao:S.tarefas,tarefas_comentarios:[],tarefas_responsaveis:[]};
     fixture.template={...S.tarefas[0]};
     expandidos.add('projeto:p1');expandidos.add('projeto:p2');
     document.getElementById('tela-login').style.display='none';
@@ -411,6 +413,25 @@ try {
   assert.equal(await page.evaluate(()=>S.tarefas.length),totalAntes-paraExcluir);
   assert.equal(await page.locator('#barra-lote').isVisible(),false,'a barra some quando a seleção esvazia');
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
+  // Tarefa mora em lista: na pasta com mais de uma lista, o lançamento exige escolher onde ela vai.
+  await page.evaluate(()=>{limparSelecao();location.hash='#/pasta/pa1';});
+  await page.waitForFunction(()=>rotaAtual().tipo==='pasta');
+  await page.locator('.linha-add',{hasText:'Adicionar tarefa'}).first().click();
+  assert.equal(await page.locator('#add-lista span').innerText(),'Escolher lista','na pasta, nenhuma lista vem escolhida');
+  assert.equal(await page.evaluate(()=>S.add.lista_id),null);
+  await page.evaluate(()=>{fecharMenu();});
+  await page.locator('#add-titulo').fill('Tarefa sem lista escolhida');
+  const antesPasta=await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length);
+  await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
+  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('Escolha a lista'),null);
+  assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length),antesPasta,'sem lista, nada é criado');
+  await page.locator('#menu-flutuante button',{hasText:'Gestão de Tráfego'}).click();
+  assert.equal(await page.evaluate(()=>S.add.lista_id),'l7');
+  await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
+  await page.waitForFunction(()=>!criandoTarefa);
+  assert.equal(await page.evaluate(a=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').at(-1).payload.lista_id,antesPasta),'l7','a tarefa cai na lista escolhida');
+  await page.evaluate(()=>{cancelarAdicionar();document.getElementById('toast').className='toast';location.hash='#/central';});
+  await page.waitForFunction(()=>rotaAtual().tipo==='central');
   await page.evaluate(()=>authEvent('SIGNED_OUT'));
   assert.equal(await page.locator('#conteudo').innerText(),'');
   assert.equal(await page.locator('#form-login').isVisible(),true);

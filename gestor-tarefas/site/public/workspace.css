@@ -366,3 +366,6 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 .cal .dia.recorre.marcado {box-shadow:none}
 [data-tema=escuro] .cal .dia.recorre {box-shadow:inset 0 0 0 1.5px #9b7be6}
 [data-tema=escuro] .cal .dia.recorre.marcado {box-shadow:none}
+
+/* Lançamento em pasta/espaço: enquanto a lista não for escolhida, o botão pede atenção. */
+.add-btn.precisa {border:1px dashed var(--ambar);color:var(--ambar)}

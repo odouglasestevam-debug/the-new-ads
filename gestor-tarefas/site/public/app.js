@@ -894,10 +894,13 @@ function emDias(n) {
 
 /* Lançar tarefa em linha, como no ClickUp: a linha fica sempre no fim do grupo,
    o clique abre o campo com o cursor piscando e os ícones de data, responsável e prioridade. */
+// Tarefa mora em lista, nunca em pasta nem em espaço: só dá para adivinhar a lista quando
+// a tela tem uma só (página da lista). Com várias, quem escolhe é o usuário.
 function listaPadraoAdd(escopo) {
   const opcoes = opcoesListas(escopo);
+  if (opcoes.length === 1) return opcoes[0].v;
   const ultima = lerLocal("tf_ultima_lista", "");
-  return opcoes.find((o) => o.v === ultima)?.v || opcoes[0]?.v || null;
+  return opcoes.find((o) => o.v === ultima) && opcoes.length === 1 ? ultima : null;
 }
 
 function linhaAdicionar(g, escopo) {
@@ -915,8 +918,10 @@ function abrirAdicionar(chave) {
     recorrencia: null, status_id: null, lista_id: null, ...(g?.preset || {}),
   };
   if (!S.add.lista_id) S.add.lista_id = listaPadraoAdd(escopo);
-  if (!S.add.lista_id) return toast("Crie uma lista antes de lançar tarefa.", true);
+  if (!opcoesListas(escopo).length) return toast("Crie uma lista antes de lançar tarefa.", true);
   renderResultadoAtual();
+  // Sem lista definida (pasta ou espaço), a primeira coisa é escolher onde a tarefa vai morar.
+  if (!S.add.lista_id) document.getElementById("add-lista")?.click();
 }
 
 function cancelarAdicionar() {
@@ -927,14 +932,16 @@ function cancelarAdicionar() {
 
 function formAdicionar(escopo) {
   const a = S.add;
-  const varias = opcoesListas(escopo).length > 1;
+  const destino = S.listas.find((l) => l.id === a.lista_id);
+  const caminho = destino ? caminhoLista(destino.id).slice(1).join(" › ") : "Escolher lista";
   const resp = a.responsaveis.map((id) => usuario(id)).filter(Boolean);
   const prio = a.prioridade !== "normal" ? `<span class="prio ${a.prioridade}">${ICONES.bandeira}${NOME_PRIO[a.prioridade]}</span>` : ICONES.bandeira;
   return `<form class="linha-add aberta" id="form-add" onsubmit="salvarAdicionar(event)">
     <input type="text" id="add-titulo" placeholder="Nome da tarefa" maxlength="300" autocomplete="off"
       value="${esc(a.titulo)}" oninput="S.add.titulo = this.value">
     <div class="add-acoes">
-      ${varias ? `<button type="button" class="add-btn" data-menu onclick="menuAddLista(this)" title="Lista">${ICONES.lista}<span>${esc((S.listas.find((l) => l.id === a.lista_id) || {}).nome || "")}</span></button>` : ""}
+      <button type="button" class="add-btn${destino ? "" : " precisa"}" id="add-lista" data-menu onclick="menuAddLista(this)"
+        title="${destino ? "Lista da tarefa" : "Escolha a lista"}">${ICONES.lista}<span>${esc(caminho)}</span></button>
       <button type="button" class="add-btn" data-menu id="add-data" onclick="abrirDataAdd(this)" title="Data de entrega" aria-label="Data de entrega">
         ${ICONES.calendario}${a.data_entrega ? `<span>${esc(rotuloData(a.data_entrega))}</span>` : ""}
       </button>
@@ -1108,6 +1115,10 @@ async function salvarAdicionar(e) {
   const a = S.add;
   const titulo = (a.titulo || "").trim();
   if (!titulo) return document.getElementById("add-titulo")?.focus();
+  if (!a.lista_id) {
+    toast("Escolha a lista: tarefa mora em lista, não em pasta.", true);
+    return document.getElementById("add-lista")?.click();
+  }
   const status = a.status_id || primeiroStatus("aberto")?.id;
   if (!status) return toast("Crie pelo menos um status aberto em Ajustes.", true);
   criandoTarefa = true;
