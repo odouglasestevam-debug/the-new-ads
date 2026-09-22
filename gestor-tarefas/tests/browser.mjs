@@ -441,7 +441,26 @@ try {
   await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
   await page.waitForFunction(()=>!criandoTarefa);
   assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').at(-1).payload.lista_id),'l7');
-  await page.evaluate(()=>{cancelarAdicionar();document.getElementById('toast').className='toast';location.hash='#/central';});
+  // O quadradinho colorido abre os status e mostra Concluir em cima; o caminho aparece mesmo dentro da lista.
+  assert.ok((await page.locator('.linha .t-meta, .cu-linha .t-meta').first().innerText()).includes('Gestão de Tráfego'),'a linha mostra o caminho dentro da lista');
+  await page.locator('.linha .check, .cu-linha .check').first().click();
+  const opcoesQuadrado=await page.locator('#menu-flutuante button').allInnerTexts();
+  assert.ok(opcoesQuadrado.includes('Concluir'),'o quadradinho oferece Concluir');
+  for(const st of ['A fazer','Em andamento','Concluído'])assert.ok(opcoesQuadrado.includes(st),'o quadradinho lista o status '+st);
+  await page.locator('#menu-flutuante button',{hasText:'Em andamento'}).click();
+  await page.waitForFunction(()=>fixture.writes.some(x=>x.table==='tarefas_tarefas'&&x.action==='update'&&x.payload?.status_id==='s2'));
+  // Duplicar de dentro da lista: marca a tarefa, Mais > Duplicar para…, escolhe outra lista.
+  await page.evaluate(()=>{cancelarAdicionar();document.getElementById('toast').className='toast';});
+  await page.locator('.linha .sel-box, .cu-linha .sel-box').first().click();
+  await page.locator('.lote-btn',{hasText:'Mais'}).click();
+  await page.locator('#menu-flutuante button',{hasText:'Duplicar para'}).click();
+  await page.locator('[data-lista="l8"]').check();
+  const antesLista=await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length);
+  await page.locator('#btn-listas').click();
+  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('cópia'),null);
+  assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length),antesLista+1,'duplicou da lista');
+  assert.match(await page.locator('#toast').innerText(),/Contrato/,'o aviso diz a lista de destino');
+  await page.evaluate(()=>{limparSelecao();document.getElementById('toast').className='toast';location.hash='#/central';});
   await page.waitForFunction(()=>rotaAtual().tipo==='central');
   await page.evaluate(()=>authEvent('SIGNED_OUT'));
   assert.equal(await page.locator('#conteudo').innerText(),'');

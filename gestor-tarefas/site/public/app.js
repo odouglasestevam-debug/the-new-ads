@@ -764,7 +764,7 @@ function renderResultado(r, f, escopo) {
   const alvo = document.getElementById("lista-tarefas");
   if (f.visao === "quadro") { renderQuadro(alvo, tarefas, escopo); return renderBarraLote(); }
   if (f.agrupar === "pasta") { renderPorLista(alvo, tarefas, escopo); return renderBarraLote(); }
-  const mostrarCaminho = r.tipo !== "lista";
+  const mostrarCaminho = true; // o caminho fica sempre à vista, inclusive dentro da lista
   const grupos = tarefas.length ? agrupar(tarefas, f.agrupar) : [{ chave: "tudo", nome: "", itens: [] }];
   S.grupos = grupos;
   alvo.innerHTML = grupos.map((g) => `
@@ -875,7 +875,7 @@ function linhaTarefa(t, mostrarCaminho) {
   if (t.recorrencia) meta.push(`<span class="rec" title="${esc(descreverRecorrencia(t))}">${ICONES.repetir}</span>`);
   const feita = t.situacao === "concluida";
   return `<div class="linha ${t.situacao}" role="listitem" onclick="abrirTarefa('${t.id}')">
-    <div class="col-check">${caixaSel(t)}<button class="check${feita ? " feito" : ""}" style="--st:${esc(t.status_cor)}" onclick="event.stopPropagation();alternarConclusao('${t.id}')" aria-label="${feita ? "Reabrir" : "Concluir"}" title="${feita ? "Reabrir" : "Concluir"}">${ICONES.check}</button></div>
+    <div class="col-check">${caixaSel(t)}<button class="check${feita ? " feito" : ""}" style="--st:${esc(t.status_cor)}" data-menu onclick="event.stopPropagation();menuStatusDoQuadrado(this,'${t.id}')" aria-label="Status: ${esc(t.status_nome)}. Trocar status" title="${esc(t.status_nome)} · trocar status">${ICONES.check}</button></div>
     <div class="col-titulo t-principal"><button class="t-titulo tarefa-link" onclick="event.stopPropagation();abrirTarefa('${t.id}')">${esc(t.titulo)}</button>${meta.length ? `<div class="t-meta">${meta.join("")}</div>` : ""}</div>
     <div class="col-status" onclick="event.stopPropagation()">${botaoStatus(t)}</div>
     <div class="col-resp resp">${avatares(t.responsaveis)}</div>
@@ -1269,7 +1269,7 @@ function renderGaveta() {
 
   el.innerHTML = `
     <div class="g-topo">
-      <button class="check${t.situacao === "concluida" ? " feito" : ""}" style="--st:${esc(t.status_cor)}" onclick="alternarConclusao('${t.id}')" title="${t.situacao === "concluida" ? "Reabrir" : "Concluir"}" aria-label="${t.situacao === "concluida" ? "Reabrir" : "Concluir"}">${ICONES.check}</button>
+      <button class="check${t.situacao === "concluida" ? " feito" : ""}" style="--st:${esc(t.status_cor)}" data-menu onclick="menuStatusDoQuadrado(this,'${t.id}')" title="${esc(t.status_nome)} · trocar status" aria-label="Status: ${esc(t.status_nome)}. Trocar status">${ICONES.check}</button>
       <div class="g-caminho">${esc(caminhoLista(t.lista_id).join(" › "))}</div>
       <button class="icone-btn" onclick="fecharTarefa()" aria-label="Fechar">${ICONES.fechar}</button>
     </div>
@@ -1319,7 +1319,7 @@ function renderGaveta() {
       ${pai ? "" : `<div class="g-secao">
         <h3>Subtarefas <span>${subs.length ? `${subs.filter((s) => s.situacao === "concluida").length}/${subs.length}` : ""}</span></h3>
         <div class="sub-lista">${subs.map((s) => `<div class="sub-item ${s.situacao}" onclick="abrirTarefa('${s.id}')">
-          <button class="check${s.situacao === "concluida" ? " feito" : ""}" style="--st:${esc(s.status_cor)}" onclick="event.stopPropagation();alternarConclusao('${s.id}')" aria-label="Concluir">${ICONES.check}</button>
+          <button class="check${s.situacao === "concluida" ? " feito" : ""}" style="--st:${esc(s.status_cor)}" data-menu onclick="event.stopPropagation();menuStatusDoQuadrado(this,'${s.id}')" aria-label="Status: ${esc(s.status_nome)}. Trocar status">${ICONES.check}</button>
           <span class="t">${esc(s.titulo)}</span>
           ${s.data_entrega ? `<span class="d ${s.situacao}">${s.situacao === "atrasada" ? `${dias(s.dias_atraso)} atraso` : dataBR(s.data_entrega)}</span>` : ""}
           <span class="resp">${s.responsaveis.length ? avatares(s.responsaveis) : ""}</span>

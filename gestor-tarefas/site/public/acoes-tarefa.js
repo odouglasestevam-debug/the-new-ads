@@ -16,6 +16,21 @@ function menuStatus(ancora, id) {
   })));
 }
 
+// O quadradinho colorido abre os status, com concluir/reabrir em cima para seguir num clique só.
+function menuStatusDoQuadrado(ancora, id) {
+  const t = S.tarefas.find((x) => x.id === id);
+  if (!t) return;
+  const feita = t.situacao === "concluida";
+  const atalho = primeiroStatus(feita ? "aberto" : "concluido");
+  abrirMenu(ancora, [
+    ...(atalho && atalho.id !== t.status_id ? [{ t: feita ? "Reabrir" : "Concluir", cor: atalho.cor, acao: () => alternarConclusao(id) }, "-"] : []),
+    ...[...S.status].sort((a, b) => a.ordem - b.ordem).map((s) => ({
+      t: s.nome, cor: s.cor, atual: s.id === t.status_id,
+      acao: () => { if (s.id !== t.status_id) salvarTarefa(id, { status_id: s.id }, { silencioso: true }); },
+    })),
+  ]);
+}
+
 /* ---------------- menu ⋯ da tarefa ---------------- */
 function botaoMaisTarefa(t) {
   return `<button type="button" class="icone-btn mini mais-tarefa" data-menu onclick="event.stopPropagation();menuTarefa(this,'${t.id}')"
