@@ -42,3 +42,16 @@ O token atual da agência está com **explorer access**, que bloqueia `KeywordPl
 - O mesmo OAuth client (`700074366695-...`) autoriza também o Google Calendar (`ferramentas/agendamento-calendar/`). Com `include_granted_scopes=true`, o Google devolve `adwords` + `calendar` juntos e o oauthlib aborta com `Warning: Scope has changed`. Por isso `setup.py` define `OAUTHLIB_RELAX_TOKEN_SCOPE=1`, igual ao `oauth_calendar.py`. Não remover.
 - Pra diagnosticar token morto sem adivinhar: testar o refresh do token do Calendar (mesmo client e conta). Se ele funciona e o do Ads não, o client e a conta estão saudáveis e o problema é só a data de emissão do token do Ads.
 - O `setup.py oauth` precisa rodar no PowerShell de dentro da pasta do projeto, não com `!` (isso só funciona no chat do Claude Code).
+
+## Campanha nova herda as metas de conversão padrão da conta
+
+**Incidente real na Entretec (2026-09-22):** campanhas criadas via API (`create.py campaign`) herdam as metas padrão da conta. Na Entretec isso inclui "Envio de formulário de lead", e o formulário do site dispara três tags ao mesmo tempo (Douglas Tracker, "Enviar formulário de lead (novo)" e GA4 generate_lead). A campanha de marca contou cada lead três vezes (12 conversões para 4 leads), enquanto as nove campanhas antigas estavam configuradas para usar só Contato/Site e nunca duplicaram.
+
+- Ao criar campanha, SEMPRE comparar `campaign_conversion_goal` (biddable=TRUE) da campanha nova com as campanhas antigas da mesma conta e igualar. Na Entretec: só `CONTACT / WEBSITE`.
+- Ajuste via `CampaignConversionGoalService`, campo `biddable`, no resource `customers/{cid}/campaignConversionGoals/{campaign_id}~{CATEGORIA}~{ORIGEM}`.
+- Sinal de alerta: a mesma quantidade de conversões aparecendo em ações diferentes na mesma campanha (ex: 4 / 4 / 4) é quase sempre contagem múltipla do mesmo evento.
+- A planilha do cliente bater com o total da conta NÃO descarta o problema: 8 conversões a mais em mais de 1.000 mexem menos de 1% no CPA agregado. Checar por campanha.
+
+## create.py rsa usa barra vertical como separador
+
+O subcomando `rsa` separa títulos e descrições por `|`. Um título com barra vertical ("Entretec | Site Oficial") vira dois títulos e empurra o último da lista pra fora do limite de 15, sem erro nenhum. Não usar `|` em texto de anúncio. Para anúncio com fixação de posição ou texto mais complexo, montar direto pelo SDK (`AdGroupAdService`, `AdTextAsset` com `pinned_field`) e validar tamanho, duplicidade e travessão antes de enviar.
