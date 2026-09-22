@@ -2,7 +2,7 @@
 
 Destino exclusivo: crm.thenewads.com.br, Worker tna-crm, Supabase xrvjlhseyqfgyvwwlwwb.
 
-Revisão de segurança de 21/09/2026: correções locais e migration 0021 preparadas; publicação pendente de renovação da sessão MCP (Insufficient scope). Escopo, cotas, testes e passos de retomada em `SEGURANCA-CRM.md`. Não confundir com a distribuição 0020 já publicada abaixo.
+Revisão de segurança publicada em 22/09/2026: migration 0021 `20260922133817`, nove Edge Functions atualizadas e Worker `99004a30-e6dd-4d8c-a500-ce7c44b9362f`. Smoke remoto aprovou 20 assets, headers, login e bloqueio anônimo; formulário recusou JSON inválido (400) e corpo excessivo (413), sem capturar leads ou enviar mensagens. Escopo, cotas, 33 testes locais aprovados e pendências externas em `SEGURANCA-CRM.md`.
 
 Distribuição de leads (migration 0020): Publicado em 21/09/2026: Worker `6519bab1-5e53-45d3-ad58-2a8f51ebae9d`, migration `20260921174437`; smoke remoto aprovou 19 assets, headers, login e bloqueio anônimo, sem mensagens reais. Validação local: 28/28 testes e navegador aprovados. A automação permanece desligada até o administrador escolher modo e participantes. Registro em `DISTRIBUICAO-LEADS.md`. Reverter o frontend não desliga regras já ativadas; salvar Manual em cada empresa.
 

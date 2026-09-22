@@ -4,7 +4,11 @@ Escopo: crm.thenewads.com.br, Worker tna-crm, projeto xrvjlhseyqfgyvwwlwwb. Não
 
 ## Situação da entrega
 
-Correções implementadas e verificadas localmente. Migration 0021, funções e frontend ainda NÃO publicados nesta revisão. A autorização OAuth adicional foi concluída, mas a sessão MCP ativa continua retornando `Insufficient scope` para Edge Functions. Recarregar a janela do VS Code e revalidar o conector antes de publicar.
+Publicado em 22/09/2026 no destino indicado. Migration 0021 registrada como `20260922133817` (`crm_seguranca_limites_0021`). Worker `99004a30-e6dd-4d8c-a500-ce7c44b9362f`. O bloqueio anterior de autorização/limite de uso foi resolvido antes da publicação.
+
+Funções ativas publicadas, preservando flags JWT: form v2; equipe v4; integracoes v8; whatsapp-enviar v8; whatsapp-lida v2; whatsapp-modelos v4; whatsapp-midia v4; whatsapp-webhook v4; neogo-webhook v4. Form e webhooks mantêm autenticação própria/aplicabilidade pública; as demais mantêm verificação JWT habilitada.
+
+Smoke remoto aprovado em `2026-09-22T13:40:18.112Z`: 20 assets coincidem com os locais, headers incluindo HSTS, login e bloqueio anônimo de tabelas/funções/RPCs. Reserva de formulário negada a anon/authenticated e concedida somente a service_role; quatro triggers de cota confirmados. Formulário público respondeu 400 a JSON null e 413 a corpo de 70 KB, com nosniff, sem capturar leads. Não houve mensagens reais. Advisor reconsultado: permanecem os avisos de pg_net público, funções SECURITY DEFINER autenticadas e proteção de senhas vazadas desativada, além dos informes de tabelas privadas sem policies.
 
 ## Verificações e correções
 
@@ -55,10 +59,10 @@ As cotas SQL são transacionais: operações revertidas também revertem seu con
 - Configuração real de limites do Supabase Auth e de WAF/rate limiting no gateway não foi alterada ou certificada nesta revisão. Referência: https://supabase.com/docs/guides/auth/rate-limits.
 - Revisão não equivale a pentest independente, teste de recuperação de backup ou certificação de ausência de vulnerabilidades.
 
-## Retomada da publicação
+## Procedimento de publicação e reversão
 
-1. Revalidar list_edge_functions após recarregar o conector; conferir projeto, flags JWT e versões existentes.
-2. Conferir os corpos dos RPCs de produção e que 0021 ainda não foi aplicada. Aplicar 0021 uma única vez antes das funções que dependem da nova reserva/cotas.
+1. Conferir projeto, flags JWT e versões existentes antes de qualquer nova publicação.
+2. A migration 0021 já foi aplicada; não reaplicar. Ela precisa preceder as funções que dependem da nova reserva/cotas em outros ambientes.
 3. Publicar form, equipe, integracoes, whatsapp-enviar, whatsapp-lida, whatsapp-modelos, whatsapp-midia, whatsapp-webhook e neogo-webhook, incluindo dependências _shared. Preservar autenticação de cada endpoint.
 4. Publicar site/public no Worker tna-crm; executar smoke remoto de assets, headers, login e bloqueio anônimo, sem mensagens reais. Registrar versões e resultados aqui.
 5. Em regressão, reverter os artefatos de frontend/funções para versões previamente capturadas; não remover RLS ou abrir grants para contornar falhas. A migration exige reversão SQL específica e revisada, não reaplicação automática.
