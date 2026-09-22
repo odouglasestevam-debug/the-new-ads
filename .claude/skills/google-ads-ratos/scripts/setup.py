@@ -18,6 +18,10 @@ import sys
 import webbrowser
 from urllib.parse import unquote
 
+# O mesmo OAuth client tambem autoriza o Google Calendar. Com include_granted_scopes,
+# o Google devolve os dois escopos juntos e o oauthlib aborta com "Scope has changed".
+os.environ["OAUTHLIB_RELAX_TOKEN_SCOPE"] = "1"
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
