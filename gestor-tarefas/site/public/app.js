@@ -108,12 +108,21 @@ const ICONES = {
 
 /* ---------------- avisos, modal e menu ---------------- */
 let timerToast;
-function toast(msg, erro) {
+// acao = { rotulo, fn }: põe um botão no aviso (ex.: "Abrir lista" depois de duplicar).
+function toast(msg, erro, acao) {
   const el = document.getElementById("toast");
   el.textContent = msg;
+  if (acao) {
+    const botao = document.createElement("button");
+    botao.type = "button";
+    botao.className = "toast-acao";
+    botao.textContent = acao.rotulo;
+    botao.onclick = () => { el.className = "toast"; acao.fn(); };
+    el.append(" ", botao);
+  }
   el.className = "toast ativo" + (erro ? " erro" : "");
   clearTimeout(timerToast);
-  timerToast = setTimeout(() => { el.className = "toast"; }, erro ? 5000 : 2600);
+  timerToast = setTimeout(() => { el.className = "toast"; }, erro ? 8000 : acao ? 6000 : 2600);
 }
 function erroBanco(error, padrao) {
   const m = error?.message || "";

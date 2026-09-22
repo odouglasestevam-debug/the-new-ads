@@ -100,6 +100,7 @@ async function duplicarTarefas(ids) {
   duplicando = true;
   toast(`Duplicando em ${r.listas.length} ${r.listas.length === 1 ? "lista" : "listas"}…`);
   let copias = 0, falhas = 0, motivo = "";
+  const criadas = [];
   const avisos = new Set();
   const copiarResp = async (pares) => {
     const linhas = comResp ? pares.flatMap(([de, para]) => de.responsaveis.map((user_id) => ({ tarefa_id: para, user_id }))) : [];
@@ -119,6 +120,7 @@ async function duplicarTarefas(ids) {
         continue;
       }
       copias += novas.length;
+      criadas.push(...novas.map((x) => x.id));
       await copiarResp(topo.map((t, i) => [t, novas[i].id]));
       if (!comSubs) continue;
       for (let i = 0; i < topo.length; i++) {
@@ -138,6 +140,14 @@ async function duplicarTarefas(ids) {
     duplicando = false;
   }
   await recarregarERender();
+  // Confere no banco que as cópias existem mesmo: insert aceito e linha invisível depois seria pior que erro.
+  if (criadas.length) {
+    const { data: conferidas, error: eConf } = await db().from("tarefas_visao").select("id").in("id", criadas);
+    if (!eConf && conferidas && conferidas.length !== criadas.length) {
+      console.error("duplicar: o banco aceitou mas não devolveu", { pedidas: criadas.length, achadas: conferidas.length });
+      return toast(`O banco aceitou ${criadas.length} ${criadas.length === 1 ? "cópia" : "cópias"}, mas devolveu ${conferidas.length}. Avise o Claude.`, true);
+    }
+  }
   const ok = r.listas.length - falhas;
   // Com um destino só, o aviso diz o caminho, para dar pra conferir onde a cópia caiu.
   const onde = ok === 1 && r.listas.length === 1 ? caminhoLista(r.listas[0]).join(" › ") : `${ok} ${ok === 1 ? "lista" : "listas"}`;
@@ -145,7 +155,9 @@ async function duplicarTarefas(ids) {
   const problemas = [falhas ? `${falhas} ${falhas === 1 ? "lista falhou" : "listas falharam"}${motivo ? ` (${motivo})` : ""}` : "",
     avisos.size ? `sem copiar ${[...avisos].join(" e ")}` : ""].filter(Boolean);
   if (!copias && falhas) return toast(`Não deu pra duplicar${motivo ? ": " + motivo : "."}`, true);
-  toast(problemas.length ? `${base}, mas ${problemas.join("; ")}.` : `${base}.`, problemas.length > 0);
+  // Com um destino só, o aviso leva direto para lá, para dar pra conferir a cópia na hora.
+  const ir = ok === 1 && r.listas.length === 1 ? { rotulo: "Abrir lista", fn: () => irPara(`#/lista/${r.listas[0]}`) } : null;
+  toast(problemas.length ? `${base}, mas ${problemas.join("; ")}.` : `${base}.`, problemas.length > 0, ir);
 }
 
 async function copiarLinksTarefas(ids) {
