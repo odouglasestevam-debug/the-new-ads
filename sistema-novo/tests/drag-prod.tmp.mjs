@@ -1,0 +1,27 @@
+import {chromium} from 'playwright';
+const b=await chromium.launch({executablePath:process.env.CHROME_PATH||'C:/Users/odoug/AppData/Local/ms-playwright/chromium-1243/chrome-win64/chrome.exe'});
+const p=await b.newPage({viewport:{width:1440,height:800}});
+await p.goto('https://crm.thenewads.com.br/');
+await p.fill('#email',process.env.CRM_EMAIL);await p.fill('#senha',process.env.CRM_SENHA);
+await p.click('#btn-entrar');
+await p.locator('#nav [data-vista="kanban"]').click();
+await p.locator('.cartao').first().waitFor({timeout:20000});
+await p.evaluate(()=>{window.__cliques=[];document.addEventListener('click',e=>window.__cliques.push({alvo:e.target.className||e.target.tagName,botao:!!e.target.closest('[data-abrir-lead]')}),true)});
+const cartao=p.locator('.cartao[data-arrastavel]').first();
+const id=await cartao.getAttribute('data-id');
+const cx=await cartao.boundingBox();
+const etapaDe=async()=>p.evaluate(i=>leads.find(l=>l.id===i)?.etapa,id);
+const inicial=await etapaDe();
+// arrasta pegando pelo meio do cartao, como um humano
+await p.mouse.move(cx.x+cx.width/2,cx.y+cx.height-20);
+await p.mouse.down();
+await p.mouse.move(cx.x+cx.width/2+60,cx.y+cx.height,{steps:10});
+const alvo=await p.locator('.coluna[data-etapa="contato"]').boundingBox();
+await p.mouse.move(alvo.x+alvo.width/2,alvo.y+80,{steps:8});
+await p.mouse.up();
+await p.waitForTimeout(1200);
+console.log('etapa:',inicial,'->',await etapaDe());
+console.log('gaveta aberta?',await p.locator('.gaveta').count()>0);
+console.log('cliques capturados:',JSON.stringify(await p.evaluate(()=>window.__cliques)));
+await p.evaluate(async([i,e])=>{await sb.from('leads').update({etapa:e}).eq('id',i).select('id')},[id,inicial]);
+await b.close();

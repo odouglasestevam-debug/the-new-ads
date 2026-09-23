@@ -141,6 +141,28 @@ try{
  assert.equal(await page.evaluate(id=>fixture.tables.leads.find(l=>l.id===id).etapa,idArrastado),destino,'Soltar precisa gravar a nova etapa');
  assert.equal(await page.locator('.fantasma-cartao').count(),0,'cartão na mão precisa sumir ao soltar');
  await page.evaluate(([id,etapa])=>{const l=fixture.tables.leads.find(l=>l.id===id);l.etapa=etapa;fixture.tables.leads=fixture.tables.leads.filter(l=>l.id!=='zz-sync');leads=structuredClone(fixture.tables.leads);document.getElementById('cont-leads').textContent=leads.length;render();},[idArrastado,etapaOrigem]);
+ // pegar o cartão pelo nome do lead precisa arrastar, e o clique seguinte não pode abrir a gaveta
+ const pegarPeloNome=page.locator(`.cartao[data-id="${idArrastado}"] .nome-lead`);
+ const nomeBox=await pegarPeloNome.boundingBox();
+ const vizinha=ETAPAS_TESTE.find(e=>e!==etapaOrigem);
+ const colunaVizinha=await page.locator(`.coluna[data-etapa="${vizinha}"]`).boundingBox();
+ await page.mouse.move(nomeBox.x+nomeBox.width/2,nomeBox.y+nomeBox.height/2);
+ await page.mouse.down();
+ await page.mouse.move(colunaVizinha.x+colunaVizinha.width/2,colunaVizinha.y+70,{steps:10});
+ await page.mouse.up();
+ await page.waitForTimeout(150);
+ assert.equal(await page.evaluate(id=>fixture.tables.leads.find(l=>l.id===id).etapa,idArrastado),vizinha,'arrastar pelo nome do lead precisa mover o cartão');
+ assert.equal(await page.locator('.gaveta').count(),0,'arrastar não pode abrir a gaveta do lead');
+ // clique sem arrasto continua abrindo a gaveta
+ await page.waitForTimeout(200);
+ await page.evaluate(()=>{window.__abriu=[];const o=window.abrirLead;window.abrirLead=(...a)=>{window.__abriu.push(a);return o(...a)}});
+ await pegarPeloNome.click();
+ await page.waitForTimeout(400);
+ console.log('diag clique:',JSON.stringify(await page.evaluate(()=>({chamou:window.__abriu,modal:document.querySelectorAll('.fundo-modal').length,gaveta:document.querySelectorAll('.gaveta').length}))));
+ await page.locator('.gaveta').waitFor();
+ await page.locator('.gaveta .fechar').click();
+ assert.equal(await page.locator('.gaveta').count(),0);
+ await page.evaluate(([id,etapa])=>{const l=fixture.tables.leads.find(l=>l.id===id);l.etapa=etapa;leads=structuredClone(fixture.tables.leads);render();},[idArrastado,etapaOrigem]);
  await page.locator('#nav [data-vista="leads"]').click();
  await page.screenshot({animations:'disabled',path:'tests/artifacts/leads-desktop.png'});
  await page.getByText('Mais filtros',{exact:true}).click();

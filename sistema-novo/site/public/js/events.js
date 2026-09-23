@@ -234,7 +234,7 @@ function ligarArrasto() {
   // Arrasto por ponteiro: funciona com mouse, caneta e toque, rola o quadro e a coluna
   // sozinho e não depende do arrasto nativo do HTML5, que não rola nada e ignora o toque.
   const MARGEM = 90, PASSO = 16, LIMIAR = 5, ESPERA_TOQUE = 320;
-  let cartao = null, fantasma = null, pronto = false, timerToque = null, rolagem = null, deslocX = 0, deslocY = 0;
+  let cartao = null, fantasma = null, pronto = false, timerToque = null, rolagem = null, deslocX = 0, deslocY = 0, ponteiroAtual = null;
 
   function colunaSob(x, y) {
     if (fantasma) fantasma.style.display = "none";
@@ -269,11 +269,20 @@ function ligarArrasto() {
     fantasma.style.width = r.width + "px";
     document.body.appendChild(fantasma);
     cartao.classList.add("arrastando");
+    if (ponteiroAtual != null) cartao.setPointerCapture?.(ponteiroAtual);
     // o scroll-snap do quadro devolve a rolagem ao ponto de encaixe e anula o avanço em passos curtos
     quadro.style.scrollSnapType = "none";
     mover(e);
     // rolagem contínua mesmo com o ponteiro parado na beirada
     rolagem = setInterval(() => { if (ultimo) rolarPerto(ultimo.x, ultimo.y); }, 60);
+  }
+
+  function engolirProximoClique() {
+    const engolir = (ev) => { ev.stopPropagation(); ev.preventDefault(); soltar(); };
+    const soltar = () => { clearTimeout(prazo); document.removeEventListener("click", engolir, true); };
+    document.addEventListener("click", engolir, true);
+    // sem clique nenhum em seguida, o guarda sai sozinho e não engole o próximo clique de verdade
+    const prazo = setTimeout(soltar, 120);
   }
 
   let ultimo = null;
@@ -293,7 +302,10 @@ function ligarArrasto() {
     fantasma?.remove(); fantasma = null;
     cartao?.classList.remove("arrastando");
     document.querySelectorAll(".coluna.alvo").forEach((c) => c.classList.remove("alvo"));
+    const arrastou = pronto;
     cartao = null; pronto = false; ultimo = null; arrastandoCartao = null;
+    // depois de arrastar, o navegador ainda dispara um clique: ele abriria a gaveta do lead
+    if (arrastou) engolirProximoClique();
     if (alvo && id) moverLead(id, alvo.dataset.etapa);
     // atualização que chegou durante o arrasto foi adiada para não derrubar o cartão
     else if (leadsDistribuicaoRender && ["leads", "kanban"].includes(vistaAtual)) { leadsDistribuicaoRender = false; render(); }
@@ -302,11 +314,14 @@ function ligarArrasto() {
   document.querySelectorAll(".cartao[data-arrastavel]").forEach((el) => {
     el.addEventListener("pointerdown", (e) => {
       if (e.button != null && e.button !== 0) return;
-      // clique em botão, seletor ou link continua sendo clique
-      if (e.target.closest("button, select, a, input, textarea")) return;
+      // seletor e campo precisam do comportamento nativo do ponteiro; o resto do cartão
+      // é alça de arrasto, inclusive o nome e o botão do WhatsApp, que só clicam sem arrasto
+      if (e.target.closest("select, input, textarea")) return;
       cartao = el; pronto = false;
       const inicio = { x: e.clientX, y: e.clientY };
-      el.setPointerCapture?.(e.pointerId);
+      // capturar o ponteiro aqui faria o clique ir para o cartão em vez do botão do nome,
+      // então a captura só acontece quando o arrasto começa de verdade, dentro de comecar()
+      ponteiroAtual = e.pointerId;
       if (e.pointerType === "touch") {
         // no toque, segurar evita disputar com a rolagem da lista
         timerToque = setTimeout(() => { if (cartao) comecar({ clientX: inicio.x, clientY: inicio.y }); }, ESPERA_TOQUE);
@@ -323,20 +338,22 @@ function ligarArrasto() {
         mover(ev);
       };
       const aoSoltar = (ev) => {
-        el.removeEventListener("pointermove", aoMover);
-        el.removeEventListener("pointerup", aoSoltar);
-        el.removeEventListener("pointercancel", aoCancelar);
+        limpar();
         encerrar(ev, true);
       };
       const aoCancelar = (ev) => {
-        el.removeEventListener("pointermove", aoMover);
-        el.removeEventListener("pointerup", aoSoltar);
-        el.removeEventListener("pointercancel", aoCancelar);
+        limpar();
         encerrar(ev, false);
       };
-      el.addEventListener("pointermove", aoMover);
-      el.addEventListener("pointerup", aoSoltar);
-      el.addEventListener("pointercancel", aoCancelar);
+      const limpar = () => {
+        document.removeEventListener("pointermove", aoMover);
+        document.removeEventListener("pointerup", aoSoltar);
+        document.removeEventListener("pointercancel", aoCancelar);
+        ponteiroAtual = null;
+      };
+      document.addEventListener("pointermove", aoMover);
+      document.addEventListener("pointerup", aoSoltar);
+      document.addEventListener("pointercancel", aoCancelar);
     });
     // enquanto arrasta no toque, o dedo não pode rolar a página
     el.addEventListener("touchmove", (e) => { if (pronto) e.preventDefault(); }, { passive: false });
