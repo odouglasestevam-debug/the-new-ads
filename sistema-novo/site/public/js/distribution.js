@@ -1,9 +1,18 @@
 /* Distribuição por empresa: decisões no banco; esta tela apenas configura e informa presença. */
 let distribuicaoAtual=null,distribuicaoRascunho=null,distribuicaoErro='',distribuicaoCarregando=false;
+let canalDistribuicao='padrao'; // canal em edição na tela; cada canal tem a sua fila
 let presencaAtual=null,presencaEmpresa=null,presencaTimer=null,presencaEmCurso=false;
 let processandoDistribuicao=false;
 const sessaoPresenca=crypto.randomUUID();
 const NOMES_DISTRIBUICAO={manual:'Manual',fila:'Fila rotativa',inteligente:'Menor demanda'};
+
+function rascunhoDe(d){
+  const participantes={};
+  for(const c of d.canais)participantes[c.id]=[...(d.participantes[c.id]||[])];
+  return {modo:d.modo,participantes};
+}
+function filaDoCanal(d,canal){return d.participantes[canal]||[];}
+function nomeCanal(c){return c.numero?`${c.nome} · ${c.numero}`:c.nome;}
 
 function resetarDistribuicao(){
   distribuicaoAtual=null;distribuicaoRascunho=null;distribuicaoErro='';distribuicaoCarregando=false;
@@ -15,9 +24,12 @@ function painelDistribuicao(){
   if(!distribuicaoAtual)return `<section class="bloco distribuicao-painel"><h2>Distribuição de leads</h2>
     <p role="status">${distribuicaoErro?'Não foi possível carregar a distribuição. Tente novamente.':'Carregando as regras desta empresa…'}</p>
     ${distribuicaoErro?'<button class="btn btn-fantasma" data-recarregar-distribuicao>Tentar novamente</button>':''}</section>`;
-  const d=distribuicaoRascunho||distribuicaoAtual,ids=d.participantes;
+  const d=distribuicaoRascunho||rascunhoDe(distribuicaoAtual);
+  const canais=distribuicaoAtual.canais,canalAtual=canais.find(c=>c.id===canalDistribuicao)||canais[0];
+  const ids=filaDoCanal(d,canalAtual.id);
   const participantes=ids.map(id=>distribuicaoAtual.equipe.find(m=>m.user_id===id)).filter(Boolean);
-  const alterada=JSON.stringify([d.modo,ids])!==JSON.stringify([distribuicaoAtual.modo,distribuicaoAtual.participantes]);
+  const alterada=JSON.stringify([d.modo,ids])!==JSON.stringify([distribuicaoAtual.modo,filaDoCanal(distribuicaoAtual,canalAtual.id)]);
+  const semEquipe=canais.filter(c=>!filaDoCanal(distribuicaoAtual,c.id).length);
   return `<section class="bloco distribuicao-painel">
     <div class="distribuicao-titulo"><div><h2 id="titulo-distribuicao" tabindex="-1">Distribuição de leads</h2><p>Defina quem recebe os novos leads de ${escapar(empresaAtual.nome)}.</p></div>
       <button class="mini" data-recarregar-distribuicao ${alterada?'disabled title="Salve ou descarte suas alterações antes de atualizar"':''}>Atualizar situação</button></div>
@@ -30,8 +42,13 @@ function painelDistribuicao(){
           <label class="modo-distribuicao"><input type="radio" name="modo-distribuicao" value="${id}" ${d.modo===id?'checked':''}>
             <span><strong>${nome}</strong><span>${desc}</span></span></label>`).join('')}
       </fieldset>
-      <div class="distribuicao-equipe"><h3>Quem participa</h3>
-        <p>Selecione os atendentes desta empresa. Contas com acesso de leitura não participam.</p>
+      <div class="distribuicao-canais" role="tablist" aria-label="Canal de entrada dos leads">
+        ${canais.map(c=>`<button type="button" role="tab" data-canal-distribuicao="${c.id}" aria-selected="${c.id===canalAtual.id}">
+          ${escapar(nomeCanal(c))}<small>${filaDoCanal(distribuicaoAtual,c.id).length||'sem'} ${filaDoCanal(distribuicaoAtual,c.id).length===1?'atendente':'atendentes'}${distribuicaoAtual.pendentes_canal?.[c.id]?` · ${distribuicaoAtual.pendentes_canal[c.id]} aguardando`:''}</small>
+        </button>`).join('')}
+      </div>
+      <div class="distribuicao-equipe"><h3>Quem participa de ${escapar(nomeCanal(canalAtual))}</h3>
+        <p>Cada canal tem a sua equipe fixa: o lead que entra por aqui só vai para quem estiver marcado nesta lista. Contas com acesso de leitura não participam.</p>
         ${distribuicaoAtual.equipe.length?distribuicaoAtual.equipe.map(m=>`<label class="distribuicao-membro">
           <input type="checkbox" name="distribuicao-membro" value="${m.user_id}" ${ids.includes(m.user_id)?'checked':''}>
           <span class="distribuicao-pessoa"><strong>${escapar(m.nome||m.email||'Membro sem nome')}</strong><small>${escapar(NOME_PAPEL[m.papel]||m.papel)}</small></span>
@@ -44,7 +61,9 @@ function painelDistribuicao(){
           d.modo==='inteligente'?'<strong>O que conta como demanda</strong><p>Leads atribuídos que ainda não estão em Cliente ou Perdido. Em caso de empate, recebe quem está há mais tempo sem receber pelo rodízio.</p><p>Sem ninguém disponível, os novos leads aguardam. A distribuição retoma quando um participante voltar.</p>':
           '<strong>Distribuição manual</strong><p>Os leads aguardando a automação passam a ser gerenciados manualmente. Ao reativar, só novas entradas entram na distribuição.</p>'}
       </div>
-      <p class="distribuicao-nota">Vale para novos leads sem responsável, recebidos por formulários, WhatsApp ou criados no CRM. Leads existentes e responsáveis escolhidos manualmente são preservados.</p>
+      <p class="distribuicao-nota">Vale para novos leads sem responsável, recebidos por formulários, WhatsApp ou criados no CRM. Leads existentes e responsáveis escolhidos manualmente são preservados.
+        Canal sem equipe deixa o lead aguardando: ele não é repassado para a equipe de outro canal.</p>
+      ${d.modo!=='manual'&&semEquipe.length?`<p class="aviso" role="status">Sem equipe definida em: ${escapar(semEquipe.map(nomeCanal).join(', '))}. Os leads desses canais ficam aguardando.</p>`:''}
       <div class="distribuicao-acoes"><button class="btn" type="submit" ${alterada?'':'disabled'}>Salvar distribuição</button>
         <button class="btn btn-fantasma" type="button" id="descartar-distribuicao" ${alterada?'':'disabled'}>Descartar alterações</button>
         <span role="status" id="aviso-distribuicao">${alterada?'Alterações não salvas.':''}</span></div>
@@ -53,7 +72,7 @@ function painelDistribuicao(){
   <section class="bloco distribuicao-painel"><h3>Acompanhamento</h3>
     <p><strong>${distribuicaoAtual.pendentes}</strong> ${distribuicaoAtual.pendentes===1?'lead aguardando':'leads aguardando'} distribuição automática. Situação no momento da última atualização.</p>
     <h3>Últimas entregas automáticas</h3>
-    ${distribuicaoAtual.historico.length?`<ol class="distribuicao-historico">${distribuicaoAtual.historico.map(h=>`<li><div><strong>${escapar(h.nome||h.telefone||'Lead sem nome')}</strong><span>${escapar(h.nome_responsavel||h.email||'Membro removido')}</span></div><small>${escapar(NOMES_DISTRIBUICAO[h.modo])} · ${escapar(dataCurta(h.criado_em))}</small></li>`).join('')}</ol>`:'<p>As entregas aparecerão aqui quando a automação distribuir os primeiros leads.</p>'}
+    ${distribuicaoAtual.historico.length?`<ol class="distribuicao-historico">${distribuicaoAtual.historico.map(h=>`<li><div><strong>${escapar(h.nome||h.telefone||'Lead sem nome')}</strong><span>${escapar(h.nome_responsavel||h.email||'Membro removido')}</span></div><small>${escapar(nomeCanal(distribuicaoAtual.canais.find(c=>c.id===h.canal)||{nome:h.canal||'Canal removido'}))} · ${escapar(NOMES_DISTRIBUICAO[h.modo])} · ${escapar(dataCurta(h.criado_em))}</small></li>`).join('')}</ol>`:'<p>As entregas aparecerão aqui quando a automação distribuir os primeiros leads.</p>'}
   </section>`;
 }
 
@@ -64,7 +83,8 @@ async function carregarDistribuicao(restaurarFoco=false){
     const {data,error}=await sb.rpc('crm_obter_distribuicao',{p_empresa:id});
     if(error||!data)throw error||new Error('sem_dados');
     if(empresaAtual?.id!==id)return;
-    distribuicaoAtual=data;distribuicaoRascunho={modo:data.modo,participantes:[...data.participantes]};
+    distribuicaoAtual=data;distribuicaoRascunho=rascunhoDe(data);
+    if(!data.canais.some(c=>c.id===canalDistribuicao))canalDistribuicao='padrao';
   }catch{if(empresaAtual?.id===id)distribuicaoErro='carregamento';}
   finally{if(empresaAtual?.id===id){distribuicaoCarregando=false;if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();if(restaurarFoco)document.querySelector('[data-recarregar-distribuicao]')?.focus({preventScroll:true});}}}
 }
@@ -77,21 +97,23 @@ function ligarDistribuicao(){
     form.onchange=e=>{
       distribuicaoRascunho.modo=form.elements['modo-distribuicao'].value;
       const selecionados=[...form.querySelectorAll('[name="distribuicao-membro"]:checked')].map(x=>x.value);
-      // Preserva o rodízio real; novos participantes entram no final.
-      distribuicaoRascunho.participantes=[...distribuicaoRascunho.participantes.filter(id=>selecionados.includes(id)),...selecionados.filter(id=>!distribuicaoRascunho.participantes.includes(id))];
+      const atual=filaDoCanal(distribuicaoRascunho,canalDistribuicao);
+      // Preserva o rodízio real do canal; novos participantes entram no final.
+      distribuicaoRascunho.participantes[canalDistribuicao]=[...atual.filter(id=>selecionados.includes(id)),...selecionados.filter(id=>!atual.includes(id))];
       const name=e.target.name,value=e.target.value;render();
       [...document.getElementsByName(name)].find(x=>x.value===value)?.focus({preventScroll:true});
     };
-    document.getElementById('descartar-distribuicao').onclick=()=>{distribuicaoRascunho={modo:distribuicaoAtual.modo,participantes:[...distribuicaoAtual.participantes]};render();document.getElementById('titulo-distribuicao')?.focus({preventScroll:true});};
+    document.getElementById('descartar-distribuicao').onclick=()=>{distribuicaoRascunho=rascunhoDe(distribuicaoAtual);render();document.getElementById('titulo-distribuicao')?.focus({preventScroll:true});};
     form.onsubmit=async e=>{
       e.preventDefault();const id=empresaAtual.id,aviso=document.getElementById('aviso-distribuicao');
-      if(distribuicaoRascunho.modo!=='manual'&&!distribuicaoRascunho.participantes.length){aviso.textContent='Selecione pelo menos um atendente.';return;}
+      const outrosCanais=Object.entries(distribuicaoRascunho.participantes).some(([c,ids])=>c!==canalDistribuicao&&ids.length);
+      if(distribuicaoRascunho.modo!=='manual'&&!filaDoCanal(distribuicaoRascunho,canalDistribuicao).length&&!outrosCanais){aviso.textContent='Selecione pelo menos um atendente em algum canal.';return;}
       const botoes=[...form.querySelectorAll('button,input')];botoes.forEach(b=>b.disabled=true);aviso.textContent='Salvando…';
       try{
-        const {data,error}=await sb.rpc('crm_salvar_distribuicao',{p_empresa:id,p_modo:distribuicaoRascunho.modo,p_participantes:distribuicaoRascunho.participantes,p_revisao:distribuicaoAtual.revisao});
+        const {data,error}=await sb.rpc('crm_salvar_distribuicao',{p_empresa:id,p_modo:distribuicaoRascunho.modo,p_participantes:filaDoCanal(distribuicaoRascunho,canalDistribuicao),p_revisao:distribuicaoAtual.revisao,p_canal:canalDistribuicao});
         if(error||!data)throw error||new Error('sem_dados');
         if(empresaAtual?.id!==id)return;
-        distribuicaoErro='';distribuicaoAtual=data;distribuicaoRascunho={modo:data.modo,participantes:[...data.participantes]};
+        distribuicaoErro='';distribuicaoAtual=data;distribuicaoRascunho=rascunhoDe(data);
         if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();document.getElementById('aviso-distribuicao').textContent='Distribuição salva.';document.getElementById('titulo-distribuicao').focus({preventScroll:true});}
         pulsarPresenca().catch(()=>{});
         processarDistribuicao().catch(()=>{});
@@ -103,6 +125,15 @@ function ligarDistribuicao(){
       }
     };
   }
+  document.querySelectorAll('[data-canal-distribuicao]').forEach(b=>b.onclick=()=>{
+    if(b.dataset.canalDistribuicao===canalDistribuicao)return;
+    const d=distribuicaoRascunho,atual=canalDistribuicao;
+    const mudou=d&&JSON.stringify([d.modo,filaDoCanal(d,atual)])!==JSON.stringify([distribuicaoAtual.modo,filaDoCanal(distribuicaoAtual,atual)]);
+    if(mudou&&!confirm('Sair deste canal sem salvar as alterações?'))return;
+    if(mudou)distribuicaoRascunho=rascunhoDe(distribuicaoAtual);
+    canalDistribuicao=b.dataset.canalDistribuicao;render();
+    document.querySelector(`[data-canal-distribuicao="${canalDistribuicao}"]`)?.focus({preventScroll:true});
+  });
   document.querySelectorAll('[data-alternar-presenca]').forEach(b=>b.onclick=()=>pulsarPresenca(!presencaAtual?.disponivel));
   atualizarControlePresenca();
 }

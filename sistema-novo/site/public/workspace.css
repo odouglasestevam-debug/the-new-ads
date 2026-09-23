@@ -199,6 +199,14 @@ select.etapa-sel{background:#232323;border-color:transparent;font-size:12px;min-
 .avatar-responsavel{width:23px;height:23px;font-size:10px;background:#363636}
 .responsavel-cartao>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .responsavel-cartao .sinal{margin-left:auto}
+/* abas de canal na distribuição: cada canal tem fila e equipe próprias */
+.distribuicao-canais{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+.distribuicao-canais button{display:flex;flex-direction:column;gap:3px;align-items:flex-start;
+  padding:10px 14px;border:1px solid var(--linha);border-radius:10px;background:#202020;color:#c6c6c6;
+  font-size:13px;line-height:1.3;cursor:pointer}
+.distribuicao-canais button small{font-size:11px;color:var(--nevoa)}
+.distribuicao-canais button[aria-selected="true"]{border-color:var(--ambar);background:#36271d;color:#ffbc8f}
+.distribuicao-canais button[aria-selected="true"] small{color:#e0a97f}
 /* lead sem atendente precisa saltar aos olhos no quadro */
 .responsavel-cartao.sem-dono{color:#FF9B4A}
 .responsavel-cartao.sem-dono .avatar-responsavel{color:#FF9B4A;background:transparent;border:1px dashed #6b4a2a}

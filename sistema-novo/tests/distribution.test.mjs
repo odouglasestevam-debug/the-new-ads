@@ -29,7 +29,8 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
   const login=async(id,aal='aal1')=>{await db.exec('reset role');await db.query(`select set_config('request.jwt.claims',$1,false)`,[JSON.stringify({sub:id,role:'authenticated',aal})]);await db.exec('set role authenticated');};
   const server=async()=>{await db.exec('reset role');await db.query(`select set_config('request.jwt.claims','',false)`);};
   const config=async()=>{await login(owner);return (await db.query('select crm_obter_distribuicao($1) d',[company])).rows[0].d;};
-  const save=async(mode,ids=[a,b])=>{const c=await config();return(await db.query('select crm_salvar_distribuicao($1,$2,$3,$4) d',[company,mode,ids,c.revisao])).rows[0].d;};
+  const save=async(mode,ids=[a,b],canal='padrao')=>{const c=await config();return(await db.query('select crm_salvar_distribuicao($1,$2,$3,$4,$5) d',[company,mode,ids,c.revisao,canal])).rows[0].d;};
+  const fila=(c,canal='padrao')=>c.participantes[canal]||[];
   const insert=async({responsavel=null,etapa='novo',co=company,tel=null}={})=>{
    await server();const id=crypto.randomUUID();await db.query('insert into leads(id,empresa_id,responsavel_id,etapa,telefone) values($1,$2,$3,$4,$5)',[id,co,responsavel,etapa,tel]);return id;
   };
@@ -52,7 +53,7 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
    assert.equal(await responsible(historic),null);
    assert.equal(await responsible(await insert({co:other})),null);
    assert.equal(await responsible(await insert({etapa:'cliente'})),null);
-   const c=await save('fila');assert.deepEqual(c.participantes,[a,b]);
+   const c=await save('fila');assert.deepEqual(fila(c),[a,b]);
    assert.equal(await responsible(await insert()),a);
    const same=await config();await assert.rejects(db.query('select crm_salvar_distribuicao($1,$2,$3,$4)',[company,'fila',[a,b],same.revisao-1]),/configuracao_alterada/);
   });
@@ -60,19 +61,29 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
    const lead=await insert({tel:'+5511999988888'});const before=await config();await server();
    await db.query(`insert into leads(empresa_id,telefone) values($1,'+5511999988888') on conflict do nothing`,[company]);
    await db.exec('begin');await db.query('insert into leads(empresa_id) values($1)',[company]);await db.exec('rollback');
-   const after=await config();assert.deepEqual(after.participantes,before.participantes);assert.equal(after.historico.length,before.historico.length);assert(await responsible(lead));
+   const after=await config();assert.deepEqual(fila(after),fila(before));assert.equal(after.historico.length,before.historico.length);assert(await responsible(lead));
   });
-  await t.test('formulários e WhatsApp usam o mesmo rodízio e reentregas não trocam responsável',async()=>{
-   const c=await config(),next=c.participantes[0];await server();
+  await t.test('cada canal tem a sua fila: site e WhatsApp não se misturam',async()=>{
+   const c=await config(),next=fila(c)[0];await server();
    await db.query(`insert into formularios(empresa_id,nome,chave) values($1,'Fixture distribuição','fixture-distribution')`,[company]);
    const site=async()=>db.query(`select * from receber_lead_site('fixture-distribution','Fixture site','+5511999977777',null,'{}','{}')`);
-   const id=(await site()).rows[0].lead_id;assert.equal(await responsible(id),next);
-   const before=await config();await server();await site();assert.deepEqual((await config()).participantes,before.participantes);
-   await server();const whats=async()=>db.query(`select * from receber_mensagem_whatsapp($1,'whatsapp_oficial','5511999966666','Fixture Whats','fixture-assignment-message','texto','Olá',null,null,now(),'entrada')`,[company]);
-   await whats();const wa=(await db.query(`select id,responsavel_id from leads where empresa_id=$1 and telefone='+5511999966666'`,[company])).rows[0];
-   assert.equal(wa.responsavel_id,before.participantes[0]);
-   const after=await config();await server();await whats();assert.deepEqual((await config()).participantes,after.participantes);
-   assert.equal(await responsible(wa.id),wa.responsavel_id);
+   const id=(await site()).rows[0].lead_id;assert.equal(await responsible(id),next,'lead de formulário usa a fila padrão');
+   const before=await config();await server();await site();assert.deepEqual(fila(await config()),fila(before),'reentrega do mesmo contato não consome a fila');
+   // canal de WhatsApp ainda sem equipe: o lead aguarda em vez de cair na equipe do site
+   const whats=async(tel,msg)=>{await server();return db.query(`select * from receber_mensagem_whatsapp($1,'whatsapp_oficial',$2,'Fixture Whats',$3,'texto','Olá',null,null,now(),'entrada')`,[company,tel,msg]);};
+   await whats('5511999966666','fixture-assignment-message');
+   const wa=(await db.query(`select id,responsavel_id from leads where empresa_id=$1 and telefone='+5511999966666'`,[company])).rows[0];
+   assert.equal(wa.responsavel_id,null,'sem equipe no canal, o lead não vaza para a equipe do site');
+   assert.deepEqual(fila(await config()),fila(before),'canal sem equipe não consome a fila padrão');
+   // com equipe só do B no canal oficial, todo lead daquele número vai para o B
+   await save('fila',[b],'whatsapp_oficial');
+   assert.equal(await responsible(wa.id),b,'ao definir a equipe do canal, o pendente daquele canal é entregue');
+   await whats('5511999955555','fixture-assignment-message-2');
+   const wa2=(await db.query(`select responsavel_id from leads where empresa_id=$1 and telefone='+5511999955555'`,[company])).rows[0];
+   assert.equal(wa2.responsavel_id,b,'segundo lead do mesmo canal continua na equipe do canal');
+   await server();await site();
+   const depois=(await db.query(`select responsavel_id from leads where empresa_id=$1 and telefone='+5511999977777'`,[company])).rows[0];
+   assert.equal(depois.responsavel_id,next,'fila do site segue independente do canal de WhatsApp');
   });
   await t.test('inteligente aguarda sem online e entrega quando um participante fica disponível',async()=>{
    await save('inteligente');const waiting=await insert();assert.equal(await responsible(waiting),null);assert.equal((await config()).pendentes,1);
