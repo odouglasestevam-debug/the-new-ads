@@ -7,7 +7,7 @@ function vistaKanban() {
       const o=ultimaOrigem(l),qtd=notas.filter(n=>n.lead_id===l.id).length,dono=nomeResponsavel(l.responsavel_id);
       return `<article class="cartao" ${pode.editarLead(l)?'draggable="true"':''} data-id="${l.id}"><div class="c-topo"><div class="c-ident"><button class="nome-lead" type="button" data-abrir-lead="${l.id}">${escapar(l.nome||'Sem nome')}</button><div class="e">${escapar(telefoneLegivel(l.telefone)||l.email||'Sem telefone')}</div></div>${botaoWhatsApp(l)}</div>
         ${o?`<div class="origem-cartao">${seloCanal(o)}<span title="${escapar(campanhaDaOrigem(o))}">${escapar(campanhaDaOrigem(o))}</span></div>`:''}
-        <div class="responsavel-cartao"><span class="avatar-responsavel" aria-hidden="true">${dono?escapar(iniciais(dono)):'—'}</span><span title="${escapar(dono)}">${escapar(dono?.split('@')[0]||'Sem responsável')}</span>${qtd?`<span class="sinal" aria-label="${qtd} notas">${ICONE_NOTA}${qtd}</span>`:''}</div>
+        <div class="responsavel-cartao${dono?'':' sem-dono'}"><span class="avatar-responsavel" aria-hidden="true">${dono?escapar(iniciais(dono)):'?'}</span><span title="${escapar(dono?'Atendente: '+dono:'Lead ainda sem atendente')}">${escapar(dono?.split('@')[0]||'Sem atendente')}</span>${qtd?`<span class="sinal" aria-label="${qtd} notas">${ICONE_NOTA}${qtd}</span>`:''}</div>
         ${seloCadastro(l)?`<div class="meta">${seloCadastro(l)}</div>`:''}<div class="c-rodape"><span class="data">${dataCurta(l.criado_em)}</span>${seletorEtapa(l)}</div></article>`;
     }).join('')||'<p class="vazio">Nenhum lead nesta etapa</p>'}</div></section>`;
   }).join('');

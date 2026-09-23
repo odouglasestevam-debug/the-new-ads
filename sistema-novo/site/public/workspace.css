@@ -199,6 +199,10 @@ select.etapa-sel{background:#232323;border-color:transparent;font-size:12px;min-
 .avatar-responsavel{width:23px;height:23px;font-size:10px;background:#363636}
 .responsavel-cartao>span:nth-child(2){overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .responsavel-cartao .sinal{margin-left:auto}
+/* lead sem atendente precisa saltar aos olhos no quadro */
+.responsavel-cartao.sem-dono{color:#FF9B4A}
+.responsavel-cartao.sem-dono .avatar-responsavel{color:#FF9B4A;background:transparent;border:1px dashed #6b4a2a}
+
 .atalho-etapa{display:none}
 .cartoes-config{gap:20px;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr))}
 .bloco{padding:24px;background:#171717}

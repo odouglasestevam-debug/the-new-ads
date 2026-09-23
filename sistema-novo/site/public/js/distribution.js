@@ -53,7 +53,7 @@ function painelDistribuicao(){
   <section class="bloco distribuicao-painel"><h3>Acompanhamento</h3>
     <p><strong>${distribuicaoAtual.pendentes}</strong> ${distribuicaoAtual.pendentes===1?'lead aguardando':'leads aguardando'} distribuição automática. Situação no momento da última atualização.</p>
     <h3>Últimas entregas automáticas</h3>
-    ${distribuicaoAtual.historico.length?`<ol class="distribuicao-historico">${distribuicaoAtual.historico.map(h=>`<li><div><strong>${escapar(h.nome||h.telefone||'Lead sem nome')}</strong><span>${escapar(h.email||'Membro removido')}</span></div><small>${escapar(NOMES_DISTRIBUICAO[h.modo])} · ${escapar(dataCurta(h.criado_em))}</small></li>`).join('')}</ol>`:'<p>As entregas aparecerão aqui quando a automação distribuir os primeiros leads.</p>'}
+    ${distribuicaoAtual.historico.length?`<ol class="distribuicao-historico">${distribuicaoAtual.historico.map(h=>`<li><div><strong>${escapar(h.nome||h.telefone||'Lead sem nome')}</strong><span>${escapar(h.nome_responsavel||h.email||'Membro removido')}</span></div><small>${escapar(NOMES_DISTRIBUICAO[h.modo])} · ${escapar(dataCurta(h.criado_em))}</small></li>`).join('')}</ol>`:'<p>As entregas aparecerão aqui quando a automação distribuir os primeiros leads.</p>'}
   </section>`;
 }
 
