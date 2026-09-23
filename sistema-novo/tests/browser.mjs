@@ -45,7 +45,7 @@ try{
    if(name==='crm_salvar_distribuicao'){
      fixture.savedDistribution=structuredClone(args);
      if(fixture.saveDistributionError)return{error:{message:fixture.saveDistributionError}};
-     fixture.distribution.participantes={...fixture.distribution.participantes,[args.p_canal||'padrao']:args.p_participantes};
+     fixture.distribution.participantes={...fixture.distribution.participantes,[args.p_canal||'comercial']:args.p_participantes};
      Object.assign(fixture.distribution,{modo:args.p_modo,revisao:args.p_revisao+1});return{data:structuredClone(fixture.distribution)};
    }
    if(name==='crm_presenca'){
@@ -71,7 +71,8 @@ try{
   fixture.session={access_token:'fixture',user:{id:'u1',email:'demo@example.test'}};
   fixture.team=[{user_id:'u1',email:'marina@example.test',papel:'dono'},{user_id:'u2',email:'rafael@example.test',papel:'vendedor'}];
   fixture.distribution={modo:'manual',revisao:0,participantes:{},pendentes:0,pendentes_canal:{},historico:[],
-    canais:[{id:'padrao',nome:'Site e cadastro manual',numero:null},{id:'whatsapp_oficial',nome:'WhatsApp oficial',numero:'+5511000000000'}],
+    canais:[{id:'comercial',nome:'Comercial',detalhe:'Landing page, formulário, cadastro manual e campanha no número oficial',numero:'+5511000000000'},
+      {id:'suporte',nome:'Suporte',detalhe:'Contatos recebidos no número de atendimento',numero:'+5511000000001'}],
     equipe:fixture.team.map(m=>({...m,demanda:m.user_id==='u1'?7:2,disponivel:true,online:true}))};
   fixture.channels=[{canal:'whatsapp_oficial',numero:'+5511000000000'}];
   fixture.tables={agencia_admins:[{user_id:'u1'}],empresas:[{id:'e1',nome:'Empresa demonstrativa',ativo:true}],membros:[],leads:[
@@ -287,17 +288,17 @@ try{
  await page.getByText('Distribuição salva.',{exact:true}).waitFor();
  assert.deepEqual(await page.evaluate(()=>fixture.savedDistribution.p_participantes),['u1','u2']);
  assert.equal(await page.evaluate(()=>fixture.savedDistribution.p_modo),'fila');
- assert.equal(await page.evaluate(()=>fixture.savedDistribution.p_canal),'padrao','salvar aplica ao canal aberto');
+ assert.equal(await page.evaluate(()=>fixture.savedDistribution.p_canal),'comercial','salvar aplica ao canal aberto');
  // cada canal guarda a sua equipe: trocar de aba não arrasta a seleção do canal anterior
- await page.getByRole('tab',{name:/WhatsApp oficial/}).click();
+ await page.getByRole('tab',{name:/Suporte/}).click();
  assert.equal(await page.getByRole('checkbox',{name:'marina@example.test',exact:false}).isChecked(),false,'canal novo começa sem equipe');
  await page.getByRole('checkbox',{name:'rafael@example.test',exact:false}).check();
  await page.getByRole('button',{name:'Salvar distribuição',exact:true}).click();
  await page.getByText('Distribuição salva.',{exact:true}).waitFor();
- assert.deepEqual(await page.evaluate(()=>[fixture.savedDistribution.p_canal,fixture.savedDistribution.p_participantes]),['whatsapp_oficial',['u2']]);
- assert.deepEqual(await page.evaluate(()=>fixture.distribution.participantes),{padrao:['u1','u2'],whatsapp_oficial:['u2']},'fila do site permanece intacta');
- await page.getByRole('tab',{name:/Site e cadastro manual/}).click();
- assert.equal(await page.getByRole('checkbox',{name:'marina@example.test',exact:false}).isChecked(),true,'fila do site volta como estava');
+ assert.deepEqual(await page.evaluate(()=>[fixture.savedDistribution.p_canal,fixture.savedDistribution.p_participantes]),['suporte',['u2']]);
+ assert.deepEqual(await page.evaluate(()=>fixture.distribution.participantes),{comercial:['u1','u2'],suporte:['u2']},'fila comercial permanece intacta');
+ await page.getByRole('tab',{name:/Comercial/}).click();
+ assert.equal(await page.getByRole('checkbox',{name:'marina@example.test',exact:false}).isChecked(),true,'fila comercial volta como estava');
  await page.evaluate(()=>window.scrollTo({top:0,left:0,behavior:'instant'}));
  await page.screenshot({animations:'disabled',path:'tests/artifacts/distribuicao-desktop.png',fullPage:true});
  await page.getByRole('radio',{name:'Menor demanda',exact:false}).check();

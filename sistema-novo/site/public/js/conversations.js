@@ -146,7 +146,7 @@ function htmlChat(c) {
 }
 
 // Empresa pode ter dois números: um na API oficial e outro na NeoGo.
-const NOME_CANAL_WA = { whatsapp_oficial: "Oficial", whatsapp_nao_oficial: "NeoGo" };
+const NOME_CANAL_WA = { whatsapp_oficial: "Comercial", whatsapp_nao_oficial: "Suporte" };
 const doisNumeros = () => canaisWhats.length > 1;
 function numeroDoCanal(canal) {
   return canaisWhats.find((c) => c.canal === canal)?.numero || "";

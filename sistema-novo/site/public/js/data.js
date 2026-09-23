@@ -17,7 +17,7 @@ async function carregarTudo() {
   formularios = resForms.data || [];
   aceitarListaConversas(resConversas.data);
   canaisWhats = resCanais.data || [];
-  document.getElementById("cont-leads").textContent = leads.length || "";
+  document.getElementById("cont-leads").textContent = leadsComerciais().length || "";
   atualizarContadorConversas();
   render();
 }

@@ -207,6 +207,7 @@ select.etapa-sel{background:#232323;border-color:transparent;font-size:12px;min-
 .distribuicao-canais button small{font-size:11px;color:var(--nevoa)}
 .distribuicao-canais button[aria-selected="true"]{border-color:var(--ambar);background:#36271d;color:#ffbc8f}
 .distribuicao-canais button[aria-selected="true"] small{color:#e0a97f}
+.selo.suporte{background:#1f2e3a;color:#8ec7f0;border-color:#2c4457}
 /* lead sem atendente precisa saltar aos olhos no quadro */
 .responsavel-cartao.sem-dono{color:#FF9B4A}
 .responsavel-cartao.sem-dono .avatar-responsavel{color:#FF9B4A;background:transparent;border:1px dashed #6b4a2a}

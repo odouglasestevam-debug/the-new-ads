@@ -206,7 +206,7 @@ async function sincronizarLeadsDistribuidos(){
     }
     const ids=new Set(data.map(l=>l.id));
     const perdeuAcesso=papel==='vendedor'&&leads.some(l=>!ids.has(l.id));
-    leads=data;leadsDistribuicaoRender=true;document.getElementById('cont-leads').textContent=leads.length||'';
+    leads=data;leadsDistribuicaoRender=true;document.getElementById('cont-leads').textContent=leadsComerciais().length||'';
     if(perdeuAcesso){
       document.querySelectorAll('.fundo-modal').forEach(el=>el.remove());
       notas=notas.filter(n=>ids.has(n.lead_id));

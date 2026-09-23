@@ -11,7 +11,7 @@ function vistaKanban() {
         ${seloCadastro(l)?`<div class="meta">${seloCadastro(l)}</div>`:''}<div class="c-rodape"><span class="data">${dataCurta(l.criado_em)}</span>${seletorEtapa(l)}</div></article>`;
     }).join('')||'<p class="vazio">Nenhum lead nesta etapa</p>'}</div></section>`;
   }).join('');
-  return `<div class="topo topo-operacional"><div><h1>Kanban <span class="quantidade-titulo">${leads.length}</span></h1><div class="desc">Acompanhe cada atendimento até a conclusão</div></div><div class="ferramentas">${botaoNovoLead()}</div></div>${ferramentasLeads()}
+  return `<div class="topo topo-operacional"><div><h1>Kanban <span class="quantidade-titulo">${leadsComerciais().length}</span></h1><div class="desc">Acompanhe cada atendimento até a conclusão</div></div><div class="ferramentas">${botaoNovoLead()}</div></div>${ferramentasLeads()}
     <div class="resumo-resultados"><span>${lista.length} ${lista.length===1?'lead':'leads'} no quadro</span><span id="ajuda-kanban">Arraste o cartão (no toque, segure primeiro) ou use o seletor de etapa</span><label class="atalho-etapa"><span class="sr-only">Ir para etapa</span><select id="ir-etapa" aria-label="Ir para etapa">${ETAPAS.map(e=>`<option value="${e.id}">${e.nome}</option>`).join('')}</select></label></div>
     ${!lista.length&&temFiltroLeads()?vazioLeads():`<div class="kanban" tabindex="0" aria-label="Quadro de etapas" aria-describedby="ajuda-kanban">${colunas}</div>`}`;
 }

@@ -120,12 +120,13 @@ function abrirLead(id, abaInicial) {
         <div class="cabeca">
           <div>
             <h2>${escapar(l.nome || "Lead sem nome")}</h2>
-            <div class="sub-cel">${escapar(NOME_ETAPA[l.etapa] || l.etapa)} ${l.cadastro_incompleto ? '· <span style="color:var(--vermelho)">cadastro incompleto</span>' : ""}</div>
+            <div class="sub-cel">${l.tipo === "suporte" ? '<span class="selo suporte">Contato de suporte</span> · fora do funil' : escapar(NOME_ETAPA[l.etapa] || l.etapa)} ${l.cadastro_incompleto ? '· <span style="color:var(--vermelho)">cadastro incompleto</span>' : ""}</div>
           </div>
           <button class="fechar" type="button" aria-label="Fechar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button>
         </div>
         ${conversa ? "" : botaoWhatsApp(l, "Conversar no WhatsApp")}
         ${l.cadastro_incompleto && pode.editarLead(l) ? '<button class="btn btn-largo" id="completar" type="button" style="margin-bottom:22px">Completar cadastro</button>' : ""}
+        ${l.tipo === "suporte" && pode.editarLead(l) ? '<button class="btn btn-largo" id="promover" type="button" style="margin-bottom:22px">Promover a lead comercial</button>' : ""}
         <div class="abas">
           ${ABAS.map((a) => {
             const n = a.conta();
@@ -143,6 +144,14 @@ function abrirLead(id, abaInicial) {
     restaurarEstadoChat(estadoChat);
     const completar = div.querySelector("#completar");
     if (completar) completar.addEventListener("click", () => { fechar(); formularioLead(l); });
+    const promover = div.querySelector("#promover");
+    if (promover) promover.addEventListener("click", async () => {
+      promover.disabled = true; promover.textContent = "Promovendo…";
+      const { data, error } = await sb.from("leads").update({ tipo: "comercial" }).eq("id", l.id).select("id");
+      if (error || !data?.length) { promover.disabled = false; promover.textContent = "Promover a lead comercial";
+        alert("Não deu pra promover este contato. Tente novamente."); return; }
+      l.tipo = "comercial"; desenhar(); render();
+    });
 
     const salvarNota = div.querySelector("#salvar-nota");
     if (salvarNota) {

@@ -99,6 +99,8 @@ function ultimaOrigem(l) {
   const o = origensDoLead(l);
   return o[o.length - 1] || null;
 }
+// o contador do menu e os totais do funil ignoram contato de suporte
+function leadsComerciais(){return leads.filter(l=>(l.tipo||'comercial')!=='suporte');}
 function nomeResponsavel(id) {
   if (!id) return "";
   const m = equipe.find((m) => m.user_id === id);

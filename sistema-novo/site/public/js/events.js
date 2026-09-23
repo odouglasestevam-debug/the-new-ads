@@ -18,6 +18,7 @@ function ligarEventos() {
   document.querySelectorAll('[data-responsabilidade]').forEach(b=>b.onclick=()=>{
     filtrosLeads.responsavel=b.dataset.responsabilidade;render();document.querySelector(`[data-responsabilidade="${filtrosLeads.responsavel}"]`)?.focus({preventScroll:true});
   });
+  document.getElementById('filtro-tipo')?.addEventListener('change',ev=>{filtrosLeads.tipo=ev.target.value;render();document.getElementById('filtro-tipo')?.focus({preventScroll:true});});
   document.getElementById('filtro-atendente')?.addEventListener('change',ev=>{filtrosLeads.atendente=ev.target.value;render();document.getElementById('filtro-atendente')?.focus({preventScroll:true});});
   document.getElementById('filtro-etapa')?.addEventListener('change',e=>{filtrosLeads.etapa=e.target.value;render();document.getElementById('filtro-etapa')?.focus({preventScroll:true});});
   document.getElementById('ordem-leads')?.addEventListener('change',e=>{filtrosLeads.ordem=e.target.value;render();const painel=document.querySelector('.filtros-adicionais');if(painel)painel.open=true;document.getElementById('ordem-leads')?.focus({preventScroll:true});});
