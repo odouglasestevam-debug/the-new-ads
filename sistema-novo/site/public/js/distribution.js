@@ -1,6 +1,6 @@
 /* Distribuição por empresa: decisões no banco; esta tela apenas configura e informa presença. */
 let distribuicaoAtual=null,distribuicaoRascunho=null,distribuicaoErro='',distribuicaoCarregando=false;
-let canalDistribuicao='padrao'; // canal em edição na tela; cada canal tem a sua fila
+let canalDistribuicao='comercial'; // canal em edição na tela; cada canal tem a sua fila
 let presencaAtual=null,presencaEmpresa=null,presencaTimer=null,presencaEmCurso=false;
 let processandoDistribuicao=false;
 const sessaoPresenca=crypto.randomUUID();
@@ -15,7 +15,7 @@ function filaDoCanal(d,canal){return d.participantes[canal]||[];}
 function nomeCanal(c){return c.numero?`${c.nome} · ${c.numero}`:c.nome;}
 
 function resetarDistribuicao(){
-  distribuicaoAtual=null;distribuicaoRascunho=null;distribuicaoErro='';distribuicaoCarregando=false;
+  distribuicaoAtual=null;distribuicaoRascunho=null;distribuicaoErro='';distribuicaoCarregando=false;canalDistribuicao='comercial';
   presencaAtual=null;atualizarControlePresenca();
 }
 
@@ -84,7 +84,7 @@ async function carregarDistribuicao(restaurarFoco=false){
     if(error||!data)throw error||new Error('sem_dados');
     if(empresaAtual?.id!==id)return;
     distribuicaoAtual=data;distribuicaoRascunho=rascunhoDe(data);
-    if(!data.canais.some(c=>c.id===canalDistribuicao))canalDistribuicao='padrao';
+    if(!data.canais.some(c=>c.id===canalDistribuicao))canalDistribuicao=data.canais[0].id;
   }catch{if(empresaAtual?.id===id)distribuicaoErro='carregamento';}
   finally{if(empresaAtual?.id===id){distribuicaoCarregando=false;if(vistaAtual==='config'&&abaAjustes==='distribuicao'){render();if(restaurarFoco)document.querySelector('[data-recarregar-distribuicao]')?.focus({preventScroll:true});}}}
 }
