@@ -44,7 +44,7 @@ function paineisConfig() {
         <p>${pode.administrar() ? "Troque o nível, envie a recuperação de acesso ao e-mail do membro ou remova da empresa." : "Quem tem acesso a esta empresa e com qual nível."}</p>
         ${equipe.length ? equipe.map((m) => `
           <div class="par" style="grid-template-columns:1fr auto;align-items:center">
-            <span class="v">${escapar(m.email)}${m.user_id === usuario.id ? ' <span class="sub-cel">(você)</span>' : ""}</span>
+            <span class="v">${escapar(m.nome||m.email)}${m.nome?` <span class="sub-cel">${escapar(m.email)}</span>`:""}${m.user_id === usuario.id ? ' <span class="sub-cel">(você)</span>' : ""}</span>
             ${pode.administrar() ? `
               <span style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end">
                 <select class="etapa-sel membro-papel" data-user="${m.user_id}">${opcoesPapel(m.papel)}</select>

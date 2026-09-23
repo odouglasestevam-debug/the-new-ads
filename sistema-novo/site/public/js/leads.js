@@ -1,5 +1,5 @@
 /* Leads e Kanban compartilham a mesma busca e os mesmos filtros. */
-const filtrosLeads={responsavel:'todos',etapa:'todas',ordem:'recentes'};
+const filtrosLeads={responsavel:'todos',atendente:'todos',etapa:'todas',ordem:'recentes'};
 const ICONE_BUSCA='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m16 16 4.5 4.5"/></svg>';
 function leadsFiltrados() {
   const termo=busca.trim().toLocaleLowerCase('pt-BR');
@@ -7,18 +7,20 @@ function leadsFiltrados() {
     if(filtroCadastro==='incompleto'&&!l.cadastro_incompleto)return false;
     if(filtrosLeads.responsavel==='meus'&&l.responsavel_id!==usuario?.id)return false;
     if(filtrosLeads.responsavel==='sem'&&l.responsavel_id)return false;
+    if(filtrosLeads.atendente!=='todos'&&l.responsavel_id!==filtrosLeads.atendente)return false;
     if(filtrosLeads.etapa!=='todas'&&l.etapa!==filtrosLeads.etapa)return false;
     const o=ultimaOrigem(l)||{};
     return !termo||[l.nome,l.email,l.telefone,o.campanha_nome,o.conjunto_nome,o.anuncio_nome,o.utm_campaign,o.utm_medium,o.utm_content].filter(Boolean).join(' ').toLocaleLowerCase('pt-BR').includes(termo);
   }).sort((a,b)=>filtrosLeads.ordem==='nome'?String(a.nome||'').localeCompare(String(b.nome||''),'pt-BR'):String(b.criado_em||'').localeCompare(String(a.criado_em||'')));
 }
-function temFiltroLeads(){return !!busca||filtroCadastro!=='todos'||filtrosLeads.responsavel!=='todos'||filtrosLeads.etapa!=='todas';}
-function limparFiltrosLeads(){busca='';filtroCadastro='todos';Object.assign(filtrosLeads,{responsavel:'todos',etapa:'todas',ordem:'recentes'});render();}
+function temFiltroLeads(){return !!busca||filtroCadastro!=='todos'||filtrosLeads.responsavel!=='todos'||filtrosLeads.atendente!=='todos'||filtrosLeads.etapa!=='todas';}
+function limparFiltrosLeads(){busca='';filtroCadastro='todos';Object.assign(filtrosLeads,{responsavel:'todos',atendente:'todos',etapa:'todas',ordem:'recentes'});render();}
 function ferramentasLeads(){
   return `<section class="barra-trabalho" aria-label="Buscar e filtrar leads">
     <div class="busca-trabalho">${ICONE_BUSCA}<input type="search" id="busca" aria-label="Buscar leads" placeholder="Buscar nome, telefone ou campanha" value="${escapar(busca)}" autocomplete="off"></div>
     <div class="filtros-trabalho">
       <div class="segmentos" aria-label="Responsabilidade">${[['todos','Todos'],['meus','Meus leads'],...(pode.distribuir()?[['sem','Sem responsável']]:[])].map(([id,nome])=>`<button type="button" data-responsabilidade="${id}" aria-pressed="${filtrosLeads.responsavel===id}">${nome}</button>`).join('')}</div>
+      ${pode.distribuir()?`<label class="controle-filtro"><span>Atendente</span><select id="filtro-atendente" aria-label="Filtrar por atendente"><option value="todos">Todos os atendentes</option>${equipe.filter(m=>m.papel!=='leitura').map(m=>`<option value="${m.user_id}"${filtrosLeads.atendente===m.user_id?' selected':''}>${escapar(m.nome||m.email)}</option>`).join('')}</select></label>`:''}
       <label class="controle-filtro"><span>Etapa</span><select id="filtro-etapa" aria-label="Filtrar por etapa"><option value="todas">Todas as etapas</option>${ETAPAS.map(e=>`<option value="${e.id}"${filtrosLeads.etapa===e.id?' selected':''}>${e.nome}</option>`).join('')}</select></label>
       <details class="filtros-adicionais"${filtroCadastro!=='todos'?' open':''}><summary>Mais filtros${filtroCadastro!=='todos'?' · 1':''}</summary><div class="filtros-popover"><label>Cadastro<select id="filtro-cadastro" aria-label="Cadastro"><option value="todos">Todos os cadastros</option><option value="incompleto"${filtroCadastro==='incompleto'?' selected':''}>Cadastro incompleto</option></select></label><label>Ordenação<select id="ordem-leads" aria-label="Ordenação"><option value="recentes">Mais recentes</option><option value="nome"${filtrosLeads.ordem==='nome'?' selected':''}>Nome A–Z</option></select></label></div></details>
       ${temFiltroLeads()?'<button class="acao-texto" type="button" data-limpar-leads>Limpar filtros</button>':''}
@@ -37,7 +39,7 @@ function vistaLeads() {
     return `<tr class="linha-lead" data-id="${l.id}">
       <td data-coluna="Contato"><div class="cel-contato"><span class="avatar-lead" aria-hidden="true">${escapar(iniciais(l.nome||l.telefone))}</span><div class="identidade-lead"><button type="button" class="nome-lead" data-abrir-lead="${l.id}">${escapar(l.nome||'Sem nome')}</button><div class="sub-cel">${escapar(telefoneLegivel(l.telefone)||l.email||'Sem telefone')}</div>${l.telefone&&l.email?`<div class="sub-cel email-lead">${escapar(l.email)}</div>`:''}</div>${botaoWhatsApp(l)}</div></td>
       <td data-coluna="Etapa">${seletorEtapa(l)}</td>
-      <td data-coluna="Responsável">${pode.distribuir()?`<select class="etapa-sel lead-responsavel" data-id="${l.id}" aria-label="Responsável por ${escapar(l.nome||'lead sem nome')}"><option value="">Sem responsável</option>${equipe.filter(m=>m.papel!=='leitura').map(m=>`<option value="${m.user_id}"${l.responsavel_id===m.user_id?' selected':''}>${escapar(m.email)}</option>`).join('')}</select>`:`<span class="nome-responsavel">${escapar(nomeResponsavel(l.responsavel_id)||'Sem responsável')}</span>`}</td>
+      <td data-coluna="Responsável">${pode.distribuir()?`<select class="etapa-sel lead-responsavel" data-id="${l.id}" aria-label="Responsável por ${escapar(l.nome||'lead sem nome')}"><option value="">Sem responsável</option>${equipe.filter(m=>m.papel!=='leitura').map(m=>`<option value="${m.user_id}"${l.responsavel_id===m.user_id?' selected':''}>${escapar(m.nome||m.email)}</option>`).join('')}</select>`:`<span class="nome-responsavel">${escapar(nomeResponsavel(l.responsavel_id)||'Sem responsável')}</span>`}</td>
       <td data-coluna="Origem">${seloCanal(o)||'<span class="sub-cel">Não informada</span>'}<div class="sub-cel origem-resumo" title="${escapar(campanhaDaOrigem(o))}">${escapar(campanhaDaOrigem(o))}</div></td>
       <td data-coluna="Cadastro">${seloCadastro(l)||'<span class="cadastro-completo">Completo</span>'}</td>
       <td data-coluna="Entrada" class="num">${dataCurta(l.criado_em)}</td>

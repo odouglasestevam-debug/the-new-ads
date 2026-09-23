@@ -8,7 +8,7 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
  try{
   await db.exec(`create role anon;create role authenticated;create role service_role bypassrls;
     create schema auth;create schema vault;create schema storage;
-    create table auth.users(id uuid primary key,email text,aud text,role text);
+    create table auth.users(id uuid primary key,email text,aud text,role text,raw_user_meta_data jsonb default '{}'::jsonb);
     create table auth.mfa_factors(id uuid primary key default gen_random_uuid(),user_id uuid,status text);
     create table vault.secrets(id uuid primary key,secret text);create table vault.decrypted_secrets(id uuid,decrypted_secret text);
     create function vault.create_secret(text,text) returns uuid language sql as $$select gen_random_uuid()$$;

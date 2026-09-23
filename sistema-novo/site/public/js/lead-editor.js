@@ -6,7 +6,7 @@ function formularioLead(lead) {
   div.className = "fundo-modal fundo-centro";
   const opcoesResponsavel = equipe
     .filter((m) => m.papel !== "leitura")
-    .map((m) => `<option value="${m.user_id}"${(lead?.responsavel_id || (papel === "vendedor" ? usuario.id : "")) === m.user_id ? " selected" : ""}>${escapar(m.email)}</option>`)
+    .map((m) => `<option value="${m.user_id}"${(lead?.responsavel_id || (papel === "vendedor" ? usuario.id : "")) === m.user_id ? " selected" : ""}>${escapar(m.nome||m.email)}</option>`)
     .join("");
 
   div.innerHTML = `

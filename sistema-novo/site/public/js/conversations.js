@@ -204,7 +204,7 @@ function barraFiltrosConversas() {
   const responsaveis = pode.editarTodos() && equipe.length ? `
     <select class="chip-sel" id="filtro-conv-resp" aria-label="Responsável pelas conversas">
       <option value="">Todos os responsáveis</option>
-      ${equipe.map((m) => `<option value="${m.user_id}"${filtroConv.responsavel === m.user_id ? " selected" : ""}>${escapar(m.user_id === usuario.id ? "Minhas conversas" : m.email)}</option>`).join("")}
+      ${equipe.map((m) => `<option value="${m.user_id}"${filtroConv.responsavel === m.user_id ? " selected" : ""}>${escapar(m.user_id === usuario.id ? "Minhas conversas" : (m.nome||m.email))}</option>`).join("")}
       <option value="sem"${filtroConv.responsavel === "sem" ? " selected" : ""}>Sem responsável</option>
     </select>` : "";
   // com dois números, dá para olhar um de cada vez

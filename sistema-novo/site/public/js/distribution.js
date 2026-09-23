@@ -34,13 +34,13 @@ function painelDistribuicao(){
         <p>Selecione os atendentes desta empresa. Contas com acesso de leitura não participam.</p>
         ${distribuicaoAtual.equipe.length?distribuicaoAtual.equipe.map(m=>`<label class="distribuicao-membro">
           <input type="checkbox" name="distribuicao-membro" value="${m.user_id}" ${ids.includes(m.user_id)?'checked':''}>
-          <span class="distribuicao-pessoa"><strong>${escapar(m.email||'Membro sem e-mail')}</strong><small>${escapar(NOME_PAPEL[m.papel]||m.papel)}</small></span>
+          <span class="distribuicao-pessoa"><strong>${escapar(m.nome||m.email||'Membro sem nome')}</strong><small>${escapar(NOME_PAPEL[m.papel]||m.papel)}</small></span>
           <span class="distribuicao-carga">${m.demanda} em andamento</span>
           <span class="distribuicao-status ${m.online&&m.disponivel?'disponivel':''}">${!m.online?'Offline':m.disponivel?'Disponível':'Pausado'}</span>
         </label>`).join(''):'<p>Nenhum atendente cadastrado. Adicione alguém na aba Equipe para ativar a distribuição.</p>'}
       </div>
       <div class="distribuicao-regra" id="regra-distribuicao">
-        ${d.modo==='fila'?`<strong>Ordem do rodízio${alterada?' após salvar':''}</strong><ol>${participantes.map(m=>`<li>${escapar(m.email)}</li>`).join('')||'<li>Selecione pelo menos um atendente.</li>'}</ol><p>Ao receber, o atendente vai para o final. Salvar sem mudar participantes mantém o rodízio.</p>`:
+        ${d.modo==='fila'?`<strong>Ordem do rodízio${alterada?' após salvar':''}</strong><ol>${participantes.map(m=>`<li>${escapar(m.nome||m.email)}</li>`).join('')||'<li>Selecione pelo menos um atendente.</li>'}</ol><p>Ao receber, o atendente vai para o final. Salvar sem mudar participantes mantém o rodízio.</p>`:
           d.modo==='inteligente'?'<strong>O que conta como demanda</strong><p>Leads atribuídos que ainda não estão em Cliente ou Perdido. Em caso de empate, recebe quem está há mais tempo sem receber pelo rodízio.</p><p>Sem ninguém disponível, os novos leads aguardam. A distribuição retoma quando um participante voltar.</p>':
           '<strong>Distribuição manual</strong><p>Os leads aguardando a automação passam a ser gerenciados manualmente. Ao reativar, só novas entradas entram na distribuição.</p>'}
       </div>
