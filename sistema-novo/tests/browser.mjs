@@ -155,10 +155,7 @@ try{
  assert.equal(await page.locator('.gaveta').count(),0,'arrastar não pode abrir a gaveta do lead');
  // clique sem arrasto continua abrindo a gaveta
  await page.waitForTimeout(200);
- await page.evaluate(()=>{window.__abriu=[];const o=window.abrirLead;window.abrirLead=(...a)=>{window.__abriu.push(a);return o(...a)}});
  await pegarPeloNome.click();
- await page.waitForTimeout(400);
- console.log('diag clique:',JSON.stringify(await page.evaluate(()=>({chamou:window.__abriu,modal:document.querySelectorAll('.fundo-modal').length,gaveta:document.querySelectorAll('.gaveta').length}))));
  await page.locator('.gaveta').waitFor();
  await page.locator('.gaveta .fechar').click();
  assert.equal(await page.locator('.gaveta').count(),0);

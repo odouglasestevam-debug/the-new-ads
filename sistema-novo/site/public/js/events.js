@@ -306,9 +306,11 @@ function ligarArrasto() {
     cartao = null; pronto = false; ultimo = null; arrastandoCartao = null;
     // depois de arrastar, o navegador ainda dispara um clique: ele abriria a gaveta do lead
     if (arrastou) engolirProximoClique();
+    if (!arrastou) { ponteiroAtual = null; }
     if (alvo && id) moverLead(id, alvo.dataset.etapa);
-    // atualização que chegou durante o arrasto foi adiada para não derrubar o cartão
-    else if (leadsDistribuicaoRender && ["leads", "kanban"].includes(vistaAtual)) { leadsDistribuicaoRender = false; render(); }
+    // atualização adiada durante o arrasto entra agora; sem arrasto não se redesenha nada,
+    // senão o clique simples perde o botão entre soltar e clicar
+    else if (arrastou && leadsDistribuicaoRender && ["leads", "kanban"].includes(vistaAtual)) { leadsDistribuicaoRender = false; render(); }
   }
 
   document.querySelectorAll(".cartao[data-arrastavel]").forEach((el) => {
