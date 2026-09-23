@@ -106,6 +106,9 @@
     display:flex;flex-direction:column;gap:11px}
   .cartao:hover{border-color:rgba(255,255,255,.2)}
   .cartao.arrastando{opacity:.4}
+  .cartao[data-arrastavel]{cursor:grab}
+  .cartao[data-arrastavel]:active{cursor:grabbing}
+  .fantasma-cartao{position:fixed;z-index:60;pointer-events:none;opacity:.95;box-shadow:0 18px 40px rgba(0,0,0,.55);transform:rotate(1.2deg)}
   .c-topo{display:flex;align-items:flex-start;justify-content:space-between;gap:10px}
   .c-ident{min-width:0}
   .cartao .n{font-weight:600;font-size:14.5px;margin-bottom:3px;line-height:1.25}

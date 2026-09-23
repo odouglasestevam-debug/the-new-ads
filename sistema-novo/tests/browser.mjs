@@ -106,26 +106,41 @@ try{
  });
  await page.screenshot({animations:'disabled',path:'tests/artifacts/kanban-desktop.png'});
  const ETAPAS_TESTE=await page.evaluate(()=>ETAPAS.map(e=>e.id));
- // Arrasto do kanban: atualização de 25s não pode derrubar o cartão na mão, e o drop precisa mover a etapa.
- const cartaoArrastado=page.locator('.cartao').first();
+ // Arrasto do kanban com ponteiro real: precisa rolar o quadro, sobreviver à sincronização de 25s e gravar a etapa.
+ const cartaoArrastado=page.locator('.cartao[data-arrastavel]').first();
  const idArrastado=await cartaoArrastado.getAttribute('data-id');
  const etapaOrigem=await page.evaluate(id=>leads.find(l=>l.id===id).etapa,idArrastado);
- const destino=ETAPAS_TESTE.find(e=>e!==etapaOrigem);
- await cartaoArrastado.dispatchEvent('dragstart',{dataTransfer:await page.evaluateHandle(()=>new DataTransfer())});
+ const destino=ETAPAS_TESTE[ETAPAS_TESTE.length-1];
+ assert.notEqual(destino,etapaOrigem,'destino do teste precisa ser outra etapa');
+ assert(await page.evaluate(()=>{const k=document.querySelector('.kanban');return k.scrollWidth>k.clientWidth}),'quadro do teste precisa ter coluna fora da tela');
+ const caixa=await cartaoArrastado.boundingBox();
+ await page.mouse.move(caixa.x+caixa.width/2,caixa.y+30);
+ await page.mouse.down();
+ await page.mouse.move(caixa.x+caixa.width/2+40,caixa.y+60,{steps:6});
+ assert(await page.evaluate(()=>!!document.querySelector('.fantasma-cartao')),'arrasto precisa mostrar o cartão na mão');
  const sobreviveu=await page.evaluate(async id=>{
    // o nó exato precisa continuar no documento: um cartão recriado com o mesmo id já quebrou o arrasto
    const no=document.querySelector(`.cartao[data-id="${id}"]`);
-   leadsDistribuicaoRender=true;
-   await sincronizarLeadsDistribuidos();
    fixture.tables.leads.push({id:'zz-sync',empresa_id:'e1',nome:'Entrada durante o arrasto',telefone:'+5511999990000',etapa:'novo',responsavel_id:'u1',criado_em:new Date().toISOString(),lead_origens:[]});
    await sincronizarLeadsDistribuidos();
    return no.isConnected;
  },idArrastado);
  assert(sobreviveu,'Cartão em arrasto não pode ser destruído pela sincronização de leads');
- await page.locator(`.coluna[data-etapa="${destino}"]`).dispatchEvent('drop',{dataTransfer:await page.evaluateHandle(()=>new DataTransfer())});
+ // beirada direita precisa rolar o quadro sozinho até a coluna escondida aparecer
+ const larguraJanela=page.viewportSize().width;
+ for(let i=0;i<60;i++){
+   await page.mouse.move(larguraJanela-30,caixa.y+120);
+   if(await page.evaluate(e=>{const c=document.querySelector(`.coluna[data-etapa="${e}"]`);return c.getBoundingClientRect().right<=window.innerWidth},destino))break;
+   await page.waitForTimeout(50);
+ }
+ const alvoBox=await page.locator(`.coluna[data-etapa="${destino}"]`).boundingBox();
+ assert(alvoBox.x+alvoBox.width<=larguraJanela,'rolagem automática precisa trazer a coluna de destino para a tela');
+ await page.mouse.move(alvoBox.x+alvoBox.width/2,alvoBox.y+60,{steps:4});
+ await page.mouse.up();
  await page.locator(`.coluna[data-etapa="${destino}"] .cartao[data-id="${idArrastado}"]`).waitFor();
- assert.equal(await page.evaluate(id=>fixture.tables.leads.find(l=>l.id===id).etapa,idArrastado),destino,'Drop precisa gravar a nova etapa');
- await page.evaluate(([id,etapa])=>{const l=fixture.tables.leads.find(l=>l.id===id);l.etapa=etapa;leads=structuredClone(fixture.tables.leads);render();},[idArrastado,etapaOrigem]);
+ assert.equal(await page.evaluate(id=>fixture.tables.leads.find(l=>l.id===id).etapa,idArrastado),destino,'Soltar precisa gravar a nova etapa');
+ assert.equal(await page.locator('.fantasma-cartao').count(),0,'cartão na mão precisa sumir ao soltar');
+ await page.evaluate(([id,etapa])=>{const l=fixture.tables.leads.find(l=>l.id===id);l.etapa=etapa;fixture.tables.leads=fixture.tables.leads.filter(l=>l.id!=='zz-sync');leads=structuredClone(fixture.tables.leads);document.getElementById('cont-leads').textContent=leads.length;render();},[idArrastado,etapaOrigem]);
  await page.locator('#nav [data-vista="leads"]').click();
  await page.screenshot({animations:'disabled',path:'tests/artifacts/leads-desktop.png'});
  await page.getByText('Mais filtros',{exact:true}).click();

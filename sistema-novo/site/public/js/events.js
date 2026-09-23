@@ -229,36 +229,116 @@ async function moverLead(id, etapa) {
 }
 
 function ligarArrasto() {
-  document.querySelectorAll(".cartao[draggable]").forEach((cartao) => {
-    cartao.addEventListener("dragstart", (e) => {
-      arrastandoCartao = cartao.dataset.id;
-      cartao.classList.add("arrastando");
-      // sem dado no dataTransfer o navegador cancela o arrasto; o id também serve de reserva no drop
-      try { e.dataTransfer.setData("text/plain", cartao.dataset.id); e.dataTransfer.effectAllowed = "move"; } catch (erro) {}
+  const quadro = document.querySelector(".kanban");
+  if (!quadro) return;
+  // Arrasto por ponteiro: funciona com mouse, caneta e toque, rola o quadro e a coluna
+  // sozinho e não depende do arrasto nativo do HTML5, que não rola nada e ignora o toque.
+  const MARGEM = 90, PASSO = 16, LIMIAR = 5, ESPERA_TOQUE = 320;
+  let cartao = null, fantasma = null, pronto = false, timerToque = null, rolagem = null, deslocX = 0, deslocY = 0;
+
+  function colunaSob(x, y) {
+    if (fantasma) fantasma.style.display = "none";
+    const alvo = document.elementFromPoint(x, y)?.closest(".coluna") || null;
+    if (fantasma) fantasma.style.display = "";
+    return alvo;
+  }
+
+  function destacar(coluna) {
+    document.querySelectorAll(".coluna.alvo").forEach((c) => { if (c !== coluna) c.classList.remove("alvo"); });
+    coluna?.classList.add("alvo");
+  }
+
+  function rolarPerto(x, y) {
+    const r = quadro.getBoundingClientRect();
+    if (x > r.right - MARGEM) quadro.scrollLeft += PASSO;
+    else if (x < r.left + MARGEM) quadro.scrollLeft -= PASSO;
+    const corpo = colunaSob(x, y)?.querySelector(".corpo");
+    if (!corpo) return;
+    const rc = corpo.getBoundingClientRect();
+    if (y > rc.bottom - 40) corpo.scrollTop += PASSO;
+    else if (y < rc.top + 40) corpo.scrollTop -= PASSO;
+  }
+
+  function comecar(e) {
+    pronto = true;
+    arrastandoCartao = cartao.dataset.id;
+    const r = cartao.getBoundingClientRect();
+    deslocX = e.clientX - r.left; deslocY = e.clientY - r.top;
+    fantasma = cartao.cloneNode(true);
+    fantasma.classList.add("fantasma-cartao");
+    fantasma.style.width = r.width + "px";
+    document.body.appendChild(fantasma);
+    cartao.classList.add("arrastando");
+    // o scroll-snap do quadro devolve a rolagem ao ponto de encaixe e anula o avanço em passos curtos
+    quadro.style.scrollSnapType = "none";
+    mover(e);
+    // rolagem contínua mesmo com o ponteiro parado na beirada
+    rolagem = setInterval(() => { if (ultimo) rolarPerto(ultimo.x, ultimo.y); }, 60);
+  }
+
+  let ultimo = null;
+  function mover(e) {
+    ultimo = { x: e.clientX, y: e.clientY };
+    fantasma.style.left = e.clientX - deslocX + "px";
+    fantasma.style.top = e.clientY - deslocY + "px";
+    destacar(colunaSob(e.clientX, e.clientY));
+  }
+
+  function encerrar(e, soltar) {
+    clearInterval(rolagem); rolagem = null;
+    clearTimeout(timerToque); timerToque = null;
+    quadro.style.scrollSnapType = "";
+    const alvo = pronto && soltar ? colunaSob(e.clientX, e.clientY) : null;
+    const id = arrastandoCartao;
+    fantasma?.remove(); fantasma = null;
+    cartao?.classList.remove("arrastando");
+    document.querySelectorAll(".coluna.alvo").forEach((c) => c.classList.remove("alvo"));
+    cartao = null; pronto = false; ultimo = null; arrastandoCartao = null;
+    if (alvo && id) moverLead(id, alvo.dataset.etapa);
+    // atualização que chegou durante o arrasto foi adiada para não derrubar o cartão
+    else if (leadsDistribuicaoRender && ["leads", "kanban"].includes(vistaAtual)) { leadsDistribuicaoRender = false; render(); }
+  }
+
+  document.querySelectorAll(".cartao[data-arrastavel]").forEach((el) => {
+    el.addEventListener("pointerdown", (e) => {
+      if (e.button != null && e.button !== 0) return;
+      // clique em botão, seletor ou link continua sendo clique
+      if (e.target.closest("button, select, a, input, textarea")) return;
+      cartao = el; pronto = false;
+      const inicio = { x: e.clientX, y: e.clientY };
+      el.setPointerCapture?.(e.pointerId);
+      if (e.pointerType === "touch") {
+        // no toque, segurar evita disputar com a rolagem da lista
+        timerToque = setTimeout(() => { if (cartao) comecar({ clientX: inicio.x, clientY: inicio.y }); }, ESPERA_TOQUE);
+      }
+      const aoMover = (ev) => {
+        if (!cartao) return;
+        if (!pronto) {
+          const longe = Math.abs(ev.clientX - inicio.x) > LIMIAR || Math.abs(ev.clientY - inicio.y) > LIMIAR;
+          if (ev.pointerType === "touch") { if (longe) { clearTimeout(timerToque); timerToque = null; cartao = null; } return; }
+          if (!longe) return;
+          comecar(ev);
+        }
+        ev.preventDefault();
+        mover(ev);
+      };
+      const aoSoltar = (ev) => {
+        el.removeEventListener("pointermove", aoMover);
+        el.removeEventListener("pointerup", aoSoltar);
+        el.removeEventListener("pointercancel", aoCancelar);
+        encerrar(ev, true);
+      };
+      const aoCancelar = (ev) => {
+        el.removeEventListener("pointermove", aoMover);
+        el.removeEventListener("pointerup", aoSoltar);
+        el.removeEventListener("pointercancel", aoCancelar);
+        encerrar(ev, false);
+      };
+      el.addEventListener("pointermove", aoMover);
+      el.addEventListener("pointerup", aoSoltar);
+      el.addEventListener("pointercancel", aoCancelar);
     });
-    cartao.addEventListener("dragend", () => {
-      arrastandoCartao = null;
-      cartao.classList.remove("arrastando");
-      document.querySelectorAll(".coluna").forEach((c) => c.classList.remove("alvo"));
-      // atualização que chegou durante o arrasto foi adiada para não derrubar o cartão
-      if (leadsDistribuicaoRender && ["leads", "kanban"].includes(vistaAtual)) { leadsDistribuicaoRender = false; render(); }
-    });
-  });
-  document.querySelectorAll(".coluna").forEach((coluna) => {
-    coluna.addEventListener("dragover", (e) => {
-      if (!arrastandoCartao) return;
-      e.preventDefault();
-      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
-      coluna.classList.add("alvo");
-    });
-    // sair para um filho ainda é estar na coluna; só apaga o destaque ao sair de verdade
-    coluna.addEventListener("dragleave", (e) => { if (!coluna.contains(e.relatedTarget)) coluna.classList.remove("alvo"); });
-    coluna.addEventListener("drop", (e) => {
-      e.preventDefault();
-      coluna.classList.remove("alvo");
-      const id = arrastandoCartao || e.dataTransfer?.getData("text/plain");
-      arrastandoCartao = null;
-      if (id) moverLead(id, coluna.dataset.etapa);
-    });
+    // enquanto arrasta no toque, o dedo não pode rolar a página
+    el.addEventListener("touchmove", (e) => { if (pronto) e.preventDefault(); }, { passive: false });
   });
 }
