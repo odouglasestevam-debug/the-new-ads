@@ -170,7 +170,7 @@ async function sincronizarLeadsDistribuidos(){
     const {data,error}=await sb.from('leads').select('*, lead_origens(*)').eq('empresa_id',id).order('criado_em',{ascending:false});
     if(error||!data||empresaAtual?.id!==id)return;
     if(JSON.stringify(data)===JSON.stringify(leads)){
-      if(leadsDistribuicaoRender&&['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea')){leadsDistribuicaoRender=false;render();}
+      if(leadsDistribuicaoRender&&!arrastandoCartao&&['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea')){leadsDistribuicaoRender=false;render();}
       return;
     }
     const ids=new Set(data.map(l=>l.id));
@@ -183,7 +183,7 @@ async function sincronizarLeadsDistribuidos(){
       conversas=conversas.filter(c=>ids.has(c.lead_id));
       await atualizarConversas();
     }
-    if(['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea')){leadsDistribuicaoRender=false;render();}
+    if(!arrastandoCartao&&['leads','kanban'].includes(vistaAtual)&&!document.querySelector('.fundo-modal')&&!document.activeElement?.matches('input,select,textarea')){leadsDistribuicaoRender=false;render();}
     if(perdeuAcesso&&vistaAtual==='conversas')render();
   }finally{sincronizandoDistribuicao=false;}
 }

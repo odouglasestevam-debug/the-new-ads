@@ -60,8 +60,8 @@ try{
    }
    return{data:name==='membros_da_empresa'?fixture.team:name==='canais_whatsapp'?fixture.channels:null,error:null};
  },
- from:table=>{let filters=[],orders=[],limit=1000,one=false;
- const q={select:()=>q,eq:(k,v)=>{filters.push(r=>r[k]===v);return q},order:(k,o)=>{orders.push([k,o]);return q},limit:n=>{limit=n;return q},or:s=>{const t=s.match(/criado_em.lt.([^,]+)/)[1];filters.push(r=>r.criado_em<t);return q},maybeSingle:()=>{one=true;return q},single:()=>{one=true;return q},then:(ok,no)=>Promise.resolve().then(()=>{fixture.requests.push({table});let rows=(fixture.tables[table]||[]).filter(r=>filters.every(f=>f(r)));for(const[k,o]of orders.reverse())rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o?.ascending===false?-1:1));rows=rows.slice(0,limit);return {data:one?rows[0]||null:structuredClone(rows),error:null}}).then(ok,no)};return q}
+ from:table=>{let filters=[],orders=[],limit=1000,one=false,patch=null;
+ const q={select:()=>q,update:p=>{patch=p;return q},eq:(k,v)=>{filters.push(r=>r[k]===v);return q},order:(k,o)=>{orders.push([k,o]);return q},limit:n=>{limit=n;return q},or:s=>{const t=s.match(/criado_em.lt.([^,]+)/)[1];filters.push(r=>r.criado_em<t);return q},maybeSingle:()=>{one=true;return q},single:()=>{one=true;return q},then:(ok,no)=>Promise.resolve().then(()=>{fixture.requests.push({table});let rows=(fixture.tables[table]||[]).filter(r=>filters.every(f=>f(r)));if(patch)for(const r of rows)Object.assign(r,patch);for(const[k,o]of orders.reverse())rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o?.ascending===false?-1:1));rows=rows.slice(0,limit);return {data:one?rows[0]||null:structuredClone(rows),error:null}}).then(ok,no)};return q}
  })};` }));
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.waitForFunction(()=>typeof iniciar==='function');
@@ -105,6 +105,27 @@ try{
    leads=structuredClone(fixture.tables.leads);document.getElementById('cont-leads').textContent=leads.length;render();
  });
  await page.screenshot({animations:'disabled',path:'tests/artifacts/kanban-desktop.png'});
+ const ETAPAS_TESTE=await page.evaluate(()=>ETAPAS.map(e=>e.id));
+ // Arrasto do kanban: atualização de 25s não pode derrubar o cartão na mão, e o drop precisa mover a etapa.
+ const cartaoArrastado=page.locator('.cartao').first();
+ const idArrastado=await cartaoArrastado.getAttribute('data-id');
+ const etapaOrigem=await page.evaluate(id=>leads.find(l=>l.id===id).etapa,idArrastado);
+ const destino=ETAPAS_TESTE.find(e=>e!==etapaOrigem);
+ await cartaoArrastado.dispatchEvent('dragstart',{dataTransfer:await page.evaluateHandle(()=>new DataTransfer())});
+ const sobreviveu=await page.evaluate(async id=>{
+   // o nó exato precisa continuar no documento: um cartão recriado com o mesmo id já quebrou o arrasto
+   const no=document.querySelector(`.cartao[data-id="${id}"]`);
+   leadsDistribuicaoRender=true;
+   await sincronizarLeadsDistribuidos();
+   fixture.tables.leads.push({id:'zz-sync',empresa_id:'e1',nome:'Entrada durante o arrasto',telefone:'+5511999990000',etapa:'novo',responsavel_id:'u1',criado_em:new Date().toISOString(),lead_origens:[]});
+   await sincronizarLeadsDistribuidos();
+   return no.isConnected;
+ },idArrastado);
+ assert(sobreviveu,'Cartão em arrasto não pode ser destruído pela sincronização de leads');
+ await page.locator(`.coluna[data-etapa="${destino}"]`).dispatchEvent('drop',{dataTransfer:await page.evaluateHandle(()=>new DataTransfer())});
+ await page.locator(`.coluna[data-etapa="${destino}"] .cartao[data-id="${idArrastado}"]`).waitFor();
+ assert.equal(await page.evaluate(id=>fixture.tables.leads.find(l=>l.id===id).etapa,idArrastado),destino,'Drop precisa gravar a nova etapa');
+ await page.evaluate(([id,etapa])=>{const l=fixture.tables.leads.find(l=>l.id===id);l.etapa=etapa;leads=structuredClone(fixture.tables.leads);render();},[idArrastado,etapaOrigem]);
  await page.locator('#nav [data-vista="leads"]').click();
  await page.screenshot({animations:'disabled',path:'tests/artifacts/leads-desktop.png'});
  await page.getByText('Mais filtros',{exact:true}).click();

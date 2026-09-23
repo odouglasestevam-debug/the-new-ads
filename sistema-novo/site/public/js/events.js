@@ -229,22 +229,36 @@ async function moverLead(id, etapa) {
 }
 
 function ligarArrasto() {
-  let arrastando = null;
   document.querySelectorAll(".cartao[draggable]").forEach((cartao) => {
-    cartao.addEventListener("dragstart", () => { arrastando = cartao.dataset.id; cartao.classList.add("arrastando"); });
+    cartao.addEventListener("dragstart", (e) => {
+      arrastandoCartao = cartao.dataset.id;
+      cartao.classList.add("arrastando");
+      // sem dado no dataTransfer o navegador cancela o arrasto; o id também serve de reserva no drop
+      try { e.dataTransfer.setData("text/plain", cartao.dataset.id); e.dataTransfer.effectAllowed = "move"; } catch (erro) {}
+    });
     cartao.addEventListener("dragend", () => {
-      arrastando = null;
+      arrastandoCartao = null;
       cartao.classList.remove("arrastando");
       document.querySelectorAll(".coluna").forEach((c) => c.classList.remove("alvo"));
+      // atualização que chegou durante o arrasto foi adiada para não derrubar o cartão
+      if (leadsDistribuicaoRender && ["leads", "kanban"].includes(vistaAtual)) { leadsDistribuicaoRender = false; render(); }
     });
   });
   document.querySelectorAll(".coluna").forEach((coluna) => {
-    coluna.addEventListener("dragover", (e) => { if (arrastando) { e.preventDefault(); coluna.classList.add("alvo"); } });
-    coluna.addEventListener("dragleave", () => coluna.classList.remove("alvo"));
+    coluna.addEventListener("dragover", (e) => {
+      if (!arrastandoCartao) return;
+      e.preventDefault();
+      if (e.dataTransfer) e.dataTransfer.dropEffect = "move";
+      coluna.classList.add("alvo");
+    });
+    // sair para um filho ainda é estar na coluna; só apaga o destaque ao sair de verdade
+    coluna.addEventListener("dragleave", (e) => { if (!coluna.contains(e.relatedTarget)) coluna.classList.remove("alvo"); });
     coluna.addEventListener("drop", (e) => {
       e.preventDefault();
       coluna.classList.remove("alvo");
-      if (arrastando) moverLead(arrastando, coluna.dataset.etapa);
+      const id = arrastandoCartao || e.dataTransfer?.getData("text/plain");
+      arrastandoCartao = null;
+      if (id) moverLead(id, coluna.dataset.etapa);
     });
   });
 }

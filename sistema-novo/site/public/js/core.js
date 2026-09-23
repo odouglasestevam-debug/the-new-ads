@@ -49,6 +49,7 @@ let busca = "";
 let filtroCadastro = "todos";
 let formularios = [];
 let formEditando = null;   // cópia em edição; null mostra a lista
+let arrastandoCartao = null; // id do lead em arrasto: redesenhar agora mataria o cartão na mão
 let conversas = [];
 let conversaAberta = null; // id da conversa aberta na vista Conversas
 let mensagensPorConversa = {};
