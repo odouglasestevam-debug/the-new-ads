@@ -51,3 +51,15 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 ### 2026-09-14 — CompleteRegistration é aceito sob OUTCOME_SALES
 **Regra:** Diferente do LEAD, `custom_event_type: COMPLETE_REGISTRATION` funciona como meta de desempenho em campanha de Vendas. Criativos podem ser reaproveitados entre anúncios de campanhas diferentes pelo `creative_id`: as macros das url_tags resolvem por anúncio.
 **Contexto:** Campanha de Vendas da Funil Shark montada reaproveitando os 13 criativos da campanha de Lead.
+
+### 2026-09-23 — Campanha nova exige is_adset_budget_sharing_enabled
+**Regra:** Criar campanha na v25 sem `is_adset_budget_sharing_enabled` retorna "Invalid parameter" code 100 subcode 4834011, e a mensagem real só aparece em `error_user_title`. Passar `False` para orçamento estrito no conjunto (ABO) ou `True` para deixar os conjuntos dividirem 20%. Além disso, `bid_strategy` no nível da campanha exige orçamento no nível da campanha (subcode 1885737): ou define `daily_budget` na campanha, ou joga orçamento e bid_strategy para o conjunto.
+**Contexto:** Criação da campanha de Londrina/Ibiporã do Grupo Confiança travou duas vezes seguidas; o `create.py campaign` não expõe o campo, precisou ir pelo SDK direto.
+
+### 2026-09-23 — Janela de atribuição de 7 dias não é mais aceita em CONVERSATIONS
+**Regra:** Ad set com `optimization_goal: CONVERSATIONS` e `destination_type: WHATSAPP` só aceita `attribution_spec` com `window_days: 1` (subcode 1885423 se mandar 7). Conjuntos antigos com 7 dias continuam rodando, então campanha nova e campanha velha do mesmo cliente reportam em janelas diferentes: avisar antes de comparar número de conversa entre elas.
+**Contexto:** Conjunto novo do Grupo Confiança recusado ao copiar o `attribution_spec` do conjunto de maio, que tem 7 dias.
+
+### 2026-09-23 — location_types home+recent é sobrescrito com frequently_in
+**Regra:** Em ad set de WhatsApp com `advantage_audience: 1`, a API aceita `location_types: ["home","recent"]` mas devolve `["frequently_in","home","recent"]`, tanto na criação quanto num update posterior. Não insistir via API: se o cliente exigir só morador e visitante recente, o ajuste é manual no Gerenciador.
+**Contexto:** Conjunto de Londrina/Ibiporã do Grupo Confiança, onde o padrão da conta era home+recent.
