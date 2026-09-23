@@ -29,8 +29,8 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
   const login=async(id,aal='aal1')=>{await db.exec('reset role');await db.query(`select set_config('request.jwt.claims',$1,false)`,[JSON.stringify({sub:id,role:'authenticated',aal})]);await db.exec('set role authenticated');};
   const server=async()=>{await db.exec('reset role');await db.query(`select set_config('request.jwt.claims','',false)`);};
   const config=async()=>{await login(owner);return (await db.query('select crm_obter_distribuicao($1) d',[company])).rows[0].d;};
-  const save=async(mode,ids=[a,b],canal='padrao')=>{const c=await config();return(await db.query('select crm_salvar_distribuicao($1,$2,$3,$4,$5) d',[company,mode,ids,c.revisao,canal])).rows[0].d;};
-  const fila=(c,canal='padrao')=>c.participantes[canal]||[];
+  const save=async(mode,ids=[a,b],canal='comercial')=>{const c=await config();return(await db.query('select crm_salvar_distribuicao($1,$2,$3,$4,$5) d',[company,mode,ids,c.revisao,canal])).rows[0].d;};
+  const fila=(c,canal='comercial')=>c.participantes[canal]||[];
   const insert=async({responsavel=null,etapa='novo',co=company,tel=null}={})=>{
    await server();const id=crypto.randomUUID();await db.query('insert into leads(id,empresa_id,responsavel_id,etapa,telefone) values($1,$2,$3,$4,$5)',[id,co,responsavel,etapa,tel]);return id;
   };
@@ -63,27 +63,30 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
    await db.exec('begin');await db.query('insert into leads(empresa_id) values($1)',[company]);await db.exec('rollback');
    const after=await config();assert.deepEqual(fila(after),fila(before));assert.equal(after.historico.length,before.historico.length);assert(await responsible(lead));
   });
-  await t.test('cada canal tem a sua fila: site e WhatsApp não se misturam',async()=>{
-   const c=await config(),next=fila(c)[0];await server();
+  await t.test('comercial junta site e número oficial; suporte é fila separada e fora do funil',async()=>{
+   const c=await config(),primeiro=fila(c)[0],segundo=fila(c)[1];await server();
    await db.query(`insert into formularios(empresa_id,nome,chave) values($1,'Fixture distribuição','fixture-distribution')`,[company]);
    const site=async()=>db.query(`select * from receber_lead_site('fixture-distribution','Fixture site','+5511999977777',null,'{}','{}')`);
-   const id=(await site()).rows[0].lead_id;assert.equal(await responsible(id),next,'lead de formulário usa a fila padrão');
+   const id=(await site()).rows[0].lead_id;assert.equal(await responsible(id),primeiro,'formulário usa a fila comercial');
    const before=await config();await server();await site();assert.deepEqual(fila(await config()),fila(before),'reentrega do mesmo contato não consome a fila');
-   // canal de WhatsApp ainda sem equipe: o lead aguarda em vez de cair na equipe do site
-   const whats=async(tel,msg)=>{await server();return db.query(`select * from receber_mensagem_whatsapp($1,'whatsapp_oficial',$2,'Fixture Whats',$3,'texto','Olá',null,null,now(),'entrada')`,[company,tel,msg]);};
-   await whats('5511999966666','fixture-assignment-message');
-   const wa=(await db.query(`select id,responsavel_id from leads where empresa_id=$1 and telefone='+5511999966666'`,[company])).rows[0];
-   assert.equal(wa.responsavel_id,null,'sem equipe no canal, o lead não vaza para a equipe do site');
-   assert.deepEqual(fila(await config()),fila(before),'canal sem equipe não consome a fila padrão');
-   // com equipe só do B no canal oficial, todo lead daquele número vai para o B
-   await save('fila',[b],'whatsapp_oficial');
-   assert.equal(await responsible(wa.id),b,'ao definir a equipe do canal, o pendente daquele canal é entregue');
-   await whats('5511999955555','fixture-assignment-message-2');
-   const wa2=(await db.query(`select responsavel_id from leads where empresa_id=$1 and telefone='+5511999955555'`,[company])).rows[0];
-   assert.equal(wa2.responsavel_id,b,'segundo lead do mesmo canal continua na equipe do canal');
-   await server();await site();
-   const depois=(await db.query(`select responsavel_id from leads where empresa_id=$1 and telefone='+5511999977777'`,[company])).rows[0];
-   assert.equal(depois.responsavel_id,next,'fila do site segue independente do canal de WhatsApp');
+   // campanha no número oficial é o mesmo negócio: continua o rodízio comercial, não abre outra fila
+   const whats=async(canal,tel,msg)=>{await server();return db.query(`select * from receber_mensagem_whatsapp($1,$2,$3,'Fixture Whats',$4,'texto','Olá',null,null,now(),'entrada')`,[company,canal,tel,msg]);};
+   await whats('whatsapp_oficial','5511999966666','fixture-oficial-1');
+   const wa=(await db.query(`select id,responsavel_id,tipo from leads where empresa_id=$1 and telefone='+5511999966666'`,[company])).rows[0];
+   assert.equal(wa.responsavel_id,segundo,'número oficial continua o mesmo rodízio comercial');
+   assert.equal(wa.tipo,'comercial');
+   // número de suporte: sem equipe no canal, o contato aguarda e não cai na equipe comercial
+   await whats('whatsapp_nao_oficial','5511999944444','fixture-suporte-1');
+   const sup=(await db.query(`select id,responsavel_id,tipo from leads where empresa_id=$1 and telefone='+5511999944444'`,[company])).rows[0];
+   assert.equal(sup.responsavel_id,null,'suporte não vaza para a equipe comercial');
+   assert.equal(sup.tipo,'suporte','contato do número de suporte nasce fora do funil');
+   const antesSuporte=fila(await config());
+   await save('fila',[b],'suporte');
+   assert.equal(await responsible(sup.id),b,'ao definir a equipe de suporte, o pendente é entregue a ela');
+   assert.deepEqual(fila(await config()),antesSuporte,'fila comercial não se mexe com entrega de suporte');
+   // contato de suporte que preenche o formulário vira lead comercial sozinho
+   await server();await db.query(`select * from receber_lead_site('fixture-distribution','Virou lead','+5511999944444',null,'{}','{}')`);
+   assert.equal((await db.query('select tipo from leads where id=$1',[sup.id])).rows[0].tipo,'comercial','origem comercial promove o contato');
   });
   await t.test('inteligente aguarda sem online e entrega quando um participante fica disponível',async()=>{
    await save('inteligente');const waiting=await insert();assert.equal(await responsible(waiting),null);assert.equal((await config()).pendentes,1);
