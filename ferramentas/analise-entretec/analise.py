@@ -215,6 +215,15 @@ def main():
     secao("Problemas tecnicos", tecnicos, "Nenhum problema tecnico encontrado.")
     secao("O que NAO fazer agora", observar + nao_mexer,
           "Nada em observacao: todas as campanhas tem volume suficiente para leitura.")
+    pend = os.path.join(SAIDA, "_pendencias.md")
+    if os.path.isfile(pend):
+        with open(pend, encoding="utf-8") as fp:
+            texto_pend = fp.read().strip()
+        if texto_pend:
+            A("## Otimizacoes combinadas, ainda pendentes\n")
+            A(texto_pend)
+            A("")
+
     A("## Manter como esta\n")
     A("\n".join("- {}".format(x) for x in manter) if manter else "Nenhuma campanha na faixa de manutencao.")
     A("\nNenhuma alteracao foi feita na conta. Tudo acima e proposta, aguardando decisao.\n")
