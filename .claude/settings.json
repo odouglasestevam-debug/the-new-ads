@@ -138,6 +138,16 @@
           }
         ]
       }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash -c 'F=\"clientes/entretec/relatorios/_ultimo.md\"; [ -f \"$F\" ] || exit 0; echo \"===== RELATORIO ENTRETEC (Google Ads) =====\"; sed -n \"1,14p\" \"$F\"; grep -E \"^## (Alertas|Sugestoes) \\(\" \"$F\"; echo \"\"; echo \"Completo em $F. Peca \\\"abre o relatorio da Entretec\\\" para detalhar.\"'"
+          }
+        ]
+      }
     ]
   }
 }
