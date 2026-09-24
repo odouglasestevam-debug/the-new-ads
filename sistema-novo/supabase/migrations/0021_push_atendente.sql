@@ -125,9 +125,11 @@ language sql security definer set search_path = '' as $$
         'endpoint', p.endpoint, 'p256dh', p.p256dh, 'auth', p.auth)), '[]'::jsonb)
       from privado.crm_push p where p.user_id = a.user_id)
   ) order by a.criado_em, a.id), '[]'::jsonb)
-  from privado.crm_avisos a
-  where a.enviado_em is null and a.tentativas < 5 and a.criado_em > now() - interval '1 day'
-  limit 200;
+  from (
+    select * from privado.crm_avisos
+    where enviado_em is null and tentativas < 5 and criado_em > now() - interval '1 day'
+    order by criado_em, id limit 200
+  ) a;
 $$;
 revoke execute on function public.crm_avisos_pendentes() from public, anon, authenticated;
 grant execute on function public.crm_avisos_pendentes() to service_role;
