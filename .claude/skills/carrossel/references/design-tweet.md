@@ -22,12 +22,12 @@ Cada slide parece um tweet independente. O visual é ultra-limpo, familiar, e fu
 
 ### Header (fixo em todos os slides)
 
-Posicionado no topo do slide, com padding generoso acima (~120px) e à esquerda (~80px):
+Posicionado no topo do slide, com padding acima (~40-60px) e à esquerda (~40-50px):
 
-- **Foto de perfil:** círculo de 80-90px. Se o usuário tiver foto, usar `<img>` com `border-radius: 50%`. Se não tiver, criar círculo com as iniciais do nome (fundo na cor de destaque, texto branco, font-size 32px)
-- **Nome:** ao lado da foto, font-size 28-32px, font-weight 700, cor #0F1419
-- **Badge verificado** (opcional): usar o SVG em `references/badge-verificado.svg` ao lado do nome. Tamanho 26-28px. Só incluir se o usuário ativou no setup (campo "Badge verificado" no design guide)
-- **@handle:** embaixo do nome, font-size 24-26px, font-weight 400, cor #536471
+- **Foto de perfil:** círculo de 120-150px (proporção que lê bem no celular dentro do Instagram), com anel claro de 4-6px em volta (#E6E9EC). Se o usuário tiver foto, usar `<img>` com `border-radius: 50%` e `object-fit: cover`. Se não tiver, criar círculo com as iniciais do nome (fundo na cor de destaque, texto branco)
+- **Nome:** ao lado da foto, font-size 40-44px, font-weight 700, cor #0F1419
+- **Badge verificado** (opcional): usar o SVG em `references/badge-verificado.svg` ao lado do nome. Tamanho 36-40px. Só incluir se o usuário ativou no setup (campo "Badge verificado" no design guide). Nunca ligar por conta própria
+- **@handle:** embaixo do nome, font-size 30-34px, font-weight 400, cor #536471
 
 Layout do header: foto à esquerda, nome + handle em coluna à direita da foto, com gap de 16px.
 
@@ -53,7 +53,28 @@ Se o usuário quiser incluir uma imagem (print de tela, screenshot, etc), coloca
 
 ### Sem imagem
 
-A maioria dos slides é só header + texto. O espaço vazio embaixo é intencional (é assim que um tweet se parece). Nunca inventar cards, previews ou formatações que não existem no Twitter.
+A maioria dos slides é só header + texto. O espaço vazio embaixo é intencional (é assim que um tweet se parece). Nunca inventar cards, previews ou formatações que não existem no Twitter. A única exceção é o infográfico anexado (ver "Slide com card de dados"), que existe no Twitter real como imagem anexada ao tweet.
+
+---
+
+## Slide com card de dados (infográfico anexado)
+
+Padrão de contas que publicam levantamentos com números públicos: o slide é um tweet cujo "anexo" é um infográfico limpo. Usar quando o carrossel precisa provar algo com dado (ranking, comparação, soma).
+
+1. **Header** no topo (foto + nome + handle)
+2. **Texto do tweet** em 1 ou 2 parágrafos curtos (38-42px, line-height ~1.25, largura máxima de ~75% do slide pra manter medida de leitura curta). Primeiro parágrafo diz a conclusão. Segundo, quando fizer sentido, traz o cuidado metodológico ("o recorte não inclui...")
+3. **Card ancorado na base** do slide, ocupando cerca de metade da altura: fundo #F7F9FA, borda 1px #EFF3F4, border-radius 24-30px, padding 30-40px
+   - Título do card em caixa alta, 20-22px, bold, cor escura, com o período à direita em cinza (ex: "22/08 a 20/09/2026")
+   - Linhas de ranking: nome à esquerda (26-28px), valor à direita (bold, 28-30px), barra fina (10-12px, cantos arredondados) logo abaixo, proporcional ao maior valor, e uma linha de detalhe em cinza (18px) abaixo da barra
+   - Barra do maior valor na cor de destaque da marca, as demais em grafite. "Sem registro" em cinza, nunca como zero
+   - Máximo de 6 linhas por card
+4. **Rodapé de fonte** fora do card, centralizado, 14px, cinza (#8B98A5): "Fonte: [origem] · [período]". Obrigatório em todo slide com dado
+
+**Regras de dado:**
+- Usar só número fornecido pelo usuário ou verificável. Somas e médias calculadas por nós devem ser conferidas duas vezes e marcadas como "soma" ou "média" no card
+- Citar sempre a origem do dado, inclusive quando o levantamento foi compilado por terceiro
+- Deixar explícito o que o recorte NÃO inclui, pra não afirmar mais do que o dado sustenta
+- Nunca reproduzir nome, foto ou identidade de outra pessoa como se fosse o autor do post. O header é sempre o do perfil do usuário
 
 ---
 
@@ -80,6 +101,7 @@ Mesmo sendo "tweet", variar o conteúdo visual pra não ficar 8 slides idêntico
 - **Slide de texto puro:** header + texto. O mais comum (maioria dos slides)
 - **Slide com dado em destaque:** um número grande (64-80px, bold, cor de destaque) no meio do texto
 - **Slide com lista:** itens com emoji de dedo apontando ou bullet points simples. Espaçamento generoso entre itens
+- **Slide com card de dados:** texto curto no topo + infográfico anexado embaixo (ranking, comparação, soma). Ver seção própria acima
 - **Slide com link preview:** card de preview embaixo do texto (pra slides que mencionam uma ferramenta, produto ou link)
 - **Slide de capa:** pode ter o texto maior (48-56px) e menos texto, mais impacto
 - **Slide de CTA:** pode ter o texto com @ do perfil maior, ou um botão estilizado embaixo

@@ -1,26 +1,13 @@
-# Regras de Design — Carrossel (Prova Social / Editorial)
+# Regras de Design — Carrossel (Estilo Tweet)
 
-> Este arquivo controla como os slides do carrossel são criados visualmente.
-> Padrão inspirado em contas de referência de alta performance (ex: @brandsdecoded_ / Content Machine).
-> Foco: autoridade, prova concreta, fotografia editorial e mecânica de conversão — não só design bonito.
-> Tu pode editar qualquer regra aqui e o Claude vai seguir na próxima vez que criar um carrossel.
+> Simula o visual de um tweet/post do Twitter/X em cada slide.
+> Fundo branco, foto de perfil, nome e @handle no topo, texto limpo embaixo.
 
 ---
 
-## Filosofia
+## Conceito
 
-Esse estilo vende antes de "impressionar". Cada slide existe pra provar um ponto, não só decorar um texto. A estética é grotesk bold + fotografia editorial + prova real (screenshots, dados, cases), nunca gradiente genérico ou ilustração decorativa solta.
-
-**Pensar antes de criar:**
-- Esse slide está afirmando algo ou provando algo? Prova > afirmação sempre que possível
-- Tem um dado, print, exemplo real ou case pra sustentar o argumento deste slide?
-- A headline tem UMA palavra ou frase que merece destaque de cor, ou tá tudo no mesmo peso?
-
-**NUNCA fazer:**
-- Texto genérico sem prova quando existe dado disponível
-- Cor de destaque aplicada em mais de uma frase/bloco por slide
-- Foto de banco de imagem genérica (pose de stock, sorriso forçado). Preferir still editorial com grade de cor forte, ou não usar foto
-- Fundo com gradiente decorativo sem função (esse estilo é fundo sólido, não textura)
+Cada slide parece um tweet independente. O visual é ultra-limpo, familiar, e funciona bem porque as pessoas já sabem ler nesse formato. A atenção vai toda pro texto.
 
 ---
 
@@ -28,132 +15,137 @@ Esse estilo vende antes de "impressionar". Cada slide existe pra provar um ponto
 
 - **Instagram:** 1080x1350px (proporção 4:5)
 - **TikTok:** 1080x1920px (proporção 9:16)
-- **Safe area:** 45px nas laterais, 60px em cima, 80px embaixo
 
 ---
 
-## Barra de assinatura (todo slide, sem exceção)
+## Estrutura de cada slide
 
-Barra fina no topo de todo slide, três colunas:
-- **Esquerda:** "Powered by [marca/agência]" — ou nome da marca do cliente
-- **Centro:** "@handle" do Instagram
-- **Direita:** mês/ano (ex: "Janeiro 2026 ®") ou apenas ano com "//" (ex: "2026 //")
+### Header (fixo em todos os slides)
 
-Fonte pequena (11-13px), sans-serif regular, cor branca em fundo escuro/vibrante, cor preta/escura em fundo claro. Nunca decorativa, sempre discreta — é assinatura, não elemento de destaque.
+Posicionado no topo do slide, com padding acima (~40-60px) e à esquerda (~40-50px):
+
+- **Foto de perfil:** círculo de 120-150px (proporção que lê bem no celular dentro do Instagram), com anel claro de 4-6px em volta (#E6E9EC). Se o usuário tiver foto, usar `<img>` com `border-radius: 50%` e `object-fit: cover`. Se não tiver, criar círculo com as iniciais do nome (fundo na cor de destaque, texto branco)
+- **Nome:** ao lado da foto, font-size 40-44px, font-weight 700, cor #0F1419
+- **Badge verificado** (opcional): usar o SVG em `references/badge-verificado.svg` ao lado do nome. Tamanho 36-40px. Só incluir se o usuário ativou no setup (campo "Badge verificado" no design guide). Nunca ligar por conta própria
+- **@handle:** embaixo do nome, font-size 30-34px, font-weight 400, cor #536471
+
+Layout do header: foto à esquerda, nome + handle em coluna à direita da foto, com gap de 16px.
+
+### Corpo do tweet
+
+Abaixo do header, com padding lateral (~80px) e topo (~40px abaixo do header):
+
+- **Font-size:** 36-42px (maior que tweet real pra funcionar no Instagram)
+- **Font-weight:** 400 (regular)
+- **Line-height:** 1.5-1.6
+- **Cor:** #0F1419 (preto suave do Twitter)
+- **Palavras em destaque:** font-weight 700 (bold). Usar pra termos-chave, nomes de produto, dados
+
+### Imagens (só quando o usuário fornecer)
+
+Se o usuário quiser incluir uma imagem (print de tela, screenshot, etc), colocar embaixo do texto como se fosse imagem anexada a um tweet:
+
+- Width: 100% (com padding lateral)
+- Border-radius: 16px
+- Border: 1px solid #EFF3F4
+- object-fit: cover
+- Sem card de link preview, sem caixinha com titulo/descricao. Só a imagem pura, como no Twitter real
+
+### Sem imagem
+
+A maioria dos slides é só header + texto. O espaço vazio embaixo é intencional (é assim que um tweet se parece). Nunca inventar cards, previews ou formatações que não existem no Twitter. A única exceção é o infográfico anexado (ver "Slide com card de dados"), que existe no Twitter real como imagem anexada ao tweet.
 
 ---
 
-## Paleta e alternância de fundo
+## Slide com card de dados (infográfico anexado)
 
-Rotacionar entre **3 tipos de fundo**, nunca dois slides seguidos iguais:
-1. **Claro/off-white** (`#F4F4F4` ou similar) — texto escuro
-2. **Escuro/navy quase preto** (`#0A0A14` ou similar) — texto branco, destaque em amarelo-claro ou accent
-3. **Cor vibrante sólida** (a cor de destaque da marca, saturada — ex: laranja `#FF4500`) — texto branco/preto conforme contraste
+Padrão de contas que publicam levantamentos com números públicos: o slide é um tweet cujo "anexo" é um infográfico limpo. Usar quando o carrossel precisa provar algo com dado (ranking, comparação, soma).
 
-A cor de destaque da marca (`marca/design-guide.md`) aparece em: palavra-chave dentro de headline, sublinhado, ou como fundo sólido de slide inteiro (não as três coisas no mesmo slide).
+1. **Header** no topo (foto + nome + handle)
+2. **Texto do tweet** em 1 ou 2 parágrafos curtos (38-42px, line-height ~1.25, largura máxima de ~75% do slide pra manter medida de leitura curta). Primeiro parágrafo diz a conclusão. Segundo, quando fizer sentido, traz o cuidado metodológico ("o recorte não inclui...")
+3. **Card ancorado na base** do slide, ocupando cerca de metade da altura: fundo #F7F9FA, borda 1px #EFF3F4, border-radius 24-30px, padding 30-40px
+   - Título do card em caixa alta, 20-22px, bold, cor escura, com o período à direita em cinza (ex: "22/08 a 20/09/2026")
+   - Linhas de ranking: nome à esquerda (26-28px), valor à direita (bold, 28-30px), barra fina (10-12px, cantos arredondados) logo abaixo, proporcional ao maior valor, e uma linha de detalhe em cinza (18px) abaixo da barra
+   - Barra do maior valor na cor de destaque da marca, as demais em grafite. "Sem registro" em cinza, nunca como zero
+   - Máximo de 6 linhas por card
+4. **Rodapé de fonte** fora do card, centralizado, 14px, cinza (#8B98A5): "Fonte: [origem] · [período]". Obrigatório em todo slide com dado
+
+**Regras de dado:**
+- Usar só número fornecido pelo usuário ou verificável. Somas e médias calculadas por nós devem ser conferidas duas vezes e marcadas como "soma" ou "média" no card
+- Citar sempre a origem do dado, inclusive quando o levantamento foi compilado por terceiro
+- Deixar explícito o que o recorte NÃO inclui, pra não afirmar mais do que o dado sustenta
+- Nunca reproduzir nome, foto ou identidade de outra pessoa como se fosse o autor do post. O header é sempre o do perfil do usuário
 
 ---
 
-## Capa (slide 1)
+## Fundo
 
-Estrutura fixa:
-1. Barra de assinatura no topo
-2. **Avatar + @handle + badge verificado**, centralizado, logo abaixo da barra ou sobre a foto — ativa prova social antes do usuário ler qualquer coisa. Avatar circular pequeno (44-56px), pode ter anel gradiente decorativo em volta
-3. Foto full-bleed (still editorial, cor forte, alto contraste) OU fundo de cor vibrante sólida
-4. Headline em caps, peso black/900, ocupando quase a largura toda do slide. 1-3 palavras (nunca a frase inteira) na cor de destaque
-5. Linha de apoio pequena abaixo, começando com seta "→", tom mais baixo (peso regular, menor)
-
-Se não tiver foto disponível pra capa, usar fundo de cor vibrante sólida + a mesma estrutura de avatar/handle/headline. Funciona igual de bem.
+- **Sempre #FFFFFF** (branco puro)
+- Sem gradientes, sem texturas, sem noise
+- A limpeza É o design
 
 ---
 
 ## Tipografia
 
-- **Família:** sans-serif grotesk bold (ex: Archivo, General Sans, Inter Black, ou equivalente do design guide). Peso black/900 pra headlines, regular/500 pro corpo
-- **Headlines:** 56-96px, caps ou title case conforme o tom, sempre peso extremo (black)
-- **Corpo:** 28-36px, peso regular, altura de linha generosa (1.3-1.4)
-- **Uma exceção por carrossel:** pelo menos 1 slide pode usar fonte serifada editorial (ex: instrument serif, times) pra uma citação ou afirmação de peso — cria contraste de registro e sinaliza "isso é verdade importante"
-
-### Destaque de palavra-chave (escolher UMA técnica por slide, nunca combinar)
-- **Cor:** só a palavra/frase-chave na cor de destaque, resto no branco/preto padrão
-- **Sublinhado manual:** `border-bottom` fino (2-3px) sob a frase inteira que é o argumento central do slide — não a `text-decoration` padrão
-- Nunca usar highlight de fundo colorido atrás do texto nesse estilo (isso é do estilo "elaborado")
+- **Fonte recomendada:** system fonts que parecem Twitter. Usar `font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif` OU usar a fonte do design guide do usuário se ele preferir
+- **Se o design guide tiver fontes definidas:** usar a fonte de corpo do design guide. O estilo tweet funciona com qualquer fonte limpa
+- **Nunca usar:** fontes decorativas, serifadas pesadas, ou condensadas. O visual precisa ser limpo
 
 ---
 
-## Listas e marcadores
+## Variações entre slides
 
-Escolher o marcador pelo tipo de conteúdo, nunca bullet genérico (•):
-- **Seta "→":** benefícios, consequências, o que vai mudar, o que o leitor vai aprender
-- **X vermelho "✕":** mitos, crenças erradas, o que parou de funcionar
-- **Números "1. 2. 3.":** passo a passo, framework, ordem de execução
-- **"MODELO 01 / MODELO 02":** quando o slide apresenta um framework nomeado e replicável — número em cor de destaque, headline do modelo em peso black logo depois
+Mesmo sendo "tweet", variar o conteúdo visual pra não ficar 8 slides idênticos:
 
----
-
-## Prova social embutida (o diferencial desse estilo)
-
-Usar pelo menos 1-2 slides com prova concreta, não só texto puro:
-- **Card de perfil do Instagram:** mockup simples de card branco com avatar, @handle, bio e contagem de seguidores — usado como "veja esse case real"
-- **Grid de mini-thumbnails:** 6-8 miniaturas de posts/carrosséis anteriores dispostas em grid 2x4, com legenda de estrutura embaixo (ex: "Slide 1: gancho. Slides 2-3: promessa..."). Bom pra slide de "como fazer" ou "anatomia de"
-- **Print de dado/gráfico real:** se o usuário tiver ou puder fornecer estatística com fonte, montar como card visual (fundo branco, título do gráfico, fonte citada embaixo pequena)
-- **Mockup de post do Instagram:** card com foto, curtidas, comentários, botão "Turbinar post" — pra ilustrar um exemplo dentro de um framework
-
-Esses elementos são fabricados em HTML/CSS (card, mockup, grid), não fotos reais de terceiros — a menos que o usuário forneça screenshots próprios.
+- **Slide de texto puro:** header + texto. O mais comum (maioria dos slides)
+- **Slide com dado em destaque:** um número grande (64-80px, bold, cor de destaque) no meio do texto
+- **Slide com lista:** itens com emoji de dedo apontando ou bullet points simples. Espaçamento generoso entre itens
+- **Slide com card de dados:** texto curto no topo + infográfico anexado embaixo (ranking, comparação, soma). Ver seção própria acima
+- **Slide com link preview:** card de preview embaixo do texto (pra slides que mencionam uma ferramenta, produto ou link)
+- **Slide de capa:** pode ter o texto maior (48-56px) e menos texto, mais impacto
+- **Slide de CTA:** pode ter o texto com @ do perfil maior, ou um botão estilizado embaixo
 
 ---
 
-## Tratamento de imagens
+## Elementos
 
-Imagens em `conteudo/carrosseis/[tema]/imagens/`, referência relativa no HTML.
-
-- **Foto de capa/full-bleed:** cobre o slide inteiro ou uma faixa grande (60-70% da altura), sem overlay de gradiente — a foto já vem com grade de cor forte (contraste, saturação). Texto sobreposto direto no terço inferior com fundo escuro natural da foto (não overlay artificial)
-- **Foto em box (slides de conteúdo):** retângulo com `border-radius: 4-8px` (quase reto, não arredondado como o estilo elaborado), ocupando a largura do slide, altura fixa (~420-480px), com texto abaixo, nunca sobreposto
-- **Grade de cor:** se o usuário não tiver foto com grade de cor pronta, aplicar `filter: contrast(1.1) saturate(1.2)` no CSS pra aproximar do look editorial
-- Nem toda foto precisa de pessoa — still de objeto/ambiente também funciona se bem enquadrado e colorido
-
----
-
-## Design sem foto
-
-Slides 100% tipográficos funcionam bem nesse estilo (metade dos exemplos de referência não usa foto):
-- Fundo de cor sólida vibrante ou navy escuro
-- Headline black + corpo + lista com seta/X/número
-- Linha fina horizontal (`border-top: 1px solid`, opacity baixa) como separador entre blocos de texto dentro do mesmo slide
-- Espaço em branco generoso — não precisa preencher o slide inteiro, um bloco de texto no terço superior com muito respiro embaixo é válido
+- **Sem barra de progresso** (tweets não têm)
+- **Sem tags, labels ou badges** além do header
+- **Sem bordas decorativas** ou blocos de cor
+- **Emoji permitido** no corpo do texto (faz parte da linguagem de tweet)
+- **Negrito pra destaque** é o único recurso visual no texto (como no Twitter real)
 
 ---
 
-## CTA final
+## Foto de perfil
 
-Mecânica de comentário pra desbloquear, não link solto:
-- Pill/botão com borda arredondada (`border-radius: 999px`), borda fina, fundo branco/transparente
-- Texto: "Comenta '[PALAVRA]' e [ação]" — a palavra-chave em bold
-- Acima do CTA, um elemento visual de "oferta": mockup de produto, foto de pessoa usando o produto/serviço, ou objeto simbólico (livro, ebook)
-- Se o usuário não tiver oferta/lead magnet, adaptar pra CTA direto do negócio (ex: "Comenta 'ORÇAMENTO' e recebe uma proposta")
+No setup, perguntar ao usuário:
 
----
+> "Pra o estilo tweet, preciso de uma foto de perfil. Joga o arquivo na pasta `marca/` (ex: marca/foto-perfil.jpg). Se não tiver agora, uso as iniciais do teu nome."
 
-## Logo no slide final
-
-Se `marca/design-guide.md` tiver logo, incluir de forma discreta (junto da barra de assinatura ou perto do CTA): 100-160px.
+- Guardar como `marca/foto-perfil.jpg` ou `.png`
+- Referenciar no HTML com caminho relativo
+- Se não tiver foto: criar círculo com iniciais (cor de destaque do design guide como fundo)
 
 ---
 
-## HTML técnico
+## Cores
 
-- 1080x1350px, inline CSS, Google Fonts via `<link>`
-- Sem SVG de noise/textura (esse estilo é limpo, sem grão)
-- Cor de destaque com moderação: uma aplicação por slide (palavra, sublinhado, ou fundo sólido — nunca as três)
-- Bordas quase retas (`border-radius` baixo, 0-8px) em cards e imagens — o estilo é mais "editorial revista" que "app moderno arredondado"
+- **Fundo:** #FFFFFF
+- **Texto principal:** #0F1419
+- **Texto secundário (handle, metadata):** #536471
+- **Links/destaques:** cor de destaque do design guide do usuário (ou #1D9BF0 azul Twitter como fallback)
+- **Card preview fundo:** #F7F9FA
+- **Card preview borda:** #EFF3F4
 
 ---
 
 ## O que ajustar
 
-- **Muito "corporativo"/sem graça:** aumenta contraste do peso tipográfico (mais black, menos regular), adiciona mais slides de prova social
-- **Muito carregado:** reduz pra 1 elemento de prova social por carrossel, mais slides de texto puro com respiro
-- **Falta autoridade:** adiciona dado com fonte, ou mockup de case real
-- **Quer estilo específico:** descreve aqui
+- **Quer fundo escuro (dark mode Twitter):** mudar fundo pra #15202B, texto pra #E7E9EA, handle pra #8B98A5
+- **Fonte diferente:** trocar na seção Tipografia
+- **Com barra de progresso:** adicionar se quiser (não é padrão tweet)
+- **Quer mais visual:** considerar trocar pro estilo minimalista ou elaborado
 
-Qualquer mudança aqui vale pro próximo carrossel. Pede pro Claude: "muda a regra X no design do carrossel" e ele edita este arquivo.
+Pede pro Claude: "muda a regra X no design do carrossel" e ele edita este arquivo.
