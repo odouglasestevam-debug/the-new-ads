@@ -114,7 +114,7 @@ Padrão pra exibir logo de cliente em seção de prova social (ex: marquee "neg�
 
 - **Nome:** Douglas Estevam
 - **Handle:** @doug_estevam (handle real, confirmado 2026-09-08)
-- **Foto:** `marca/douglas-estevam.jpg`
+- **Foto:** `marca/douglas-estevam-oficial.jpg`
 - **Badge verificado:** não
 
 ---
