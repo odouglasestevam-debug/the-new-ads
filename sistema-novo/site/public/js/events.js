@@ -60,6 +60,8 @@ function ligarEventos() {
   ligarConversas();
   ligarIntegracoes();
   ligarDistribuicao();
+  ligarPush();
+  ligarLeadDaUrl();
   mostrarAbaAjustes();
 
   ligarArrasto();

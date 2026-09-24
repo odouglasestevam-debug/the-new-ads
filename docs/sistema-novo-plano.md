@@ -148,6 +148,19 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Não validado depois da reescrita: envio real pela API oficial e pela NeoGo, modelos e mídia com número real
 - Menor: Cloudflare injeta o script de Web Analytics e a CSP bloqueia (só ruído no console)
 
+**24/09/2026, notificação no celular do atendente (pedido da Agari):**
+- Migration `0025_push_atendente.sql` (no banco: `crm_push_atendente`). Numerada 0025 porque a outra IA usou 0021 a 0024
+- `privado.crm_push` (um registro por aparelho) e `privado.crm_avisos` (fila com tentativas e erro), ambas fora do alcance do navegador
+- Gatilho em `leads`: ganhou responsável, entra aviso na fila. Não avisa quem atribuiu o lead a si mesmo. Um empurrão por comando (gatilho de statement), não um por lead
+- Edge Function `crm-notificar` (verify_jwt false; autentica por `x-cron-secret` do Vault ou por sessão para o teste). Web Push com `urgency: high`, que é o que faz o Android mostrar na hora. Aparelho que responde 404 ou 410 sai da lista
+- `pg_cron` a cada minuto como rede de segurança, e limpeza diária
+- Segredos no Vault: `crm_vapid_publica`, `crm_vapid_privada`, `crm_cron`. A chave privada nunca passou pelo chat: o Douglas rodou o arquivo no SQL Editor
+- Tela: `manifest.json`, `sw.js`, ícones em `/icones`, `js/push.js` e um bloco em Ajustes, Segurança. CSP precisou de `manifest-src` e `worker-src`, senão o manifesto e o service worker são bloqueados
+- Tocar na notificação abre a ficha do lead (`?lead=<id>`), trocando de empresa se for preciso; com o CRM aberto, a aba recebe a ordem por mensagem em vez de recarregar
+- Cuidado achado no teste: registrar o service worker não basta, é preciso `navigator.serviceWorker.ready` antes de assinar, senão dá "no active Service Worker". E o registro precisa acontecer no carregamento, não depois do login
+- Testado até onde dá sem aparelho real: gatilho, fila, chamada do pg_net (200) e a função concluindo o aviso. **Falta o teste no celular do Douglas**, que é o que prova a entrega
+- No iPhone só funciona com o CRM adicionado à tela de início. A tela detecta e ensina o caminho
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio

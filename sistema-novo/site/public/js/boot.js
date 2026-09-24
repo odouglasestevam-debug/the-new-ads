@@ -1,4 +1,9 @@
-iniciar().catch(() => { const aviso = document.getElementById("aviso-login"); aviso.className = "aviso erro"; aviso.textContent = "Não foi possível verificar sua sessão. Recarregue a página para tentar novamente."; });
+iniciar()
+  .then(() => {
+    // service worker e renovação da inscrição só depois de ter sessão
+    if (usuario) renovarPush().then(() => { if (vistaAtual === "config") render(); }).catch(() => {});
+  })
+  .catch(() => { const aviso = document.getElementById("aviso-login"); aviso.className = "aviso erro"; aviso.textContent = "Não foi possível verificar sua sessão. Recarregue a página para tentar novamente."; });
 sb.auth.onAuthStateChange?.((event) => {
   if (event === 'SIGNED_OUT' && usuario) {
     pararPresenca();

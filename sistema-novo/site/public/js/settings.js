@@ -18,7 +18,8 @@ function paineisConfig() {
         <div class="campo"><label for="senha-confirma">Repetir a nova senha</label><input type="password" id="senha-confirma" autocomplete="new-password"></div>
         <button class="btn btn-largo" id="btn-trocar-senha" type="button">Salvar nova senha</button>
         <div class="aviso" id="aviso-senha"></div>
-      </div>`,
+      </div>
+      ${blocoNotificacoes()}`,
 
     equipe: () => `
       ${pode.administrar() ? `
