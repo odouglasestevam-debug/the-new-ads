@@ -63,3 +63,11 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 ### 2026-09-23 — location_types home+recent é sobrescrito com frequently_in
 **Regra:** Em ad set de WhatsApp com `advantage_audience: 1`, a API aceita `location_types: ["home","recent"]` mas devolve `["frequently_in","home","recent"]`, tanto na criação quanto num update posterior. Não insistir via API: se o cliente exigir só morador e visitante recente, o ajuste é manual no Gerenciador.
 **Contexto:** Conjunto de Londrina/Ibiporã do Grupo Confiança, onde o padrão da conta era home+recent.
+
+### 2026-09-24 — standard_enhancements no degrees_of_freedom_spec foi descontinuado
+**Regra:** Passar `standard_enhancements` dentro de `creative_features_spec` ao criar adcreative retorna "Invalid parameter" code 100 subcode 3858504, com o motivo real só em `error_user_title` ("O criativo não deve incluir aprimoramentos padrão"). Declarar os recursos individualmente (`image_touchups`, `image_templates`, `image_animation`, `image_brightness_and_contrast`, `text_optimizations`, `enhance_cta`, `advantage_plus_creative`) e nunca o guarda-chuva `standard_enhancements`. Criativos antigos da conta ainda mostram o campo na leitura, então não serve de template pra criação.
+**Contexto:** Os 3 criativos de jaqueta da Fátima Esportes falharam em bloco na primeira tentativa; o campo tinha sido copiado de um criativo existente da própria conta.
+
+### 2026-09-24 — Nome de conjunto não prova targeting, sempre conferir custom_audiences
+**Regra:** Antes de recomendar qualquer coisa baseada em "público quente x público frio", ler o targeting real do conjunto e checar `custom_audiences` e `excluded_custom_audiences` explicitamente (`AdSet.api_get(fields=["targeting"])`). Nome de conjunto é rótulo, não configuração.
+**Contexto:** Fátima Esportes tinha dois conjuntos, "00_AUTO_ENVOLVIMENTO" e "00_AUTO_ABERTO", com targeting idêntico e nenhum público personalizado em nenhum dos dois. Rodaram 2 meses competindo entre si pelas mesmas pessoas.
