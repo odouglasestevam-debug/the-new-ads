@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 """
-Analise recorrente da conta Google Ads da Entretec.
-Coleta os dados, compara com a semana anterior, levanta alertas e grava o relatorio.
-Roda pelo Agendador de Tarefas do Windows. Nao altera nada na conta, so le.
+Analise de performance da conta Google Ads da Entretec.
+Foco: custo por lead, custo por clique, candidatas a negativacao e o que NAO mexer.
+Roda pelo Agendador de Tarefas do Windows. Somente leitura, nunca altera a conta.
 """
 import os
+import re
 import sys
 import datetime
 import collections
@@ -15,6 +16,10 @@ sys.path.insert(0, os.path.join(RAIZ, ".claude", "skills", "google-ads-ratos", "
 SAIDA = os.path.join(RAIZ, "clientes", "entretec", "relatorios")
 LOG = os.path.join(SAIDA, "_execucoes.log")
 CID = "3529405554"
+
+# volume minimo para tratar um numero como sinal, e nao como ruido
+MIN_CONV = 3
+MIN_CLIQUES = 25
 
 
 def log(msg):
@@ -34,8 +39,6 @@ def pct(a, b):
 
 
 def curto(nome):
-    """Tira o prefixo repetido do padrao de nomenclatura e devolve so o que identifica."""
-    import re
     n = re.sub(r"^SEARCH_[A-Z]+_\d\d_", "", nome)
     for p in ("CAPTACAO_LEADS_CONVERSOES_", "CONVERSOES_", "CAPTACAO_LEADS_"):
         n = n.replace(p, "")
@@ -46,83 +49,77 @@ def curto(nome):
 def main():
     from lib import init_client, run_query
     init_client()
+    num = lambda m, k: float(m.get(k, 0) or 0)
 
     hoje = datetime.date.today()
-    f1, i1 = hoje - datetime.timedelta(days=1), hoje - datetime.timedelta(days=7)
-    f0, i0 = hoje - datetime.timedelta(days=8), hoje - datetime.timedelta(days=14)
-    P1 = "segments.date BETWEEN '{}' AND '{}'".format(i1, f1)
-    P0 = "segments.date BETWEEN '{}' AND '{}'".format(i0, f0)
-    num = lambda m, k: float(m.get(k, 0) or 0)
+    f30, i30 = hoje - datetime.timedelta(days=1), hoje - datetime.timedelta(days=30)
+    f7, i7 = hoje - datetime.timedelta(days=1), hoje - datetime.timedelta(days=7)
+    fp, ip = hoje - datetime.timedelta(days=8), hoje - datetime.timedelta(days=14)
+    P30 = "segments.date BETWEEN '{}' AND '{}'".format(i30, f30)
+    P7 = "segments.date BETWEEN '{}' AND '{}'".format(i7, f7)
+    PP = "segments.date BETWEEN '{}' AND '{}'".format(ip, fp)
 
     def campanhas(P):
         out = {}
-        q = ("SELECT campaign.id, campaign.name, campaign.status, metrics.impressions, metrics.clicks, "
-             "metrics.cost_micros, metrics.conversions, metrics.search_impression_share, "
-             "metrics.search_budget_lost_impression_share FROM campaign WHERE campaign.status='ENABLED' AND " + P)
+        q = ("SELECT campaign.id, campaign.name, metrics.impressions, metrics.clicks, metrics.cost_micros, "
+             "metrics.conversions, metrics.average_cpc FROM campaign WHERE campaign.status='ENABLED' AND " + P)
         for r in run_query(CID, q):
             m, c = r["metrics"], r["campaign"]
-            out[c["id"]] = dict(nome=c["name"], custo=num(m, "cost_micros") / 1e6,
-                                cliques=int(num(m, "clicks")), imp=int(num(m, "impressions")),
-                                conv=num(m, "conversions"),
-                                perdido_orc=m.get("search_budget_lost_impression_share"))
+            out[c["id"]] = dict(nome=c["name"], custo=num(m, "cost_micros") / 1e6, cliques=int(num(m, "clicks")),
+                                conv=num(m, "conversions"), cpc=num(m, "average_cpc") / 1e6)
         return out
 
-    atual, ant = campanhas(P1), campanhas(P0)
-    tot = lambda d, k: sum(v[k] for v in d.values())
-    alertas, sugestoes = [], []
+    d30, d7, dp = campanhas(P30), campanhas(P7), campanhas(PP)
+    custo_conta = sum(c["custo"] for c in d30.values())
+    conv_conta = sum(c["conv"] for c in d30.values())
+    cpl_conta = custo_conta / conv_conta if conv_conta else 0
+    cpc_conta = custo_conta / sum(c["cliques"] for c in d30.values()) if d30 else 0
 
-    # 1) campanhas limitadas por orcamento
-    for cid, c in atual.items():
-        p = c["perdido_orc"]
-        if p is not None and float(p) > 0.10 and c["custo"] > 50:
-            alertas.append("**{}** perdeu **{:.0f}%** das impressoes por limite de orcamento (gastou {} na semana)".format(
-                curto(c["nome"]), float(p) * 100, brl(c["custo"])))
+    escalar, corrigir, observar, manter, tecnicos, negativar, cpl_acoes, nao_mexer = [], [], [], [], [], [], [], []
 
-    # 2) CPA piorando mais de 30%
-    for cid, c in atual.items():
-        a = ant.get(cid)
-        if not a or c["conv"] < 2 or a["conv"] < 2:
+    # ---------- classificacao por campanha (base 30 dias) ----------
+    for cid, c in sorted(d30.items(), key=lambda x: -x[1]["custo"]):
+        nome, custo, conv = curto(c["nome"]), c["custo"], c["conv"]
+        cpl = custo / conv if conv else 0
+        s7 = d7.get(cid, {})
+        if conv < MIN_CONV:
+            if custo >= 300 and conv == 0:
+                corrigir.append("**{}**: {} em 30 dias sem nenhum lead. Revisar oferta, pagina e termos antes de manter a verba".format(nome, brl(custo)))
+            else:
+                observar.append("**{}**: {} e {:.0f} leads em 30 dias. Volume baixo demais para concluir qualquer coisa".format(nome, brl(custo), conv))
             continue
-        cpa1, cpa0 = c["custo"] / c["conv"], a["custo"] / a["conv"]
-        if cpa1 > cpa0 * 1.30:
-            alertas.append("**{}**: CPA subiu de {} para {} ({})".format(
-                curto(c["nome"]), brl(cpa0), brl(cpa1), pct(cpa1, cpa0)))
+        if cpl <= cpl_conta * 0.8:
+            escalar.append("**{}**: CPL {} contra media de {} da conta, com {:.0f} leads. Tem espaco para mais verba".format(
+                nome, brl(cpl), brl(cpl_conta), conv))
+        elif cpl >= cpl_conta * 1.5:
+            corrigir.append("**{}**: CPL {} contra media de {} da conta ({:.0f} leads em 30 dias)".format(
+                nome, brl(cpl), brl(cpl_conta), conv))
+        else:
+            manter.append("**{}**: CPL {}, dentro da media. Gasto semanal {}".format(nome, brl(cpl), brl(s7.get("custo", 0))))
 
-    # 3) gasto relevante sem conversao
-    for cid, c in atual.items():
-        if c["conv"] == 0 and c["custo"] > 100:
-            alertas.append("**{}** gastou {} na semana sem nenhuma conversao".format(curto(c["nome"]), brl(c["custo"])))
+    # ---------- variacao semanal so quando tem volume ----------
+    ja_classificadas = set()
+    for cid, c in d30.items():
+        nome = curto(c["nome"])
+        if any(nome in x for x in escalar + corrigir):
+            ja_classificadas.add(cid)
+    for cid, c in d7.items():
+        a = dp.get(cid)
+        if not a:
+            continue
+        if c["conv"] >= MIN_CONV and a["conv"] >= MIN_CONV:
+            cpl1, cpl0 = c["custo"] / c["conv"], a["custo"] / a["conv"]
+            if cpl1 > cpl0 * 1.30:
+                cpl_acoes.append("**{}**: CPL da semana subiu de {} para {} ({}), com volume suficiente para ser real".format(
+                    curto(c["nome"]), brl(cpl0), brl(cpl1), pct(cpl1, cpl0)))
+        elif c["custo"] >= 200 and cid not in ja_classificadas:
+            nao_mexer.append("**{}**: variacao da semana sem significancia ({:.0f} lead(s) nesta semana, {:.0f} na anterior). Esperar acumular".format(
+                curto(c["nome"]), c["conv"], a["conv"]))
 
-    # 4) segmentacao geografica faltando (regra 11 da skill)
-    geo = collections.Counter()
-    for r in run_query(CID, "SELECT campaign.id, campaign_criterion.type FROM campaign_criterion WHERE campaign.status='ENABLED'"):
-        if r["campaign_criterion"]["type_"] == "LOCATION":
-            geo[r["campaign"]["id"]] += 1
-    for cid, c in atual.items():
-        if geo[cid] == 0:
-            alertas.append("**{}** esta SEM segmentacao geografica, veiculando para qualquer lugar".format(curto(c["nome"])))
-
-    # 5) anuncio reprovado / grupo sem anuncio ativo
-    porgrupo = collections.Counter()
-    q = ("SELECT campaign.name, ad_group.id, ad_group.name, ad_group_ad.status, "
-         "ad_group_ad.policy_summary.approval_status FROM ad_group_ad "
-         "WHERE campaign.status='ENABLED' AND ad_group.status='ENABLED'")
-    for r in run_query(CID, q):
-        a = r["ad_group_ad"]
-        chave = (r["campaign"]["name"], r["ad_group"]["name"])
-        porgrupo.setdefault(chave, 0)
-        if a["status"] == "ENABLED":
-            porgrupo[chave] += 1
-        if a["policy_summary"].get("approval_status") == "DISAPPROVED":
-            alertas.append("Anuncio REPROVADO em {} / {}".format(curto(r["campaign"]["name"]), r["ad_group"]["name"][:22]))
-    for (camp, grupo), n in porgrupo.items():
-        if n == 0:
-            alertas.append("Grupo **{}** em {} esta ativo mas sem anuncio ativo".format(grupo, curto(camp)))
-
-    # 6) termos de busca caros sem conversao
+    # ---------- candidatas a negativacao (30 dias) ----------
     termos = collections.defaultdict(lambda: [0.0, 0.0, 0, ""])
     q = ("SELECT campaign.name, search_term_view.search_term, metrics.cost_micros, metrics.conversions, "
-         "metrics.clicks FROM search_term_view WHERE campaign.status='ENABLED' AND " + P1)
+         "metrics.clicks FROM search_term_view WHERE campaign.status='ENABLED' AND " + P30)
     for r in run_query(CID, q):
         m = r["metrics"]
         t = termos[r["search_term_view"]["search_term"]]
@@ -130,67 +127,106 @@ def main():
         t[1] += num(m, "conversions")
         t[2] += int(num(m, "clicks"))
         t[3] = r["campaign"]["name"]
-    caros = sorted([(v[0], k, v) for k, v in termos.items() if v[1] == 0 and v[0] >= 60], reverse=True)[:10]
-    for custo, termo, v in caros:
-        sugestoes.append("Negativar ou revisar **{}**: {} em {} cliques, zero conversao ({})".format(
+    cand = [(v[0], k, v) for k, v in termos.items() if v[1] == 0 and (v[0] >= 120 or v[2] >= 12)]
+    for custo, termo, v in sorted(cand, reverse=True)[:12]:
+        negativar.append("**{}**: {} em {} cliques, zero lead em 30 dias ({})".format(
             '"' + termo + '"', brl(custo), v[2], curto(v[3])))
 
-    # 7) indice de qualidade baixo com gasto
+    # ---------- custo por clique e qualidade ----------
+    kws = []
     q = ("SELECT campaign.name, ad_group_criterion.keyword.text, ad_group_criterion.quality_info.quality_score, "
-         "ad_group_criterion.quality_info.post_click_quality_score, metrics.cost_micros FROM keyword_view "
-         "WHERE campaign.status='ENABLED' AND ad_group_criterion.negative=false AND " + P1)
+         "ad_group_criterion.quality_info.creative_quality_score, ad_group_criterion.quality_info.post_click_quality_score, "
+         "ad_group_criterion.quality_info.search_predicted_ctr, metrics.cost_micros, metrics.clicks, metrics.conversions, "
+         "metrics.average_cpc FROM keyword_view WHERE campaign.status='ENABLED' AND ad_group_criterion.negative=false AND " + P30)
     for r in run_query(CID, q):
-        qi = r["ad_group_criterion"].get("quality_info") or {}
-        custo = num(r["metrics"], "cost_micros") / 1e6
-        if qi.get("quality_score") and int(qi["quality_score"]) <= 4 and custo >= 50:
-            sugestoes.append("Indice de qualidade **{}/10** em {}: {} na semana, experiencia da pagina {}".format(
-                qi["quality_score"], '"' + r["ad_group_criterion"]["keyword"]["text"] + '"',
-                brl(custo), qi.get("post_click_quality_score", "?")))
+        k, m = r["ad_group_criterion"], r["metrics"]
+        qi = k.get("quality_info") or {}
+        kws.append(dict(camp=r["campaign"]["name"], texto=k["keyword"]["text"], custo=num(m, "cost_micros") / 1e6,
+                        cliques=int(num(m, "clicks")), conv=num(m, "conversions"), cpc=num(m, "average_cpc") / 1e6,
+                        qs=qi.get("quality_score"), anuncio=qi.get("creative_quality_score"),
+                        pagina=qi.get("post_click_quality_score"), ctr=qi.get("search_predicted_ctr")))
+    # qualidade baixa com gasto: onde da para baixar CPC sem mexer em lance
+    for k in sorted([x for x in kws if x["qs"] and int(x["qs"]) <= 4 and x["custo"] >= 100], key=lambda x: -x["custo"])[:8]:
+        causa = []
+        if k["pagina"] == "BELOW_AVERAGE":
+            causa.append("pagina de destino")
+        if k["anuncio"] == "BELOW_AVERAGE":
+            causa.append("texto do anuncio")
+        if k["ctr"] == "BELOW_AVERAGE":
+            causa.append("taxa de clique esperada")
+        cpl_kw = k["custo"] / k["conv"] if k["conv"] else 0
+        cpl_acoes.append("**{}** ({}): qualidade {}/10, CPC {} contra media de {} da conta. Ponto fraco: {}. {}".format(
+            '"' + k["texto"] + '"', curto(k["camp"]), k["qs"], brl(k["cpc"]), brl(cpc_conta),
+            " e ".join(causa) if causa else "nao identificado",
+            "CPL {}".format(brl(cpl_kw)) if cpl_kw else "sem lead em 30 dias"))
+    # keywords caras sem lead
+    for k in sorted([x for x in kws if x["conv"] == 0 and x["custo"] >= 250], key=lambda x: -x["custo"])[:6]:
+        corrigir.append("Keyword **{}** ({}): {} em {} cliques, zero lead em 30 dias. Candidata a pausa".format(
+            '"' + k["texto"] + '"', curto(k["camp"]), brl(k["custo"]), k["cliques"]))
 
-    # ---------------- relatorio ----------------
+    # ---------- problemas tecnicos ----------
+    geo = collections.Counter()
+    for r in run_query(CID, "SELECT campaign.id, campaign_criterion.type FROM campaign_criterion WHERE campaign.status='ENABLED'"):
+        if r["campaign_criterion"]["type_"] == "LOCATION":
+            geo[r["campaign"]["id"]] += 1
+    for cid, c in d30.items():
+        if geo[cid] == 0:
+            tecnicos.append("**{}** esta sem segmentacao geografica, veiculando para qualquer lugar".format(curto(c["nome"])))
+    porgrupo = collections.Counter()
+    q = ("SELECT campaign.name, ad_group.name, ad_group_ad.status, ad_group_ad.policy_summary.approval_status "
+         "FROM ad_group_ad WHERE campaign.status='ENABLED' AND ad_group.status='ENABLED'")
+    for r in run_query(CID, q):
+        a = r["ad_group_ad"]
+        chave = (r["campaign"]["name"], r["ad_group"]["name"])
+        porgrupo.setdefault(chave, 0)
+        if a["status"] == "ENABLED":
+            porgrupo[chave] += 1
+        if a["policy_summary"].get("approval_status") == "DISAPPROVED":
+            tecnicos.append("Anuncio reprovado em {} / {}".format(curto(r["campaign"]["name"]), r["ad_group"]["name"][:24]))
+    for (camp, grupo), n in porgrupo.items():
+        if n == 0:
+            tecnicos.append("Grupo **{}** em {} esta ativo e sem nenhum anuncio ativo, ou seja, nao veicula".format(grupo, curto(camp)))
+
+    # ---------- relatorio ----------
     L = []
-    L.append("# Entretec, analise de {:%d/%m} a {:%d/%m}\n".format(i1, f1))
-    L.append("Gerado em {:%d/%m/%Y as %H:%M}. Comparacao com {:%d/%m} a {:%d/%m}.\n".format(datetime.datetime.now(), i0, f0))
+    A = L.append
+    A("# Entretec, analise de performance\n")
+    A("Gerado em {:%d/%m/%Y as %H:%M}. Base de 30 dias ({:%d/%m} a {:%d/%m}), comparacao semanal quando ha volume.\n".format(
+        datetime.datetime.now(), i30, f30))
+    A("## Referencia da conta (30 dias)\n")
+    A("| Metrica | Valor |")
+    A("|---|---:|")
+    A("| Investimento | {} |".format(brl(custo_conta)))
+    A("| Leads | {:.0f} |".format(conv_conta))
+    A("| Custo por lead | {} |".format(brl(cpl_conta)))
+    A("| Custo por clique | {} |\n".format(brl(cpc_conta)))
+    A("Tudo abaixo compara cada campanha com esses numeros. Volume minimo para conclusao: {} leads ou {} cliques.\n".format(
+        MIN_CONV, MIN_CLIQUES))
 
-    c1, c0 = tot(atual, "custo"), tot(ant, "custo")
-    v1, v0 = tot(atual, "conv"), tot(ant, "conv")
-    k1, k0 = tot(atual, "cliques"), tot(ant, "cliques")
-    L.append("## Visao geral\n")
-    L.append("| Metrica | Semana atual | Semana anterior | Variacao |")
-    L.append("|---|---:|---:|---:|")
-    L.append("| Investimento | {} | {} | {} |".format(brl(c1), brl(c0), pct(c1, c0)))
-    L.append("| Cliques | {} | {} | {} |".format(k1, k0, pct(k1, k0)))
-    L.append("| Leads | {:.0f} | {:.0f} | {} |".format(v1, v0, pct(v1, v0)))
-    L.append("| CPA | {} | {} | {} |\n".format(
-        brl(c1 / v1) if v1 else "sem leads", brl(c0 / v0) if v0 else "sem leads",
-        pct(c1 / v1 if v1 else 0, c0 / v0 if v0 else 0)))
+    def secao(titulo, itens, vazio):
+        A("## {} ({})\n".format(titulo, len(itens)))
+        A("\n".join("{}. {}".format(i, x) for i, x in enumerate(itens, 1)) if itens else vazio)
+        A("")
 
-    L.append("## Por campanha\n")
-    L.append("| Campanha | Investido | Leads | CPA | Leads (sem. anterior) |")
-    L.append("|---|---:|---:|---:|---:|")
-    for cid, c in sorted(atual.items(), key=lambda x: -x[1]["custo"]):
-        a = ant.get(cid, {})
-        L.append("| {} | {} | {:.0f} | {} | {:.0f} |".format(
-            curto(c["nome"]), brl(c["custo"]), c["conv"],
-            brl(c["custo"] / c["conv"]) if c["conv"] else "sem leads", a.get("conv", 0)))
-    L.append("")
-
-    L.append("## Alertas ({})\n".format(len(alertas)))
-    L.append("\n".join("{}. {}".format(i, x) for i, x in enumerate(alertas, 1)) if alertas else "Nenhum alerta nesta semana.")
-    L.append("")
-    L.append("## Sugestoes ({})\n".format(len(sugestoes)))
-    L.append("\n".join("{}. {}".format(i, x) for i, x in enumerate(sugestoes, 1)) if sugestoes else "Nenhuma sugestao automatica nesta semana.")
-    L.append("\nNenhuma alteracao foi feita na conta. Tudo acima e proposta, aguardando decisao.\n")
+    secao("Onde investir mais", escalar, "Nenhuma campanha com CPL suficientemente abaixo da media para escalar agora.")
+    secao("O que corrigir", corrigir, "Nenhuma campanha ou keyword fora da faixa aceitavel.")
+    secao("Negativacao sugerida", negativar, "Nenhum termo com gasto relevante e zero lead nos ultimos 30 dias.")
+    secao("Como baixar o custo por clique e por lead", cpl_acoes, "Nenhuma oportunidade clara de reducao de CPC nesta leitura.")
+    secao("Problemas tecnicos", tecnicos, "Nenhum problema tecnico encontrado.")
+    secao("O que NAO fazer agora", observar + nao_mexer,
+          "Nada em observacao: todas as campanhas tem volume suficiente para leitura.")
+    A("## Manter como esta\n")
+    A("\n".join("- {}".format(x) for x in manter) if manter else "Nenhuma campanha na faixa de manutencao.")
+    A("\nNenhuma alteracao foi feita na conta. Tudo acima e proposta, aguardando decisao.\n")
 
     os.makedirs(SAIDA, exist_ok=True)
     arq = os.path.join(SAIDA, "{:%Y-%m-%d}.md".format(hoje))
     texto = "\n".join(L)
-    with open(arq, "w", encoding="utf-8") as f:
-        f.write(texto)
-    with open(os.path.join(SAIDA, "_ultimo.md"), "w", encoding="utf-8") as f:
-        f.write(texto)
-    log("OK  relatorio {} | {} alertas, {} sugestoes | investimento {}, {:.0f} leads".format(
-        os.path.basename(arq), len(alertas), len(sugestoes), brl(c1), v1))
+    for destino in (arq, os.path.join(SAIDA, "_ultimo.md")):
+        with open(destino, "w", encoding="utf-8") as f:
+            f.write(texto)
+    log("OK  {} | escalar {}, corrigir {}, negativar {}, cpc {}, tecnicos {} | CPL conta {}".format(
+        os.path.basename(arq), len(escalar), len(corrigir), len(negativar), len(cpl_acoes), len(tecnicos), brl(cpl_conta)))
     print(arq)
     return 0
 
