@@ -161,6 +161,18 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Testado até onde dá sem aparelho real: gatilho, fila, chamada do pg_net (200) e a função concluindo o aviso. **Falta o teste no celular do Douglas**, que é o que prova a entrega
 - No iPhone só funciona com o CRM adicionado à tela de início. A tela detecta e ensina o caminho
 
+**24/09/2026, horário de atendimento, prazo de 10 minutos e transferência (migrations 0026 a 0028):**
+- Decisões do Douglas: horário por empresa e por dia da semana; "começou o atendimento" é mandar mensagem ao lead; ocupado não recebe lead; prazo de 10 min dentro do horário e, fora dele, começa 30 min depois da próxima abertura
+- `privado.crm_atendimento` (fuso, horários por dia em jsonb, minutos) e `privado.crm_prazo_resposta` (um prazo por lead, com contador de repasses)
+- Gatilhos: atribuiu lead começa o relógio; saiu mensagem para o lead o relógio para; virou cliente ou perdido também para
+- `privado.crm_cobrar_prazos()` no pg_cron a cada minuto: repassa quem não respondeu para o próximo da fila do mesmo canal, só dentro do horário, no máximo 5 repasses por lead. Também solta a fila de espera quando a empresa abre, sem depender de alguém mexer na tela
+- `public.crm_transferir_lead(lead, para)`: o próprio atendente transfere o lead dele. O banco continua bloqueando a troca direta de responsável pelo vendedor
+- `public.crm_atendentes(empresa)` devolve online, ocupado ou offline por pessoa (os três estados já existiam no banco: presença + disponibilidade)
+- **Mudança no comportamento da outra IA:** `crm_distribuir_lead` passou a exigir presença e disponibilidade em **todos** os modos. Antes, no modo fila, entregava para quem estava offline
+- Armadilhas achadas nos testes: (1) o canal agora é `comercial` ou `suporte`, `padrao` não existe mais; (2) gatilho `after insert` que lê `new` enxerga o lead **sem** responsável quando a distribuição atribui dentro do próprio gatilho de inserção, e apagava o prazo recém-criado. O gatilho passou a ler o estado atual do lead
+- Testado em cenário completo: entrada e distribuição, prazo de 10 min, estouro com repasse e aviso para o próximo, resposta parando o relógio, fora do horário caindo em domingo 08:30, e transferência com e sem permissão. Dados apagados
+- **Falta a tela:** o gestor ainda não consegue definir o horário pelo CRM, e não existe botão de transferir. Até isso existir, a regra só funciona configurando pelo banco
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
