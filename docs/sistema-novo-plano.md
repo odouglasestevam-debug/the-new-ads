@@ -171,7 +171,11 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - **Mudança no comportamento da outra IA:** `crm_distribuir_lead` passou a exigir presença e disponibilidade em **todos** os modos. Antes, no modo fila, entregava para quem estava offline
 - Armadilhas achadas nos testes: (1) o canal agora é `comercial` ou `suporte`, `padrao` não existe mais; (2) gatilho `after insert` que lê `new` enxerga o lead **sem** responsável quando a distribuição atribui dentro do próprio gatilho de inserção, e apagava o prazo recém-criado. O gatilho passou a ler o estado atual do lead
 - Testado em cenário completo: entrada e distribuição, prazo de 10 min, estouro com repasse e aviso para o próximo, resposta parando o relógio, fora do horário caindo em domingo 08:30, e transferência com e sem permissão. Dados apagados
-- **Falta a tela:** o gestor ainda não consegue definir o horário pelo CRM, e não existe botão de transferir. Até isso existir, a regra só funciona configurando pelo banco
+**25/09/2026, telas do atendimento (`js/atendimento.js`):**
+- Aba **Atendimento** em Ajustes (agência e dono): liga a cobrança, define abre e fecha de cada dia da semana, os minutos para começar e os minutos após a abertura. Mostra "aberto agora" ou a próxima abertura, e quantos leads estão aguardando primeira resposta
+- Bloco **Transferir atendimento** na aba Dados da ficha do lead, para quem pode editar aquele lead. Lista a equipe com online, ocupado ou offline ao lado do nome
+- Estados renomeados na tela da distribuição para **Online, Ocupado e Offline**. Junto, corrigi um texto que ficou mentiroso com a minha mudança: dizia que na fila rotativa a disponibilidade não altera a vez, o que deixou de ser verdade
+- Testado no navegador com dono e vendedor: 8 verificações, sem erro de JS. Dados apagados
 
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
