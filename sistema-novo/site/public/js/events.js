@@ -61,6 +61,7 @@ function ligarEventos() {
   ligarIntegracoes();
   ligarDistribuicao();
   ligarPush();
+  ligarAtendimento();
   ligarLeadDaUrl();
   mostrarAbaAjustes();
 

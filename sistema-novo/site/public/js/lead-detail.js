@@ -78,6 +78,7 @@ function abrirLead(id, abaInicial) {
         ${par("Entrou em", dataHora(l.criado_em))}
         ${pode.editarLead(l) ? '<button class="ver-lead" type="button" id="editar-cadastro" style="margin-top:14px">Editar cadastro</button>' : ""}
       </div>
+      ${l.responsavel_id ? blocoTransferir(l) : ""}
       ${pode.excluir() ? '<div class="grupo"><button class="ver-lead perigo" type="button" id="excluir-lead">Excluir lead</button></div>' : ""}`;
   }
 
@@ -139,6 +140,7 @@ function abrirLead(id, abaInicial) {
 
     div.querySelector(".fechar").addEventListener("click", fechar);
     div.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => { abaAtual = b.dataset.aba; desenhar(); }));
+    if (abaAtual === "dados") ligarTransferir(div, l, () => desenhar());
     if (abaAtual === "conversa" && conversa) ligarChat(div, conversa, () => { desenhar(); if (vistaAtual === "conversas") render(); });
     div.querySelector('#conversa-canal-lead')?.addEventListener('change', e=>{conversa=conversasLead.find(c=>c.id===e.target.value);desenhar();});
     restaurarEstadoChat(estadoChat);

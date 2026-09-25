@@ -88,6 +88,7 @@ function paineisConfig() {
         <p>Sair encerra a sessão neste aparelho.</p>
         <button class="btn btn-largo btn-fantasma" id="btn-sair-ajustes">Sair da conta</button>
       </div>`,
+    atendimento: () => painelAtendimento(),
   };
 }
 
@@ -95,7 +96,7 @@ function vistaConfig() {
   const painel = paineisConfig();
   const ABAS = [["seguranca", "Segurança"], ["equipe", "Equipe"],
     ["disponibilidade", "Disponibilidade"],
-    ...(pode.administrar() ? [["distribuicao", "Distribuição"], ["integracoes", "Integrações"]] : []),
+    ...(pode.administrar() ? [["distribuicao", "Distribuição"], ["atendimento", "Atendimento"], ["integracoes", "Integrações"]] : []),
     ...(ehAgencia ? [["empresas", "Empresas"]] : []), ["dados", "Dados"]];
   return `
     <div class="topo"><div><h1>Ajustes</h1><div class="desc">Conta, equipe e manutenção.</div></div></div>
