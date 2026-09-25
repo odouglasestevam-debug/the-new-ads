@@ -37,7 +37,7 @@ function painelDistribuicao(){
     <form id="form-distribuicao">
       <fieldset class="modos-distribuicao"><legend>Como os leads serão entregues</legend>
         ${[['manual','Manual','Você escolhe o responsável de cada lead. A automação fica desligada.'],
-          ['fila','Fila rotativa','Cada participante recebe um lead por vez e vai para o final da fila. Só entra na vez quem está online.'],
+          ['fila','Fila rotativa','Cada participante recebe um lead por vez e vai para o final da fila. Quem está online recebe primeiro, mas a vez segue mesmo com todos offline.'],
           ['inteligente','Menor demanda','Entrega a quem tem menos leads em andamento, está disponível e com o CRM conectado.']].map(([id,nome,desc])=>`
           <label class="modo-distribuicao"><input type="radio" name="modo-distribuicao" value="${id}" ${d.modo===id?'checked':''}>
             <span><strong>${nome}</strong><span>${desc}</span></span></label>`).join('')}
@@ -140,17 +140,17 @@ function ligarDistribuicao(){
 
 function painelDisponibilidade(){
   return `<section class="bloco distribuicao-painel"><h2>Sua disponibilidade</h2>
-    <p>Você recebe novos leads quando estiver online, com o CRM aberto e conectado. Ocupado e offline não recebem.</p>
+    <p>Estar online põe você na frente na hora de distribuir. Mesmo ocupado ou com o CRM fechado você continua na fila, e o prazo de resposta repassa o lead se ninguém responder.</p>
     <button class="btn btn-fantasma" data-alternar-presenca disabled>Verificando disponibilidade…</button>
     <p data-presenca-descricao role="status"></p>
-    <p>Ficar ocupado interrompe a entrega de novos leads em qualquer modo. Seus leads atuais continuam com você, e voltar para online recoloca você na fila.</p></section>`;
+    <p>Ficar ocupado tira você da preferência, mas não da fila: a equipe vê o seu estado e o sistema entrega a você se for a sua vez e ninguém estiver online.</p></section>`;
 }
 
 function atualizarControlePresenca(){
   const podeReceber=equipe.some(m=>m.user_id===usuario?.id&&['dono','gestor','vendedor'].includes(m.papel));
   const texto=!podeReceber?'Você não participa como atendente desta empresa.':!presencaAtual?'Conectando disponibilidade…':presencaAtual.erro?'Sem confirmação de conexão. Tente novamente.':
     !presencaAtual.participa?'Você não está entre os participantes selecionados pelo administrador.':presencaAtual.modo==='manual'?'A distribuição automática está desligada nesta empresa.':
-    presencaAtual.disponivel?'Você está online e recebe novos leads.':'Você está ocupado: não recebe novos leads.';
+    presencaAtual.disponivel?'Você está online e tem preferência para receber novos leads.':'Você está ocupado: recebe só quando for a sua vez e ninguém estiver online.';
   document.querySelectorAll('[data-presenca-descricao]').forEach(el=>el.textContent=texto);
   document.querySelectorAll('[data-alternar-presenca]').forEach(b=>{
     b.disabled=!podeReceber||presencaEmCurso||!presencaAtual;

@@ -177,6 +177,15 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Estados renomeados na tela da distribuição para **Online, Ocupado e Offline**. Junto, corrigi um texto que ficou mentiroso com a minha mudança: dizia que na fila rotativa a disponibilidade não altera a vez, o que deixou de ser verdade
 - Testado no navegador com dono e vendedor: 8 verificações, sem erro de JS. Dados apagados
 
+**25/09/2026, volta atrás na regra de disponibilidade (migration 0029):**
+- Sintoma: três leads da Agari (00h41, 02h19 e 07h38) ficaram sem responsável. Causa: em 24/09 eu passei a exigir online **e** disponível em todos os modos, e a equipe da Agari trabalha pelo celular com o CRM fechado. Pior: a função de presença da outra IA gravava "ocupado" na primeira batida, então ninguém ficava online sem clicar no botão
+- Decisão do Douglas: **a fila entrega sempre**, mesmo para quem está ocupado ou offline. Quem corrige a ausência é o prazo de resposta
+- `crm_distribuir_lead` agora só **prefere** quem está online e disponível: é o primeiro critério de ordenação, não um filtro. Sem ninguém online, a vez segue normalmente
+- `crm_presenca` passou a gravar **disponível na primeira batida**: abrir o CRM significa online, e ocupado virou escolha explícita
+- Os três leads foram distribuídos na hora (julie, tiffany, operações)
+- Textos da tela ajustados de novo: o estado agora dá preferência, não exclusividade. Lição: toda vez que a regra muda, o texto da tela precisa mudar junto, senão o sistema passa a mentir para o atendente
+- **Pendente para a Agari:** o horário de atendimento não está configurado, então o prazo de resposta não roda e nada é repassado. Sem isso, "a fila entrega sempre" não tem rede de segurança
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
