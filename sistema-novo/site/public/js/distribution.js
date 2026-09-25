@@ -37,7 +37,7 @@ function painelDistribuicao(){
     <form id="form-distribuicao">
       <fieldset class="modos-distribuicao"><legend>Como os leads serão entregues</legend>
         ${[['manual','Manual','Você escolhe o responsável de cada lead. A automação fica desligada.'],
-          ['fila','Fila rotativa','Cada participante recebe um lead por vez e vai para o final da fila. Funciona mesmo se estiver offline ou pausado.'],
+          ['fila','Fila rotativa','Cada participante recebe um lead por vez e vai para o final da fila. Só entra na vez quem está online.'],
           ['inteligente','Menor demanda','Entrega a quem tem menos leads em andamento, está disponível e com o CRM conectado.']].map(([id,nome,desc])=>`
           <label class="modo-distribuicao"><input type="radio" name="modo-distribuicao" value="${id}" ${d.modo===id?'checked':''}>
             <span><strong>${nome}</strong><span>${desc}</span></span></label>`).join('')}
@@ -53,7 +53,7 @@ function painelDistribuicao(){
           <input type="checkbox" name="distribuicao-membro" value="${m.user_id}" ${ids.includes(m.user_id)?'checked':''}>
           <span class="distribuicao-pessoa"><strong>${escapar(m.nome||m.email||'Membro sem nome')}</strong><small>${escapar(NOME_PAPEL[m.papel]||m.papel)}</small></span>
           <span class="distribuicao-carga">${m.demanda} em andamento</span>
-          <span class="distribuicao-status ${m.online&&m.disponivel?'disponivel':''}">${!m.online?'Offline':m.disponivel?'Disponível':'Pausado'}</span>
+          <span class="distribuicao-status ${m.online&&m.disponivel?'disponivel':''}">${!m.online?'Offline':m.disponivel?'Online':'Ocupado'}</span>
         </label>`).join(''):'<p>Nenhum atendente cadastrado. Adicione alguém na aba Equipe para ativar a distribuição.</p>'}
       </div>
       <div class="distribuicao-regra" id="regra-distribuicao">
@@ -140,21 +140,21 @@ function ligarDistribuicao(){
 
 function painelDisponibilidade(){
   return `<section class="bloco distribuicao-painel"><h2>Sua disponibilidade</h2>
-    <p>Na distribuição por menor demanda, você recebe novos leads quando estiver disponível e com o CRM aberto e conectado.</p>
+    <p>Você recebe novos leads quando estiver online, com o CRM aberto e conectado. Ocupado e offline não recebem.</p>
     <button class="btn btn-fantasma" data-alternar-presenca disabled>Verificando disponibilidade…</button>
     <p data-presenca-descricao role="status"></p>
-    <p>Pausar interrompe novas entregas por menor demanda. Seus leads atuais continuam com você. Na fila rotativa, a disponibilidade não altera sua vez.</p></section>`;
+    <p>Ficar ocupado interrompe a entrega de novos leads em qualquer modo. Seus leads atuais continuam com você, e voltar para online recoloca você na fila.</p></section>`;
 }
 
 function atualizarControlePresenca(){
   const podeReceber=equipe.some(m=>m.user_id===usuario?.id&&['dono','gestor','vendedor'].includes(m.papel));
   const texto=!podeReceber?'Você não participa como atendente desta empresa.':!presencaAtual?'Conectando disponibilidade…':presencaAtual.erro?'Sem confirmação de conexão. Tente novamente.':
     !presencaAtual.participa?'Você não está entre os participantes selecionados pelo administrador.':presencaAtual.modo==='manual'?'A distribuição automática está desligada nesta empresa.':
-    presencaAtual.modo==='fila'?'Esta empresa usa fila rotativa, mesmo para quem está pausado ou offline.':presencaAtual.disponivel?'Você está disponível para receber novos leads.':'Você está pausado para novas entregas por menor demanda.';
+    presencaAtual.disponivel?'Você está online e recebe novos leads.':'Você está ocupado: não recebe novos leads.';
   document.querySelectorAll('[data-presenca-descricao]').forEach(el=>el.textContent=texto);
   document.querySelectorAll('[data-alternar-presenca]').forEach(b=>{
     b.disabled=!podeReceber||presencaEmCurso||!presencaAtual;
-    b.textContent=presencaEmCurso?'Atualizando…':presencaAtual?.erro?'Reconectar disponibilidade':presencaAtual?.disponivel?'Disponível · Pausar':'Pausado · Ficar disponível';
+    b.textContent=presencaEmCurso?'Atualizando…':presencaAtual?.erro?'Reconectar disponibilidade':presencaAtual?.disponivel?'Online · Ficar ocupado':'Ocupado · Ficar online';
     b.setAttribute('aria-pressed',String(!!presencaAtual?.disponivel&&!presencaAtual.erro));
     b.title=texto;
   });
