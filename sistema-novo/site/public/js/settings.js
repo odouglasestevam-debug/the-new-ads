@@ -94,16 +94,36 @@ function paineisConfig() {
 
 function vistaConfig() {
   const painel = paineisConfig();
-  const ABAS = [["seguranca", "Segurança"], ["equipe", "Equipe"],
-    ["disponibilidade", "Disponibilidade"],
-    ...(pode.administrar() ? [["distribuicao", "Distribuição"], ["atendimento", "Atendimento"], ["integracoes", "Integrações"]] : []),
-    ...(ehAgencia ? [["empresas", "Empresas"]] : []), ["dados", "Dados"]];
+  // submenu vertical, agrupado: o que é da pessoa, o que é da empresa e o que é da agência
+  const GRUPOS = [
+    ["Sua conta", [["seguranca", "Segurança"], ["disponibilidade", "Disponibilidade"]]],
+    ["Empresa", [["equipe", "Equipe"],
+      ...(pode.administrar() ? [["distribuicao", "Distribuição"], ["atendimento", "Atendimento"],
+        ["formularios", "Formulários"], ["integracoes", "Integrações"]] : [])]],
+    ...(ehAgencia ? [["Agência", [["empresas", "Empresas"]]]] : []),
+    ["Manutenção", [["dados", "Dados"]]],
+  ].filter(([, itens]) => itens.length);
+
+  const valida = GRUPOS.some(([, itens]) => itens.some(([id]) => id === abaAjustes));
+  if (!valida) abaAjustes = "seguranca";
+
+  const menu = GRUPOS.map(([titulo, itens]) => `
+    <div class="grupo-ajuste">
+      <span class="titulo-grupo">${titulo}</span>
+      ${itens.map(([id, rot]) => `<button class="aba${abaAjustes === id ? " ativa" : ""}" data-aba-ajuste="${id}" type="button"${abaAjustes === id ? ' aria-current="page"' : ""}>${rot}</button>`).join("")}
+    </div>`).join("");
+
+  // o editor de formulário tem layout próprio e não entra na grade de cartões
+  const corpo = abaAjustes === "formularios"
+    ? (formEditando ? vistaEditorFormulario() : vistaFormularios())
+    : `<div class="cartoes-config">${(painel[abaAjustes] || painel.seguranca)()}</div>`;
+
   return `
     <div class="topo"><div><h1>Ajustes</h1><div class="desc">Conta, equipe e manutenção.</div></div></div>
-    <div class="abas abas-ajustes">
-      ${ABAS.map(([id, rot]) => `<button class="aba${abaAjustes === id ? " ativa" : ""}" data-aba-ajuste="${id}" type="button">${rot}</button>`).join("")}
-    </div>
-    <div class="cartoes-config">${(painel[abaAjustes] || painel.seguranca)()}</div>`;
+    <div class="ajustes">
+      <nav class="menu-ajustes" aria-label="Seções de ajustes">${menu}</nav>
+      <div class="corpo-ajustes">${corpo}</div>
+    </div>`;
 }
 
 async function desenhar2FA() {

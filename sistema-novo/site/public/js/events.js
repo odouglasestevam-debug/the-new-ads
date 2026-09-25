@@ -68,7 +68,13 @@ function ligarEventos() {
   ligarArrasto();
 
   document.querySelectorAll("[data-aba-ajuste]").forEach((b) => {
-    b.addEventListener("click", () => { abaAjustes = b.dataset.abaAjuste; render(); });
+    b.addEventListener("click", () => {
+      // sair do editor de formulário sem salvar precisa de confirmação, como no menu principal
+      if (formEditando && b.dataset.abaAjuste !== "formularios" && !confirm("Sair do editor sem salvar as mudanças?")) return;
+      if (b.dataset.abaAjuste !== "formularios") formEditando = null;
+      abaAjustes = b.dataset.abaAjuste;
+      render();
+    });
   });
   const sairAjustes = document.getElementById("btn-sair-ajustes");
   if (sairAjustes) sairAjustes.addEventListener("click", sair);

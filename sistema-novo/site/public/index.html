@@ -77,8 +77,16 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 <!-- ============ APP ============ -->
 <div class="app" id="app">
+  <button class="abrir-menu" id="abrir-menu" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
+  </button>
   <aside>
-    <div class="marca"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg><span>CRM</span></div>
+    <div class="topo-lateral">
+      <div class="marca"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg><span>CRM</span></div>
+      <button class="alternar-menu" id="recolher-menu" type="button" aria-label="Recolher o menu" title="Recolher o menu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
+      </button>
+    </div>
     <div class="seletor-empresa">
       <select id="empresa-sel" aria-label="Empresa"></select>
       <div class="papel-atual" id="papel-atual"></div>
@@ -95,10 +103,6 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
       <button data-vista="leads">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
         <span>Leads</span><span class="contador" id="cont-leads"></span>
-      </button>
-      <button data-vista="formularios" id="nav-formularios">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
-        <span>Formulários</span>
       </button>
       <button data-vista="config">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>

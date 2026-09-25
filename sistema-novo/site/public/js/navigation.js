@@ -1,9 +1,63 @@
 /* ---------------- navegação ---------------- */
+
+/* Menu lateral: fixo (sempre visível) ou recolhido (só os três risquinhos, mais tela para o
+   trabalho). A escolha fica no aparelho, porque depende do tamanho da tela de quem usa. */
+const CHAVE_MENU = "tna_crm_menu";
+let menuFixo = true;
+try { menuFixo = localStorage.getItem(CHAVE_MENU) !== "recolhido"; } catch (err) {}
+
+function aplicarMenu() {
+  const app = document.getElementById("app");
+  app.classList.toggle("menu-recolhido", !menuFixo);
+  if (menuFixo) app.classList.remove("menu-aberto");
+  const recolher = document.getElementById("recolher-menu");
+  if (recolher) {
+    const rotulo = menuFixo ? "Recolher o menu" : "Fixar o menu aberto";
+    recolher.title = rotulo;
+    recolher.setAttribute("aria-label", rotulo);
+    recolher.classList.toggle("virado", !menuFixo);
+  }
+  document.getElementById("abrir-menu")?.setAttribute("aria-expanded", String(app.classList.contains("menu-aberto")));
+}
+
+function fecharMenuFlutuante() {
+  const app = document.getElementById("app");
+  if (!app.classList.contains("menu-aberto")) return;
+  app.classList.remove("menu-aberto");
+  document.getElementById("abrir-menu")?.setAttribute("aria-expanded", "false");
+}
+
+document.getElementById("recolher-menu")?.addEventListener("click", () => {
+  menuFixo = !menuFixo;
+  try { localStorage.setItem(CHAVE_MENU, menuFixo ? "fixo" : "recolhido"); } catch (err) {}
+  aplicarMenu();
+  if (!menuFixo) document.getElementById("abrir-menu")?.focus();
+});
+
+document.getElementById("abrir-menu")?.addEventListener("click", () => {
+  const app = document.getElementById("app");
+  const abrindo = !app.classList.contains("menu-aberto");
+  app.classList.toggle("menu-aberto", abrindo);
+  document.getElementById("abrir-menu").setAttribute("aria-expanded", String(abrindo));
+  if (abrindo) document.querySelector("#nav button")?.focus();
+});
+
+// clicar fora ou apertar Esc fecha o menu flutuante
+document.addEventListener("click", (e) => {
+  const app = document.getElementById("app");
+  if (!app.classList.contains("menu-aberto")) return;
+  if (e.target.closest("aside") || e.target.closest("#abrir-menu")) return;
+  fecharMenuFlutuante();
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharMenuFlutuante(); });
+aplicarMenu();
+
 document.querySelectorAll("#nav button").forEach((b) => {
   b.addEventListener("click", () => {
     if (formEditando && !confirm("Sair do editor sem salvar as mudanças?")) return;
     formEditando = null;
     vistaAtual = b.dataset.vista;
+    fecharMenuFlutuante();
     render();
   });
 });
@@ -27,9 +81,7 @@ function render() {
   if (vistaAtual === "leads") html = vistaLeads();
   if (vistaAtual === "kanban") html = vistaKanban();
   if (vistaAtual === "config") html = vistaConfig();
-  if (vistaAtual === "formularios") html = formEditando ? vistaEditorFormulario() : vistaFormularios();
   if (vistaAtual === "conversas") html = vistaConversas();
-  document.getElementById("nav-formularios").style.display = pode.administrar() ? "" : "none";
   alvo.innerHTML = seletorMovel() + html;
   ligarEventos();
   restaurarEstadoChat(estadoChat);

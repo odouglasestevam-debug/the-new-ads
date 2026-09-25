@@ -212,7 +212,8 @@ async function trocarEmpresa(id) {
   clearTimeout(timerBuscaConv);sequenciaBuscaConv++;
   errosMensagens.clear();
   avisosIntegracao = {};
-  if (vistaAtual === "formularios" && !pode.administrar()) vistaAtual = "kanban";
+  if (vistaAtual === "formularios") vistaAtual = "kanban";  // Formulários virou aba dentro de Ajustes
+  if (abaAjustes === "formularios" && !pode.administrar()) abaAjustes = "seguranca";
   if (["integracoes","distribuicao"].includes(abaAjustes) && !pode.administrar()) abaAjustes = "seguranca";
   try { localStorage.setItem(CHAVE_EMPRESA, id); } catch (err) {}
   document.getElementById("empresa-sel").value = id;

@@ -186,6 +186,15 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Textos da tela ajustados de novo: o estado agora dá preferência, não exclusividade. Lição: toda vez que a regra muda, o texto da tela precisa mudar junto, senão o sistema passa a mentir para o atendente
 - **Pendente para a Agari:** o horário de atendimento não está configurado, então o prazo de resposta não roda e nada é repassado. Sem isso, "a fila entrega sempre" não tem rede de segurança
 
+**25/09/2026, menu lateral e Ajustes repaginados:**
+- Lateral com dois estados: **fixa** (padrão) ou **recolhida** nos três risquinhos, que abre flutuando por cima e fecha ao clicar fora ou com Esc. A escolha fica no `localStorage` do aparelho, porque depende do tamanho da tela de cada um
+- Recolhida, o conteúdo ganha a largura inteira (medido no teste: de 1196 para 1400 pixels)
+- No celular nada muda: a lateral continua sendo a barra de baixo e o botão dos risquinhos não aparece
+- **Formulários saiu do menu principal** e virou aba dentro de Ajustes. `vistaAtual === "formularios"` não existe mais
+- Ajustes agora tem **submenu vertical agrupado**: Sua conta (Segurança, Disponibilidade), Empresa (Equipe, Distribuição, Atendimento, Formulários, Integrações), Agência (Empresas) e Manutenção (Dados). No celular vira uma faixa horizontal rolável
+- Trocar de aba com o editor de formulário aberto pede confirmação, como já fazia o menu principal
+- Testado no navegador: 16 verificações, incluindo a preferência sobrevivendo ao recarregar, sem erro de JS e sem rolagem lateral no celular
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
