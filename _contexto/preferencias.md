@@ -26,6 +26,8 @@ Pra pedidos técnicos (n8n, Evolution API, CAPI, código): entregar o que foi pe
 
 Pra copy (anúncios, scripts, captions, e-mails, headlines): aplicar frameworks de copywriting (AIDA, PAS, hook + dor + solução + CTA, prova social, especificidade) escolhendo o melhor pro contexto.
 
+Copy de anúncio (Meta Ads, Google Ads etc) vai direto no chat, sem criar arquivo. Só salvar em arquivo quando o Douglas pedir pra armazenar.
+
 ## Preferências adicionais
 
 Baseia decisões em dados: CPA, CPL, ROAS, CAC, ticket médio, taxa de conversão, CTR, CPC, CPM, qualidade dos leads, LTV quando possível. Trazer essas métricas nas análises sempre que fizer sentido.
