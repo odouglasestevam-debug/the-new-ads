@@ -24,6 +24,7 @@ Scripts em `.claude/skills/edicao-video/scripts/`. Saídas em `<pasta do vídeo>
 ## Primeira vez (uma vez por máquina)
 
 ```
+pip install -r ".claude/skills/edicao-video/requirements.txt"     # só em máquina nova; nesta já está tudo instalado
 python ".claude/skills/edicao-video/scripts/fetch_assets.py"
 ```
 Baixa 7 fontes (Poppins, Anton, Bebas Neue, Archivo Black, DM Serif Display) e o modelo de rosto. Requisitos já instalados: ffmpeg (via imageio-ffmpeg), faster-whisper, mediapipe, PIL, numpy. A fonte da marca TNA (Clash Display) é manual: baixar na Fontshare e colocar em `fonts/ClashDisplay-Bold.ttf`.
