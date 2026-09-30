@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Proposta (Lançamento de marca)</title>
+<link rel="icon" type="image/svg+xml" href="/favicon.svg">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://api.fontshare.com">
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet">
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0A0A0A;
+    --surface: #171717;
+    --surface-2: #212121;
+    --amber: #FF6A00;
+    --amber-glow: #FFA24D;
+    --text: #FAFAFA;
+    --muted: #8A8A8A;
+    --line: rgba(255,255,255,.09);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3 {
+    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    margin: 0;
+  }
+  .wrap { max-width: 780px; margin: 0 auto; padding: 64px 28px 96px; }
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-bottom: 40px; margin-bottom: 56px; border-bottom: 1px solid var(--line);
+  }
+  header svg { width: 160px; height: auto; display: block; }
+  header .data { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--muted); }
+  .mono { font-family: 'JetBrains Mono', monospace; }
+  .kicker {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--amber); margin-bottom: 14px; display: block;
+  }
+  .titulo { font-size: 40px; line-height: 1.08; margin-bottom: 20px; font-weight: 700; }
+  .titulo span { color: var(--muted); font-weight: 600; }
+  .intro { color: var(--muted); font-size: 17px; max-width: 600px; margin: 0 0 72px; }
+  .intro strong { color: var(--text); font-weight: 600; }
+
+  section { margin-bottom: 72px; }
+  .sec-h { font-size: 26px; line-height: 1.2; margin-bottom: 10px; }
+  .sec-n { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .08em; color: var(--amber); display: block; margin-bottom: 10px; }
+  .sec-lead { color: var(--muted); margin: 0 0 28px; max-width: 620px; }
+  p { margin: 0 0 14px; }
+  ul { margin: 0; padding: 0; list-style: none; }
+  ul.check li { position: relative; padding-left: 24px; margin-bottom: 8px; font-size: 15px; }
+  ul.check li::before {
+    content: ""; position: absolute; left: 0; top: 9px; width: 8px; height: 8px; background: var(--amber);
+  }
+
+  /* 01 pilares */
+  .pilares { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .pilar { background: var(--surface); border: 1px solid var(--line); padding: 24px; }
+  .pilar .n { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--amber); display: block; margin-bottom: 10px; }
+  .pilar h3 { font-size: 21px; margin-bottom: 8px; }
+  .pilar p { color: var(--muted); font-size: 15px; margin: 0; }
+  .fecho {
+    margin-top: 24px; font-family: 'Clash Display','Space Grotesk',sans-serif;
+    font-size: 21px; font-weight: 600; line-height: 1.3;
+  }
+  .fecho span { color: var(--amber); }
+
+  /* 02 dois caminhos */
+  .comp { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .comp-col { background: var(--surface); border: 1px solid var(--line); padding: 26px; display: flex; flex-direction: column; }
+  .comp-col.destaque {
+    border-color: rgba(255,106,0,.55);
+    background: radial-gradient(120% 80% at 100% 0%, rgba(255,106,0,.13), transparent 60%), var(--surface);
+  }
+  .comp-tit { font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); display: block; margin-bottom: 6px; }
+  .comp-col.destaque .comp-tit { color: var(--amber); }
+  .comp-quem { font-size: 14px; color: var(--muted); margin: 0 0 22px; min-height: 46px; }
+  .comp-lin { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; border-top: 1px solid var(--line); padding: 16px 0; }
+  .comp-lin:last-child { padding-bottom: 0; }
+  .comp-lin span { color: var(--muted); font-size: 15px; }
+  .comp-lin strong { font-family: 'Clash Display', sans-serif; font-size: 32px; font-weight: 600; white-space: nowrap; line-height: 1; }
+  .comp-lin strong small { font-family: 'Switzer', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .comp-lin strong.riscado { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--amber); text-decoration-thickness: 2px; }
+  .comp-col.destaque .comp-lin strong { color: var(--amber); }
+  .fonte { font-size: 12px; color: var(--muted); margin: 14px 0 0; line-height: 1.55; }
+
+  /* 03 entregas */
+  .entrega { background: var(--surface); border: 1px solid var(--line); padding: 24px 26px; margin-bottom: 12px; }
+  .entrega-top { display: flex; align-items: baseline; gap: 12px; margin-bottom: 14px; }
+  .entrega-top .n { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--amber); }
+  .entrega h3 { font-size: 20px; }
+  .entrega.gancho {
+    border-color: rgba(255,106,0,.55);
+    background: radial-gradient(120% 90% at 0% 0%, rgba(255,106,0,.11), transparent 55%), var(--surface);
+  }
+  .entrega .dor { color: var(--muted); font-size: 16px; margin-bottom: 16px; }
+  .entrega .dor strong { color: var(--text); font-weight: 600; }
+
+  /* 04 etapas */
+  .etapas { border-left: 1px solid var(--line); margin-left: 4px; }
+  .etapa { position: relative; padding: 0 0 24px 26px; }
+  .etapa:last-child { padding-bottom: 0; }
+  .etapa::before { content: ""; position: absolute; left: -5px; top: 8px; width: 9px; height: 9px; background: var(--amber); }
+  .etapa .quando { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--amber); letter-spacing: .04em; }
+  .etapa p { margin: 2px 0 0; color: var(--muted); font-size: 15px; }
+  .etapa p strong { color: var(--text); font-weight: 600; }
+
+  /* 05 planos */
+  .base {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted);
+    border: 1px solid var(--line); padding: 7px 12px; margin-bottom: 20px;
+  }
+  .planos { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; align-items: stretch; }
+  @supports (grid-template-rows: subgrid) {
+    .planos .plano { display: grid; grid-template-rows: subgrid; grid-row: span 5; row-gap: 0; }
+  }
+  .plano { background: var(--surface); border: 1px solid var(--line); padding: 22px 20px; display: flex; flex-direction: column; }
+  .plano.destaque {
+    border-color: rgba(255,106,0,.65);
+    background: radial-gradient(120% 70% at 100% 0%, rgba(255,106,0,.14), transparent 60%), var(--surface);
+  }
+  .selo {
+    align-self: start; justify-self: start; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .08em;
+    text-transform: uppercase; background: var(--amber); color: #0A0A0A; padding: 4px 10px; margin-bottom: 14px; font-weight: 600;
+  }
+  .selo.vazio { visibility: hidden; }
+  .plano .nome { font-size: 19px; margin-bottom: 6px; }
+  .plano .para-quem { font-size: 14px; color: var(--muted); margin: 0 0 18px; min-height: 44px; }
+  .plano.destaque .para-quem { color: var(--text); }
+  .plano .preco { font-family: 'Clash Display', sans-serif; font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 20px; white-space: nowrap; }
+  .plano.destaque .preco { color: var(--amber); }
+  .de-preco { display: block; font-family: 'Switzer','Inter',system-ui,sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
+  .de-preco s { text-decoration-color: var(--amber); text-decoration-thickness: 2px; }
+  .parceiro { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--amber); margin-top: 10px; white-space: normal; line-height: 1.4; }
+  .plano .comp-tit { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 4px; }
+  .comp-preco { margin-top: 0; white-space: normal; font-family: 'Switzer','Inter',system-ui,sans-serif; font-weight: 400; }
+  .comp-preco div { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; border-top: 1px solid var(--line); padding: 7px 0; font-size: 12.5px; line-height: 1.35; color: var(--muted); }
+  .comp-preco b { color: var(--text); font-weight: 600; white-space: nowrap; }
+  .plano .preco small { font-family: 'Switzer', sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); }
+  .plano ul.check li { font-size: 14px; }
+  .plano ul.check li.fora { color: var(--muted); text-decoration: line-through; text-decoration-color: rgba(138,138,138,.6); }
+  .plano ul.check li.fora::before { background: transparent; border: 1px solid var(--muted); }
+  .degrau { margin-top: 14px; padding: 20px 24px; border: 1px solid rgba(255,106,0,.35); font-size: 16px; }
+  .degrau strong { color: var(--amber); }
+
+  /* 06 condições */
+  .conds li { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--muted); }
+  .conds li:first-child { padding-top: 0; }
+  .conds li:last-child { border-bottom: none; }
+  .conds li strong { color: var(--text); font-weight: 600; }
+
+  /* 07 próximo passo */
+  .cta { background: var(--surface); border: 1px solid var(--line); padding: 30px 28px; }
+  .cta ol { margin: 0; padding: 0; list-style: none; counter-reset: passo; }
+  .cta ol li { counter-increment: passo; position: relative; padding-left: 36px; margin-bottom: 14px; }
+  .cta ol li:last-child { margin-bottom: 0; }
+  .cta ol li::before {
+    content: counter(passo); position: absolute; left: 0; top: 2px;
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--amber);
+    border: 1px solid rgba(255,106,0,.4); width: 22px; height: 22px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  footer { margin-top: 64px; padding-top: 32px; border-top: 1px solid var(--line); color: var(--muted); font-size: 14px; }
+  footer strong { color: var(--text); }
+
+  @media (max-width: 640px) {
+    .wrap { padding: 40px 16px 72px; }
+    header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .titulo { font-size: 30px; }
+    .intro { margin-bottom: 56px; }
+    section { margin-bottom: 56px; }
+    .sec-h { font-size: 22px; }
+    .pilares, .comp, .planos { grid-template-columns: 1fr; }
+    .comp-quem, .plano .para-quem { min-height: 0; }
+    .plano.destaque { order: -1; }
+    .selo.vazio { display: none; }
+    .comp-lin strong { font-size: 28px; }
+  }
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    section, .entrega, .plano, .pilar, .comp-col { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 110">
+      <g transform="translate(4.25,4) scale(1)"><path d="M24 78 L48 26 L48 58 L78 24" fill="none" stroke="#FF6A00" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round"/></g><g transform="translate(110.5,78) scale(0.6571)"><path d="M26.09 -0.00 Q21.30 -0.00 18.44 -2.84 Q15.59 -5.70 15.59 -10.59 L15.59 -39.91 L2.70 -39.91 L2.70 -49.41 L15.59 -49.41 L15.59 -65.30 L27.09 -65.30 L27.09 -49.41 L41.30 -49.41 L41.30 -39.91 L27.09 -39.91 L27.09 -12.50 Q27.09 -9.50 29.91 -9.50 L39.80 -9.50 L39.80 -0.00 L26.09 -0.00 Z M53.00 -0.00 L53.00 -70.00 L64.50 -70.00 L64.50 -42.91 L66.20 -42.91 Q67.00 -44.59 68.79 -46.30 Q70.61 -48.00 73.54 -49.09 Q76.50 -50.20 81.00 -50.20 Q86.70 -50.20 91.09 -47.64 Q95.50 -45.09 97.95 -40.50 Q100.40 -35.91 100.40 -29.59 L100.40 -0.00 L88.90 -0.00 L88.90 -28.70 Q88.90 -34.70 85.95 -37.64 Q83.00 -40.59 77.61 -40.59 Q71.50 -40.59 68.00 -36.55 Q64.50 -32.50 64.50 -25.00 L64.50 -0.00 L53.00 -0.00 Z M137.11 1.41 Q129.70 1.41 124.04 -1.75 Q118.40 -4.91 115.25 -10.66 Q112.11 -16.41 112.11 -24.09 L112.11 -25.30 Q112.11 -33.09 115.20 -38.80 Q118.29 -44.50 123.89 -47.64 Q129.50 -50.80 136.79 -50.80 Q144.00 -50.80 149.39 -47.64 Q154.79 -44.50 157.79 -38.80 Q160.79 -33.09 160.79 -25.50 L160.79 -21.41 L123.70 -21.41 Q123.90 -15.59 127.79 -12.09 Q131.70 -8.59 137.40 -8.59 Q143.00 -8.59 145.70 -11.05 Q148.40 -13.50 149.79 -16.59 L159.29 -11.70 Q157.90 -9.00 155.25 -5.95 Q152.61 -2.91 148.20 -0.75 Q143.79 1.41 137.11 1.41 Z M123.79 -30.09 L149.11 -30.09 Q148.70 -35.00 145.34 -37.89 Q142.00 -40.80 136.70 -40.80 Q131.20 -40.80 127.90 -37.89 Q124.61 -35.00 123.79 -30.09 Z M198.10 -0.00 L198.10 -49.41 L209.39 -49.41 L209.39 -42.50 L211.10 -42.50 Q212.39 -45.30 215.80 -47.80 Q219.21 -50.30 226.10 -50.30 Q231.80 -50.30 236.19 -47.69 Q240.60 -45.09 243.05 -40.50 Q245.50 -35.91 245.50 -29.59 L245.50 -0.00 L234.00 -0.00 L234.00 -28.70 Q234.00 -34.70 231.05 -37.64 Q228.10 -40.59 222.71 -40.59 Q216.60 -40.59 213.10 -36.55 Q209.60 -32.50 209.60 -25.00 L209.60 -0.00 L198.10 -0.00 Z M282.21 1.41 Q274.80 1.41 269.14 -1.75 Q263.50 -4.91 260.35 -10.66 Q257.21 -16.41 257.21 -24.09 L257.21 -25.30 Q257.21 -33.09 260.30 -38.80 Q263.39 -44.50 268.99 -47.64 Q274.60 -50.80 281.89 -50.80 Q289.10 -50.80 294.49 -47.64 Q299.89 -44.50 302.89 -38.80 Q305.89 -33.09 305.89 -25.50 L305.89 -21.41 L268.80 -21.41 Q269.00 -15.59 272.89 -12.09 Q276.80 -8.59 282.50 -8.59 Q288.10 -8.59 290.80 -11.05 Q293.50 -13.50 294.89 -16.59 L304.39 -11.70 Q303.00 -9.00 300.35 -5.95 Q297.71 -2.91 293.30 -0.75 Q288.89 1.41 282.21 1.41 Z M268.89 -30.09 L294.21 -30.09 Q293.80 -35.00 290.44 -37.89 Q287.10 -40.80 281.80 -40.80 Q276.30 -40.80 273.00 -37.89 Q269.71 -35.00 268.89 -30.09 Z M322.40 -0.00 L314.70 -49.41 L326.10 -49.41 L331.40 -7.70 L333.10 -7.70 L340.60 -49.41 L358.99 -49.41 L366.49 -7.70 L368.20 -7.70 L373.49 -49.41 L384.90 -49.41 L377.20 -0.00 L358.10 -0.00 L350.70 -41.70 L348.99 -41.70 L341.49 -0.00 L322.40 -0.00 Z M437.29 1.41 Q432.11 1.41 427.90 -0.44 Q423.70 -2.30 421.25 -5.80 Q418.79 -9.30 418.79 -14.41 Q418.79 -19.41 421.25 -22.80 Q423.70 -26.20 428.00 -27.95 Q432.29 -29.70 437.79 -29.70 L452.11 -29.70 L452.11 -32.70 Q452.11 -36.59 449.70 -39.05 Q447.29 -41.50 442.20 -41.50 Q437.20 -41.50 434.65 -39.14 Q432.11 -36.80 431.29 -33.09 L420.70 -36.59 Q421.90 -40.50 424.54 -43.70 Q427.20 -46.91 431.59 -48.84 Q436.00 -50.80 442.40 -50.80 Q452.11 -50.80 457.65 -45.94 Q463.20 -41.09 463.20 -31.91 L463.20 -12.50 Q463.20 -9.50 466.00 -9.50 L470.20 -9.50 L470.20 -0.00 L462.11 -0.00 Q458.50 -0.00 456.20 -1.80 Q453.90 -3.59 453.90 -6.70 L453.90 -6.91 L452.20 -6.91 Q451.61 -5.50 450.11 -3.50 Q448.61 -1.50 445.54 -0.05 Q442.50 1.41 437.29 1.41 Z M439.20 -8.00 Q444.90 -8.00 448.50 -11.25 Q452.11 -14.50 452.11 -20.00 L452.11 -21.00 L438.50 -21.00 Q434.79 -21.00 432.50 -19.39 Q430.20 -17.80 430.20 -14.70 Q430.20 -11.70 432.59 -9.84 Q435.00 -8.00 439.20 -8.00 Z M499.90 1.41 Q493.90 1.41 488.70 -1.55 Q483.49 -4.50 480.40 -10.20 Q477.31 -15.91 477.31 -23.91 L477.31 -25.50 Q477.31 -33.50 480.40 -39.20 Q483.49 -44.91 488.65 -47.84 Q493.81 -50.80 499.90 -50.80 Q504.49 -50.80 507.70 -49.69 Q510.90 -48.59 512.85 -46.89 Q514.81 -45.20 515.90 -43.20 L517.60 -43.20 L517.60 -70.00 L528.99 -70.00 L528.99 -0.00 L517.81 -0.00 L517.81 -6.50 L516.10 -6.50 Q514.31 -3.50 510.60 -1.05 Q506.90 1.41 499.90 1.41 Z M503.31 -8.59 Q509.49 -8.59 513.59 -12.64 Q517.70 -16.70 517.70 -24.20 L517.70 -25.20 Q517.70 -32.80 513.65 -36.80 Q509.60 -40.80 503.31 -40.80 Q497.10 -40.80 492.95 -36.80 Q488.81 -32.80 488.81 -25.20 L488.81 -24.20 Q488.81 -16.70 492.95 -12.64 Q497.10 -8.59 503.31 -8.59 Z M564.00 1.41 Q554.39 1.41 548.19 -2.80 Q542.00 -7.00 540.71 -15.09 L551.30 -17.80 Q552.00 -14.00 553.80 -11.80 Q555.60 -9.59 558.24 -8.69 Q560.89 -7.80 564.00 -7.80 Q568.71 -7.80 571.05 -9.50 Q573.39 -11.20 573.39 -13.80 Q573.39 -16.50 571.14 -17.80 Q568.89 -19.09 564.30 -20.00 L561.21 -20.50 Q556.10 -21.50 551.89 -23.25 Q547.71 -25.00 545.14 -28.05 Q542.60 -31.09 542.60 -35.80 Q542.60 -43.00 547.94 -46.89 Q553.30 -50.80 562.00 -50.80 Q570.30 -50.80 575.69 -47.09 Q581.10 -43.41 582.71 -37.20 L572.10 -34.00 Q571.30 -38.20 568.60 -39.95 Q565.89 -41.70 562.00 -41.70 Q558.00 -41.70 555.85 -40.30 Q553.71 -38.91 553.71 -36.30 Q553.71 -33.70 555.89 -32.39 Q558.10 -31.09 561.80 -30.50 L564.89 -29.91 Q570.39 -28.91 574.85 -27.30 Q579.30 -25.70 581.89 -22.70 Q584.50 -19.70 584.50 -14.59 Q584.50 -6.91 578.94 -2.75 Q573.39 1.41 564.00 1.41 Z" fill="#FAFAFA" fill-rule="nonzero"/></g>
+    </svg>
+    <span class="data">28 de setembro de 2026</span>
+  </header>
+
+  <span class="kicker">Proposta comercial</span>
+  <h1 class="titulo">Lançamento da nova marca <span>Matiz ou Bennu Print</span></h1>
+  <p class="intro">Para <strong>Renita e Jessica</strong>. Da escolha do nome até o primeiro cliente vindo de anúncio, com a mesma equipe que já cuida das Sapatarias do Futuro.</p>
+
+  <section>
+    <span class="sec-n">01</span>
+    <h2 class="sec-h">O que eu quero entregar para vocês</h2>
+    <p class="sec-lead">Tudo o que a marca precisa para vender, feito por uma equipe só.</p>
+
+    <div class="entrega">
+      <div class="entrega-top"><span class="n">1</span><h3>Marca</h3></div>
+      <ul class="check">
+        <li>Escolha do nome junto com vocês: domínio, @ nas redes e busca prévia no INPI</li>
+        <li>Logo, cores, tipografia e manual de marca em PDF</li>
+        <li>Arquivos prontos para o digital e para a gráfica, perfil do Instagram e cartão de visita</li>
+      </ul>
+    </div>
+
+    <div class="entrega">
+      <div class="entrega-top"><span class="n">2</span><h3>Páginas, Google e IA</h3></div>
+      <p class="dor">Muita gente já pergunta para o ChatGPT antes de pesquisar no Google. <strong>As páginas nascem preparadas para os dois, e a manutenção fica toda com a gente.</strong></p>
+      <ul class="check">
+        <li>Landing pages conforme a necessidade: uma para cada serviço, campanha ou data especial</li>
+        <li>Precisou de uma página nova? A gente faz, sem custo extra e sem contratar ninguém por fora</li>
+        <li>Toda e qualquer manutenção: ajustes, correções e troca de texto, preço ou foto sempre que precisarem</li>
+        <li>SEO: páginas rápidas, indexadas no Google e escritas com os termos que o cliente pesquisa</li>
+        <li>Preparadas para IA: dados estruturados e arquivos (como o llms.txt) que ajudam ChatGPT, Gemini e Google a entender e recomendar a marca</li>
+        <li>Anúncios no Google levando para as páginas, com botão direto para o WhatsApp</li>
+        <li>Rastreamento de cada contato e otimização mensal com base em quem visita</li>
+        <li>Hospedagem, domínio e certificado de segurança inclusos</li>
+      </ul>
+    </div>
+
+    <div class="entrega gancho">
+      <div class="entrega-top"><span class="n">3</span><h3>Edição de vídeo</h3></div>
+      <p class="dor">Vídeo é o formato que mais vende e o que mais trava quem não sabe editar. <strong>Vocês gravam no celular, do jeito que der. A gente transforma em anúncio.</strong></p>
+      <ul class="check">
+        <li>Edição dos vídeos que vocês gravarem</li>
+        <li>Cortes, legenda na tela, trilha e capa</li>
+        <li>Roteiro simples para vocês saberem o que gravar</li>
+        <li>Vídeos prontos para anúncio, Reels e Stories</li>
+      </ul>
+    </div>
+
+    <div class="entrega">
+      <div class="entrega-top"><span class="n">4</span><h3>Tráfego</h3></div>
+      <ul class="check">
+        <li>Campanhas no Instagram e Facebook</li>
+        <li>Criativos estáticos novos todo mês</li>
+        <li>Google Meu Negócio configurado e otimizado</li>
+        <li>Ajuste contínuo pelo custo de cada contato que chega</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <span class="sec-n">02</span>
+    <h2 class="sec-h">Planos</h2>
+    <p class="sec-lead">Os três partem do mesmo tráfego. O que muda é quanto da estrutura vocês já têm pronta.</p>
+    <span class="base">Todos os planos: contrato de 6 meses · sem custo de criação para começar</span>
+    <div class="planos">
+      <div class="plano">
+        <span class="selo vazio">.</span>
+        <h3 class="nome">Essencial</h3>
+        <p class="para-quem">Para quem já tem marca, site e vídeos prontos.</p>
+        <div class="preco"><span class="de-preco">de <s>R$ 1.500</s> por</span>R$ 897<small>/mês</small><span class="parceiro">Condição para empresas parceiras</span></div>
+        <ul class="check">
+          <li>Tráfego no Instagram e Facebook</li>
+          <li>Criativos estáticos todo mês</li>
+          <li>Google Meu Negócio</li>
+          <li class="fora">Anúncios no Google</li>
+          <li class="fora">Landing pages conforme a necessidade</li>
+          <li class="fora">Toda e qualquer manutenção das páginas</li>
+          <li class="fora">SEO para aparecer no Google</li>
+          <li class="fora">Otimização para ChatGPT e outras IAs</li>
+          <li class="fora">Hospedagem, domínio e segurança</li>
+          <li class="fora">Edição de vídeo</li>
+          <li class="fora">Criação da marca e manual</li>
+        </ul>
+      </div>
+      <div class="plano">
+        <span class="selo vazio">.</span>
+        <h3 class="nome">Essencial + Vídeo + Páginas</h3>
+        <p class="para-quem">Para quem já tem marca pronta.</p>
+        <div class="preco"><span class="de-preco">de <s>R$ 2.449</s> por</span>R$ 1.597<small>/mês</small><span class="parceiro">Condição para empresas parceiras</span></div>
+        <div>
+        <ul class="check">
+          <li>Tráfego no Instagram e Facebook</li>
+          <li>Criativos estáticos todo mês</li>
+          <li>Google Meu Negócio</li>
+          <li>Anúncios no Google</li>
+          <li>Landing pages conforme a necessidade</li>
+          <li>Toda e qualquer manutenção das páginas</li>
+          <li>SEO para aparecer no Google</li>
+          <li>Otimização para ChatGPT e outras IAs</li>
+          <li>Hospedagem, domínio e segurança</li>
+          <li>Edição de vídeo</li>
+          <li class="fora">Criação da marca e manual</li>
+        </ul>
+          <p class="comp-tit">Como se compõe o valor</p>
+          <div class="comp-preco">
+            <div><span>Tráfego, criativos e Google Meu Negócio</span><b>R$ 897</b></div>
+            <div><span>Edição de vídeo</span><b>R$ 450</b></div>
+            <div><span>Site: desenvolvimento, manutenção, hospedagem e domínio</span><b>R$ 250</b></div>
+          </div>
+        </div>
+      </div>
+      <div class="plano destaque">
+        <span class="selo">Recomendado para vocês</span>
+        <h3 class="nome">Lançamento completo</h3>
+        <p class="para-quem">Para quem está começando a marca do zero.</p>
+        <div class="preco"><span class="de-preco">de <s>R$ 2.449</s> por</span>R$ 1.797<small>/mês</small><span class="parceiro">Condição para empresas parceiras</span></div>
+        <ul class="check">
+          <li>Tráfego no Instagram e Facebook</li>
+          <li>Criativos estáticos todo mês</li>
+          <li>Google Meu Negócio</li>
+          <li>Anúncios no Google</li>
+          <li>Landing pages conforme a necessidade</li>
+          <li>Toda e qualquer manutenção das páginas</li>
+          <li>SEO para aparecer no Google</li>
+          <li>Otimização para ChatGPT e outras IAs</li>
+          <li>Hospedagem, domínio e segurança</li>
+          <li>Edição de vídeo</li>
+          <li>Criação da marca e manual</li>
+        </ul>
+      </div>
+    </div>
+    <div class="degrau">Do plano com vídeo e páginas para o completo são <strong>R$ 200 por mês</strong>. Nesse valor vem a marca inteira, que no mercado custa R$ 4.000 só para ser criada.</div>
+  </section>
+
+  <section>
+    <span class="sec-n">03</span>
+    <h2 class="sec-h">Condições</h2>
+    <ul class="conds">
+      <li><strong>Contrato de 6 meses.</strong> É o tempo para a marca nascer, as páginas juntarem dados e as campanhas saírem da fase de aprendizado. É também o que permite fazer toda a criação sem custo de entrada.</li>
+      <li><strong>A mensalidade paga o trabalho de todo mês</strong> e segue a mesma depois dos 6 meses, com reajuste anual pelo IPCA.</li>
+      <li><strong>Encerramento antes de 6 meses:</strong> a criação (marca e páginas) é cobrada de forma proporcional aos meses que faltarem.</li>
+    </ul>
+  </section>
+
+  <section>
+    <span class="sec-n">04</span>
+    <h2 class="sec-h">Próximo passo</h2>
+    <div class="cta">
+      <ol>
+        <li>Escolha do plano e assinatura do contrato</li>
+        <li>Primeira mensalidade, que reserva a agenda de criação</li>
+        <li>Conversa de 1 hora para decidir o nome e começar a marca</li>
+      </ol>
+    </div>
+  </section>
+
+</div>
+</body>
+</html>
