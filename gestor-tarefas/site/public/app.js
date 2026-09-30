@@ -339,6 +339,7 @@ async function entrar(sessao) {
   S.eu = eu;
   document.getElementById("tela-login").style.display = "none";
   document.getElementById("app").classList.add("ativo");
+  aplicarLateralFixa();
   const usuarioNome = document.getElementById("usuario-nome");
   if (usuarioNome) usuarioNome.textContent = eu.nome + " · " + eu.email;
   try {
@@ -574,6 +575,22 @@ function expandirAte(tipo, id) {
 
 function abrirMenuLateral() { document.getElementById("app").classList.add("menu-aberto"); }
 function fecharMenuLateral() { document.getElementById("app").classList.remove("menu-aberto"); }
+
+/* A lateral fica recolhida em trilho e abre no ponteiro. O alfinete trava ela aberta. */
+function aplicarLateralFixa() {
+  const fixa = lerLocal("tf_lateral_fixa", false) === true;
+  document.getElementById("app")?.classList.toggle("lateral-fixa", fixa);
+  const b = document.getElementById("btn-fixar");
+  if (b) {
+    b.setAttribute("aria-pressed", fixa ? "true" : "false");
+    b.title = fixa ? "Soltar menu (volta a recolher)" : "Fixar menu aberto";
+    b.setAttribute("aria-label", b.title);
+  }
+}
+function alternarLateralFixa() {
+  gravarLocal("tf_lateral_fixa", lerLocal("tf_lateral_fixa", false) !== true);
+  aplicarLateralFixa();
+}
 
 /* ---------------- criar, renomear, mover, excluir estrutura ---------------- */
 async function novoProjeto() {
@@ -1693,6 +1710,7 @@ document.addEventListener("click", (e) => {
   const acao = e.target.closest("[data-acao]")?.dataset.acao;
   if (acao === "sair") sair();
   if (acao === "novo-projeto") novoProjeto();
+  if (acao === "fixar-lateral") alternarLateralFixa();
   if (acao === "abrir-menu") abrirMenuLateral();
   if (acao === "fechar-menu") fecharMenuLateral();
   if (acao === "fechar-tarefa") fecharTarefa();

@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-title" content="Tarefas">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="stylesheet" href="/estilo.css?v=11">
-<link rel="stylesheet" href="/workspace.css?v=30">
+<link rel="stylesheet" href="/workspace.css?v=31">
 <link rel="stylesheet" href="/toolbar.css?v=12">
 </head>
 <body>
@@ -70,7 +70,11 @@ FINISH: revisão visual em desktop e celular, testes funcionais e registro do si
   </header>
 
   <aside id="lateral">
-    <div class="marca"><img src="/icone.svg" alt=""> Tarefas</div>
+    <div class="marca"><img src="/icone.svg" alt=""> <span class="rotulo-marca">Tarefas</span>
+      <button class="icone-btn alfinete" id="btn-fixar" data-acao="fixar-lateral" aria-pressed="false" title="Fixar menu aberto" aria-label="Fixar menu aberto">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3h6"/><path d="M10 3v6.5L6.8 13h10.4L14 9.5V3"/><path d="M12 13v8"/></svg>
+      </button>
+    </div>
     <nav class="nav-fixa">
       <button data-rota="#/central" id="nav-central">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg>
@@ -113,6 +117,6 @@ FINISH: revisão visual em desktop e celular, testes funcionais e registro do si
 <script src="/acoes-tarefa.js?v=3"></script>
 <script src="/selecao.js?v=6"></script>
 <script src="/visao-pastas.js?v=3"></script>
-<script src="/app.js?v=28"></script>
+<script src="/app.js?v=29"></script>
 </body>
 </html>

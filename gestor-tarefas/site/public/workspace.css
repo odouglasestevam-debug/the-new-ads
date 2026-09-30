@@ -388,3 +388,29 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 .arvore .no {position:relative}
 .arvore .no.com-guia::before {content:"";position:absolute;left:var(--guia);top:0;bottom:0;border-left:1px solid var(--linha)}
 .arvore .no.com-guia:hover::before,.arvore .no.com-guia.ativo::before {border-color:var(--nevoa)}
+
+
+/* ---------------- Menu lateral: recolhe sozinho, alfinete fixa aberto ---------------- */
+aside .marca {display:flex;align-items:center;gap:8px}
+.marca .rotulo-marca {flex:1;min-width:0;overflow:hidden;white-space:nowrap}
+.alfinete {width:26px;height:26px;flex:none;color:var(--nevoa);opacity:0;transition:opacity .15s}
+aside:hover .alfinete,.alfinete:focus-visible,.app.lateral-fixa .alfinete {opacity:1}
+.alfinete svg {width:15px;height:15px}
+.alfinete:hover {color:var(--branco)}
+.app.lateral-fixa .alfinete {color:var(--ambar)}
+
+@media (min-width:861px) {
+  /* Sem alfinete: vira trilho de ícones e só abre quando o ponteiro chega nela. */
+  .app:not(.lateral-fixa) aside {position:fixed;left:0;top:0;bottom:0;height:100dvh;width:58px;
+    z-index:45;overflow:hidden;transition:width .18s ease}
+  .app:not(.lateral-fixa) main {margin-left:58px}
+  .app:not(.lateral-fixa) aside:hover,.app:not(.lateral-fixa) aside:has(:focus-visible) {width:var(--lateral);box-shadow:8px 0 26px rgba(0,0,0,.18)}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) :is(.marca,.nav-fixa button,.link-rodape) {font-size:0;gap:0;justify-content:center;padding-left:0;padding-right:0}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) :is(.arvore-cabeca > span,.no .nome,.no .qtd,.no .mais,.no .seta,.alfinete,.usuario,.arvore-vazia) {display:none}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) .arvore-cabeca {justify-content:center;padding:6px 0 0}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) .no {justify-content:center;padding-left:0!important;padding-right:0}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) .no.com-guia::before {display:none}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) .nav-fixa button {position:relative}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) .contador.alerta {position:absolute;top:1px;right:4px;font-size:9px;line-height:14px;padding:0 4px;margin:0}
+  .app:not(.lateral-fixa) aside:not(:hover):not(:has(:focus-visible)) .contador:not(.alerta) {display:none}
+}

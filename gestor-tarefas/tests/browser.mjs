@@ -362,6 +362,8 @@ try {
   assert.match(await page.locator('#toast').innerText(),new RegExp(`^${nRec} tarefas?: repete toda semana, na seg, qua e sex`,'i'));
   // O calendário reabre sozinho com seg/qua/sex circulados; escolher um dia pinta e grava a entrega.
   await page.waitForSelector('.cal .dia.recorre');
+  // Mês seguinte inteiro à vista: no mês corrente os dias já passados não entram e o teste depende da data de hoje.
+  await page.evaluate(()=>mudarMes(1));
   const circulados=await page.evaluate(()=>[...new Set([...document.querySelectorAll('.cal .dia.recorre')].map(b=>diaDaSemana(b.getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0])))].sort());
   assert.deepEqual(circulados,[1,3,5],'lote: calendário circula seg, qua e sex');
   const inicio=await page.evaluate(()=>document.querySelector('.cal .dia.recorre').getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0]);
@@ -376,6 +378,7 @@ try {
   // Recorrência seg/qua/sex sem data: o calendário circula esses dias; o dia escolhido fica pintado.
   const rec=await page.evaluate(()=>{const r={recorrencia:'semanal',recorrencia_dias_semana:[1,3,5]};
     abrirCalendario(document.body,null,()=>{},()=>{},r);
+    mudarMes(1); // mês inteiro à vista: no corrente os dias já passados não circulam
     const dias=[...document.querySelectorAll('.cal .dia.recorre')].map(b=>diaDaSemana(b.getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0]));
     const alvo=document.querySelector('.cal .dia.recorre').getAttribute('onclick').match(/\d{4}-\d{2}-\d{2}/)[0];
     fecharMenu();abrirCalendario(document.body,alvo,()=>{},()=>{},r);
@@ -460,6 +463,22 @@ try {
   await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('cópia'),null);
   assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length),antesLista+1,'duplicou da lista');
   assert.match(await page.locator('#toast').innerText(),/Contrato/,'o aviso diz a lista de destino');
+  // Lateral recolhida sozinha em trilho de ícones; o alfinete trava ela aberta e o gosto fica salvo.
+  await page.evaluate(()=>{limparSelecao();document.getElementById('toast').className='toast';});
+  assert.equal(await page.locator('#app.lateral-fixa').count(),0,'sem alfinete a lateral nasce recolhida');
+  const trilho=await page.locator('#lateral').evaluate(el=>el.getBoundingClientRect().width);
+  assert.ok(trilho<100,'recolhida vira trilho estreito, veio '+trilho);
+  await page.locator('#lateral').hover();
+  await page.waitForFunction(()=>document.getElementById('lateral').getBoundingClientRect().width>180);
+  await page.locator('#btn-fixar').click();
+  assert.equal(await page.locator('#app.lateral-fixa').count(),1,'o alfinete fixa a lateral');
+  await page.locator('main').hover({position:{x:200,y:200}});
+  await page.waitForFunction(()=>document.getElementById('lateral').getBoundingClientRect().width>180);
+  assert.equal(await page.evaluate(()=>lerLocal('tf_lateral_fixa',false)),true,'o alfinete fica salvo');
+  await page.locator('#btn-fixar').click();
+  assert.equal(await page.locator('#app.lateral-fixa').count(),0,'clicar de novo solta a lateral');
+  await page.locator('main').hover({position:{x:300,y:300}}); // sai de cima da lateral, senão o hover segura ela aberta
+  await page.waitForFunction(()=>document.getElementById('lateral').getBoundingClientRect().width<100);
   await page.evaluate(()=>{limparSelecao();document.getElementById('toast').className='toast';location.hash='#/central';});
   await page.waitForFunction(()=>rotaAtual().tipo==='central');
   await page.evaluate(()=>authEvent('SIGNED_OUT'));
