@@ -60,7 +60,15 @@ Ler a transcrição impressa. Bateu com o que o Douglas descreveu? Se não, regr
 ```
 python ".claude/skills/edicao-video/scripts/plan_cuts.py" "VIDEO" --gap 0.35 --zoom 1.12
 ```
-Mostra cada corte, quanto tira, pausas longas (podem ser dramáticas), regravações e palavras descartadas. Ajustes: `--gap` maior corta só pausas maiores, `--fillers` (só com pedido) tira "ãh/hum", `--no-cuts` não corta nada, `--interrupt 0` desliga trocas de zoom sem corte. Apresentar o resumo ao Douglas e esperar confirmação antes de seguir. Se houver regravação, perguntar qual take fica.
+Mostra cada corte, quanto tira, pausas longas (podem ser dramáticas), regravações e palavras descartadas.
+
+**Bruto com regravações (o caso comum):** depois que o Douglas escolher os takes (ou delegar), aplicar com `--keep "1.3-4.9,22.8-30.1,..."` (mantém só esses trechos do bruto, em segundos) ou `--drop` (remove trechos). Olhe as palavras com tempo (print do `words.json`) para achar as bordas exatas; a borda nunca invade a palavra vizinha que ficou de fora. O editor segue a ordem do bruto: não reordena frases. Para escolher entre takes, **meça o olhar** de cada candidato (`gaze_events` em `verify.py`) e prefira o que fica menos tempo olhando para baixo.
+
+**Olhar para baixo no fim das frases (`--gaze`):** apara a borda onde o olhar cai e, quando cai dentro da última palavra, faz **L-cut** automático (a imagem troca antes do áudio acabar), só se o trecho de imagem emprestado do próximo clipe estiver em silêncio e sem olhar baixo. O relatório lista o olhar que sobrou. Sobrando, conferir os quadros: até ~0,3 s no fim de frase é aceitável (o `whip` costuma cobrir); no meio da fala, avisar o Douglas.
+
+**Duas partes gravadas separadas:** o editor trabalha com um arquivo de origem. Juntar os brutos sem recodificar (`ffmpeg -f concat -safe 0 -i lista.txt -c copy`), montar o `words.json` somando à segunda parte a duração da primeira, e rodar tudo sobre esse arquivo com `--work` numa pasta própria.
+
+**Transcrição ruim:** se os tempos das palavras ficarem absurdos (palavra de vários segundos, texto alucinado no fim), refazer com `transcribe.py --vad`. Erros recorrentes de grafia (o Whisper escreve "PTU" para "IPTU") vão em `correcoes` no perfil ou em `correcoes.json` na pasta de trabalho. Ajustes: `--gap` maior corta só pausas maiores, `--fillers` (só com pedido) tira "ãh/hum", `--no-cuts` não corta nada, `--interrupt 0` desliga trocas de zoom sem corte. Apresentar o resumo ao Douglas e esperar confirmação antes de seguir. Se houver regravação, perguntar qual take fica.
 
 ### 5. Legendas e palavras-chave
 Claude lê a transcrição e escolhe as palavras-chave (em média 1 a cada 2 frases: o número, o termo do negócio, a promessa, o "não"). Nada de destacar tudo.

@@ -34,6 +34,9 @@ def main() -> None:
     ap.add_argument("--interrupt", type=float, default=4.0, help="troca de zoom sem cortar a cada ~N s em trecho longo (0 desliga)")
     ap.add_argument("--force", action="store_true", help="ignora a trava de vídeo sem fala")
     ap.add_argument("--drop", default="", help="trechos do bruto a remover (escolha de take): '10.3-22.4,30-31.5' em segundos")
+    ap.add_argument("--keep", default="", help="MANTER só estes trechos do bruto (escolha de take): '1.3-4.9,22.8-30.1' em segundos")
+    ap.add_argument("--gaze", action="store_true", help="apara as bordas onde ela olha para baixo (MediaPipe; usa gaze.json da pasta se existir)")
+    ap.add_argument("--no-lcut", action="store_true", help="com --gaze, não usar L-cut (troca de imagem antes do áudio acabar)")
     ap.add_argument("--no-cuts", action="store_true", help="NÃO corta nada: mantém o vídeo inteiro e só planeja zooms (para legenda/cor/áudio sem mexer na duração)")
     ap.add_argument("--fillers", action="store_true", help="também cortar interjeições puras (ãh, hum). Só com pedido explícito.")
     ap.add_argument("--long-pause", type=float, default=1.2, help="avisar pausas maiores que isto (podem ser intencionais)")
@@ -58,6 +61,15 @@ def main() -> None:
             dropped.append(w)
             continue
         words.append(w)
+    valid = list(words)                                 # todas as palavras com fala real, antes da escolha de takes
+    keeps = []
+    for part in [x for x in a.keep.split(",") if x.strip()]:
+        lo, hi = part.split("-")
+        keeps.append((float(lo), float(hi)))
+    if keeps:
+        before = len(words)
+        words = [w for w in words if any(lo <= (w["s"] + w["e"]) / 2 < hi for lo, hi in keeps)]
+        print(f"--keep: {len(words)} palavras mantidas de {before}, em {len(keeps)} trechos")
     drops = []
     for part in [x for x in a.drop.split(",") if x.strip()]:
         lo, hi = part.split("-")
@@ -87,6 +99,16 @@ def main() -> None:
         groups.append(cur)
 
     # 3) bordas em silêncio real
+    down = []
+    if a.gaze:
+        gp = work / "gaze.json"
+        if gp.exists():
+            down = [tuple(x) for x in load_json(gp)]
+        else:
+            from verify import gaze_events
+            down = gaze_events(video)
+            save_json(gp, down)
+        print(f"--gaze: {len(down)} trechos de olhar para baixo no bruto (usados para aparar as bordas)")
     clips = []
     if a.no_cuts:
         groups = []
@@ -100,7 +122,25 @@ def main() -> None:
         s_ = min(s_, first["s"])                        # nunca depois do começo da palavra
         t_in = max(0.0, s_ - a.pre)
         e_ = env.offset(last["s"], min(next_start, last["e"] + 0.4))
+        e_ = min(e_, last["e"] + 0.25)                  # respiração e ruído depois da palavra não são fala
         t_out = min(max(e_, last["e"] - 0.02) + a.post, next_start - 0.02, info["duration"])
+        # palavra vizinha que ficou de fora (outro take, hesitação): a borda não pode invadir
+        kept_ids = {id(x) for x in words}
+        i0 = next(i for i, x in enumerate(valid) if x is first)
+        i1 = next(i for i, x in enumerate(valid) if x is last)
+        if i0 > 0 and id(valid[i0 - 1]) not in kept_ids:
+            t_in = max(t_in, valid[i0 - 1]["e"])
+        if i1 + 1 < len(valid) and id(valid[i1 + 1]) not in kept_ids:
+            t_out = min(t_out, valid[i1 + 1]["s"])
+        # olhar para baixo: a fala não é mexida, mas a borda não fica com ela olhando para baixo
+        for r0, r1 in down:
+            if last["s"] < r0 < t_out:
+                if r0 >= last["e"] + 0.05:               # o olhar cai depois da frase: corta no instante em que cai
+                    t_out = max(r0, last["e"] + 0.05)
+                else:                                    # cai DENTRO da última palavra: fica o mínimo dela (o L-cut cobre)
+                    t_out = min(t_out, last["e"] + 0.05)
+            if r0 <= s_ < r1 and r1 < s_ + a.pre + 0.05:  # a frase começa com o olhar ainda baixo: entra só depois
+                t_in = min(max(t_in, r1), first["s"])
         if clips and t_in < clips[-1]["out"]:           # bordas se sobrepõem: corta no meio
             mid = round((clips[-1]["out"] + t_in) / 2, 3)
             clips[-1]["out"] = mid
@@ -146,6 +186,27 @@ def main() -> None:
         t += c["out"] - c["in"]
     total = round(t, 3)
 
+    # 4a) L-cut: se ela baixa o olhar ainda na última palavra, a IMAGEM troca para o próximo clipe nesse instante
+    # e o áudio termina por baixo. Só se o trecho de imagem emprestado estiver em silêncio e sem olhar baixo.
+    lcuts = []
+    if down and not a.no_lcut:
+        for k in range(len(clips) - 1):
+            c, d = clips[k], clips[k + 1]
+            if c["cont"]:
+                continue
+            hits = [r0 for r0, r1 in down if c["out"] - 0.6 < r0 < c["out"] and r0 > c["in"] + 0.5]
+            if not hits:
+                continue
+            delta = round(c["out"] - min(hits), 3)
+            lo = d["in"] - delta
+            ok = lo >= 0 and env.peak_db(lo, d["in"]) < env.speech - 10 and not any(r0 < d["in"] and r1 > lo for r0, r1 in down)
+            if ok:
+                c["vout"] = round(c["out"] - delta, 3)
+                d["vin"] = round(lo, 3)
+                lcuts.append((c["t0"] + c["out"] - c["in"], delta))
+            else:
+                lcuts.append((c["t0"] + c["out"] - c["in"], None))
+
     edl = {
         "source": str(video), "work": str(work), "total": total, "orig": info["duration"],
         "gap": a.gap, "pre": a.pre, "post": a.post, "clips": clips,
@@ -186,6 +247,17 @@ def main() -> None:
         for r in retakes:
             ca, cb = clips[r["a"] - 1], clips[r["b"] - 1]
             print(f"    enquadramento {r['a']} ({ca['t0']:.1f}s) e {r['b']} ({cb['t0']:.1f}s), {r['sobreposicao']:.0%} das palavras iguais")
+    if down:
+        for t_, dl in lcuts:
+            print(f"  L-cut em {t_:6.2f}s: " + (f"imagem troca {dl:.2f}s antes do áudio acabar" if dl else "NÃO aplicado (imagem do próximo clipe tem fala ou olhar baixo)"))
+        res = []
+        for c in clips:
+            v0, v1 = c.get("vin", c["in"]), c.get("vout", c["out"])        # trecho de IMAGEM realmente exibido
+            for r0, r1 in down:
+                lo, hi = max(r0, v0), min(r1, v1)
+                if hi - lo >= 0.1:
+                    res.append((c["t0"] + lo - c["in"], c["t0"] + hi - c["in"]))
+        print(f"\n  OLHAR PARA BAIXO que sobrou na imagem do vídeo final: {len(res)} trechos" + "".join(f"\n    {x:6.2f}s a {y:6.2f}s" for x, y in res))
     lead = clips[0]["in"]
     tail = info["duration"] - clips[-1]["out"]
     print(f"\n  início: tira {lead:.2f}s   fim: tira {tail:.2f}s")

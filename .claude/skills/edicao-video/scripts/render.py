@@ -144,8 +144,9 @@ def main() -> None:
     # ---- vídeo: um trim por clipe, zoom por recorte na origem
     fc = []
     for n, c in enumerate(clips):
-        d = c["out"] - c["in"]
-        head = (f"[0:v]trim=start={c['in']:.3f}:end={c['out']:.3f},setpts=PTS-STARTPTS,"
+        vin, vout = c.get("vin", c["in"]), c.get("vout", c["out"])      # L-cut: a imagem pode trocar antes do áudio
+        d = vout - vin
+        head = (f"[0:v]trim=start={vin:.3f}:end={vout:.3f},setpts=PTS-STARTPTS,"
                 + (TONEMAP + "," if info["hdr"] else ""))
         if blur_fit:                                    # quadro inteiro na frente, o mesmo quadro desfocado atrás
             z = c["zoom"]

@@ -65,11 +65,11 @@ def main() -> None:
         for i in range(1, len(clips)):
             c = clips[i]
             if clips[i - 1]["cont"]:
-                ev.append({"t": round(c["t0"], 3), "fx": "troca_zoom", "origem": "zoom"})
+                ev.append({"t": round(c["t0"] - (c["in"] - c.get("vin", c["in"])), 3), "fx": "troca_zoom", "origem": "zoom"})
                 continue
             k += 1
             name = seq[(k - 1) % len(seq)] if k % lv["cada"] == 0 else "corte_seco"
-            ev.append({"t": round(c["t0"], 3), "fx": name, "origem": "corte"})
+            ev.append({"t": round(c["t0"] - (c["in"] - c.get("vin", c["in"])), 3), "fx": name, "origem": "corte"})   # no corte da IMAGEM
         # gancho
         if cfg.get("gancho_fx"):
             ev.append({"t": 0.14 if cfg["gancho_fx"] in ("flash", "glitch") else 0.05, "fx": cfg["gancho_fx"], "origem": "gancho"})
