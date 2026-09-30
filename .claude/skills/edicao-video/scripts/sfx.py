@@ -60,9 +60,33 @@ def pop(d: float = 0.25) -> np.ndarray:
     return _norm(np.sin(2 * np.pi * np.cumsum(600 + 900 * np.exp(-t * 30)) / SR) * np.exp(-t * 22))
 
 
-SOUNDS = {"whoosh": (whoosh, 0.22, 1.0), "pop": (pop, 0.01, 0.8), "impact": (impact, 0.0, 1.3), "tick": (tick, 0.0, 0.7)}
+def glitch(d: float = 0.3, seed: int = 5) -> np.ndarray:
+    """Rajadas de ruído reduzido (bit-crush) picotadas, que caem rápido."""
+    r = np.random.default_rng(seed)
+    n = int(SR * d)
+    held = np.repeat(r.standard_normal(n // 24 + 1), 24)[:n]
+    gate = np.zeros(n)
+    i = 0
+    while i < n:
+        seg = int(r.uniform(0.02, 0.06) * SR)
+        if r.random() < 0.65:
+            gate[i:i + seg] = 1
+        i += seg
+    return _norm(held * gate * np.exp(-np.arange(n) / SR * 5))
+
+
+def shimmer(d: float = 0.35) -> np.ndarray:
+    """Varredura aguda ascendente, para acompanhar o flash."""
+    n = int(SR * d)
+    t = np.arange(n) / SR
+    y = np.sin(2 * np.pi * np.cumsum(1400 + 5200 * t / d) / SR) * np.sin(np.linspace(0, np.pi, n)) ** 2
+    return _norm(y)
+
+
+SOUNDS = {"whoosh": (whoosh, 0.22, 1.0), "pop": (pop, 0.01, 0.8), "impact": (impact, 0.0, 1.3), "tick": (tick, 0.0, 0.7),
+          "glitch": (glitch, 0.02, 0.9), "shimmer": (shimmer, 0.10, 0.6)}
 # tipo -> (gerador, segundos de antecedência do início do som em relação ao evento, ganho relativo)
-PRIORITY = {"impact": 0, "manual": 0, "pop": 1, "whoosh": 2, "tick": 2}
+PRIORITY = {"impact": 0, "manual": 0, "pop": 1, "glitch": 1, "shimmer": 1, "whoosh": 2, "tick": 2}
 
 
 def prev_cont(edl: dict, c: dict) -> bool:
@@ -96,10 +120,22 @@ def main() -> None:
     if manual.exists():
         for m in load_json(manual):
             ev.append((float(m["t"]), m["tipo"], "manual"))
-    if lv["cuts"]:
+    fxp = work / "fx_events.json"
+    if fxp.exists():                                             # cada efeito visual toca o seu som
+        from fx import CATALOGO
+        for e in load_json(fxp):
+            tipo = CATALOGO[e["fx"]]["sfx"]
+            if not tipo:
+                continue
+            if e["origem"] in ("corte", "zoom") and not lv["cuts"]:
+                continue
+            if e["origem"] == "palavra-chave" and not lv["keywords"]:
+                continue
+            ev.append((float(e["t"]), tipo, e["origem"]))
+    elif lv["cuts"]:
         for c in edl["clips"][1:]:
             ev.append((c["t0"], "whoosh", "corte" if not prev_cont(edl, c) else "zoom"))
-    if lv["keywords"] and (work / "captions.json").exists() and (work / "subs.ass").exists():
+    if not fxp.exists() and lv["keywords"] and (work / "captions.json").exists() and (work / "subs.ass").exists():
         kws = load_json(work / "captions.json")["keywords"]
         words = load_json(work / "words.json")["words"]
         from common import src_to_out

@@ -54,3 +54,10 @@ Lido: `SKILL.md` (3,7 KB) e `references/caption-styles-and-generation.md` até a
 ## O que foi construído além das fontes
 
 Limiar de energia adaptativo ao ruído da sala (o fixo das referências falhava em sala barulhenta); fusão de "cortes" que não tiram nada; troca de zoom sem corte de áudio; detecção de regravação; trava contra vídeo sem fala; modo `--no-cuts`; legenda `highlight` com palavra-chave acesa; largura de texto medida na fonte real; multiplicador por fonte; enquadramento e zoom em torno do rosto (MediaPipe); checagem de olhar para baixo, de eco e antes/depois; SFX sintético com teto de densidade; auto-grade só por exposição; conversão HDR; tudo local e sem chave de API.
+
+## Adendo: efeitos do CapCut (30/09/2026)
+
+Os arquivos de efeito, transição, fonte e som do CapCut não foram usados nem extraídos: pertencem à ByteDance e a [licença de materiais](https://www.capcut.com/material-license-agreement) limita parte deles a uso pessoal. Segundo fontes secundárias, a biblioteca de sons comerciais só é licenciada para postar no CapCut e no TikTok, o que não cobre anúncio no Meta. Por isso os efeitos foram recriados com filtros do ffmpeg (`fx.py`), escolhendo os mais citados na página de tendências do CapCut.
+
+Projetos que geram rascunho do CapCut por código (pyJianYingDraft, VectCutAPI) existem, mas **não foram auditados** e não fazem parte da skill.
+

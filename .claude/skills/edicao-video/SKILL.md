@@ -16,7 +16,7 @@ Scripts em `.claude/skills/edicao-video/scripts/`. Saídas em `<pasta do vídeo>
 3. **Bruto diferente do pedido: parar e avisar.** Se a transcrição não tem o que ele descreveu (falta o corpo, só conversa, vídeo sem fala), mandar resumo com minutagem e as opções, e esperar. O script já recusa cortar vídeo sem fala.
 4. **Regravações: o Douglas escolhe o take.** O plano avisa quando a mesma frase foi dita mais de uma vez. Nunca escolher sozinho.
 5. **Conferir por medição, não por miniatura.** Rodar `verify.py` e olhar a folha de contato e o antes/depois. Não dizer "conferi quadro a quadro" sem `--gaze` em vídeo de pessoa. Claude não ouve áudio: reportar os números (LUFS, pico) e dizer que não ouviu.
-6. **Sem travessão (—) em nenhuma legenda ou texto.** O script troca por vírgula, mas revise o gancho que você escrever.
+6. **Sem travessão em nenhuma legenda ou texto.** O script troca por vírgula, mas revise o gancho que você escrever.
 7. **Não baixar nem rodar nada de terceiros.** Só `fetch_assets.py` usa rede (fontes OFL e modelo do MediaPipe), uma vez.
 8. **Sempre terminar mandando o caminho completo do arquivo final** para abrir com 1 clique.
 9. **Não entregar copy de anúncio em arquivo.** Gancho e texto vão no chat; só salvar se ele pedir.
@@ -68,8 +68,9 @@ python ".claude/skills/edicao-video/scripts/captions.py" "VIDEO" --profile "clie
 ```
 Sem perfil: `--segmento imobiliaria_construcao --style highlight --accent "#E0B84A"`. Extrair um quadro do vídeo antes (ver etapa 7) para escolher `--hook-pos` fora de logo e rosto. Números e valores sempre ganham destaque sozinhos.
 
-### 6. Efeitos sonoros, render e verificação
+### 6. Efeitos visuais, efeitos sonoros, render e verificação
 ```
+python ".claude/skills/edicao-video/scripts/plan_fx.py" "VIDEO" --profile ... [--nivel leve|media|alta|off] [--music "arquivo.mp3"]
 python ".claude/skills/edicao-video/scripts/sfx.py" "VIDEO" --profile ...
 python ".claude/skills/edicao-video/scripts/render.py" "VIDEO" --profile ... --preview     # rápido, para conferir
 python ".claude/skills/edicao-video/scripts/render.py" "VIDEO" --profile ... [--music "arquivo.mp3"] [--aspect 9:16] [--grade estudio_neutro]
@@ -77,6 +78,9 @@ python ".claude/skills/edicao-video/scripts/verify.py" "VIDEO" --gaze --echo --r
 ```
 - `render.py` escolhe a correção de imagem pela exposição (`--grade auto`): luz fraca, sol forte ou natural. Cast de cor só vira aviso. **Ver sempre o `antes_depois.png`.** O preset `natural` foi calibrado em pessoa; em comida e produto esquenta demais, usar `--grade estudio_neutro`.
 - HDR (iPhone/câmera) é convertido para SDR sozinho.
+- **Efeitos no estilo CapCut** (recriados em ffmpeg, sem licença de terceiros): transições `flash`, `whip`, `glitch`, `dip_preto`, `zoom_blur` e corte seco; impacto `pulse` e `shake` nas palavras-chave; looks `grain`, `vinheta`, `vhs`. `plan_fx.py` escolhe onde entram pela sequência do perfil (`transicao`, `impacto`, `gancho_fx`, `look`). Lista: `python scripts/fx.py`. Forçar um efeito: `fx_manual.json` na pasta de trabalho, `[{"t": 12.3, "fx": "shake"}]`. Com `--music`, o impacto encaixa na batida mais próxima. `--no-fx` desliga tudo, `--look grain,vinheta` troca o look.
+- **Vídeo horizontal em tela vertical**: `--fit blur` mostra o quadro inteiro sobre um fundo desfocado (como o CapCut), em vez de recortar e ampliar.
+- Os efeitos entram antes da legenda, então o texto continua legível durante flash e glitch. Sempre conferir no preview se o efeito não cai em cima de um gesto ou de um logo.
 - Efeitos: `sfx_manual.json` na pasta de trabalho força um som em um instante (`[{"t": 12.3, "tipo": "impact"}]`). Tipos: whoosh, pop, impact, tick.
 - `verify.py` mede: loudness e pico (alvo -14 LUFS, pico até -1 dBFS), pausas que sobraram, fonte/tempos da legenda, folha de contato nas emendas, antes/depois, olhar para baixo (`--gaze`) e cauda de eco (`--echo`, comparar com o bruto via `--ref`).
 
@@ -88,9 +92,9 @@ Render final (sem `--preview`), `verify.py` de novo, e mandar: caminho completo 
 
 ## O que entra na retenção (e o que não)
 
-Entra, tudo por código: corte de pausa; punch-in alternado em cada troca; troca de zoom sem corte a cada ~4 s em trecho longo; aproximação lenta no gancho; legenda com destaque na palavra falada e pop; palavra-chave acesa; gancho de texto; barra de progresso (segmentos que pedem); whoosh nos cortes e pop nas palavras-chave, com teto de densidade; música com ducking sob a voz; loudness de plataforma.
+Entra, tudo por código: corte de pausa; punch-in alternado em cada troca; troca de zoom sem corte a cada ~4 s em trecho longo; aproximação lenta no gancho; legenda com destaque na palavra falada e pop; palavra-chave acesa; gancho de texto; barra de progresso (segmentos que pedem); transições e efeitos de impacto estilo CapCut (flash, whip, glitch, dip, zoom blur, pulse, shake) com som próprio; beat sync com música; fundo desfocado para horizontal em vertical; música com ducking sob a voz; loudness de plataforma. Cada som e efeito tem teto de densidade e fica amarrado a um corte ou palavra-chave.
 
-Não entra ainda: emoji na legenda (libass não renderiza emoji colorido), B-roll e cutaway com imagem, mapeamento de animação por Remotion, tratamento de eco com VoiceFixer (procedimento em memória: `edicao-video-olhar-e-eco`, feito à mão quando o áudio vem de mic distante), biblioteca de trilhas (a música vem do Douglas), reenquadramento inteligente além de rosto central.
+Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duração e na sincronia da fala; só faz sentido em vídeo sem fala ou B-roll, ainda não implementado), stickers e elementos animados do CapCut, emoji na legenda (libass não renderiza emoji colorido), B-roll e cutaway com imagem, mapeamento de animação por Remotion, tratamento de eco com VoiceFixer (procedimento em memória: `edicao-video-olhar-e-eco`, feito à mão quando o áudio vem de mic distante), biblioteca de trilhas (a música vem do Douglas), reenquadramento inteligente além de rosto central.
 
 ## Limites que precisam ser ditos
 

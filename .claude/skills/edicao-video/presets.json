@@ -163,7 +163,14 @@
       "sfx": "leve",
       "progress_bar": false,
       "grade": "auto",
-      "tom": "autoridade, calmo, sem exagero"
+      "tom": "autoridade, calmo, sem exagero",
+      "transicao": [
+        "corte_seco"
+      ],
+      "impacto": null,
+      "gancho_fx": null,
+      "look": [],
+      "fx": "leve"
     },
     "clinica_estetica": {
       "caption_style": "highlight",
@@ -175,7 +182,15 @@
       "sfx": "leve",
       "progress_bar": false,
       "grade": "auto",
-      "tom": "acolhedor, limpo, confiança"
+      "tom": "acolhedor, limpo, confiança",
+      "transicao": [
+        "corte_seco",
+        "dip_preto"
+      ],
+      "impacto": "pulse",
+      "gancho_fx": null,
+      "look": [],
+      "fx": "leve"
     },
     "imobiliaria_construcao": {
       "caption_style": "pop",
@@ -187,7 +202,15 @@
       "sfx": "media",
       "progress_bar": true,
       "grade": "auto",
-      "tom": "credibilidade com ritmo"
+      "tom": "credibilidade com ritmo",
+      "transicao": [
+        "whip",
+        "corte_seco"
+      ],
+      "impacto": "pulse",
+      "gancho_fx": "flash",
+      "look": [],
+      "fx": "media"
     },
     "ecommerce_varejo": {
       "caption_style": "bounce",
@@ -199,7 +222,18 @@
       "sfx": "alta",
       "progress_bar": true,
       "grade": "auto",
-      "tom": "energia, oferta, urgência"
+      "tom": "energia, oferta, urgência",
+      "transicao": [
+        "flash",
+        "glitch",
+        "whip"
+      ],
+      "impacto": "shake",
+      "gancho_fx": "glitch",
+      "look": [
+        "grain"
+      ],
+      "fx": "alta"
     },
     "tna": {
       "caption_style": "highlight",
@@ -211,7 +245,14 @@
       "sfx": "leve",
       "progress_bar": true,
       "grade": "auto",
-      "tom": "direto, técnico, sério mas humano (ver marca/design-guide.md)"
+      "tom": "direto, técnico, sério mas humano (ver marca/design-guide.md)",
+      "transicao": [
+        "corte_seco"
+      ],
+      "impacto": "pulse",
+      "gancho_fx": null,
+      "look": [],
+      "fx": "leve"
     },
     "padrao": {
       "caption_style": "highlight",
@@ -223,7 +264,15 @@
       "sfx": "media",
       "progress_bar": false,
       "grade": "auto",
-      "tom": "neutro"
+      "tom": "neutro",
+      "transicao": [
+        "whip",
+        "corte_seco"
+      ],
+      "impacto": "pulse",
+      "gancho_fx": null,
+      "look": [],
+      "fx": "media"
     }
   },
   "voz": {

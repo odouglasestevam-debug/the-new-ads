@@ -41,6 +41,28 @@ Sempre conferir `verify/antes_depois.png`, principalmente tom de pele. HDR é co
 - Efeitos sintéticos (sem banco, sem direito autoral): `whoosh` nos cortes, `pop` nas palavras-chave, `impact` e `tick` só sob pedido em `sfx_manual.json`. Níveis: `off`, `leve` (1 por 10 s), `media` (2), `alta` (3). Cada efeito amarra a algo visível.
 - Música: sempre escolha do Douglas. Entra a 16% do volume, baixa sozinha quando há fala (sidechain) e sai com fade no fim.
 
+## Efeitos e transições (estilo CapCut, recriados em ffmpeg)
+
+Escolhidos entre os mais usados segundo a [página de tendências do próprio CapCut](https://www.capcut.com/help/capcut-transitions): glitch/RGB split, zoom e fade cinematográfico, swipe, slow motion com blur, speed ramp e beat sync. Não são os arquivos do CapCut (que têm licença própria): são equivalentes feitos com filtros do ffmpeg, sem custo e sem restrição de uso em anúncio. Entram por cima, sem mudar a duração, antes da legenda.
+
+| Efeito | Tipo | O que faz | Bom para |
+|---|---|---|---|
+| `corte_seco` | transição | Corte limpo, só com whoosh | Jurídico, saúde, TNA |
+| `flash` | transição ou impacto | Clarão branco rápido, com shimmer | Gancho, revelação |
+| `whip` | transição | Borrão horizontal de virada de câmera | Imobiliário, ritmo médio |
+| `glitch` | transição ou impacto | Separação RGB com ruído digital | Varejo, energia alta |
+| `dip_preto` | transição | Mergulho no preto | Clima sério, cinematográfico |
+| `zoom_blur` | transição | Aproximação com desfoque | Dar peso a um corte |
+| `pulse` | impacto | Batida de zoom que volta | Palavra-chave, sem exagero |
+| `shake` | impacto | Tremida que amortece, com impact | Ênfase forte, varejo |
+| `grain`, `vinheta`, `vhs` | look | Acabamento do vídeo inteiro | Sob demanda |
+
+Por segmento (pontos de partida no `presets.json`): advocacia só corte seco; clínica corte seco e dip preto, pulse; imobiliário whip e corte seco alternados, pulse, flash no gancho; varejo flash, glitch e whip, shake, glitch no gancho, grão; TNA corte seco e pulse.
+
+Regras: transição só em corte real (onde saiu pausa); impacto só em palavra-chave, longe de transição, com teto por 10 s; `--nivel off|leve|media|alta` ajusta a densidade. Cada efeito toca seu som: flash com shimmer, glitch com rajada digital, whip e zoom_blur com whoosh, pulse com pop, shake com impact.
+
+Ainda fora: speed ramp (muda duração e sincronia, só serve em vídeo sem fala), stickers e elementos animados.
+
 ## Receitas
 
 - Consultoria/jurídico/saúde: `highlight`, sem caixa alta, sfx `leve`, zoom 1.08, gap 0.42.

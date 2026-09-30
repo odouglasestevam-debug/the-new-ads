@@ -18,6 +18,11 @@ O vídeo tem que parecer da empresa, não do editor. Antes de editar, montar ou 
 | cta | texto do fim do vídeo e botão do anúncio |
 | sfx | `off`, `leve`, `media`, `alta`. Advocacia e saúde: leve. Varejo e oferta: alta |
 | gap, zoom | ritmo: calmo (gap 0.42, zoom 1.08) a rápido (gap 0.28, zoom 1.18) |
+| transicao | lista que se repete a cada corte real: `["whip", "corte_seco"]`. Opções: corte_seco, flash, whip, glitch, dip_preto, zoom_blur |
+| impacto | efeito nas palavras-chave: `pulse`, `shake`, `flash`, `glitch` ou `null` |
+| gancho_fx | efeito no primeiro segundo: `flash`, `glitch` ou `null` |
+| look | lista: `grain`, `vinheta`, `vhs` |
+| fx | densidade dos efeitos visuais: `off`, `leve`, `media`, `alta` |
 
 ## Modelo
 

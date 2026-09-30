@@ -82,6 +82,10 @@ def main() -> None:
     ap.add_argument("--bar", choices=["sim", "nao"], help="barra de progresso no topo")
     ap.add_argument("--no-captions", action="store_true")
     ap.add_argument("--no-sfx", action="store_true")
+    ap.add_argument("--no-fx", action="store_true", help="sem efeitos visuais e transições")
+    ap.add_argument("--look", help="grain,vinheta,vhs (separados por vírgula) ou 'nenhum'. Padrão: o do perfil")
+    ap.add_argument("--fit", choices=["cover", "blur"], default="cover",
+                    help="cover = recorta para preencher a tela | blur = mostra o quadro inteiro sobre fundo desfocado (horizontal em vertical)")
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--preview", action="store_true", help="rápido e leve, só para conferir")
     ap.add_argument("--out")
@@ -115,7 +119,8 @@ def main() -> None:
     from render_geometry import base_box
     bw0 = base_box(sw, sh, W, H, fx, fy)[0]
     up = W / bw0 * max(c["zoom"] for c in clips)
-    if up > 1.35:
+    blur_fit = a.fit == "blur" and abs(sw / sh - W / H) > 0.05
+    if up > 1.35 and not blur_fit:
         print(f"AVISO: a imagem será ampliada {up:.1f}x (origem {sw}x{sh} para {W}x{H} com zoom). Vai ficar mole e apertada. "
               f"Converter vertical em horizontal/quadrado raramente presta; prefira regravar ou manter o formato.")
 
@@ -140,17 +145,39 @@ def main() -> None:
     fc = []
     for n, c in enumerate(clips):
         d = c["out"] - c["in"]
-        cw, ch, x, y = zoom_box(sw, sh, W, H, c["zoom"], fx, fy)
-        v = (f"[0:v]trim=start={c['in']:.3f}:end={c['out']:.3f},setpts=PTS-STARTPTS,"
-             + (TONEMAP + "," if info["hdr"] else "") +
-             f"crop={cw}:{ch}:{x}:{y},scale={W}:{H}:flags=lanczos")
-        if c.get("push"):                               # gancho: aproximação lenta
-            v += (f",scale=w='trunc({W}*(1+{c['push']}*t/{d:.3f})/2)*2':h=-2:eval=frame:flags=bicubic,"
-                  f"crop={W}:{H}:'(iw-{W})*{face_u:.4f}':'(ih-{H})*{face_v:.4f}'")
+        head = (f"[0:v]trim=start={c['in']:.3f}:end={c['out']:.3f},setpts=PTS-STARTPTS,"
+                + (TONEMAP + "," if info["hdr"] else ""))
+        if blur_fit:                                    # quadro inteiro na frente, o mesmo quadro desfocado atrás
+            z = c["zoom"]
+            fg = f"scale={W}:{H}:force_original_aspect_ratio=decrease" + (f",scale=trunc(iw*{z}/2)*2:-2" if z > 1 else "")
+            v = (head + f"split[bg{n}][fg{n}];[bg{n}]scale={W}:{H}:force_original_aspect_ratio=increase,crop={W}:{H},"
+                 f"gblur=sigma={int(40 * W / 1080)},eq=brightness=-0.08[bb{n}];[fg{n}]{fg}[ff{n}];"
+                 f"[bb{n}][ff{n}]overlay=(main_w-overlay_w)/2:(main_h-overlay_h)/2")
+        else:
+            cw, ch, x, y = zoom_box(sw, sh, W, H, c["zoom"], fx, fy)
+            v = head + f"crop={cw}:{ch}:{x}:{y},scale={W}:{H}:flags=lanczos"
+            if c.get("push"):                           # gancho: aproximação lenta
+                v += (f",scale=w='trunc({W}*(1+{c['push']}*t/{d:.3f})/2)*2':h=-2:eval=frame:flags=bicubic,"
+                      f"crop={W}:{H}:'(iw-{W})*{face_u:.4f}':'(ih-{H})*{face_v:.4f}'")
         fc.append(v + f",setsar=1,fps={a.fps}[v{n}]")
     fc.append("".join(f"[v{n}]" for n in range(len(clips))) + f"concat=n={len(clips)}:v=1:a=0[vc]")
 
-    tail = [grade] if grade else []
+    # efeitos e transições (por cima, não mudam a duração), depois cor, look, legenda e barra
+    vlabel, fx_count = "vc", 0
+    evp = work / "fx_events.json"
+    if evp.exists() and not a.no_fx:
+        from fx import emit as fx_emit
+        evs = load_json(evp)
+        frags, vlabel = fx_emit(evs, W, H, "vc")
+        fc += frags
+        fx_count = len(frags)
+    from fx import LOOKS
+    looks = a.look if a.look is not None else cfg.get("look", [])
+    looks = [] if looks in ("nenhum", "") else ([x for x in looks.split(",") if x] if isinstance(looks, str) else list(looks))
+    for lk in looks:
+        if lk not in LOOKS:
+            raise SystemExit(f"Look '{lk}' não existe. Opções: {list(LOOKS)}")
+    tail = ([grade] if grade else []) + [LOOKS[lk] for lk in looks]
     captions_ok = (work / "subs.ass").exists() and not a.no_captions
     if captions_ok:
         fonts_local = work / "fonts"                     # caminho relativo evita o problema do 'C:' no filtro
@@ -165,7 +192,7 @@ def main() -> None:
     if a.preview:
         tail.append("scale=trunc(iw/4)*2:-2")
     tail.append("format=yuv420p")
-    fc.append("[vc]" + ",".join(tail) + "[vout]")
+    fc.append(f"[{vlabel}]" + ",".join(tail) + "[vout]")
     (work / "video.filter").write_text(";\n".join(fc), encoding="utf-8")
 
     # ---- áudio: voz -> (+ música com ducking) -> (+ sfx) -> loudness
@@ -220,7 +247,7 @@ def main() -> None:
     size = out.stat().st_size / 1e6
     save_json(work / "render.json", {"out": str(out), "grade": gname, "grade_motivo": why, "scene": scene, "aspect": a.aspect,
                                      "size_px": [W, H], "total": total, "music": a.music, "sfx": use_sfx,
-                                     "captions": captions_ok, "bar": bar, "loudness_antes": m["input_i"]})
+                                     "captions": captions_ok, "bar": bar, "fx_visuais": fx_count, "looks": looks, "fit": a.fit, "loudness_antes": m["input_i"]})
     print(f"\nPRONTO: {out}  ({size:.1f} MB, {total:.1f}s, {W}x{H})")
 
 
