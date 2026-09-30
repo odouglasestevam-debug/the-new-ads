@@ -1,103 +1,239 @@
 {
   "_nota": "Pontos de partida. Cor e fonte de cliente sempre vêm da marca dele (briefing/perfil), estes valores só valem quando não há nada definido.",
-
   "fonts": {
-    "Poppins Black":     {"file": "Poppins-Black.ttf",     "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-Black.ttf",     "bold": 0},
-    "Poppins ExtraBold": {"file": "Poppins-ExtraBold.ttf", "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-ExtraBold.ttf", "bold": 0},
-    "Poppins SemiBold":  {"file": "Poppins-SemiBold.ttf",  "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-SemiBold.ttf",  "bold": 0},
-    "Anton":             {"file": "Anton-Regular.ttf",     "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",       "bold": 0},
-    "Bebas Neue":        {"file": "BebasNeue-Regular.ttf", "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf", "bold": 0},
-    "Archivo Black":     {"file": "ArchivoBlack-Regular.ttf", "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/ArchivoBlack-Regular.ttf", "bold": 0},
-    "DM Serif Display":  {"file": "DMSerifDisplay-Regular.ttf", "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/dmserifdisplay/DMSerifDisplay-Regular.ttf", "bold": 0},
-    "Clash Display":     {"file": "ClashDisplay-Bold.ttf", "url": null, "bold": 0, "_nota": "Marca da TNA. Baixar na Fontshare e colocar em fonts/ (fora do repositório oficial de fontes)."}
+    "Poppins Black": {
+      "file": "Poppins-Black.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-Black.ttf",
+      "bold": 0,
+      "size": 1.0
+    },
+    "Poppins ExtraBold": {
+      "file": "Poppins-ExtraBold.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-ExtraBold.ttf",
+      "bold": 0,
+      "size": 1.0
+    },
+    "Poppins SemiBold": {
+      "file": "Poppins-SemiBold.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/poppins/Poppins-SemiBold.ttf",
+      "bold": 0,
+      "size": 1.0
+    },
+    "Anton": {
+      "file": "Anton-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/anton/Anton-Regular.ttf",
+      "bold": 0,
+      "size": 1.28
+    },
+    "Bebas Neue": {
+      "file": "BebasNeue-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/bebasneue/BebasNeue-Regular.ttf",
+      "bold": 0,
+      "size": 1.4
+    },
+    "Archivo Black": {
+      "file": "ArchivoBlack-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/archivoblack/ArchivoBlack-Regular.ttf",
+      "bold": 0,
+      "size": 0.96
+    },
+    "DM Serif Display": {
+      "file": "DMSerifDisplay-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/dmserifdisplay/DMSerifDisplay-Regular.ttf",
+      "bold": 0,
+      "size": 1.1
+    },
+    "Clash Display": {
+      "file": "ClashDisplay-Bold.ttf",
+      "url": null,
+      "bold": 0,
+      "_nota": "Marca da TNA. Baixar na Fontshare e colocar em fonts/ (fora do repositório oficial de fontes).",
+      "size": 1.0
+    }
   },
-
   "caption_styles": {
     "highlight": {
       "_desc": "Linha de 2 a 3 palavras; a palavra que está sendo falada acende na cor de destaque com um pop curto. Melhor estilo para reter sem cansar.",
-      "mode": "highlight", "group_words": 3, "max_chars": 18, "uppercase": true,
-      "font_scale": 0.079, "outline": 0.085, "shadow": 0.04, "pop_ms": 110, "active_scale": 112
+      "mode": "highlight",
+      "group_words": 3,
+      "max_chars": 18,
+      "uppercase": true,
+      "font_scale": 0.079,
+      "outline": 0.085,
+      "shadow": 0.04,
+      "pop_ms": 110,
+      "active_scale": 112
     },
     "pop": {
       "_desc": "A linha inteira entra com pop; só as palavras-chave ficam na cor de destaque (estilo dos vídeos da Regularize).",
-      "mode": "pop", "group_words": 3, "max_chars": 16, "uppercase": true,
-      "font_scale": 0.079, "outline": 0.085, "shadow": 0.04, "pop_ms": 90, "key_scale": 112
+      "mode": "pop",
+      "group_words": 3,
+      "max_chars": 16,
+      "uppercase": true,
+      "font_scale": 0.079,
+      "outline": 0.085,
+      "shadow": 0.04,
+      "pop_ms": 90,
+      "key_scale": 112
     },
     "karaoke": {
       "_desc": "A cor de destaque preenche a linha palavra por palavra, suave.",
-      "mode": "karaoke", "group_words": 4, "max_chars": 24, "uppercase": true,
-      "font_scale": 0.072, "outline": 0.085, "shadow": 0.04
+      "mode": "karaoke",
+      "group_words": 4,
+      "max_chars": 24,
+      "uppercase": true,
+      "font_scale": 0.072,
+      "outline": 0.085,
+      "shadow": 0.04
     },
     "bounce": {
       "_desc": "A linha sobe com quique. Energia alta, bom para varejo e oferta.",
-      "mode": "bounce", "group_words": 2, "max_chars": 14, "uppercase": true,
-      "font_scale": 0.088, "outline": 0.09, "shadow": 0.04
+      "mode": "bounce",
+      "group_words": 2,
+      "max_chars": 14,
+      "uppercase": true,
+      "font_scale": 0.088,
+      "outline": 0.09,
+      "shadow": 0.04
     },
     "impacto": {
       "_desc": "Uma palavra por vez, bem grande. Só para trechos curtos e ganchos.",
-      "mode": "pop", "group_words": 1, "max_chars": 12, "uppercase": true,
-      "font_scale": 0.125, "outline": 0.09, "shadow": 0.04, "pop_ms": 80, "key_scale": 118
+      "mode": "pop",
+      "group_words": 1,
+      "max_chars": 12,
+      "uppercase": true,
+      "font_scale": 0.125,
+      "outline": 0.09,
+      "shadow": 0.04,
+      "pop_ms": 80,
+      "key_scale": 118
     }
   },
-
   "grades": {
     "_nota": "Cadeias de filtro do ffmpeg. 'auto' mede o vídeo e escolhe uma destas. Sempre conferir tom de pele no antes/depois.",
-    "none":            "",
-    "natural":         "hqdn3d=1.2:1.2:4:4,eq=contrast=1.07:brightness=0.012:saturation=1.12:gamma=0.98,colorbalance=rs=0.02:bs=-0.025:rm=0.015:bm=-0.02,unsharp=5:5:0.45:5:5:0",
-    "luz_fraca":       "hqdn3d=2.5:2.5:6:6,eq=brightness=0.04:contrast=1.08:saturation=1.08:gamma=1.14,curves=master='0/0 0.25/0.29 0.75/0.78 1/1',unsharp=5:5:0.4:5:5:0",
-    "luz_quente":      "eq=contrast=1.06:saturation=1.04,colorbalance=rs=-0.03:rm=-0.05:rh=-0.04:bs=0.03:bm=0.05:bh=0.04,unsharp=5:5:0.4:5:5:0",
-    "contraluz":       "hqdn3d=1.5:1.5:4:4,eq=gamma=1.16:contrast=1.05:saturation=1.06,curves=master='0/0 0.3/0.37 0.7/0.72 1/0.94',unsharp=5:5:0.4:5:5:0",
-    "externo_sol":     "eq=contrast=1.04:saturation=1.05:gamma=0.97,curves=master='0/0.02 0.5/0.49 0.85/0.82 1/0.95',unsharp=5:5:0.4:5:5:0",
-    "luz_fluorescente":"eq=contrast=1.05:saturation=1.06,colorbalance=gs=-0.03:gm=-0.03:rm=0.02:rh=0.02:bm=0.01,unsharp=5:5:0.4:5:5:0",
-    "estudio_neutro":  "eq=contrast=1.05:saturation=1.05,unsharp=5:5:0.3:5:5:0",
+    "none": "",
+    "natural": "hqdn3d=1.2:1.2:4:4,eq=contrast=1.07:brightness=0.012:saturation=1.12:gamma=0.98,colorbalance=rs=0.02:bs=-0.025:rm=0.015:bm=-0.02,unsharp=5:5:0.45:5:5:0",
+    "luz_fraca": "hqdn3d=2.5:2.5:6:6,eq=brightness=0.04:contrast=1.08:saturation=1.08:gamma=1.14,curves=master='0/0 0.25/0.29 0.75/0.78 1/1',unsharp=5:5:0.4:5:5:0",
+    "luz_quente": "eq=contrast=1.06:saturation=1.04,colorbalance=rs=-0.03:rm=-0.05:rh=-0.04:bs=0.03:bm=0.05:bh=0.04,unsharp=5:5:0.4:5:5:0",
+    "contraluz": "hqdn3d=1.5:1.5:4:4,eq=gamma=1.16:contrast=1.05:saturation=1.06,curves=master='0/0 0.3/0.37 0.7/0.72 1/0.94',unsharp=5:5:0.4:5:5:0",
+    "externo_sol": "eq=contrast=1.04:saturation=1.05:gamma=0.97,curves=master='0/0.02 0.5/0.49 0.85/0.82 1/0.95',unsharp=5:5:0.4:5:5:0",
+    "luz_fluorescente": "eq=contrast=1.05:saturation=1.06,colorbalance=gs=-0.03:gm=-0.03:rm=0.02:rh=0.02:bm=0.01,unsharp=5:5:0.4:5:5:0",
+    "estudio_neutro": "eq=contrast=1.05:saturation=1.05,unsharp=5:5:0.3:5:5:0",
     "cinematografico": "eq=contrast=1.10:brightness=-0.01:saturation=0.92,colorbalance=rs=0.02:bs=-0.03:rm=0.04:gm=0.01:bm=-0.02:rh=0.06:gh=0.02:bh=-0.04,curves=master='0/0 0.25/0.22 0.75/0.78 1/1'"
   },
-
   "sfx_niveis": {
-    "off":   {"max_per_10s": 0, "min_gap": 99,  "gain": 0.0,  "cuts": false, "keywords": false},
-    "leve":  {"max_per_10s": 1, "min_gap": 1.8, "gain": 0.12, "cuts": true,  "keywords": false},
-    "media": {"max_per_10s": 2, "min_gap": 1.2, "gain": 0.18, "cuts": true,  "keywords": true},
-    "alta":  {"max_per_10s": 3, "min_gap": 0.8, "gain": 0.24, "cuts": true,  "keywords": true}
+    "off": {
+      "max_per_10s": 0,
+      "min_gap": 99,
+      "gain": 0.0,
+      "cuts": false,
+      "keywords": false
+    },
+    "leve": {
+      "max_per_10s": 1,
+      "min_gap": 1.8,
+      "gain": 0.12,
+      "cuts": true,
+      "keywords": false
+    },
+    "media": {
+      "max_per_10s": 2,
+      "min_gap": 1.2,
+      "gain": 0.18,
+      "cuts": true,
+      "keywords": true
+    },
+    "alta": {
+      "max_per_10s": 3,
+      "min_gap": 0.8,
+      "gain": 0.24,
+      "cuts": true,
+      "keywords": true
+    }
   },
-
   "segmentos": {
     "_nota": "Ponto de partida por segmento. Confirmar com o Douglas e trocar accent/font pela marca do cliente.",
     "advocacia": {
-      "caption_style": "highlight", "font": "Poppins ExtraBold", "hook_font": "DM Serif Display", "accent": "#C9A227",
-      "uppercase": false, "gap": 0.42, "zoom": 1.08, "sfx": "leve", "progress_bar": false, "grade": "auto",
+      "caption_style": "highlight",
+      "font": "Poppins ExtraBold",
+      "accent": "#C9A227",
+      "uppercase": false,
+      "gap": 0.42,
+      "zoom": 1.08,
+      "sfx": "leve",
+      "progress_bar": false,
+      "grade": "auto",
       "tom": "autoridade, calmo, sem exagero"
     },
     "clinica_estetica": {
-      "caption_style": "highlight", "font": "Poppins ExtraBold", "hook_font": "Poppins SemiBold", "accent": "#F2B5C4",
-      "uppercase": false, "gap": 0.36, "zoom": 1.10, "sfx": "leve", "progress_bar": false, "grade": "auto",
+      "caption_style": "highlight",
+      "font": "Poppins ExtraBold",
+      "accent": "#F2B5C4",
+      "uppercase": false,
+      "gap": 0.36,
+      "zoom": 1.1,
+      "sfx": "leve",
+      "progress_bar": false,
+      "grade": "auto",
       "tom": "acolhedor, limpo, confiança"
     },
     "imobiliaria_construcao": {
-      "caption_style": "pop", "font": "Poppins Black", "hook_font": "DM Serif Display", "accent": "#E0B84A",
-      "uppercase": true, "gap": 0.35, "zoom": 1.15, "sfx": "media", "progress_bar": true, "grade": "auto",
+      "caption_style": "pop",
+      "font": "Poppins Black",
+      "accent": "#E0B84A",
+      "uppercase": true,
+      "gap": 0.35,
+      "zoom": 1.15,
+      "sfx": "media",
+      "progress_bar": true,
+      "grade": "auto",
       "tom": "credibilidade com ritmo"
     },
     "ecommerce_varejo": {
-      "caption_style": "bounce", "font": "Anton", "hook_font": "Anton", "accent": "#FFD400",
-      "uppercase": true, "gap": 0.28, "zoom": 1.18, "sfx": "alta", "progress_bar": true, "grade": "auto",
+      "caption_style": "bounce",
+      "font": "Anton",
+      "accent": "#FFD400",
+      "uppercase": true,
+      "gap": 0.28,
+      "zoom": 1.18,
+      "sfx": "alta",
+      "progress_bar": true,
+      "grade": "auto",
       "tom": "energia, oferta, urgência"
     },
     "tna": {
-      "caption_style": "highlight", "font": "Poppins ExtraBold", "hook_font": "Poppins ExtraBold", "accent": "#FF6A00",
-      "uppercase": true, "gap": 0.38, "zoom": 1.10, "sfx": "leve", "progress_bar": true, "grade": "auto",
+      "caption_style": "highlight",
+      "font": "Poppins ExtraBold",
+      "accent": "#FF6A00",
+      "uppercase": true,
+      "gap": 0.38,
+      "zoom": 1.1,
+      "sfx": "leve",
+      "progress_bar": true,
+      "grade": "auto",
       "tom": "direto, técnico, sério mas humano (ver marca/design-guide.md)"
     },
     "padrao": {
-      "caption_style": "highlight", "font": "Poppins Black", "hook_font": "Poppins ExtraBold", "accent": "#FFD400",
-      "uppercase": true, "gap": 0.35, "zoom": 1.12, "sfx": "media", "progress_bar": false, "grade": "auto",
+      "caption_style": "highlight",
+      "font": "Poppins Black",
+      "accent": "#FFD400",
+      "uppercase": true,
+      "gap": 0.35,
+      "zoom": 1.12,
+      "sfx": "media",
+      "progress_bar": false,
+      "grade": "auto",
       "tom": "neutro"
     }
   },
-
   "voz": {
-    "denoise": {"off": "", "leve": "afftdn=nr=6:nf=-55,", "forte": "afftdn=nr=12:nf=-50,"},
+    "denoise": {
+      "off": "",
+      "leve": "afftdn=nr=6:nf=-55,",
+      "forte": "afftdn=nr=12:nf=-50,"
+    },
     "cadeia": "highpass=f=85,{denoise}equalizer=f=250:t=q:w=1.2:g=-2,equalizer=f=3500:t=q:w=1:g=2.5,acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2",
     "alvo_lufs": -14.0,
-    "pico_db": -1.5
+    "pico_db": -2.0
   }
 }

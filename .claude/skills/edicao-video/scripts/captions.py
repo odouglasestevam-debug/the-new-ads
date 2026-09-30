@@ -73,6 +73,7 @@ def main() -> None:
     ap.add_argument("--keywords", help="arquivo .json (lista de textos ou índices) ou 'IPTU,matrícula'")
     ap.add_argument("--hook", help="texto do gancho nos primeiros segundos (use \\n para quebrar linha)")
     ap.add_argument("--hook-dur", type=float, default=2.6)
+    ap.add_argument("--hook-pos", type=float, help="altura do gancho (0 a 1). Padrão 0.16; olhe um quadro e fuja de logo e rosto")
     ap.add_argument("--aspect", default="9:16")
     ap.add_argument("--pos", type=float, help="altura da legenda (0 a 1 da tela). Padrão: 0.62 vertical")
     a = ap.parse_args()
@@ -97,7 +98,7 @@ def main() -> None:
     vertical = H > W * 1.2
 
     # fontes: precisam existir de verdade
-    for fam in {cfg["font"], cfg.get("hook_font", cfg["font"])}:
+    for fam in {cfg["font"], cfg.get("hook_font") or cfg["font"]}:
         if not font_available(fam):
             raise SystemExit(f"Fonte '{fam}' não encontrada. Rode: python fetch_assets.py "
                              f"(ou coloque o .ttf em {FONTS_DIR})")
@@ -144,7 +145,7 @@ def main() -> None:
 
     # ------------------------------------------------------------ geometria
     base = W if H >= W else H * 0.75
-    size = round(base * st["font_scale"])
+    size = round(base * st["font_scale"] * P["fonts"].get(cfg["font"], {}).get("size", 1.0))
     outline = round(size * st["outline"], 1)
     shadow = round(size * st["shadow"], 1)
     y_frac = a.pos if a.pos else (0.62 if vertical else (0.72 if abs(H - W) < 10 else 0.80))
@@ -154,7 +155,7 @@ def main() -> None:
     accent, WHITE = ass_bgr(cfg["accent"]), "&HFFFFFF&"
     karaoke = st["mode"] == "karaoke"
     bold = P["fonts"].get(cfg["font"], {}).get("bold", 0)
-    hook_font = cfg.get("hook_font", cfg["font"])
+    hook_font = cfg.get("hook_font") or cfg["font"]
 
     def fit(text: str) -> int:
         """Tamanho da fonte para a linha caber em 88% da largura."""
@@ -174,9 +175,15 @@ def main() -> None:
         pos = f"\\an5\\pos({X},{Y})"
 
         if st["mode"] == "highlight":
+            carry = None
             for wi, w in enumerate(g):
                 s_ = g_start if wi == 0 else w["s"]
                 e_ = g[wi + 1]["s"] if wi + 1 < len(g) else g_end
+                if carry is not None:
+                    s_, carry = carry, None
+                if e_ - s_ < 0.07 and wi + 1 < len(g):      # palavra rápida demais: o destaque passa direto para a próxima
+                    carry = s_
+                    continue
                 parts = []
                 for wj_, x in enumerate(g):
                     t = shown(x)
@@ -215,14 +222,14 @@ def main() -> None:
     # ------------------------------------------------------------ gancho (texto do topo)
     hook_style = ""
     if a.hook:
-        hs = round(base * 0.058)
-        hy = int(H * (0.20 if vertical else 0.14))
+        hs = round(base * 0.072 * P["fonts"].get(hook_font, {}).get("size", 1.0))
+        hy = int(H * (a.hook_pos if a.hook_pos else (0.16 if vertical else 0.12)))
         lines = a.hook.replace("\\n", "\n").split("\n")
         txt = "\\N".join(clean_text(x).upper() for x in lines)
         he = min(a.hook_dur, edl["total"] * 0.4)
         ev.append(f"Dialogue: 3,{ts(0.15)},{ts(he)},Hook,,0,0,0,,{{\\an5\\pos({X},{hy})\\fad(160,260)"
                   f"\\fscx90\\fscy90\\t(0,180,\\fscx100\\fscy100)}}{txt}")
-        bar_y = hy + hs * (len(lines) + 1) // 1 + 14
+        bar_y = hy + int(hs * (0.62 * len(lines) + 0.30))
         ev.append(f"Dialogue: 3,{ts(0.25)},{ts(he)},Hook,,0,0,0,,{{\\an5\\pos({X},{bar_y})\\p1\\c{accent}\\bord0\\shad0"
                   f"\\fscx0\\t(0,320,\\fscx100)\\fad(0,260)}}m 0 0 l 170 0 l 170 6 l 0 6{{\\p0}}")
         hook_style = (f"Style: Hook,{hook_font},{hs},{accent.replace('&H', '&H00').rstrip('&')},&H00FFFFFF,"

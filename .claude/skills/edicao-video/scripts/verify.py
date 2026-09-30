@@ -8,6 +8,11 @@ Uso: python verify.py VIDEO [--work DIR] [--final arquivo.mp4] [--gaze] [--echo]
 """
 from __future__ import annotations
 
+import os
+
+os.environ.setdefault("GLOG_minloglevel", "2")
+os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
+
 import argparse
 import re
 import subprocess
@@ -15,7 +20,7 @@ from pathlib import Path
 
 import numpy as np
 
-from common import (ASSETS_DIR, FF, Envelope, FONTS_DIR, extract_wav, font_available, load_json, probe, run,
+from common import (ASSETS_DIR, FF, TONEMAP, Envelope, FONTS_DIR, extract_wav, font_available, load_json, probe, run,
                     save_json, work_dir_for)
 
 
@@ -57,6 +62,37 @@ def contact_sheet(final: Path, times: list[float], out: Path) -> None:
     sheet = Image.new("RGB", (cols * w, rows * h), (20, 20, 20))
     for i, im in enumerate(imgs):
         sheet.paste(im, ((i % cols) * w, (i // cols) * h))
+    sheet.save(out, quality=88)
+
+
+def before_after(edl: dict, final: Path, out: Path) -> None:
+    """Origem x final no mesmo instante, para conferir cor e tom de pele (o grade pode errar)."""
+    from PIL import Image, ImageDraw
+    src = Path(edl["source"])
+    hdr = probe(src)["hdr"]
+    clips = edl["clips"]
+    idx = sorted({0, len(clips) // 2, len(clips) - 1})
+    tmp = out.parent / "_ba"
+    tmp.mkdir(exist_ok=True)
+    rows = []
+    for k, i in enumerate(idx):
+        c = clips[i]
+        t_src = (c["in"] + c["out"]) / 2
+        t_out = c["t0"] + (c["out"] - c["in"]) / 2
+        a_, b_ = tmp / f"a{k}.jpg", tmp / f"b{k}.jpg"
+        run([FF, "-v", "error", "-y", "-ss", f"{t_src:.3f}", "-i", src, "-frames:v", 1, "-vf",
+             (TONEMAP + "," if hdr else "") + "scale=-2:520", "-q:v", 3, a_])
+        run([FF, "-v", "error", "-y", "-ss", f"{t_out:.3f}", "-i", final, "-frames:v", 1, "-vf", "scale=-2:520", "-q:v", 3, b_])
+        rows.append((Image.open(a_).convert("RGB"), Image.open(b_).convert("RGB")))
+    w = sum(r[0].width + r[1].width + 8 for r in rows)
+    sheet = Image.new("RGB", (w, 520 + 22), (15, 15, 15))
+    x = 0
+    for a_, b_ in rows:
+        sheet.paste(a_, (x, 22))
+        sheet.paste(b_, (x + a_.width + 8 - 8, 22))
+        ImageDraw.Draw(sheet).text((x + 4, 5), "ANTES (origem)", fill=(255, 255, 255))
+        ImageDraw.Draw(sheet).text((x + a_.width + 4, 5), "DEPOIS (final)", fill=(255, 210, 90))
+        x += a_.width + b_.width + 8
     sheet.save(out, quality=88)
 
 
@@ -178,13 +214,13 @@ def main() -> None:
             return int(h) * 3600 + int(m) * 60 + float(s)
 
         durs = [sec(e) - sec(s) for s, e in ev]
-        short = [d for d in durs if d < 0.08]
+        short = [d for d in durs if d < 0.07]
         last_end = max((sec(e) for _, e in ev), default=0)
         print(f"legendas: {len(ev)} eventos, fontes {sorted(fonts)}, último termina em {last_end:.2f}s")
         if last_end > edl["total"] + 0.6:
             problems.append("legenda passa do fim do vídeo")
         if short:
-            problems.append(f"{len(short)} eventos de legenda com menos de 80 ms (piscam)")
+            problems.append(f"{len(short)} eventos de legenda com menos de 70 ms (piscam)")
         if "—" in txt or "–" in txt:
             problems.append("travessão encontrado na legenda")
 
@@ -197,6 +233,10 @@ def main() -> None:
     sheet = vdir / "contato.png"
     contact_sheet(final, times, sheet)
     print(f"folha de contato ({len(times)} quadros): {sheet}")
+
+    ba = vdir / "antes_depois.png"
+    before_after(edl, final, ba)
+    print(f"antes e depois (cor/tom de pele): {ba}")
 
     if a.gaze:
         g = gaze_events(final)

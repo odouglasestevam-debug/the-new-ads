@@ -73,8 +73,14 @@ def probe(path: str | Path) -> dict:
     if rot and int(round(abs(float(rot[1])))) % 180 == 90:
         w, h = h, w
     fps = re.search(r"(\d+(?:\.\d+)?) fps", err)
+    vline = v[0]
     return {"w": w, "h": h, "fps": float(fps[1]) if fps else 30.0, "duration": dur,
-            "has_audio": "Audio:" in err}
+            "has_audio": "Audio:" in err, "hdr": ("arib-std-b67" in vline or "smpte2084" in vline)}
+
+
+# HLG/PQ (iPhone, câmeras) -> SDR Rec.709. Sem isso a imagem sai lavada/estourada no Reels e no YouTube.
+TONEMAP = ("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709,tonemap=tonemap=hable:desat=0,"
+           "zscale=t=bt709:m=bt709:r=tv,format=yuv420p")
 
 
 def extract_wav(src: str | Path, dest: str | Path, sr: int = 16000, filt: str | None = None) -> Path:
@@ -105,7 +111,11 @@ def write_wav(path: str | Path, x: np.ndarray, sr: int) -> None:
 # ---------------------------------------------------------------- energia da fala
 
 class Envelope:
-    """Envelope RMS em dB a cada 10 ms. Limiar = 22 dB abaixo da fala típica."""
+    """Envelope RMS em dB a cada 10 ms.
+
+    Limiar adaptativo: 22 dB abaixo da fala típica, mas nunca abaixo do piso de ruído da sala + 6 dB
+    (senão, em sala barulhenta, o ruído de fundo nunca conta como silêncio) e nunca acima de fala - 12 dB.
+    """
 
     HOP = 100  # quadros por segundo
 
@@ -116,7 +126,10 @@ class Envelope:
         rms = np.sqrt((x[: k * hop].reshape(k, hop) ** 2).mean(1)) + 1e-9
         self.db = 20 * np.log10(rms)
         loud = self.db[self.db > np.percentile(self.db, 60)]
-        self.thr = float(np.median(loud)) - 22
+        speech = float(np.median(loud))
+        self.floor = float(np.percentile(self.db, 5))
+        self.thr = min(max(speech - 22, self.floor + 6), speech - 12)
+        self.speech = speech
         self.n = k
 
     def onset(self, t0: float, t1: float) -> float:

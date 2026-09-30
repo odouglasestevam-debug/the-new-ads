@@ -32,6 +32,8 @@ def main() -> None:
     ap.add_argument("--hook-push", type=float, default=0.07, help="aproximação lenta no 1º clipe (0 desliga)")
     ap.add_argument("--min-cut", type=float, default=0.12, help="se o corte tirar menos que isto (s), não corta")
     ap.add_argument("--interrupt", type=float, default=4.0, help="troca de zoom sem cortar a cada ~N s em trecho longo (0 desliga)")
+    ap.add_argument("--force", action="store_true", help="ignora a trava de vídeo sem fala")
+    ap.add_argument("--no-cuts", action="store_true", help="NÃO corta nada: mantém o vídeo inteiro e só planeja zooms (para legenda/cor/áudio sem mexer na duração)")
     ap.add_argument("--fillers", action="store_true", help="também cortar interjeições puras (ãh, hum). Só com pedido explícito.")
     ap.add_argument("--long-pause", type=float, default=1.2, help="avisar pausas maiores que isto (podem ser intencionais)")
     a = ap.parse_args()
@@ -55,20 +57,32 @@ def main() -> None:
             dropped.append(w)
             continue
         words.append(w)
-    if not words:
+    words = [w for w in words if norm(w["w"]) not in {"musica", "legendas"}]      # o Whisper "escuta" música instrumental
+    speech = sum(w["e"] - w["s"] for w in words)
+    if not a.no_cuts and not a.force and (len(words) < 8 or speech < 0.15 * info["duration"]):
+        raise SystemExit(
+            f"PARADO: este vídeo quase não tem fala ({len(words)} palavras, {speech:.1f}s de fala em {info['duration']:.1f}s). "
+            f"Corte de pausa não se aplica e cortaria o vídeo quase inteiro. Se é um vídeo de música/produto, "
+            f"use --force só se o Douglas pediu mesmo para cortar, ou edite sem esta etapa.")
+    if not words and not a.no_cuts:
         raise SystemExit("Nenhuma palavra válida encontrada. Confira o áudio.")
 
-    # 2) agrupa em clipes: pausa maior que --gap vira corte
-    groups, cur = [], [words[0]]
+    # 2) agrupa em clipes: pausa maior que --gap vira corte (--no-cuts: vídeo inteiro, nada é cortado)
+    groups, cur = [], ([words[0]] if words else [])
     for prev, nxt in zip(words, words[1:]):
-        if nxt["s"] - prev["e"] > a.gap:
+        if nxt["s"] - prev["e"] > a.gap and not a.no_cuts:
             groups.append(cur)
             cur = []
         cur.append(nxt)
-    groups.append(cur)
+    if cur:
+        groups.append(cur)
 
     # 3) bordas em silêncio real
     clips = []
+    if a.no_cuts:
+        groups = []
+        clips.append({"in": 0.0, "out": round(info["duration"], 3), "n_words": len(words),
+                      "text": " ".join(x["w"] for x in words)})
     for gi, g in enumerate(groups):
         first, last = g[0], g[-1]
         prev_end = groups[gi - 1][-1]["e"] if gi else 0.0
@@ -130,6 +144,19 @@ def main() -> None:
     }
     save_json(work / "edl.json", edl)
 
+    # 4b) possíveis regravações: trechos que repetem quase as mesmas palavras (NÃO remove nada, só avisa)
+    retakes = []
+    toks = [set(norm(x) for x in c["text"].split() if len(norm(x)) > 2) for c in clips]
+    for i in range(len(clips)):
+        for j in range(i + 1, len(clips)):
+            if clips[i]["cont"] or len(toks[i]) < 4 or len(toks[j]) < 4:
+                continue
+            inter = len(toks[i] & toks[j]) / min(len(toks[i]), len(toks[j]))
+            if inter >= 0.6:
+                retakes.append({"a": i + 1, "b": j + 1, "sobreposicao": round(inter, 2)})
+    edl["retakes"] = retakes
+    save_json(work / "edl.json", edl)
+
     # 5) relatório para o Douglas confirmar
     removed = info["duration"] - total
     print(f"\nPLANO DE CORTES  ({video.name})")
@@ -145,6 +172,11 @@ def main() -> None:
         gap = d["in"] - c["out"]
         flag = "  <- PAUSA LONGA, pode ser intencional" if gap > a.long_pause else ""
         print(f"  corte   {i + 1:>2} em {at:6.2f}s  tira {gap:5.2f}s  '{c['text'][-28:]}' | '{d['text'][:28]}'{flag}")
+    if retakes:
+        print("\n  POSSÍVEIS REGRAVAÇÕES (o mesmo conteúdo dito mais de uma vez; escolha qual take fica):")
+        for r in retakes:
+            ca, cb = clips[r["a"] - 1], clips[r["b"] - 1]
+            print(f"    enquadramento {r['a']} ({ca['t0']:.1f}s) e {r['b']} ({cb['t0']:.1f}s), {r['sobreposicao']:.0%} das palavras iguais")
     lead = clips[0]["in"]
     tail = info["duration"] - clips[-1]["out"]
     print(f"\n  início: tira {lead:.2f}s   fim: tira {tail:.2f}s")

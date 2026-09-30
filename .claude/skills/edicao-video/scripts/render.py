@@ -20,19 +20,19 @@ import shutil
 import tempfile
 from pathlib import Path
 
-from common import (FF, FONTS_DIR, load_json, load_presets, merge_profile, probe, run, save_json,
+from common import (FF, FONTS_DIR, TONEMAP, load_json, load_presets, merge_profile, probe, run, save_json,
                     work_dir_for)
-from render_geometry import target_size, zoom_box
+from render_geometry import face_uv, target_size, zoom_box
 
 
 # ------------------------------------------------------------------ correção de imagem por ambiente
 
-def measure_scene(src: Path, dur: float) -> dict:
+def measure_scene(src: Path, dur: float, hdr: bool = False) -> dict:
     """Luminância e cor médias (amostra de ~1 quadro por 2 s). Só números, sem decisão."""
     d = tempfile.mkdtemp()
     try:
         run([FF, "-v", "error", "-y", "-t", min(dur, 60), "-i", src, "-an", "-vf",
-             "fps=0.5,scale=320:-2,signalstats,metadata=print:file=stats.txt", "-f", "null", "-"], cwd=d)
+             ("" if not hdr else TONEMAP + ",") + "fps=0.5,scale=320:-2,signalstats,metadata=print:file=stats.txt", "-f", "null", "-"], cwd=d)
         txt = (Path(d) / "stats.txt").read_text()
     finally:
         shutil.rmtree(d, ignore_errors=True)
@@ -74,7 +74,7 @@ def main() -> None:
     ap.add_argument("--profile")
     ap.add_argument("--segmento", default="padrao")
     ap.add_argument("--aspect", default="9:16", help="9:16 | 4:5 | 1:1 | 16:9 | original")
-    ap.add_argument("--focus", default="0.5,0.42", help="onde está o rosto (x,y de 0 a 1) para o enquadramento e o zoom")
+    ap.add_argument("--focus", default="auto", help="auto (acha o rosto) ou 'x,y' de 0 a 1 (centro do rosto na imagem de origem)")
     ap.add_argument("--grade", help="auto | none | natural | luz_fraca | luz_quente | contraluz | externo_sol | luz_fluorescente | estudio_neutro | cinematografico")
     ap.add_argument("--denoise", choices=["off", "leve", "forte"], default="leve")
     ap.add_argument("--music", help="arquivo de música (a escolha é do Douglas)")
@@ -96,12 +96,35 @@ def main() -> None:
     info = probe(src)
     sw, sh = info["w"], info["h"]
     W, H = target_size(sw, sh, a.aspect)
-    fx, fy = (float(x) for x in a.focus.split(","))
     clips, total = edl["clips"], edl["total"]
+    if a.focus == "auto":
+        from face import detect
+        mids = [(c["in"] + c["out"]) / 2 for c in edl["clips"]]
+        pick = [mids[int(i)] for i in range(0, len(mids), max(1, len(mids) // 9))][:9]
+        fr = detect(src, pick)
+        if fr:
+            save_json(work / "face.json", fr)
+            fx, fy = fr["fx"], fr["fy"]
+            print(f"rosto: centro ({fx:.2f}, {fy:.2f}) em {fr['n']} quadros")
+        else:
+            fx, fy = 0.5, 0.35
+            print("rosto não detectado: usando enquadramento central (0.5, 0.35). Passe --focus x,y se precisar.")
+    else:
+        fx, fy = (float(x) for x in a.focus.split(","))
+    face_u, face_v = face_uv(sw, sh, W, H, fx, fy)
+    from render_geometry import base_box
+    bw0 = base_box(sw, sh, W, H, fx, fy)[0]
+    up = W / bw0 * max(c["zoom"] for c in clips)
+    if up > 1.35:
+        print(f"AVISO: a imagem será ampliada {up:.1f}x (origem {sw}x{sh} para {W}x{H} com zoom). Vai ficar mole e apertada. "
+              f"Converter vertical em horizontal/quadrado raramente presta; prefira regravar ou manter o formato.")
+
+    if info["hdr"]:
+        print("vídeo HDR (HLG/PQ): convertendo para SDR Rec.709 antes de tudo")
 
     # ---- imagem: escolha do preset
     gname = a.grade or cfg.get("grade", "auto")
-    scene = measure_scene(src, info["duration"])
+    scene = measure_scene(src, info["duration"], info["hdr"])
     why = "escolhido por você"
     if gname == "auto":
         gname, why = choose_grade(scene)
@@ -119,10 +142,11 @@ def main() -> None:
         d = c["out"] - c["in"]
         cw, ch, x, y = zoom_box(sw, sh, W, H, c["zoom"], fx, fy)
         v = (f"[0:v]trim=start={c['in']:.3f}:end={c['out']:.3f},setpts=PTS-STARTPTS,"
+             + (TONEMAP + "," if info["hdr"] else "") +
              f"crop={cw}:{ch}:{x}:{y},scale={W}:{H}:flags=lanczos")
         if c.get("push"):                               # gancho: aproximação lenta
             v += (f",scale=w='trunc({W}*(1+{c['push']}*t/{d:.3f})/2)*2':h=-2:eval=frame:flags=bicubic,"
-                  f"crop={W}:{H}:'(iw-{W})*{fx}':'(ih-{H})*{fy}'")
+                  f"crop={W}:{H}:'(iw-{W})*{face_u:.4f}':'(ih-{H})*{face_v:.4f}'")
         fc.append(v + f",setsar=1,fps={a.fps}[v{n}]")
     fc.append("".join(f"[v{n}]" for n in range(len(clips))) + f"concat=n={len(clips)}:v=1:a=0[vc]")
 
@@ -189,7 +213,7 @@ def main() -> None:
 
     # ---- encode final
     out = Path(a.out).resolve() if a.out else work / ("preview.mp4" if a.preview else "final.mp4")
-    enc = ["-c:v", "libx264", "-preset", "veryfast" if a.preview else "medium", "-crf", "27" if a.preview else "17",
+    enc = ["-c:v", "libx264", "-preset", "veryfast" if a.preview else "medium", "-crf", "27" if a.preview else "19",
            "-profile:v", "high", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart"]
     run([FF, "-v", "error", "-y", "-i", src, "-i", norm_wav, "-filter_complex_script", work / "video.filter",
          "-map", "[vout]", "-map", "1:a", *enc, "-t", f"{total:.3f}", out], cwd=work)
