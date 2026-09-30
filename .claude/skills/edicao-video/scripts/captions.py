@@ -251,6 +251,29 @@ def main() -> None:
                       f"&H00000000,&H96000000,{P['fonts'].get(hook_font, {}).get('bold', 0)},0,0,0,100,100,2,0,1,"
                       f"{round(hs * 0.06, 1)},{round(hs * 0.03, 1)},5,60,60,0,1\n")
 
+    # telas tipográficas (cards.json) cobrem a imagem: a legenda some enquanto estão no ar
+    cj = work / "cards.json"
+    spans = [(float(c["de"]), float(c["ate"])) for c in (load_json(cj) if cj.exists() else []) if c.get("tipo") == "tipografia"]
+    if spans:
+        def _sec(t):
+            hh, mm, ss = t.split(":")
+            return int(hh) * 3600 + int(mm) * 60 + float(ss)
+        kept = []
+        for line in ev:
+            m = re.match(r"Dialogue: (\d+),([\d:.]+),([\d:.]+),Cap,(.*)$", line)
+            if not m:
+                kept.append(line)
+                continue
+            s_, e_ = _sec(m[2]), _sec(m[3])
+            for c0, c1 in spans:
+                if c0 <= s_ < c1:
+                    s_ = c1
+                if s_ < c0 < e_:
+                    e_ = c0
+            if e_ - s_ >= 0.06:
+                kept.append(f"Dialogue: {m[1]},{ts(s_)},{ts(e_)},Cap,{m[4]}")
+        ev = kept
+
     primary, secondary = ("&H00" + accent[2:-1], "&H00FFFFFF") if karaoke else ("&H00FFFFFF", "&H00FFFFFF")
     header = f"""[Script Info]
 ScriptType: v4.00+

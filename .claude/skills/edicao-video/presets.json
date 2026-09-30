@@ -198,17 +198,16 @@
       "accent": "#E0B84A",
       "uppercase": true,
       "gap": 0.35,
-      "zoom": 1.15,
+      "zoom": 1.18,
       "sfx": "media",
       "progress_bar": true,
       "grade": "auto",
       "tom": "credibilidade com ritmo",
       "transicao": [
-        "whip",
         "corte_seco"
       ],
-      "impacto": "pulse",
-      "gancho_fx": "flash",
+      "impacto": null,
+      "gancho_fx": null,
       "look": [],
       "fx": "media"
     },
@@ -260,16 +259,15 @@
       "accent": "#FFD400",
       "uppercase": true,
       "gap": 0.35,
-      "zoom": 1.12,
+      "zoom": 1.18,
       "sfx": "media",
       "progress_bar": false,
       "grade": "auto",
       "tom": "neutro",
       "transicao": [
-        "whip",
         "corte_seco"
       ],
-      "impacto": "pulse",
+      "impacto": null,
       "gancho_fx": null,
       "look": [],
       "fx": "media"
@@ -283,6 +281,7 @@
     },
     "cadeia": "highpass=f=85,{denoise}equalizer=f=250:t=q:w=1.2:g=-2,equalizer=f=3500:t=q:w=1:g=2.5,acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2",
     "alvo_lufs": -14.0,
-    "pico_db": -2.0
+    "pico_db": -2.0,
+    "cadeia_restaurada": "highpass=f=55,equalizer=f=120:t=q:w=0.8:g=6,equalizer=f=220:t=q:w=0.9:g=4.5,equalizer=f=400:t=q:w=1:g=1.5,equalizer=f=1400:t=q:w=1.2:g=-4,equalizer=f=2600:t=q:w=1:g=-3,equalizer=f=5500:t=q:w=1:g=-3,acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2"
   }
 }

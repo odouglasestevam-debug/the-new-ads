@@ -83,6 +83,9 @@ def main() -> None:
     ap.add_argument("--no-captions", action="store_true")
     ap.add_argument("--no-sfx", action="store_true")
     ap.add_argument("--no-fx", action="store_true", help="sem efeitos visuais e transições")
+    ap.add_argument("--no-cards", action="store_true", help="sem cartões e telas tipográficas (cards.ass)")
+    ap.add_argument("--voz", choices=["auto", "original"], default="auto",
+                    help="auto = usa voz_restaurada.wav (VoiceFixer) se existir | original = áudio da câmera")
     ap.add_argument("--look", help="grain,vinheta,vhs (separados por vírgula) ou 'nenhum'. Padrão: o do perfil")
     ap.add_argument("--fit", choices=["cover", "blur"], default="cover",
                     help="cover = recorta para preencher a tela | blur = mostra o quadro inteiro sobre fundo desfocado (horizontal em vertical)")
@@ -180,10 +183,14 @@ def main() -> None:
             raise SystemExit(f"Look '{lk}' não existe. Opções: {list(LOOKS)}")
     tail = ([grade] if grade else []) + [LOOKS[lk] for lk in looks]
     captions_ok = (work / "subs.ass").exists() and not a.no_captions
-    if captions_ok:
+    cards_ok = (work / "cards.ass").exists() and not a.no_cards
+    if captions_ok or cards_ok:
         fonts_local = work / "fonts"                     # caminho relativo evita o problema do 'C:' no filtro
         if not fonts_local.exists():
             shutil.copytree(FONTS_DIR, fonts_local)
+    if cards_ok:
+        tail.append("ass=cards.ass:fontsdir=fonts")      # cartões e telas tipográficas: por baixo da legenda
+    if captions_ok:
         tail.append("ass=subs.ass:fontsdir=fonts")
     bar = (a.bar == "sim") if a.bar else bool(cfg.get("progress_bar"))
     if bar:
@@ -198,20 +205,29 @@ def main() -> None:
 
     # ---- áudio: voz -> (+ música com ducking) -> (+ sfx) -> loudness
     af = []
+    restored = work / "voz_restaurada.wav"
+    use_vf = restored.exists() and a.voz == "auto"
+    aidx = 1 if use_vf else 0                        # entrada de onde sai a voz (1 = VoiceFixer, 0 = câmera)
+    if use_vf:
+        print("voz: restaurada (VoiceFixer) + EQ compensatória")
     for n, c in enumerate(clips):
         d = c["out"] - c["in"]
         prev_cont = n > 0 and clips[n - 1]["cont"]
-        chain = f"[0:a]atrim=start={c['in']:.3f}:end={c['out']:.3f},asetpts=PTS-STARTPTS"
+        chain = f"[{aidx}:a]atrim=start={c['in']:.3f}:end={c['out']:.3f},asetpts=PTS-STARTPTS"
         if not prev_cont:
             chain += ",afade=t=in:d=0.03"
         if not c["cont"]:
             chain += f",afade=t=out:st={max(d - 0.03, 0):.3f}:d=0.03"
         af.append(chain + f"[a{n}]")
     af.append("".join(f"[a{n}]" for n in range(len(clips))) + f"concat=n={len(clips)}:v=0:a=1[ac]")
-    voz = P["voz"]["cadeia"].replace("{denoise}", P["voz"]["denoise"][a.denoise])
+    voz = (P["voz"]["cadeia_restaurada"] if use_vf
+           else P["voz"]["cadeia"].replace("{denoise}", P["voz"]["denoise"][a.denoise]))
     use_sfx = (work / "sfx.wav").exists() and not a.no_sfx
     inputs = ["-i", src]
     idx = 1
+    if use_vf:
+        inputs += ["-i", restored]
+        idx = 2
     mix = []
     if a.music:
         af.append(f"[ac]{voz},aresample=48000,asplit=2[voz][sc]")
@@ -248,7 +264,7 @@ def main() -> None:
     size = out.stat().st_size / 1e6
     save_json(work / "render.json", {"out": str(out), "grade": gname, "grade_motivo": why, "scene": scene, "aspect": a.aspect,
                                      "size_px": [W, H], "total": total, "music": a.music, "sfx": use_sfx,
-                                     "captions": captions_ok, "bar": bar, "fx_visuais": fx_count, "looks": looks, "fit": a.fit, "loudness_antes": m["input_i"]})
+                                     "captions": captions_ok, "cards": cards_ok, "voz_restaurada": use_vf, "bar": bar, "fx_visuais": fx_count, "looks": looks, "fit": a.fit, "loudness_antes": m["input_i"]})
     print(f"\nPRONTO: {out}  ({size:.1f} MB, {total:.1f}s, {W}x{H})")
 
 

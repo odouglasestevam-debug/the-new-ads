@@ -70,6 +70,12 @@ Mostra cada corte, quanto tira, pausas longas (podem ser dramáticas), regravaç
 
 **Transcrição ruim:** se os tempos das palavras ficarem absurdos (palavra de vários segundos, texto alucinado no fim), refazer com `transcribe.py --vad`. Erros recorrentes de grafia (o Whisper escreve "PTU" para "IPTU") vão em `correcoes` no perfil ou em `correcoes.json` na pasta de trabalho. Ajustes: `--gap` maior corta só pausas maiores, `--fillers` (só com pedido) tira "ãh/hum", `--no-cuts` não corta nada, `--interrupt 0` desliga trocas de zoom sem corte. Apresentar o resumo ao Douglas e esperar confirmação antes de seguir. Se houver regravação, perguntar qual take fica.
 
+### 4b. Voz: tratar o áudio de mic distante (quase sempre vale)
+```
+python ".claude/skills/edicao-video/scripts/voz.py" "VIDEO" --work "PASTA"      # VoiceFixer, ~1,5x a duração, em segundo plano
+```
+Tira eco e ruído, alinha com o áudio da câmera (o VoiceFixer adianta ou atrasa a voz em alguns ms, e o script mede e corrige; o "lag residual" impresso tem que ser ~0) e o render aplica a EQ compensatória. Os cortes continuam saindo do áudio original. Sem `voz_restaurada.wav` o render usa o áudio da câmera com denoise leve, que soa claramente pior. Conferir: curva de frequências contra uma edição que o Douglas aprovou (3 faixas bastam: 1-2k, 2-4k e 4-8k) e transcrição do áudio final contra o roteiro.
+
 ### 5. Legendas e palavras-chave
 Claude lê a transcrição e escolhe as palavras-chave (em média 1 a cada 2 frases: o número, o termo do negócio, a promessa, o "não"). Nada de destacar tudo.
 ```
@@ -77,7 +83,22 @@ python ".claude/skills/edicao-video/scripts/captions.py" "VIDEO" --profile "clie
 ```
 Sem perfil: `--segmento imobiliaria_construcao --style highlight --accent "#E0B84A"`. Extrair um quadro do vídeo antes (ver etapa 7) para escolher `--hook-pos` fora de logo e rosto. Números e valores sempre ganham destaque sozinhos.
 
+### 5b. Elementos gráficos que contam a história (o que faz a edição parecer trabalhada)
+Legenda e corte sozinhos deixam o vídeo liso demais. A edição que o Douglas aprovou tinha cartões que mostram o que está sendo dito:
+- `comentario`: cartão branco com o comentário citado, e um risco vermelho quando ela nega ("verdade");
+- `termo`: cartão escuro com o termo-chave em serifa dourada ("O ÚNICO DOCUMENTO QUE PROVA: Matrícula");
+- `lista`: título e itens surgindo um a um com X vermelho (ou check), na hora em que ela enumera;
+- `tipografia`: tela cheia com o texto da fala aparecendo palavra por palavra (cobre olhar para baixo no meio da fala; a legenda some enquanto está no ar).
+```
+python ".claude/skills/edicao-video/scripts/cards.py" "VIDEO" --work "PASTA" --tempos     # instante de cada palavra no vídeo final
+# escrever PASTA/cards.json (formato no topo de cards.py), depois:
+python ".claude/skills/edicao-video/scripts/cards.py" "VIDEO" --work "PASTA" --profile ...
+```
+Escolher onde entra cada cartão é decisão editorial minha: ler a transcrição e procurar citação ("todo dia alguém comenta..."), termo que define o assunto, enumeração ("dificuldade de venda, de financiamento, ...") e negação. Rodar `captions.py` de novo depois de criar cartão tipográfico (ele tira a legenda do trecho). Pode ficar em cima do logo: é proposital.
+
 ### 6. Efeitos visuais, efeitos sonoros, render e verificação
+
+**Feedback do Douglas (30/09, vale para todos os clientes): o "zoom" que ele quer é o CORTE que aproxima o personagem da tela e fica assim até o próximo corte, em ritmo de ~2 s. Zoom que vai e volta (`pulse`, `shake`), sons agudos (`pop`, `shimmer`) e efeitos de transição chamativos (`flash`, `whip`, `glitch`) parecem "aleatórios" para ele. Padrão: só corte seco com zoom alternado e whoosh discreto nos cortes.** Os efeitos abaixo existem, mas só usar quando ele pedir.
 ```
 python ".claude/skills/edicao-video/scripts/plan_fx.py" "VIDEO" --profile ... [--nivel leve|media|alta|off] [--music "arquivo.mp3"]
 python ".claude/skills/edicao-video/scripts/sfx.py" "VIDEO" --profile ...

@@ -31,7 +31,7 @@ def main() -> None:
     ap.add_argument("--zoom", type=float, default=1.12, help="punch-in nos clipes alternados (1.0 desliga)")
     ap.add_argument("--hook-push", type=float, default=0.07, help="aproximação lenta no 1º clipe (0 desliga)")
     ap.add_argument("--min-cut", type=float, default=0.12, help="se o corte tirar menos que isto (s), não corta")
-    ap.add_argument("--interrupt", type=float, default=4.0, help="troca de zoom sem cortar a cada ~N s em trecho longo (0 desliga)")
+    ap.add_argument("--interrupt", type=float, default=2.2, help="troca de zoom sem cortar a cada ~N s em trecho longo (0 desliga)")
     ap.add_argument("--force", action="store_true", help="ignora a trava de vídeo sem fala")
     ap.add_argument("--drop", default="", help="trechos do bruto a remover (escolha de take): '10.3-22.4,30-31.5' em segundos")
     ap.add_argument("--keep", default="", help="MANTER só estes trechos do bruto (escolha de take): '1.3-4.9,22.8-30.1' em segundos")
@@ -158,16 +158,22 @@ def main() -> None:
             merged.append(c)
     clips = merged
 
-    # 3c) troca de enquadramento SEM corte de áudio em trecho longo (pattern interrupt)
+    # 3c) troca de enquadramento SEM corte de áudio (o "corte que aproxima"): a cada ~--interrupt s em trecho longo,
+    #     de preferência na pontuação, senão na maior respiração entre palavras
     pieces = []
     for c in clips:
         ws = [w for w in words if w["s"] >= c["in"] - 0.01 and w["e"] <= c["out"] + 0.01]
         last, cuts = c["in"], []
-        if a.interrupt > 0:
+        first_shot = not pieces and c["out"] - c["in"] < 4.5       # o gancho fica como um plano só (com a aproximação lenta)
+        if a.interrupt > 0 and not first_shot:
             for i, w in enumerate(ws[:-1]):
-                if (w["w"][-1] in ".?!" or (w["w"][-1] == "," and w["e"] - last > a.interrupt * 1.3)) \
-                        and w["e"] - last >= a.interrupt * 0.6 and c["out"] - w["e"] >= 1.5:
-                    mid = round((w["e"] + ws[i + 1]["s"]) / 2, 3)
+                nxt = ws[i + 1]
+                elapsed, remain = w["e"] - last, c["out"] - w["e"]
+                if remain < 0.8:
+                    continue
+                punct = w["w"][-1] in ".?!" and 3 or (w["w"][-1] == "," and 2) or (nxt["s"] - w["e"] >= 0.08 and 1) or 0
+                if (elapsed >= a.interrupt * 0.8 and punct >= 2) or (elapsed >= a.interrupt * 1.0 and punct >= 1)                         or elapsed >= a.interrupt * 1.4:
+                    mid = round((w["e"] + nxt["s"]) / 2, 3)
                     cuts.append(mid)
                     last = mid
         edges = [c["in"]] + cuts + [c["out"]]
