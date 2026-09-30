@@ -33,6 +33,7 @@ def main() -> None:
     ap.add_argument("--min-cut", type=float, default=0.12, help="se o corte tirar menos que isto (s), não corta")
     ap.add_argument("--interrupt", type=float, default=4.0, help="troca de zoom sem cortar a cada ~N s em trecho longo (0 desliga)")
     ap.add_argument("--force", action="store_true", help="ignora a trava de vídeo sem fala")
+    ap.add_argument("--drop", default="", help="trechos do bruto a remover (escolha de take): '10.3-22.4,30-31.5' em segundos")
     ap.add_argument("--no-cuts", action="store_true", help="NÃO corta nada: mantém o vídeo inteiro e só planeja zooms (para legenda/cor/áudio sem mexer na duração)")
     ap.add_argument("--fillers", action="store_true", help="também cortar interjeições puras (ãh, hum). Só com pedido explícito.")
     ap.add_argument("--long-pause", type=float, default=1.2, help="avisar pausas maiores que isto (podem ser intencionais)")
@@ -57,6 +58,14 @@ def main() -> None:
             dropped.append(w)
             continue
         words.append(w)
+    drops = []
+    for part in [x for x in a.drop.split(",") if x.strip()]:
+        lo, hi = part.split("-")
+        drops.append((float(lo), float(hi)))
+    if drops:
+        before = len(words)
+        words = [w for w in words if not any(lo <= (w["s"] + w["e"]) / 2 < hi for lo, hi in drops)]
+        print(f"--drop: {before - len(words)} palavras removidas em {len(drops)} trechos")
     words = [w for w in words if norm(w["w"]) not in {"musica", "legendas"}]      # o Whisper "escuta" música instrumental
     speech = sum(w["e"] - w["s"] for w in words)
     if not a.no_cuts and not a.force and (len(words) < 8 or speech < 0.15 * info["duration"]):

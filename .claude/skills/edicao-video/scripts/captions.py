@@ -105,6 +105,21 @@ def main() -> None:
     fmeta = P["fonts"].get(cfg["font"], {})
     font_file = FONTS_DIR / fmeta["file"] if fmeta.get("file") else None
 
+    # correções da transcrição (ex.: o Whisper escreve "PTU" quando ouve "IPTU"): perfil + correcoes.json na pasta de trabalho
+    corr = dict(profile.get("correcoes") or {})
+    if (work / "correcoes.json").exists():
+        corr.update(load_json(work / "correcoes.json"))
+    corr_n = {norm(k): v for k, v in corr.items()}
+    fixed = 0
+    for w in wj:
+        core = re.sub(r"[.,;:!?]+$", "", w["w"])
+        tail = w["w"][len(core):]
+        if norm(core) in corr_n:
+            w["w"] = corr_n[norm(core)] + tail
+            fixed += 1
+    if fixed:
+        print(f"correções aplicadas em {fixed} palavras ({', '.join(f'{k}->{v}' for k, v in corr.items())})")
+
     # palavras que sobreviveram aos cortes, em tempo de saída
     dropped = {round(d["s"], 3) for d in edl.get("dropped_words", [])}
     words = []

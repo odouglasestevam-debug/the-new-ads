@@ -38,7 +38,7 @@ def main() -> None:
     video = Path(a.video).resolve()
     work = work_dir_for(video, a.work)
     out = work / "words.json"
-    fp = fingerprint(video, a.model, a.lang, a.prompt)
+    fp = fingerprint(video, a.model, a.lang, f"{a.prompt}|vad={a.vad}")
     if out.exists():
         old = load_json(out)
         if old.get("fingerprint") == fp:
