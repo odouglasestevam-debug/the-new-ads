@@ -16,6 +16,12 @@ from pathlib import Path
 
 import numpy as np
 
+for _s in (sys.stdout, sys.stderr):
+    try:
+        _s.reconfigure(encoding="utf-8", errors="replace")
+    except Exception:
+        pass
+
 SKILL_DIR = Path(__file__).resolve().parent.parent
 FONTS_DIR = SKILL_DIR / "fonts"
 ASSETS_DIR = SKILL_DIR / "assets"
@@ -175,12 +181,12 @@ def hex_to_ass(hexcolor: str, alpha: int = 0) -> str:
     """#RRGGBB -> &HAABBGGRR (formato ASS). Em tags inline, usar ass_bgr()."""
     h = hexcolor.lstrip("#")
     r, g, b = h[0:2], h[2:4], h[4:6]
-    return f"&H{alpha:02X}{b}{g}{r}".upper().replace("&H", "&H")
+    return f"&H{alpha:02X}{b}{g}{r}".upper()
 
 
 def ass_bgr(hexcolor: str) -> str:
     h = hexcolor.lstrip("#")
-    return f"&H{h[4:6]}{h[2:4]}{h[0:2]}&".upper().replace("&H", "&H")
+    return f"&H{h[4:6]}{h[2:4]}{h[0:2]}&".upper()
 
 
 DASHES = ("\u2014", "\u2013", "\u2012", "\u2015")
