@@ -15,9 +15,12 @@ Estado: o reel de referência só tem a voz da criadora (nenhum efeito tocando),
 aprovados um por vez pelo Douglas. Aprovado até agora: rush (woosh, a versão `rush_in_curto` e irmãs). Reprovados: cliques e mouse. Em aprovação: camera shutter.
 
 Sons reais: em 01/10/2026 o Douglas mandou o SaveClip.mp3 (13 s, só efeitos, sem voz). Foram recortados 10 sons e importados
-como `ref01_...` a `ref10_...` (origem "importado", licença desconhecida: uso interno). A categoria de cada um é palpite pela
-medição, a confirmar de ouvido; nenhum é padrão de categoria. Para renomear/recategorizar: apagar a entrada do catalogo.json e o
-wav, e rodar `importar` de novo com a categoria certa (os recortes originais ficam em assets/sfx/_origem/saveclip/).
+como `ref01_...` a `ref10_...` (origem "importado", licença desconhecida: uso interno). O Douglas reprovou os palpites de
+categoria: ficam SEM CLASSIFICAÇÃO (ref01, ref03, ref05 a ref10); ref02 e ref04 viraram meme_06 e meme_08. Para renomear/recategorizar: apagar a entrada do catalogo.json e o
+wav, e rodar `importar` de novo com a categoria certa (os recortes originais ficam em assets/sfx/_origem/saveclip/)
+
+O SaveClip (1).mp3 (34 s) tem a criadora falando o bloco e depois os efeitos: 25 sons nas categorias por gênero meme, interface,
+transicao e cinematico (ids meme_01..., sem som padrão; escolher pelo id). Originais em assets/sfx/_origem/saveclip1/.
 
 O acervo cresce: `importar` aceita um som real (Freesound CC0, Pixabay etc.), limpa, normaliza e registra com a licença.
 Um som importado com o mesmo id substitui o sintético; o perfil do cliente pode trocar um som por outro
@@ -46,7 +49,7 @@ from common import ASSETS_DIR, FF, FONTS_DIR, load_json, read_wav, run, save_jso
 SR = 48000
 SFX_DIR = ASSETS_DIR / "sfx"
 CATALOGO = SFX_DIR / "catalogo.json"
-CATS = ["rush", "shutter", "typing", "click", "ui", "riser", "hit"]
+CATS = ["rush", "shutter", "typing", "click", "ui", "riser", "hit", "meme", "interface", "transicao", "cinematico"]
 ACERVO_CATS = set(CATS)
 USO = {
     "rush": "Zoom in ou zoom out: o corte que aproxima ou afasta a pessoa. rush_in quando aproxima, rush_out quando afasta.",
@@ -56,8 +59,14 @@ USO = {
     "ui": "Animação aparecendo: cartão, ícone, check, notificação.",
     "riser": "Logo ANTES de revelar uma informação importante, para gerar expectativa. Termina exatamente na revelação.",
     "hit": "Logo DEPOIS da revelação, no instante em que a informação aparece, para dar impacto.",
+    # categorias por gênero (SaveClip (1).mp3, 01/10/2026): o nome é o que a criadora fala antes de cada bloco de sons
+    "meme": "Efeito sonoro de meme: momento de humor, reação engraçada, zoeira.",
+    "interface": "Efeito sonoro de interface e tecnologia: tela, app, digitação, dado carregando, processamento.",
+    "transicao": "Efeito sonoro de transição: passagem entre cenas ou blocos.",
+    "cinematico": "Efeito sonoro cinematográfico: momento dramático, tensão, revelação, abertura.",
 }
-GANHO = {"rush": 1.0, "shutter": 0.8, "typing": 0.55, "click": 0.8, "ui": 0.7, "riser": 1.1, "hit": 1.3}
+GANHO = {"rush": 1.0, "shutter": 0.8, "typing": 0.55, "click": 0.8, "ui": 0.7, "riser": 1.1, "hit": 1.3,
+         "meme": 0.9, "interface": 0.8, "transicao": 0.9, "cinematico": 1.0}
 
 
 # ---------------------------------------------------------------- blocos de síntese
@@ -442,6 +451,9 @@ def resolver(tipo: str, alias: dict | None = None, pedido: str | None = None) ->
     """Categoria ou id -> id do acervo (None se for um som antigo: whoosh, pop, impact...). `alias` troca um som por outro."""
     alvo = pedido or tipo
     if alvo in ACERVO_CATS:
+        if alvo not in PADRAO:                                   # categorias por gênero: o som é escolhido pelo id
+            ids = [i for i, s in catalogo().items() if s["categoria"] == alvo]
+            raise SystemExit(f"A categoria '{alvo}' não tem som padrão: escolha um id ({', '.join(ids[:4])}...)")
         alvo = PADRAO[alvo]
     alvo = (alias or {}).get(alvo, alvo)
     return alvo if alvo in catalogo() else None

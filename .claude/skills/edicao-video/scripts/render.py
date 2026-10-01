@@ -67,6 +67,24 @@ def loudnorm_two_pass(src: Path, dst: Path, target: float, tp: float) -> dict:
     return m
 
 
+def find_drop(music: str | Path) -> tuple[float, float]:
+    """Onde a música 'cai' (entra o grave/batida forte): maior salto de energia do grave entre 2 s antes e 2 s depois."""
+    import librosa
+    import numpy as np
+    y, sr = librosa.load(str(music), sr=22050, mono=True, duration=150)
+    S = np.abs(librosa.stft(y, n_fft=2048, hop_length=1102))
+    f = librosa.fft_frequencies(sr=sr, n_fft=2048)
+    lo = 10 * np.log10((S[f < 160] ** 2).sum(0) + 1e-9)
+    hop = 1102 / sr
+    k = int(2.0 / hop)
+    best, bt = -99.0, 0.0
+    for i in range(k, len(lo) - k):
+        g = float(np.median(lo[i:i + k]) - np.median(lo[i - k:i]))
+        if g > best:
+            best, bt = g, i * hop
+    return round(bt, 2), round(best, 1)
+
+
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("video")
@@ -79,6 +97,11 @@ def main() -> None:
     ap.add_argument("--denoise", choices=["off", "leve", "forte"], default="leve")
     ap.add_argument("--music", help="arquivo de música (a escolha é do Douglas)")
     ap.add_argument("--music-vol", type=float, default=0.16)
+    ap.add_argument("--music-start", type=float, default=0.0, help="começa a música nesse segundo do arquivo")
+    ap.add_argument("--music-in", type=float, help="a música entra nesse segundo do vídeo (antes, só voz)")
+    ap.add_argument("--music-drop", type=float,
+                    help="acha o 'drop' da música e encaixa nesse segundo do vídeo (ex.: na virada para a tela de motion)")
+    ap.add_argument("--no-elementos", action="store_true", help="ignora elementos.json (texto atrás, perspectiva, clones...)")
     ap.add_argument("--bar", choices=["sim", "nao"], help="barra de progresso no topo")
     ap.add_argument("--no-captions", action="store_true")
     ap.add_argument("--no-sfx", action="store_true")
@@ -182,12 +205,38 @@ def main() -> None:
         if lk not in LOOKS:
             raise SystemExit(f"Look '{lk}' não existe. Opções: {list(LOOKS)}")
     tail = ([grade] if grade else []) + [LOOKS[lk] for lk in looks]
+
+    # caixa de ferramentas (elementos.py): texto atrás da pessoa, perspectiva, clones, rastro, foco, moldura...
+    # Precisa da imagem já tratada e ANTES da legenda: renderiza a base, processa e depois põe legenda e áudio.
+    el_json = work / "elementos.json"
+    tem_foco = evp.exists() and any(e.get("fx") == "foco" for e in load_json(evp))
+    staged = not a.no_elementos and ((el_json.exists() and load_json(el_json)) or (tem_foco and not a.no_fx))
+    Wp, Hp = (W // 4 * 2, int(round(H * (W // 4 * 2) / W / 2)) * 2) if a.preview else (W, H)
+    geo_clips, v0 = [], 0.0
+    for c in clips:
+        vin, vout = c.get("vin", c["in"]), c.get("vout", c["out"])
+        geo_clips.append({"v0": round(v0, 4), "v1": round(v0 + vout - vin, 4), "vin": vin, "zoom": c["zoom"],
+                          "box": list(zoom_box(sw, sh, W, H, c["zoom"], fx, fy)), "push": c.get("push", 0.0),
+                          "cont": c["cont"]})
+        v0 += vout - vin
+    save_json(work / "geometria.json", {"W": Wp, "H": Hp, "W_full": W, "H_full": H, "escala": Wp / W, "fps": a.fps,
+                                        "sw": sw, "sh": sh, "fit": "blur" if blur_fit else "cover", "face_u": face_u,
+                                        "face_v": face_v, "src": str(src), "hdr": info["hdr"], "tonemap": TONEMAP,
+                                        "grade": grade, "pasta_video": str(src.parent), "clips": geo_clips})
+    if staged and blur_fit:
+        print("aviso: com --fit blur os elementos presos na cena (ancora cena, plano, clone) ficam presos na tela.")
     captions_ok = (work / "subs.ass").exists() and not a.no_captions
     cards_ok = (work / "cards.ass").exists() and not a.no_cards
     if captions_ok or cards_ok:
         fonts_local = work / "fonts"                     # caminho relativo evita o problema do 'C:' no filtro
         if not fonts_local.exists():
             shutil.copytree(FONTS_DIR, fonts_local)
+    post = []                                            # o que entra depois dos elementos (legenda por último)
+    if staged:
+        if a.preview:
+            tail.append(f"scale={Wp}:{Hp}")
+        fc_base = fc + [f"[{vlabel}]" + ",".join(tail + ["format=yuv420p"]) + "[vbase]"]
+        tail = post
     if cards_ok:
         tail.append("ass=cards.ass:fontsdir=fonts")      # cartões e telas tipográficas: por baixo da legenda
     if captions_ok:
@@ -197,10 +246,14 @@ def main() -> None:
         color = "0x" + cfg["accent"].lstrip("#")
         tail.append(f"drawbox=x=0:y=0:w=iw:h=12:color=black@0.35:t=fill,"
                     f"drawbox=x=0:y=0:w='iw*t/{total:.3f}':h=12:color={color}:t=fill")
-    if a.preview:
+    if a.preview and not staged:
         tail.append("scale=trunc(iw/4)*2:-2")
     tail.append("format=yuv420p")
-    fc.append(f"[{vlabel}]" + ",".join(tail) + "[vout]")
+    if staged:
+        (work / "video_base.filter").write_text(";\n".join(fc_base), encoding="utf-8")
+        fc = ["[0:v]" + ",".join(tail) + "[vout]"]
+    else:
+        fc.append(f"[{vlabel}]" + ",".join(tail) + "[vout]")
     (work / "video.filter").write_text(";\n".join(fc), encoding="utf-8")
 
     # ---- áudio: voz -> (+ música com ducking) -> (+ sfx) -> loudness
@@ -230,9 +283,22 @@ def main() -> None:
         idx = 2
     mix = []
     if a.music:
+        m_off, m_delay = a.music_start, a.music_in or 0.0
+        if a.music_drop is not None:
+            dt, gain = find_drop(a.music)
+            m_off = dt - a.music_drop + m_delay
+            if m_off < 0:
+                if a.music_in is not None:
+                    raise SystemExit(f"--music-drop: o drop da música ({dt}s) não chega em {a.music_drop}s entrando em {m_delay}s.")
+                m_delay, m_off = -m_off, 0.0
+            print(f"música: drop achado em {dt}s do arquivo (+{gain} dB no grave), cai em {a.music_drop}s do vídeo "
+                  f"(arquivo a partir de {m_off:.2f}s, entra em {m_delay:.2f}s). Conferir de ouvido.")
+        mdur = max(total - m_delay, 0.5)
         af.append(f"[ac]{voz},aresample=48000,asplit=2[voz][sc]")
-        af.append(f"[{idx}:a]aloop=loop=-1:size=2000000000,atrim=duration={total:.3f},asetpts=PTS-STARTPTS,"
-                  f"volume={a.music_vol},afade=t=in:d=0.4,afade=t=out:st={max(total - 1.2, 0):.3f}:d=1.2,aresample=48000[mus]")
+        af.append(f"[{idx}:a]atrim=start={m_off:.3f},asetpts=PTS-STARTPTS,aloop=loop=-1:size=2000000000,"
+                  f"atrim=duration={mdur:.3f},asetpts=PTS-STARTPTS,volume={a.music_vol},afade=t=in:d=0.4,"
+                  f"afade=t=out:st={max(mdur - 1.2, 0):.3f}:d=1.2,aresample=48000,"
+                  f"adelay={int(m_delay * 1000)}:all=1,apad,atrim=duration={total:.3f}[mus]")
         af.append("[mus][sc]sidechaincompress=threshold=0.04:ratio=5:attack=20:release=350[musd]")
         inputs += ["-i", a.music]
         idx += 1
@@ -259,12 +325,21 @@ def main() -> None:
     out = Path(a.out).resolve() if a.out else work / ("preview.mp4" if a.preview else "final.mp4")
     enc = ["-c:v", "libx264", "-preset", "veryfast" if a.preview else "medium", "-crf", "27" if a.preview else "19",
            "-profile:v", "high", "-pix_fmt", "yuv420p", "-c:a", "aac", "-b:a", "192k", "-movflags", "+faststart"]
-    run([FF, "-v", "error", "-y", "-i", src, "-i", norm_wav, "-filter_complex_script", work / "video.filter",
+    vsrc = src
+    if staged:
+        base_mp4, base_el = work / "base.mp4", work / "base_el.mp4"
+        run([FF, "-v", "error", "-y", "-i", src, "-filter_complex_script", work / "video_base.filter", "-map", "[vbase]",
+             "-an", "-c:v", "libx264", "-preset", "veryfast", "-crf", "12", "-pix_fmt", "yuv420p", "-t", f"{total:.3f}",
+             base_mp4], cwd=work)
+        from elementos import processar
+        processar(work, base_mp4, base_el)
+        vsrc = base_el
+    run([FF, "-v", "error", "-y", "-i", vsrc, "-i", norm_wav, "-filter_complex_script", work / "video.filter",
          "-map", "[vout]", "-map", "1:a", *enc, "-t", f"{total:.3f}", out], cwd=work)
     size = out.stat().st_size / 1e6
     save_json(work / "render.json", {"out": str(out), "grade": gname, "grade_motivo": why, "scene": scene, "aspect": a.aspect,
                                      "size_px": [W, H], "total": total, "music": a.music, "sfx": use_sfx,
-                                     "captions": captions_ok, "cards": cards_ok, "voz_restaurada": use_vf, "bar": bar, "fx_visuais": fx_count, "looks": looks, "fit": a.fit, "loudness_antes": m["input_i"]})
+                                     "captions": captions_ok, "cards": cards_ok, "voz_restaurada": use_vf, "bar": bar, "fx_visuais": fx_count, "looks": looks, "fit": a.fit, "elementos": bool(staged), "loudness_antes": m["input_i"]})
     print(f"\nPRONTO: {out}  ({size:.1f} MB, {total:.1f}s, {W}x{H})")
 
 

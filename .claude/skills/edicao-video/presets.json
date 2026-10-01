@@ -136,6 +136,34 @@
       "outline": 0.09,
       "shadow": 0.04
     },
+    "editorial": {
+      "_desc": "Legenda pequena e elegante (ref3): serifada, caixa baixa, palavra-chave em itálico, entra com fade. Para vídeo com efeitos de cena e títulos grandes: a legenda não compete com eles.",
+      "mode": "editorial",
+      "font": "Instrument Serif",
+      "uppercase": false,
+      "key_style": "italico",
+      "group_words": 4,
+      "max_chars": 24,
+      "font_scale": 0.062,
+      "outline": 0.035,
+      "shadow": 0.0,
+      "halo": true,
+      "fade_ms": 120
+    },
+    "discreta": {
+      "_desc": "Legenda pequena em sans (ref1, rodapé): Poppins SemiBold, caixa baixa, palavra-chave na cor de destaque. Quando o protagonista é a tela de motion ou o CTA.",
+      "mode": "editorial",
+      "font": "Poppins SemiBold",
+      "uppercase": false,
+      "key_style": "cor",
+      "group_words": 4,
+      "max_chars": 26,
+      "font_scale": 0.04,
+      "outline": 0.05,
+      "shadow": 0.0,
+      "halo": true,
+      "fade_ms": 90
+    },
     "impacto": {
       "_desc": "Uma palavra por vez, bem grande. Só para trechos curtos e ganchos.",
       "mode": "pop",

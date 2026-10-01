@@ -274,7 +274,7 @@ class El:
     def arquivo(self, nome: str) -> Path:
         p = Path(nome)
         if not p.is_absolute():
-            for cand in (self.base / nome, Path.cwd() / nome):
+            for cand in (self.base / nome, self.base.parent.parent / nome, Path.cwd() / nome):
                 if cand.exists():
                     return cand.resolve()
         if not p.exists():
@@ -871,7 +871,7 @@ def processar(work: Path, src_base: Path, out: Path, t_ini: float | None = None,
     g = load_json(work / "geometria.json")
     geo = Geo(g)
     W, H, fps = g["W"], g["H"], g["fps"]
-    els = carregar(work, W, H, Path(g.get("pasta_video", work)))
+    els = carregar(work, W, H, work)
     if not els:
         return []
     avisos(els, geo)

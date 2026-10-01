@@ -5,7 +5,7 @@ Entram depois da concatenação e ANTES da correção de cor e da legenda (a leg
 então continua legível durante o flash ou o glitch).
 
 Catálogo (nome -> tipo, duração padrão, som que acompanha):
-  transições (nos cortes reais): corte_seco, flash, whip, glitch, dip_preto, zoom_blur
+  transições (nos cortes reais): corte_seco, flash, whip, glitch, dip_preto, zoom_blur, foco (feito no elementos.py)
   impacto (na palavra-chave):    pulse, shake, flash, glitch
   looks (o vídeo todo):          grain, vinheta, vhs
 Uso direto: python fx.py   (lista o catálogo)
@@ -22,6 +22,7 @@ CATALOGO = {
     "glitch":     {"tipo": "ambos",     "dur": 0.32, "sfx": "glitch",  "desc": "Separação RGB com ruído digital. Tendência de alta energia."},
     "dip_preto":  {"tipo": "transicao", "dur": 0.36, "sfx": None,      "desc": "Mergulho no preto. Cinematográfico, sério."},
     "zoom_blur":  {"tipo": "transicao", "dur": 0.30, "sfx": "whoosh",  "desc": "Aproximação com desfoque. Dá peso ao corte."},
+    "foco":       {"tipo": "transicao", "dur": 0.45, "sfx": "whoosh",  "desc": "Desfoca e clareia até o corte, o plano novo entra focando (ref3). Desenhado no elementos.py."},
     "pulse":      {"tipo": "impacto",   "dur": 0.30, "sfx": "pop",     "desc": "Batida de zoom (sobe e volta). Destaca a palavra-chave."},
     "shake":      {"tipo": "impacto",   "dur": 0.34, "sfx": "impact",  "desc": "Tremida de câmera que amortece. Pancada, ênfase forte."},
 }

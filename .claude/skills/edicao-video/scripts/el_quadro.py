@@ -214,8 +214,7 @@ class Quadro(El):
                             pts = np.array([[x0 - (x1 - x0) * 0.04, yy], [x1 + (x1 - x0) * 0.04, yy + (y1 - y0) * 0.05]])
                         else:
                             pts = _ellipse((x0 + x1) / 2, (y0 + y1) / 2, (x1 - x0) / 2 * 1.25 + W * 0.01, (y1 - y0) / 2 * 1.5)
-                        self._stroke(d, [pts], pm, (0, 0, 1), mc, float(mk.get("espessura", 0.005)) * W * cam[2] / max(cam[2], 1e-3),
-                                     it["_seed"] + 31)
+                        self._stroke(d, [pts], pm, cam, mc, float(mk.get("espessura", 0.005)) * W * cam[2], it["_seed"] + 31)
             elif f == "imagem":
                 continue
             else:
@@ -238,7 +237,6 @@ class Quadro(El):
                 if xa < xb and ya < yb:
                     L = img[ya - y:yb - y, xa - x:xb - x]
                     pre[ya:yb, xa:xb] = L + pre[ya:yb, xa:xb] * (1 - L[..., 3:4])
-        # os sublinhados foram desenhados em coordenada de tela já com câmera: refazer acima do texto
         hole = ctx.mask() if self.s.get("camada") == "atras" else None
         paste(ctx.frame, pre, 0, 0, a_all, hole)
         for it in self.itens:
@@ -246,18 +244,17 @@ class Quadro(El):
                 it["_img"].draw(ctx)
 
     def _palavra(self, it: dict, palavra: str):
-        """Caixa (tela, px, com a câmera atual) de uma palavra dentro do texto do item."""
-        cam = self.camera_atual if hasattr(self, "camera_atual") else None
+        """Caixa da tinta de uma palavra dentro do texto do item (coordenada da lousa, câmera parada)."""
         for ln in it["_linhas"]:
             txt = ln["txt"]
             k = txt.lower().find(str(palavra).lower())
             if k < 0:
                 continue
             f, o = ln["fnt"], ln["o"]
-            x0 = ln["x"] + f.getlength(txt[:k]) - (f.getlength(txt) - o.tw) / 2
-            x1 = x0 + f.getlength(txt[k:k + len(palavra)])
-            y0, y1 = ln["y"], ln["y"] + o.th
-            return (x0, y0, x1, y1) if cam is None else (x0, y0, x1, y1)
+            x_orig = ln["x"] - f.getbbox(txt)[0]          # ln["x"] é onde a tinta começa; a origem fica antes do recuo
+            pre = f.getlength(txt[:k])
+            bb = f.getbbox(txt[k:k + len(palavra)])
+            return (x_orig + pre + bb[0], ln["y"], x_orig + pre + bb[2], ln["y"] + o.th)
         return None
 
 

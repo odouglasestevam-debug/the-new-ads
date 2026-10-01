@@ -115,7 +115,7 @@ def main() -> None:
     for e in ev:
         e["dur"] = CATALOGO[e["fx"]]["dur"]
     save_json(work / "fx_events.json", ev)
-    vis = [e for e in ev if e["fx"] in ("flash", "whip", "glitch", "dip_preto", "zoom_blur", "pulse", "shake")]
+    vis = [e for e in ev if e["fx"] in ("flash", "whip", "glitch", "dip_preto", "zoom_blur", "pulse", "shake", "foco")]
     print(f"fx nível '{nivel}': {len(vis)} efeitos visuais, {len(ev) - len(vis)} cortes só com som, em {edl['total']:.1f}s")
     for e in ev:
         if e["fx"] in ("corte_seco", "troca_zoom"):

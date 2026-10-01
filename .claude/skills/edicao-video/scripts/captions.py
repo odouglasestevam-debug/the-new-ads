@@ -88,6 +88,11 @@ def main() -> None:
     if a.uppercase:
         cfg["uppercase"] = a.uppercase == "sim"
     st = dict(P["caption_styles"][cfg["caption_style"]])
+    if st.get("font"):                                   # estilo com tipografia própria (editorial, discreta)
+        if not a.font:
+            cfg["font"] = st["font"]
+        if not a.uppercase:
+            cfg["uppercase"] = st.get("uppercase", cfg["uppercase"])
 
     video = Path(a.video).resolve()
     work = work_dir_for(video, a.work)
@@ -211,6 +216,17 @@ def main() -> None:
                     else:
                         parts.append(t)
                 ev.append(f"Dialogue: 0,{ts(s_)},{ts(e_)},Cap,,0,0,0,,{{{pos}{fs_tag}}}" + " ".join(parts))
+        elif st["mode"] == "editorial":                 # sem palavra acesa: a linha entra com fade, a chave muda de forma
+            parts = []
+            for x in g:
+                t = shown(x)
+                if x["key"]:
+                    parts.append(f"{{\\i1}}{t}{{\\i0}}" if st.get("key_style") == "italico" else f"{{\\c{accent}}}{t}{{\\c{WHITE}}}")
+                else:
+                    parts.append(t)
+            blur = "\\blur3" if st.get("halo") else ""
+            ev.append(f"Dialogue: 0,{ts(g_start)},{ts(g_end)},Cap,,0,0,0,,{{{pos}{fs_tag}{blur}\\fad({st.get('fade_ms', 120)},60)}}"
+                      + " ".join(parts))
         elif st["mode"] == "karaoke":
             parts = []
             for wi, w in enumerate(g):
@@ -254,6 +270,9 @@ def main() -> None:
     # telas tipográficas (cards.json) cobrem a imagem: a legenda some enquanto estão no ar
     cj = work / "cards.json"
     spans = [(float(c["de"]), float(c["ate"])) for c in (load_json(cj) if cj.exists() else []) if c.get("tipo") == "tipografia"]
+    ej = work / "elementos.json"                         # telas cheias da caixa de ferramentas (cinetica, ou esconde_legenda)
+    spans += [(float(e["de"]), float(e["ate"])) for e in (load_json(ej) if ej.exists() else [])
+              if e.get("esconde_legenda", e.get("tipo") == "cinetica")]
     if spans:
         def _sec(t):
             hh, mm, ss = t.split(":")
@@ -284,7 +303,7 @@ ScaledBorderAndShadow: yes
 
 [V4+ Styles]
 Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
-Style: Cap,{cfg['font']},{size},{primary},{secondary},&H00000000,&H96000000,{bold},0,0,0,100,100,1,0,1,{outline},{shadow},5,60,60,0,1
+Style: Cap,{cfg['font']},{size},{primary},{secondary},{"&H70000000" if st.get("halo") else "&H00000000"},&H96000000,{bold},0,0,0,100,100,1,0,1,{outline},{shadow},5,60,60,0,1
 {hook_style}
 [Events]
 Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
