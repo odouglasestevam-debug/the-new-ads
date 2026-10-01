@@ -205,6 +205,10 @@
   @media (max-width: 780px) { .creative-grid.cols-5 { grid-template-columns: repeat(3, 1fr); } }
   @media (max-width: 720px) { .metric-grid.cols-4 { grid-template-columns: repeat(2, 1fr); } }
   @media (max-width: 480px) { .creative-grid.cols-5 { grid-template-columns: repeat(2, 1fr); } }
+  .hero-grid { grid-template-columns: repeat(3, 1fr); }
+  .hero-note .tag-fixo { margin-left: 0; }
+  @media (min-width: 721px) and (max-width: 900px) { .hero-grid { grid-template-columns: 1fr 1fr; } .hero-card:last-child { grid-column: 1 / -1; } }
+  @media (max-width: 720px) { .hero-grid { grid-template-columns: 1fr; } }
 </style>
 
 <div class="page">
@@ -252,6 +256,11 @@
       <p class="hero-label">Custo por seguidor</p>
       <p class="hero-value mono" id="k-cps">-</p>
       <p class="hero-note" id="k-cps-note"></p>
+    </div>
+    <div class="hero-card">
+      <p class="hero-label">Leads no período total</p>
+      <p class="hero-value mono" id="k-leads">26</p>
+      <p class="hero-note"><span class="tag-fixo">06/07 a 29/09</span></p>
     </div>
   </div>
 
