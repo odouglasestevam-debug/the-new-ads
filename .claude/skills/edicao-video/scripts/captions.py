@@ -283,13 +283,16 @@ def main() -> None:
             if not m:
                 kept.append(line)
                 continue
-            s_, e_ = _sec(m[2]), _sec(m[3])
+            s0, e0 = _sec(m[2]), _sec(m[3])
+            s_, e_ = s0, e0
             for c0, c1 in spans:
                 if c0 <= s_ < c1:
                     s_ = c1
                 if s_ < c0 < e_:
                     e_ = c0
-            if e_ - s_ >= 0.06:
+            # sobra curta de um grupo cortado pela tela piscaria a frase depois de dita: sai inteira
+            minimo = 0.5 if (s_, e_) != (s0, e0) else 0.06
+            if e_ - s_ >= minimo:
                 kept.append(f"Dialogue: {m[1]},{ts(s_)},{ts(e_)},Cap,{m[4]}")
         ev = kept
 

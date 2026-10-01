@@ -99,6 +99,15 @@ Escolher onde entra cada cartão é decisão editorial minha: ler a transcriçã
 ### 5c. Caixa de ferramentas de edição profissional (referências de 01/10/2026)
 O Douglas mandou 3 reels como o nível de edição que ele quer (`references/referencias-douglas.md`) e pediu que eu saiba fazer e saiba QUANDO usar cada elemento. **Antes de escolher, ler `references/caixa-ferramentas.md`**: princípio (efeito que interage com a cena ou com a fala, nunca solto), ferramenta por ferramenta com quando usar e quando não, receitas por objetivo, teto de densidade e o checklist de gravação. O formato de cada elemento está no topo de `scripts/elementos.py`.
 
+**Cautela de editor (Douglas, 01/10/2026): a caixa é recurso de retenção, não vitrine.** Ele aprovou o vídeo de teste, mas corrigiu a dose. Nem todo vídeo usa tudo e os elementos nunca aparecem ao mesmo tempo. Eles servem para o vídeo ficar dinâmico sem sobrecarregar. Na prática:
+1. Um elemento por ponto de queda de atenção: gancho, meio da explicação longa, virada de assunto, chamada final.
+2. Um por vez, sem sobreposição, nem moldura com CTA.
+3. Pelo menos 2,5 s de fala limpa entre dois, contando os cartões.
+4. Em 30 a 45 s, de 2 a 4 ferramentas da caixa e no máximo 6 a 7 momentos gráficos somando os cartões.
+5. Na dúvida, fica de fora.
+
+O vídeo de teste com 13 elementos mostra o que existe, não a densidade a usar. Detalhes e o exemplo do IPTU em `references/caixa-ferramentas.md`, seção "Dosagem".
+
 | Ferramenta | Tipo em `elementos.json` |
 |---|---|
 | Título de cena (pesada + serifada itálica, brilho, contorno, marca-texto) | `texto` |
