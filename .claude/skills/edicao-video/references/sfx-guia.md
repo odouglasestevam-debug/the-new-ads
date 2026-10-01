@@ -1,5 +1,12 @@
 # Guia de efeitos sonoros (acervo `assets/sfx/`)
 
+**Densidade em vigor (Douglas, 01/10/2026, segunda correção):** a v4 do IPTU (13 efeitos, 2,9 por 10 s) foi "exagero de efeito sonoro", e o vídeo passou a ter música de fundo sempre. Regras atuais:
+- Teto duro de 1 momento de som a cada 10 s, aplicado pelo `sfx.py`.
+- Cartão só toca na revelação (riser e hit do `termo`).
+- Entrada de cartão, item de lista, risco e digitação ficam mudos, salvo `"sfx_cartoes": "completo"` no perfil.
+
+As regras do reel abaixo dizem QUAL som combina com cada coisa. Elas não pedem um som para cada coisa.
+
 Origem das regras: reel de uma criadora de edição que o Douglas mandou em 30/09/2026 e disse gostar ("precisamos ter no nosso acervo"). **O reel só FALA dos efeitos: o áudio dele é só a voz dela, não toca nenhum efeito.** O que parecia efeito no espectrograma era respiração, estalo de boca e consoante (o "p" de "Para", o "sh" de "Rush"). Foi um erro de leitura meu; não existe som para recortar nele. Conferir isso com o Douglas ouvindo, antes de extrair som de qualquer reel (`scripts/sfx_ref.py`).
 
 Consequência: os sons do acervo precisam ser criados por nós, e o Douglas aprova um por vez. Os sintéticos da primeira rodada foram reprovados nos cliques (o de mouse "nada a ver"). Ordem combinada: "vamos por parte", começando pelo woosh.

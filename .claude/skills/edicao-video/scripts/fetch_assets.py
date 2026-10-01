@@ -1,9 +1,9 @@
-"""Baixa as fontes (OFL) e o modelo do MediaPipe usados pela skill.
+"""Baixa as fontes (OFL), os modelos do MediaPipe e as trilhas de fundo (Mixkit) usados pela skill.
 
 Única parte da skill que usa rede. Cada arquivo é verificado pelo formato
-(TTF/OTF ou TFLite) antes de ficar em disco. Rodar uma vez.
+(TTF/OTF, TFLite ou MP3) antes de ficar em disco. Rodar uma vez.
 
-Uso: python fetch_assets.py [--only fonts|gaze]
+Uso: python fetch_assets.py [--only fonts|gaze|seg|musica]
 """
 from __future__ import annotations
 
@@ -79,10 +79,42 @@ def fetch_seg() -> None:
         print(f"  baixado  {dest.name}  ({len(data) // 1024} KB)")
 
 
+def is_mp3(b: bytes) -> bool:
+    return b[:3] == b"ID3" or (len(b) > 1 and b[0] == 0xFF and (b[1] & 0xE0) == 0xE0)
+
+
+def fetch_musica() -> None:
+    """Trilhas do acervo (assets/musica/catalogo.json). Só baixa do host listado na faixa, e só se o arquivo for mp3."""
+    import json
+    pasta = ASSETS_DIR / "musica"
+    cat = json.loads((pasta / "catalogo.json").read_text(encoding="utf-8"))
+    for f in cat["faixas"]:
+        dest = pasta / f["arquivo"]
+        if dest.exists():
+            print(f"  ok (já existe)  {f['arquivo']}  {f['titulo']}")
+            continue
+        if not f["url"].startswith("https://assets.mixkit.co/music/"):
+            print(f"  RECUSADO  {f['arquivo']}: host fora da lista")
+            continue
+        try:
+            data = get(f["url"])
+        except Exception as e:
+            print(f"  FALHOU  {f['arquivo']}: {e}")
+            continue
+        if len(data) < 300_000 or not is_mp3(data):
+            print(f"  REJEITADO  {f['arquivo']}: não é mp3 ou veio pequeno demais")
+            continue
+        dest.write_bytes(data)
+        print(f"  baixada  {f['arquivo']}  {f['titulo']}  ({len(data) // 1024} KB)")
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
-    ap.add_argument("--only", choices=["fonts", "gaze", "seg"])
+    ap.add_argument("--only", choices=["fonts", "gaze", "seg", "musica"])
     a = ap.parse_args()
+    if a.only in (None, "musica"):
+        print("Trilhas de fundo:")
+        fetch_musica()
     if a.only in (None, "fonts"):
         print("Fontes:")
         fetch_fonts()

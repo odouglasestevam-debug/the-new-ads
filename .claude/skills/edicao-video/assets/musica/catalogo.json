@@ -1,0 +1,644 @@
+{
+ "_nota": "Acervo de trilhas de fundo. Música é indispensável (Douglas, 01/10/2026): todo vídeo sai com trilha. Os mp3 não vão para o Git (a licença proíbe redistribuir): fetch_assets.py --only musica baixa. musica.py analisar mede LUFS, BPM, início útil e quanto a faixa ocupa a faixa da voz. Status: em_aprovacao, favorita ou vetada.",
+ "faixas": [
+  {
+   "id": "mixkit_480_curiosity",
+   "arquivo": "mixkit_480.mp3",
+   "clima": "corporativo",
+   "titulo": "Curiosity",
+   "artista": "Diego Nava",
+   "duracao": "1:40",
+   "genero": [
+    "chillout",
+    "corporate-music"
+   ],
+   "mood": [
+    "positive",
+    "relaxed"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/480/480.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 100.1,
+   "inicio": 11.33,
+   "bpm": 81,
+   "lufs": -11.0,
+   "ocupa_voz": 0.028,
+   "variacao_db": 18.9
+  },
+  {
+   "id": "mixkit_1167_close_up",
+   "arquivo": "mixkit_1167.mp3",
+   "clima": "corporativo",
+   "titulo": "Close Up",
+   "artista": "Michael Ramir C.",
+   "duracao": "1:35",
+   "genero": [
+    "corporate-music",
+    "rhythmic-underscore"
+   ],
+   "mood": [
+    "futuristic",
+    "positive"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/1167/1167.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 95.1,
+   "inicio": 0.05,
+   "bpm": 103,
+   "lufs": -16.0,
+   "ocupa_voz": 0.021,
+   "variacao_db": 17.9
+  },
+  {
+   "id": "mixkit_634_your_breath",
+   "arquivo": "mixkit_634.mp3",
+   "clima": "corporativo",
+   "titulo": "Your Breath",
+   "artista": "Eugenio Mininni",
+   "duracao": "3:56",
+   "genero": [
+    "corporate-music",
+    "electronica"
+   ],
+   "mood": [
+    "futuristic",
+    "positive"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/634/634.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 236.1,
+   "inicio": 0.53,
+   "bpm": 117,
+   "lufs": -9.5,
+   "ocupa_voz": 0.05,
+   "variacao_db": 17.7
+  },
+  {
+   "id": "mixkit_720_new_bass_01",
+   "arquivo": "mixkit_720.mp3",
+   "clima": "corporativo",
+   "titulo": "New Bass 01",
+   "artista": "Lily J",
+   "duracao": "1:36",
+   "genero": [
+    "underscore"
+   ],
+   "mood": [
+    "futuristic",
+    "positive"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/720/720.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 96.0,
+   "inicio": 7.64,
+   "bpm": 123,
+   "lufs": -18.1,
+   "ocupa_voz": 0.045,
+   "variacao_db": 25.5
+  },
+  {
+   "id": "mixkit_834_it_s_love",
+   "arquivo": "mixkit_834.mp3",
+   "clima": "corporativo",
+   "titulo": "It's Love",
+   "artista": "Michael Ramir C.",
+   "duracao": "1:37",
+   "genero": [
+    "corporate-music",
+    "electronica"
+   ],
+   "mood": [
+    "relaxed",
+    "uplifting"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/834/834.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 96.6,
+   "inicio": 4.39,
+   "bpm": 108,
+   "lufs": -11.4,
+   "ocupa_voz": 0.048,
+   "variacao_db": 13.8
+  },
+  {
+   "id": "mixkit_34_raising_me_higher",
+   "arquivo": "mixkit_34.mp3",
+   "clima": "corporativo",
+   "titulo": "Raising Me Higher",
+   "artista": "Ahjay Stelino",
+   "duracao": "1:38",
+   "genero": [
+    "corporate-music"
+   ],
+   "mood": [
+    "lighthearted",
+    "relaxed"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/34/34.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 97.6,
+   "inicio": 0.0,
+   "bpm": 112,
+   "lufs": -9.5,
+   "ocupa_voz": 0.065,
+   "variacao_db": 10.2
+  },
+  {
+   "id": "mixkit_440_infinity",
+   "arquivo": "mixkit_440.mp3",
+   "clima": "serio",
+   "titulo": "Infinity",
+   "artista": "Arulo",
+   "duracao": "1:43",
+   "genero": [
+    "corporate-music",
+    "electronic"
+   ],
+   "mood": [
+    "atmospheric",
+    "relaxed"
+   ],
+   "instrumentos": [
+    "bass",
+    "piano"
+   ],
+   "url": "https://assets.mixkit.co/music/440/440.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 102.9,
+   "inicio": 0.02,
+   "bpm": 112,
+   "lufs": -12.2,
+   "ocupa_voz": 0.06,
+   "variacao_db": 14.1
+  },
+  {
+   "id": "mixkit_724_placeit_world_01",
+   "arquivo": "mixkit_724.mp3",
+   "clima": "serio",
+   "titulo": "PlaceIt World 01",
+   "artista": "Lily J",
+   "duracao": "1:36",
+   "genero": [
+    "corporate-music",
+    "film-and-orchestral"
+   ],
+   "mood": [
+    "disturbing",
+    "neutral"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/724/724.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 96.0,
+   "inicio": 0.07,
+   "bpm": 123,
+   "lufs": -10.4,
+   "ocupa_voz": 0.06,
+   "variacao_db": 3.2
+  },
+  {
+   "id": "mixkit_552_masking_the_masters",
+   "arquivo": "mixkit_552.mp3",
+   "clima": "serio",
+   "titulo": "Masking the Masters",
+   "artista": "Eugenio Mininni",
+   "duracao": "3:40",
+   "genero": [
+    "electronica",
+    "orchestral-hybrid"
+   ],
+   "mood": [
+    "hypnotic",
+    "serious"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/552/552.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 220.0,
+   "inicio": 13.03,
+   "bpm": 99,
+   "lufs": -12.9,
+   "ocupa_voz": 0.093,
+   "variacao_db": 11.3
+  },
+  {
+   "id": "mixkit_747_relaxation_03",
+   "arquivo": "mixkit_747.mp3",
+   "clima": "serio",
+   "titulo": "Relaxation 03",
+   "artista": "Lily J",
+   "duracao": "1:45",
+   "genero": [
+    "corporate-music"
+   ],
+   "mood": [
+    "mysterious"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/747/747.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 105.2,
+   "inicio": 0.09,
+   "bpm": 86,
+   "lufs": -9.9,
+   "ocupa_voz": 0.041,
+   "variacao_db": 8.5
+  },
+  {
+   "id": "mixkit_609_moon_walk",
+   "arquivo": "mixkit_609.mp3",
+   "clima": "serio",
+   "titulo": "Moon Walk",
+   "artista": "Eugenio Mininni",
+   "duracao": "3:25",
+   "genero": [
+    "electronica"
+   ],
+   "mood": [
+    "disturbing",
+    "serious"
+   ],
+   "instrumentos": [
+    "bass",
+    "synth"
+   ],
+   "url": "https://assets.mixkit.co/music/609/609.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 204.7,
+   "inicio": 0.33,
+   "bpm": 99,
+   "lufs": -12.1,
+   "ocupa_voz": 0.021,
+   "variacao_db": 9.3
+  },
+  {
+   "id": "mixkit_759_romantic_05",
+   "arquivo": "mixkit_759.mp3",
+   "clima": "leve",
+   "titulo": "Romantic 05",
+   "artista": "Lily J",
+   "duracao": "1:52",
+   "genero": [
+    "corporate-music",
+    "underscore"
+   ],
+   "mood": [
+    "calm",
+    "relaxed"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/759/759.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 112.0,
+   "inicio": 0.02,
+   "bpm": 89,
+   "lufs": -16.4,
+   "ocupa_voz": 0.029,
+   "variacao_db": 19.4
+  },
+  {
+   "id": "mixkit_586_charlotte",
+   "arquivo": "mixkit_586.mp3",
+   "clima": "leve",
+   "titulo": "Charlotte",
+   "artista": "Eugenio Mininni",
+   "duracao": "3:45",
+   "genero": [],
+   "mood": [
+    "relaxed",
+    "soothing"
+   ],
+   "instrumentos": [
+    "electric-guitar",
+    "piano"
+   ],
+   "url": "https://assets.mixkit.co/music/586/586.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 225.0,
+   "inicio": 17.32,
+   "bpm": 99,
+   "lufs": -12.0,
+   "ocupa_voz": 0.003,
+   "variacao_db": 25.4
+  },
+  {
+   "id": "mixkit_324_smooth_meditation",
+   "arquivo": "mixkit_324.mp3",
+   "clima": "leve",
+   "titulo": "Smooth Meditation",
+   "artista": "Arulo",
+   "duracao": "2:34",
+   "genero": [
+    "ambient",
+    "new-age"
+   ],
+   "mood": [
+    "atmospheric",
+    "relaxed"
+   ],
+   "instrumentos": [
+    "bass",
+    "keyboard"
+   ],
+   "url": "https://assets.mixkit.co/music/324/324.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 153.7,
+   "inicio": 0.0,
+   "bpm": 99,
+   "lufs": -16.1,
+   "ocupa_voz": 0.007,
+   "variacao_db": 7.4
+  },
+  {
+   "id": "mixkit_33_motivating_mornings",
+   "arquivo": "mixkit_33.mp3",
+   "clima": "energia",
+   "titulo": "Motivating Mornings",
+   "artista": "Ahjay Stelino",
+   "duracao": "1:36",
+   "genero": [
+    "corporate-music"
+   ],
+   "mood": [
+    "driving",
+    "propulsive"
+   ],
+   "instrumentos": [
+    "bass",
+    "brass"
+   ],
+   "url": "https://assets.mixkit.co/music/33/33.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 96.2,
+   "inicio": 0.02,
+   "bpm": 123,
+   "lufs": -10.0,
+   "ocupa_voz": 0.062,
+   "variacao_db": 11.2
+  },
+  {
+   "id": "mixkit_473_talent_in_the_air",
+   "arquivo": "mixkit_473.mp3",
+   "clima": "energia",
+   "titulo": "Talent in the Air",
+   "artista": "Diego Nava",
+   "duracao": "1:54",
+   "genero": [
+    "edm",
+    "house"
+   ],
+   "mood": [
+    "driving",
+    "positive"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/473/473.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 114.1,
+   "inicio": 0.0,
+   "bpm": 123,
+   "lufs": -12.1,
+   "ocupa_voz": 0.082,
+   "variacao_db": 14.5
+  },
+  {
+   "id": "mixkit_729_pop_track_03",
+   "arquivo": "mixkit_729.mp3",
+   "clima": "energia",
+   "titulo": "Pop Track 03",
+   "artista": "Lily J",
+   "duracao": "1:37",
+   "genero": [
+    "corporate-music",
+    "electronic"
+   ],
+   "mood": [
+    "playful",
+    "positive"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/729/729.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 96.9,
+   "inicio": 1.16,
+   "bpm": 108,
+   "lufs": -10.9,
+   "ocupa_voz": 0.038,
+   "variacao_db": 12.4
+  },
+  {
+   "id": "mixkit_32_driving_ambition",
+   "arquivo": "mixkit_32.mp3",
+   "clima": "inspirador",
+   "titulo": "Driving Ambition",
+   "artista": "Ahjay Stelino",
+   "duracao": "1:42",
+   "genero": [
+    "film-score"
+   ],
+   "mood": [
+    "hopeful",
+    "uplifting"
+   ],
+   "instrumentos": [
+    "brass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/32/32.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 102.2,
+   "inicio": 0.44,
+   "bpm": 99,
+   "lufs": -11.1,
+   "ocupa_voz": 0.107,
+   "variacao_db": 13.9
+  },
+  {
+   "id": "mixkit_684_classical_vibes_4",
+   "arquivo": "mixkit_684.mp3",
+   "clima": "inspirador",
+   "titulo": "Classical vibes 4",
+   "artista": "Grigoriy Nuzhny",
+   "duracao": "2:17",
+   "genero": [
+    "film-score"
+   ],
+   "mood": [
+    "hopeful",
+    "uplifting"
+   ],
+   "instrumentos": [
+    "piano",
+    "strings"
+   ],
+   "url": "https://assets.mixkit.co/music/684/684.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 137.1,
+   "inicio": 1.14,
+   "bpm": 92,
+   "lufs": -12.5,
+   "ocupa_voz": 0.09,
+   "variacao_db": 8.1
+  },
+  {
+   "id": "mixkit_470_golden_storm",
+   "arquivo": "mixkit_470.mp3",
+   "clima": "elegante",
+   "titulo": "Golden Storm",
+   "artista": "Diego Nava",
+   "duracao": "1:35",
+   "genero": [
+    "edm"
+   ],
+   "mood": [
+    "elegant",
+    "positive"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/470/470.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 95.5,
+   "inicio": 0.0,
+   "bpm": 129,
+   "lufs": -11.2,
+   "ocupa_voz": 0.025,
+   "variacao_db": 16.5
+  },
+  {
+   "id": "mixkit_184_vastness",
+   "arquivo": "mixkit_184.mp3",
+   "clima": "elegante",
+   "titulo": "Vastness",
+   "artista": "Andrew Ev",
+   "duracao": "3:50",
+   "genero": [
+    "ambient",
+    "electronica"
+   ],
+   "mood": [
+    "atmospheric",
+    "relaxed"
+   ],
+   "instrumentos": [
+    "bass",
+    "drums"
+   ],
+   "url": "https://assets.mixkit.co/music/184/184.mp3",
+   "pagina": "https://mixkit.co/free-stock-music/",
+   "fonte": "Mixkit",
+   "licenca": "Mixkit Stock Music Free License: uso comercial e anúncio online sem crédito; proibido TV, rádio, CD/DVD e games; proibido redistribuir o arquivo",
+   "status": "em_aprovacao",
+   "dur_s": 229.8,
+   "inicio": 0.0,
+   "bpm": 59,
+   "lufs": -13.5,
+   "ocupa_voz": 0.003,
+   "variacao_db": 9.8
+  }
+ ]
+}

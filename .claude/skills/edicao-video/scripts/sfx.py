@@ -106,6 +106,14 @@ LIMITES_GENERO = {"cinematico": {"max": 2}, "transicao": {"gap": 6.0}, "interfac
 #   - AVISO_POR_10S: acima disso o log avisa que o vídeo está carregado (a v3 do IPTU, com 4,9, foi reprovada por excesso).
 FOLGA_FIXOS = 2.5
 AVISO_POR_10S = 3.0
+# Segunda correção (Douglas, 01/10/2026): a v4 do IPTU, com 13 efeitos (2,9 por 10 s), ainda foi "exagero de efeito sonoro",
+# e o vídeo agora sempre tem música por baixo. Por isso:
+#   - teto DURO de MOMENTOS_POR_10S momentos de som (sons a menos de 0,35 s um do outro contam como um momento);
+#   - passando do teto, sai primeiro o que vem antes em CORTE_ORDEM (transição sem transição na imagem sai antes da que tem);
+#   - cartão só toca na revelação (termo: riser + hit); o resto dos cartões fica mudo, salvo "sfx_cartoes": "completo" no perfil.
+MOMENTOS_POR_10S = 1.0
+CORTE_ORDEM = ["interface", "meme", "ui", "click", "typing", "pop", "tick", "shutter", "whoosh", "rush",
+               "transicao_sem_imagem", "transicao", "glitch", "shimmer", "impact", "cinematico", "riser", "hit"]
 
 
 def prev_cont(edl: dict, c: dict) -> bool:
@@ -158,11 +166,14 @@ def filtrar_generos(ev: list[tuple], cfg: dict) -> tuple[list[tuple], list[dict]
     return ok, ignorados
 
 
-def eventos_cards(spec: list[dict]) -> list[tuple]:
-    """Um som para cada coisa que aparece na tela (guia de SFX): tudo amarrado a um evento visível."""
+def eventos_cards(spec: list[dict], modo: str = "revelacao") -> list[tuple]:
+    """Sons dos cartões. modo "revelacao" (padrão desde 01/10): só a revelação do termo toca.
+    modo "completo": um som para cada coisa que aparece na tela (guia de SFX antigo)."""
     ev = []
     for c in spec:
         de, k = float(c["de"]), c["tipo"]
+        if modo != "completo" and k != "termo":
+            continue
         if k == "comentario":
             ev.append((de + 0.02, "ui", "card", {"id": "ui_aparece"}))
             if c.get("riscar_em") is not None:
@@ -182,6 +193,51 @@ def eventos_cards(spec: list[dict]) -> list[tuple]:
                 if n:
                     ev.append((float(p["t"]), "typing", "card", {"id": "teclado_suave", "dur": min(0.06 * n + 0.1, 0.7)}))
     return ev
+
+
+def transicoes_na_imagem(work: Path) -> list[float]:
+    """Instantes com transição visível (foco da caixa de ferramentas, ou fx de transição que não é corte seco)."""
+    ts = []
+    ej = work / "elementos.json"
+    if ej.exists():
+        ts += [float(e["t"]) for e in load_json(ej) if e.get("tipo") == "foco"]
+    fxp = work / "fx_events.json"
+    if fxp.exists():
+        from fx import CATALOGO
+        ts += [float(e["t"]) for e in load_json(fxp)
+               if CATALOGO.get(e["fx"], {}).get("tipo") == "transicao" and e["fx"] not in ("corte_seco", "troca_zoom")]
+    return ts
+
+
+def aplicar_teto(kept: list[tuple], total: float, visuais: list[float], por10: float) -> tuple[list[tuple], list[tuple]]:
+    """Teto duro de momentos de som. Devolve (fica, sai). Sons a menos de 0,35 s formam um momento só (riser + hit)."""
+    limite = max(2, round(total / 10 * por10))
+    momentos: list[list[tuple]] = []
+    for e in sorted(kept, key=lambda e: e[0]):
+        if momentos and e[0] - momentos[-1][-1][0] < 0.35:
+            momentos[-1].append(e)
+        else:
+            momentos.append([e])
+    cat = catalogo()
+
+    def peso(m: list[tuple]) -> int:
+        melhor = 0
+        for t, tipo, origem, opt in m:
+            c = next((cat[k]["categoria"] for k in (opt.get("id"), tipo) if k and k in cat), tipo)
+            if c == "transicao" and not any(abs(t - v) < 0.3 for v in visuais):
+                c = "transicao_sem_imagem"
+            melhor = max(melhor, CORTE_ORDEM.index(c) if c in CORTE_ORDEM else len(CORTE_ORDEM) // 2)
+        return melhor
+
+    sai: list[tuple] = []
+    while len(momentos) > limite:
+        def aperto(m):                                   # empate: sai o que está mais colado em outro momento
+            outros = [o[0][0] for o in momentos if o is not m]
+            return min(abs(m[0][0] - x) for x in outros) if outros else 99
+        m = min(momentos, key=lambda m: (peso(m), aperto(m)))
+        momentos.remove(m)
+        sai += m
+    return [e for m in momentos for e in m], sai
 
 
 def main() -> None:
@@ -213,7 +269,7 @@ def main() -> None:
         for m in load_json(manual):
             ev.append((float(m["t"]), m["tipo"], "manual", {k: m[k] for k in ("id", "dur", "motivo", "frase", "forcar") if k in m}))
     if (work / "cards.json").exists() and not a.no_cards:
-        ev += eventos_cards(load_json(work / "cards.json"))
+        ev += eventos_cards(load_json(work / "cards.json"), cfg.get("sfx_cartoes", "revelacao"))
     fxp = work / "fx_events.json"
     if fxp.exists():                                             # cada efeito visual toca o seu som
         from fx import CATALOGO
@@ -275,6 +331,12 @@ def main() -> None:
         if near or len(win) >= dens["max_per_10s"]:
             continue
         kept.append((t, tipo, origem, opt))
+    kept, sai = aplicar_teto(kept, total, transicoes_na_imagem(work), float(cfg.get("sfx_momentos_10s", MOMENTOS_POR_10S)))
+    for t, tipo, origem, opt in sai:
+        ignorados.append({"t": round(t, 2), "tipo": opt.get("id") or tipo, "motivo_ignorado": "teto de som do vídeo "
+                          f"({cfg.get('sfx_momentos_10s', MOMENTOS_POR_10S):g} momento por 10 s): ficou o que pesa mais",
+                          **{k: opt[k] for k in ("motivo", "frase") if k in opt}})
+    save_json(work / "sfx_ignorados.json", ignorados)
     kept.sort(key=lambda e: e[0])
 
     buf = np.zeros(int(SR * (total + 1)))

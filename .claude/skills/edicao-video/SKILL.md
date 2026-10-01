@@ -27,7 +27,7 @@ Scripts em `.claude/skills/edicao-video/scripts/`. Saídas em `<pasta do vídeo>
 pip install -r ".claude/skills/edicao-video/requirements.txt"     # só em máquina nova; nesta já está tudo instalado
 python ".claude/skills/edicao-video/scripts/fetch_assets.py"
 ```
-Baixa 13 fontes OFL (Poppins, Anton, Bebas Neue, Archivo Black, DM Serif Display, Instrument Serif e itálico, Krona One, Kalam, Barlow Condensed Light e ExtraBold), o modelo de rosto e os dois modelos de recorte de pessoa (fino para o render final, rápido para a prévia). Requisitos já instalados: ffmpeg (via imageio-ffmpeg), faster-whisper, mediapipe, PIL, numpy. A fonte da marca TNA (Clash Display) é manual: baixar na Fontshare e colocar em `fonts/ClashDisplay-Bold.ttf`.
+Baixa 13 fontes OFL (Poppins, Anton, Bebas Neue, Archivo Black, DM Serif Display, Instrument Serif e itálico, Krona One, Kalam, Barlow Condensed Light e ExtraBold), o modelo de rosto, os dois modelos de recorte de pessoa (fino para o render final, rápido para a prévia) e as 21 trilhas de fundo do Mixkit (`--only musica`, ~90 MB, fora do Git porque a licença proíbe redistribuir o arquivo; depois rodar `python scripts/musica.py analisar`). Requisitos já instalados: ffmpeg (via imageio-ffmpeg), faster-whisper, mediapipe, PIL, numpy. A fonte da marca TNA (Clash Display) é manual: baixar na Fontshare e colocar em `fonts/ClashDisplay-Bold.ttf`.
 
 ## Fluxo
 
@@ -43,7 +43,7 @@ Olhar o arquivo (`probe`: formato, duração, HDR) e anunciar o que vai fazer. P
 - Pode cortar pausas? Qual o alvo (duração, placement)?
 - Estilo de legenda (mostrar `references/estilos.md`) e cor de destaque.
 - Gancho de texto nos primeiros 2 segundos? Qual?
-- Música? (a escolha é dele; sem arquivo, segue só com voz e efeitos.)
+- Música: **sempre entra** (Douglas, 01/10: "música é indispensável"). A trilha sai sozinha do acervo pelo clima do perfil (etapa 6c). Só perguntar se ele quer uma trilha específica ou outro clima; sem música, só se ele pedir (`--no-music`).
 - Formato de saída (9:16, 4:5, 1:1). Vertical para horizontal quase nunca presta.
 Responder pelo que dá para descobrir sozinho (formato, segmento, ambiente).
 
@@ -155,9 +155,9 @@ python ".claude/skills/edicao-video/scripts/verify.py" "VIDEO" --gaze --echo --r
   |---|---|---|
   | `rush` | zoom in ou zoom out (o corte que aproxima ou afasta). `rush_in_*` quando aproxima, `rush_out_*` quando afasta | automático nos cortes |
   | `shutter` | cortes rápidos e transições secas | só por pedido |
-  | `typing` | texto digitado ou revelado na tela | automático na tela tipográfica |
-  | `click` | botão, elemento ou informação que aparece; item de lista; riscar | automático nos cartões |
-  | `ui` | animação aparecendo: cartão, ícone, check, notificação | automático nos cartões |
+  | `typing` | texto digitado ou revelado na tela | só com `"sfx_cartoes": "completo"` no perfil (desde 01/10) |
+  | `click` | botão, elemento ou informação que aparece; item de lista; riscar | só com `"sfx_cartoes": "completo"` (desde 01/10) |
+  | `ui` | animação aparecendo: cartão, ícone, check, notificação | só com `"sfx_cartoes": "completo"` (desde 01/10) |
   | `riser` | ANTES de revelar informação importante; termina na revelação | automático no cartão `termo` |
   | `hit` | DEPOIS da revelação, no mesmo instante; dá o impacto | automático no cartão `termo` |
   | `meme` | momento de humor, reação engraçada (8 sons: `meme_01` a `meme_08`) | só por pedido, escolher o id |
@@ -184,7 +184,33 @@ python ".claude/skills/edicao-video/scripts/sfx_mapa.py" mapa "VIDEO"         # 
 | `cinematico` | afirmação central do gancho ou revelação principal | 2 por vídeo |
 | `meme` | só se o perfil tiver `"sfx_meme": true` (padrão desligado; o Douglas quase não usa) | |
 
-**Cautela de editor (Douglas, 01/10/2026): ter o acervo à mão não é usar todos.** O silêncio é o padrão e cada efeito precisa de um motivo que eu consiga escrever em uma linha; sem motivo, não entra. Na prática: (1) o efeito marca a virada ou a palavra que carrega o vídeo, não cada corte; (2) um momento de som por vez, nada colado em outro (o rush automático cede a pedido manual ou cartão a menos de 2,5 s); (3) meta de até 3 efeitos por 10 s contando os dos cartões, e o `sfx.py` avisa acima disso; (4) a direção própria é pouca: em um vídeo de 45 s, em torno de 4 eventos, e no máximo 1 cinematográfico além do gancho; (5) vídeo carregado perde primeiro os de interface, depois os de transição, depois o rush; (6) com `sfx_manual.json` presente, o rush automático cai para a densidade de `leve`. A v3 do IPTU (22 efeitos, 4,9 por 10 s) foi reprovada por excesso; a v4 tem 13 (2,9 por 10 s).
+**Cautela de editor (Douglas, 01/10/2026): ter o acervo à mão não é usar todos.** O silêncio é o padrão e cada efeito precisa de um motivo que eu consiga escrever em uma linha; sem motivo, não entra. Na prática: (1) o efeito marca a virada ou a palavra que carrega o vídeo, não cada corte; (2) um momento de som por vez, nada colado em outro (o rush automático cede a pedido manual ou cartão a menos de 2,5 s); (3) meta de até 3 efeitos por 10 s contando os dos cartões, e o `sfx.py` avisa acima disso; (4) a direção própria é pouca: em um vídeo de 45 s, em torno de 4 eventos, e no máximo 1 cinematográfico além do gancho; (5) vídeo carregado perde primeiro os de interface, depois os de transição, depois o rush; (6) com `sfx_manual.json` presente, o rush automático cai para a densidade de `leve`. A v3 do IPTU (22 efeitos, 4,9 por 10 s) foi reprovada por excesso; a v4, com 13 (2,9 por 10 s), também foi: "exagero de efeito sonoro" (01/10, segunda correção).
+
+**Regra atual, que substitui as metas acima (Douglas, 01/10/2026): teto DURO de 1 momento de som a cada 10 s, com música por baixo.**
+- O `sfx.py` aplica o teto sozinho. Sons a menos de 0,35 s formam um momento só, como riser e hit.
+- Passando do teto, sai primeiro interface, depois meme, cartão, clique, rush, transição sem transição na imagem, transição e por último o cinematográfico, o riser e o hit.
+- O que saiu fica em `sfx_ignorados.json`, com o motivo.
+- Cartão só toca na revelação, o riser e o hit do `termo`. Entrada de cartão, item de lista, risco e digitação ficam mudos, porque a música já dá o ritmo.
+- Perfil pode mudar: `"sfx_momentos_10s"` e `"sfx_cartoes": "completo"`.
+- Em 45 s, isso dá uns 4 momentos: o gancho, a revelação e as viradas.
+- O IPTU com elementos ficou com 4: cinematográfico no "dono", transição no "mas isso não é verdade", riser e hit na matrícula, e transição com o foco na virada.
+
+### 6c. Música (indispensável)
+Todo vídeo sai com trilha de fundo (Douglas, 01/10: "falta música de fundo, a skill precisa fazer isso, música é indispensável").
+- **Origem:** acervo em `assets/musica/` com 21 trilhas instrumentais do Mixkit em 6 climas: corporativo, sério, leve, energia, inspirador e elegante.
+- **Licença:** permite uso comercial e anúncio online sem crédito. Proíbe TV, rádio, CD/DVD, games e redistribuir o arquivo. Anúncio em TV ou rádio pede outra trilha.
+- **Escolha:** sem `--music`, o `render.py` pega a trilha do clima do perfil (`"musica": {"clima": "serio"}` ou `{"id": "mixkit_440"}`), ou do segmento (`CLIMA_SEGMENTO` em `musica.py`). É rodízio por vídeo, favoritas primeiro e vetadas nunca.
+- **Início:** começa no início útil, pulando a introdução muda.
+- **Volume:** medido, 16 dB abaixo da voz (`"musica": {"rel_db": 14}` deixa mais presente). O ducking baixa a trilha durante a fala e um corte em 2,5 kHz abre espaço para a voz.
+- **Fim:** fade de 1,2 s.
+```
+python ".claude/skills/edicao-video/scripts/musica.py" listar [--clima serio]
+python ".claude/skills/edicao-video/scripts/musica.py" demo        # Downloads/acervo-trilhas.mp3: voz anuncia e toca 15 s de cada, com índice
+python ".claude/skills/edicao-video/scripts/musica.py" vetar ID | favoritar ID | aprovar ID
+```
+- As trilhas estão em aprovação, como os SFX. Quando o Douglas reprovar uma, vetar; quando gostar, favoritar (ela passa a ser a padrão do clima).
+- Trilha dele: `--music ARQUIVO` (ou id do acervo). `--music-in`, `--music-drop` e `--music-start` continuam valendo.
+- Claude não ouve: reportar trilha, clima, BPM e volume calculado, e dizer que não ouviu.
 
 Só informar a categoria: o `sfx.py` escolhe o som (cabe antes do próximo evento, rodízio, sem os vetados). Um som por evento: cartão já toca o próprio (não duplicar) e o pedido manual tira o rush automático do mesmo corte. Usar o tempo da PALAVRA (`words.json` + `src_to_out`), não o início do trecho. Mostrar o mapa ao Douglas e tirar o que ele cortar. Quando ele ouvir um vídeo e reprovar um som, `python scripts/sfx_acervo.py vetar ID`; se gostar, `favoritar ID`. Regras completas em `references/sfx-guia.md`.
 
@@ -196,9 +222,9 @@ Render final (sem `--preview`), `verify.py` de novo, e mandar: caminho completo 
 
 ## O que entra na retenção (e o que não)
 
-Entra, tudo por código: corte de pausa; punch-in alternado em cada troca; troca de zoom sem corte a cada ~4 s em trecho longo; aproximação lenta no gancho; legenda com destaque na palavra falada e pop; palavra-chave acesa; gancho de texto; barra de progresso (segmentos que pedem); transições e efeitos de impacto estilo CapCut (flash, whip, glitch, dip, zoom blur, pulse, shake) com som próprio; beat sync com música; fundo desfocado para horizontal em vertical; música com ducking sob a voz, entrada tardia e drop encaixado; loudness de plataforma; a caixa de ferramentas da etapa 5c (texto atrás da pessoa, perspectiva, foco, clone, rastro, moldura, print, B-roll, tipografia cinética, CTA com cursor, quadro branco). Cada som e efeito tem teto de densidade e fica amarrado a um corte ou palavra-chave.
+Entra, tudo por código: corte de pausa; punch-in alternado em cada troca; troca de zoom sem corte a cada ~4 s em trecho longo; aproximação lenta no gancho; legenda com destaque na palavra falada e pop; palavra-chave acesa; gancho de texto; barra de progresso (segmentos que pedem); transições e efeitos de impacto estilo CapCut (flash, whip, glitch, dip, zoom blur, pulse, shake) com som próprio; beat sync com música; fundo desfocado para horizontal em vertical; música de fundo sempre (acervo por clima, volume medido abaixo da voz, ducking, entrada tardia e drop encaixado); loudness de plataforma; a caixa de ferramentas da etapa 5c (texto atrás da pessoa, perspectiva, foco, clone, rastro, moldura, print, B-roll, tipografia cinética, CTA com cursor, quadro branco). Cada som e efeito tem teto de densidade e fica amarrado a um corte ou palavra-chave.
 
-Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duração e na sincronia da fala; só faz sentido em vídeo sem fala ou B-roll, ainda não implementado), personagem ou objeto gerado por IA (fora do motor local, decisão do Douglas em 01/10), stickers animados prontos do CapCut (dá para usar PNG/vídeo próprio como `imagem`/`video`), emoji na legenda (libass não renderiza emoji colorido), mapeamento de animação por Remotion, tratamento de eco com VoiceFixer (procedimento em memória: `edicao-video-olhar-e-eco`, feito à mão quando o áudio vem de mic distante), biblioteca de trilhas (a música vem do Douglas), reenquadramento inteligente além de rosto central.
+Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duração e na sincronia da fala; só faz sentido em vídeo sem fala ou B-roll, ainda não implementado), personagem ou objeto gerado por IA (fora do motor local, decisão do Douglas em 01/10), stickers animados prontos do CapCut (dá para usar PNG/vídeo próprio como `imagem`/`video`), emoji na legenda (libass não renderiza emoji colorido), mapeamento de animação por Remotion, tratamento de eco com VoiceFixer (procedimento em memória: `edicao-video-olhar-e-eco`, feito à mão quando o áudio vem de mic distante), reenquadramento inteligente além de rosto central.
 
 ## Limites que precisam ser ditos
 

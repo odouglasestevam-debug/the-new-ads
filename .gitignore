@@ -48,6 +48,9 @@ automacoes-dm.md
 prioridades.md
 contas.yaml
 
+# Trilhas do Mixkit da skill de edição: a licença proíbe redistribuir o arquivo (fetch_assets.py --only musica baixa de novo)
+.claude/skills/edicao-video/assets/musica/*.mp3
+
 # Config local do Claude Code (permissoes/hooks pessoais, nunca deve ir pro repo)
 .claude/settings.local.json
 .claude/auto-sync.log

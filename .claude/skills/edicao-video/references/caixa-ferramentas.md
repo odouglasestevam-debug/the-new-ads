@@ -33,7 +33,7 @@ O Douglas reprovou em 30/09 flash, glitch, whip, pulse e shake "soltos": parecer
 | **Quadro branco** (`quadro`) | Explicar processo, funil, método, comparação: a fala vira diagrama. Plano único sem corte (ref2) fica bom com isso, porque a informação prende | Fala sem estrutura (opinião solta); fundo poluído | **Céu ou parede lisa** ocupando o terço de cima; pessoa no terço de baixo; câmera parada |
 | **Legenda editorial** | Vídeo com títulos de cena e efeitos: a legenda fica pequena e elegante | Talking head simples sem elementos (aí a `highlight` retém mais) | Nada |
 | **Legenda discreta** | Junto de motion ou CTA na tela | Idem | Nada |
-| **Música com drop** (`--music-drop T`) | A música "cai" na virada para o bloco forte (entrada da tela de motion, revelação) | Vídeo sem bloco de virada | Música escolhida pelo Douglas |
+| **Música com drop** (`--music-drop T`) | A música "cai" na virada para o bloco forte (entrada da tela de motion, revelação) | Vídeo sem bloco de virada | Trilha do acervo (`musica.py`) ou a que o Douglas mandar |
 | **Música que entra depois** (`--music-in T`) | Abrir só com voz e o gancho, e a trilha entra quando o vídeo "engrena" (ref3: entra em 7 s) | | |
 
 ## Receitas por objetivo
@@ -44,7 +44,7 @@ Cada receita lista o que combina com o objetivo. Não é para usar tudo: escolhe
 
 **Agência, design, serviço intangível (ref1)**: gancho largo com contorno, drop da música na entrada da tipografia cinética, portfólio com `imagem` (nome do cliente com sublinhado + 2 a 3 mockups), volta ao rosto com CTA de cursor, cartão de logo no fim (`imagem` com `fundo`).
 
-**Explicativo, método, funil (ref2)**: plano aberto parado, quadro branco no céu/parede, sublinhado vermelho no instante da palavra, prints de prova entrando e saindo, câmera da lousa andando quando muda o bloco. Sem música.
+**Explicativo, método, funil (ref2)**: plano aberto parado, quadro branco no céu/parede, sublinhado vermelho no instante da palavra, prints de prova entrando e saindo, câmera da lousa andando quando muda o bloco. A ref2 não tem música, mas aqui entra trilha baixa e constante (clima corporativo ou sério), porque música é indispensável (Douglas, 01/10).
 
 **Autoridade (advocacia, saúde, contábil)**: o mínimo da caixa. Título de cena atrás da pessoa no gancho, `termo`/`lista` do cards.py, 1 print de prova, transição por foco só na virada, legenda editorial ou highlight. Nada de clone, rastro ou cursor.
 

@@ -95,9 +95,10 @@ def main() -> None:
     ap.add_argument("--focus", default="auto", help="auto (acha o rosto) ou 'x,y' de 0 a 1 (centro do rosto na imagem de origem)")
     ap.add_argument("--grade", help="auto | none | natural | luz_fraca | luz_quente | contraluz | externo_sol | luz_fluorescente | estudio_neutro | cinematografico")
     ap.add_argument("--denoise", choices=["off", "leve", "forte"], default="leve")
-    ap.add_argument("--music", help="arquivo de música (a escolha é do Douglas)")
-    ap.add_argument("--music-vol", type=float, default=0.16)
-    ap.add_argument("--music-start", type=float, default=0.0, help="começa a música nesse segundo do arquivo")
+    ap.add_argument("--music", help="arquivo ou id do acervo (musica.py listar). Sem isso, a trilha sai do acervo pelo clima do perfil")
+    ap.add_argument("--no-music", action="store_true", help="sem trilha. Música é indispensável (Douglas, 01/10): só com pedido dele")
+    ap.add_argument("--music-vol", type=float, help="volume fixo da trilha. Padrão: medido, %.0f dB abaixo da voz" % 16)
+    ap.add_argument("--music-start", type=float, help="começa a música nesse segundo do arquivo (padrão: o início útil da trilha)")
     ap.add_argument("--music-in", type=float, help="a música entra nesse segundo do vídeo (antes, só voz)")
     ap.add_argument("--music-drop", type=float,
                     help="acha o 'drop' da música e encaixa nesse segundo do vídeo (ex.: na virada para a tela de motion)")
@@ -282,8 +283,34 @@ def main() -> None:
         inputs += ["-i", restored]
         idx = 2
     mix = []
+    trilha = None                                    # música é indispensável (Douglas, 01/10): sem --music, sai do acervo
+    if not a.no_music:
+        import musica
+        if not a.music:
+            trilha = musica.escolher(dict(cfg, segmento=profile.get("segmento") or a.segmento), src.stem)
+        elif not Path(a.music).exists():
+            trilha = musica.faixa(a.music)
+        if trilha:
+            a.music = str(musica.caminho(trilha))
+            print(f"música: {trilha['titulo']} ({trilha['artista']}, {trilha['fonte']}), clima {trilha['clima']}, "
+                  f"{trilha.get('bpm', '?')} bpm. Trocar: --music ID, ou musica.py vetar {trilha['id']}")
+    else:
+        a.music = None
+        print("música: desligada (--no-music)")
     if a.music:
-        m_off, m_delay = a.music_start, a.music_in or 0.0
+        m_start = a.music_start if a.music_start is not None else float((trilha or {}).get("inicio", 0.0))
+        if a.music_vol is None:                      # volume medido: a trilha fica REL_DB abaixo da voz
+            mg = list(af) + [f"[ac]{voz},aresample=48000,loudnorm=print_format=json[vz]"]
+            (work / "voz_medir.filter").write_text(";\n".join(mg), encoding="utf-8")
+            r = run([FF, "-hide_banner", "-nostats", *inputs, "-filter_complex_script", work / "voz_medir.filter",
+                     "-map", "[vz]", "-f", "null", "-"])
+            voz_lufs = float(json.loads(r.stderr[r.stderr.rfind("{"): r.stderr.rfind("}") + 1])["input_i"])
+            m_lufs = float(trilha["lufs"]) if trilha and "lufs" in trilha else musica.medir_lufs(Path(a.music), m_start)
+            rel = float((cfg.get("musica") or {}).get("rel_db", musica.REL_DB)) if isinstance(cfg.get("musica"), dict) else musica.REL_DB
+            a.music_vol = round(10 ** ((voz_lufs - rel - m_lufs) / 20), 4)
+            print(f"música: voz {voz_lufs:.1f} LUFS, trilha {m_lufs:.1f} LUFS -> volume {a.music_vol} ({rel:g} dB abaixo da voz, "
+                  f"e o ducking baixa mais durante a fala)")
+        m_off, m_delay = m_start, a.music_in or 0.0
         if a.music_drop is not None:
             dt, gain = find_drop(a.music)
             m_off = dt - a.music_drop + m_delay
@@ -296,7 +323,8 @@ def main() -> None:
         mdur = max(total - m_delay, 0.5)
         af.append(f"[ac]{voz},aresample=48000,asplit=2[voz][sc]")
         af.append(f"[{idx}:a]atrim=start={m_off:.3f},asetpts=PTS-STARTPTS,aloop=loop=-1:size=2000000000,"
-                  f"atrim=duration={mdur:.3f},asetpts=PTS-STARTPTS,volume={a.music_vol},afade=t=in:d=0.4,"
+                  f"atrim=duration={mdur:.3f},asetpts=PTS-STARTPTS,volume={a.music_vol},"
+                  f"highpass=f=35,equalizer=f=2500:t=q:w=1.0:g=-4,afade=t=in:d=0.4,"      # abre espaço para a voz
                   f"afade=t=out:st={max(mdur - 1.2, 0):.3f}:d=1.2,aresample=48000,"
                   f"adelay={int(m_delay * 1000)}:all=1,apad,atrim=duration={total:.3f}[mus]")
         af.append("[mus][sc]sidechaincompress=threshold=0.04:ratio=5:attack=20:release=350[musd]")
@@ -340,7 +368,9 @@ def main() -> None:
         base_el.unlink(missing_ok=True)                  # intermediário grande; o base.mp4 fica para o elementos.py --previa
     size = out.stat().st_size / 1e6
     save_json(work / "render.json", {"out": str(out), "grade": gname, "grade_motivo": why, "scene": scene, "aspect": a.aspect,
-                                     "size_px": [W, H], "total": total, "music": a.music, "sfx": use_sfx,
+                                     "size_px": [W, H], "total": total, "music": a.music, "music_vol": a.music_vol,
+                                     "trilha": trilha and {k: trilha.get(k) for k in ("id", "titulo", "artista", "clima", "fonte", "licenca")},
+                                     "sfx": use_sfx,
                                      "captions": captions_ok, "cards": cards_ok, "voz_restaurada": use_vf, "bar": bar, "fx_visuais": fx_count, "looks": looks, "fit": a.fit, "elementos": bool(staged), "loudness_antes": m["input_i"]})
     print(f"\nPRONTO: {out}  ({size:.1f} MB, {total:.1f}s, {W}x{H})")
 
