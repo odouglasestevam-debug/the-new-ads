@@ -93,7 +93,9 @@ def roteiro(work: Path) -> None:
             nome = k.get("texto") or k.get("titulo") or k.get("rotulo") or ""
             print(f"  {mmss(float(k['de']))} a {mmss(float(k.get('ate', k['de'])))}  {k['tipo']}  {nome.replace(chr(92) + 'N', ' ')}")
     print("\nPara decidir: transicao = virada de assunto; interface = fala cita tela/app/sistema ou entra cartão; "
-          "cinematico = revelação principal e fechamento (até 2); meme = desligado.")
+          "cinematico = revelação principal e fechamento (até 2); meme = desligado.\n"
+          "Cautela de editor: silêncio é o padrão; sem motivo de uma linha o efeito não entra; meta de até 3 por 10 s "
+          "(cartões contam); em 45 s, uns 4 eventos de direção.")
 
 
 def mapa(work: Path) -> None:

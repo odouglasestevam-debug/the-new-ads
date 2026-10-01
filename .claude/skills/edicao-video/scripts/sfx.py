@@ -100,6 +100,12 @@ PRIORITY = {"impact": 0, "manual": 0, "riser": 0, "hit": 0, "pop": 1, "glitch": 
             "whoosh": 2, "tick": 2, "rush": 2, "shutter": 2, "meme": 1, "interface": 1, "transicao": 2, "cinematico": 0}
 # categorias por gênero (meme, interface, transicao, cinematico): guarda-corpos contra efeito demais. "forcar": true no evento ignora.
 LIMITES_GENERO = {"cinematico": {"max": 2}, "transicao": {"gap": 6.0}, "interface": {"gap": 1.2}}
+# Cautela de editor (Douglas, 01/10/2026): ter o acervo à mão não é usar tudo. Um momento de som por vez:
+#   - o rush automático cede a qualquer pedido manual ou cartão a menos de FOLGA_FIXOS s (som colado em som vira ruído);
+#   - com direção de som (sfx_manual.json) quem põe os efeitos é a direção; o automático cai para a densidade de "leve";
+#   - AVISO_POR_10S: acima disso o log avisa que o vídeo está carregado (a v3 do IPTU, com 4,9, foi reprovada por excesso).
+FOLGA_FIXOS = 2.5
+AVISO_POR_10S = 3.0
 
 
 def prev_cont(edl: dict, c: dict) -> bool:
@@ -249,8 +255,10 @@ def main() -> None:
     ev, ignorados = filtrar_generos(ev, cfg)
     save_json(work / "sfx_ignorados.json", ignorados)
 
-    # teto de densidade: manual e cartões sempre entram (e tiram o que cair colado neles); o resto disputa por prioridade
+    # teto de densidade: manual e cartões sempre entram (e tiram o que cair a menos de FOLGA_FIXOS deles); o resto disputa por prioridade
     fixos = ("manual", "card")
+    dirigido = any(e[2] == "manual" for e in ev)
+    dens = P["sfx_niveis"]["leve"] if dirigido and nivel in ("media", "alta") else lv      # com direção, o automático só preenche
     rank = lambda e: -1 if e[2] in fixos else (0 if e[2] == "corte" else PRIORITY[e[1]])   # corte real vence pop e zoom
     ev.sort(key=lambda e: (rank(e), e[0]))
     kept = []
@@ -260,11 +268,11 @@ def main() -> None:
             continue
         if lv["max_per_10s"] == 0:
             continue
-        if any(k[2] in fixos and abs(k[0] - t) < 0.3 for k in kept):          # pedido manual e cartão vencem o automático
+        if any(k[2] in fixos and abs(k[0] - t) < FOLGA_FIXOS for k in kept):  # pedido manual e cartão vencem o automático
             continue
-        near = [k for k in kept if abs(k[0] - t) < lv["min_gap"] and k[2] not in fixos]
+        near = [k for k in kept if abs(k[0] - t) < dens["min_gap"] and k[2] not in fixos]
         win = [k for k in kept if abs(k[0] - t) < 5 and k[2] not in fixos]     # janela de 10 s centrada no evento
-        if near or len(win) >= lv["max_per_10s"]:
+        if near or len(win) >= dens["max_per_10s"]:
             continue
         kept.append((t, tipo, origem, opt))
     kept.sort(key=lambda e: e[0])
@@ -297,7 +305,12 @@ def main() -> None:
         log.append({"t": round(t, 2), "tipo": tipo, "id": id_, "origem": origem, **{k: opt[k] for k in ("motivo", "frase") if k in opt}})
     write_wav(work / "sfx.wav", np.clip(buf, -1, 1), SR)
     save_json(work / "sfx_events.json", log)
-    print(f"sfx nível '{nivel}': {len(log)} efeitos em {total:.1f}s ({len(log) / max(total, 1) * 10:.1f} por 10s)")
+    por10 = len(log) / max(total, 1) * 10
+    print(f"sfx nível '{nivel}'{' (com direção: automático em densidade leve)' if dens is not lv else ''}: "
+          f"{len(log)} efeitos em {total:.1f}s ({por10:.1f} por 10s)")
+    if por10 > AVISO_POR_10S:
+        print(f"  AVISO: {por10:.1f} por 10 s passa de {AVISO_POR_10S:g}. Vídeo carregado: tirar efeito antes de entregar "
+              "(primeiro interface, depois transição, depois o rush).")
     for e in log:
         print(f"  {e['t']:6.2f}s  {e['id'] or e['tipo']:<16} ({e['origem']}){'  ' + e['motivo'] if e.get('motivo') else ''}")
     for g in ignorados:

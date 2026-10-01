@@ -175,6 +175,8 @@ python ".claude/skills/edicao-video/scripts/sfx_mapa.py" mapa "VIDEO"         # 
 | `cinematico` | afirmação central do gancho ou revelação principal | 2 por vídeo |
 | `meme` | só se o perfil tiver `"sfx_meme": true` (padrão desligado; o Douglas quase não usa) | |
 
+**Cautela de editor (Douglas, 01/10/2026): ter o acervo à mão não é usar todos.** O silêncio é o padrão e cada efeito precisa de um motivo que eu consiga escrever em uma linha; sem motivo, não entra. Na prática: (1) o efeito marca a virada ou a palavra que carrega o vídeo, não cada corte; (2) um momento de som por vez, nada colado em outro (o rush automático cede a pedido manual ou cartão a menos de 2,5 s); (3) meta de até 3 efeitos por 10 s contando os dos cartões, e o `sfx.py` avisa acima disso; (4) a direção própria é pouca: em um vídeo de 45 s, em torno de 4 eventos, e no máximo 1 cinematográfico além do gancho; (5) vídeo carregado perde primeiro os de interface, depois os de transição, depois o rush; (6) com `sfx_manual.json` presente, o rush automático cai para a densidade de `leve`. A v3 do IPTU (22 efeitos, 4,9 por 10 s) foi reprovada por excesso; a v4 tem 13 (2,9 por 10 s).
+
 Só informar a categoria: o `sfx.py` escolhe o som (cabe antes do próximo evento, rodízio, sem os vetados). Um som por evento: cartão já toca o próprio (não duplicar) e o pedido manual tira o rush automático do mesmo corte. Usar o tempo da PALAVRA (`words.json` + `src_to_out`), não o início do trecho. Mostrar o mapa ao Douglas e tirar o que ele cortar. Quando ele ouvir um vídeo e reprovar um som, `python scripts/sfx_acervo.py vetar ID`; se gostar, `favoritar ID`. Regras completas em `references/sfx-guia.md`.
 
 ### 7. Olhar o resultado de verdade

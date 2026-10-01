@@ -51,7 +51,14 @@ Regras de decisão:
 3. **Cinematográfico**: afirmação central do gancho (na palavra-chave) ou revelação principal. No máximo 2. Quando já há cartão `termo`, ele tem riser e hit próprios: não pôr cinematográfico em cima.
 4. **Meme**: desligado. Só com `"sfx_meme": true` no perfil do cliente. O Douglas disse que dificilmente usa.
 5. **Um som por evento**: o cartão já toca o seu; um pedido manual tira o som automático (rush) que caia a menos de 0,3 s dele. `"forcar": true` no evento ignora os limites.
-6. **Densidade**: o padrão da skill é discreto (feedback do v1). Olhar o total do mapa; se estiver carregado, tirar primeiro os de interface, depois os de transição. O nível (`--nivel leve`) corta o rush dos cortes.
+6. **Densidade e cautela de editor**: o padrão da skill é discreto (feedback do v1) e o Douglas repetiu em 01/10/2026: "ter esses elementos à disposição não significa que você precise usar todos a todo momento, precisa usar com cautela como um editor de vídeos para não sobrecarregar o vídeo". Regras que saíram disso:
+   - O silêncio é o padrão. Efeito entra quando eu consigo escrever o motivo em uma linha (virada de assunto, palavra que carrega o vídeo, coisa que aparece na tela). "Tem som no acervo" não é motivo.
+   - Um momento de som por vez. O rush automático cede a pedido manual e a cartão a menos de 2,5 s (`FOLGA_FIXOS` em `sfx.py`); um whoosh logo depois de um hit só dilui o hit.
+   - Meta de até 3 efeitos por 10 s, cartões incluídos (`AVISO_POR_10S`): o `sfx.py` imprime AVISO acima disso.
+   - Direção própria é pouca: em 45 s, uns 4 eventos. Cinematográfico: o do gancho e, no máximo, mais um.
+   - Com `sfx_manual.json` presente, o rush automático passa para a densidade de `leve` (1 por 10 s, 1,8 s entre dois) e só preenche trecho sem nada.
+   - Vídeo carregado perde primeiro os de interface, depois os de transição, depois o rush. `--nivel leve` corta o rush dos cortes.
+   - Caso que gerou a regra: IPTU da Regularize. A v3 teve 22 efeitos em 44,5 s (4,9 por 10 s: 10 rushes em cortes, 8 sons de cartão, 4 de direção, vários colados a menos de 1 s). A v4 tem 13 (2,9 por 10 s): os 4 de direção, os cartões e 1 rush.
 7. **Aprendizado**: cada som que o Douglas vetar vai para `assets/sfx/preferencias.json` (`vetar ID`) e nunca mais é escolhido; os favoritos (`favoritar ID`) entram mais vezes.
 
 Caso de teste: vídeo do IPTU da Regularize (44,5 s), mapa com 4 efeitos de direção, 2 deles no lugar de rush: cinematográfico no "dono" do gancho, transição em "Mas isso não é verdade" e em "E isso pode trazer uma série de problemas", interface em "Clique no botão". Nada em cima da matrícula, que já tem riser e hit do cartão.
