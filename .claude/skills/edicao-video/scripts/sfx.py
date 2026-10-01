@@ -1,13 +1,20 @@
 """Efeitos sonoros sintéticos (sem banco de áudio, sem direito autoral) alinhados à imagem.
 
-Regras (auditoria + vídeo-use): menos efeitos, cada um amarrado a algo visível.
-  - whoosh nos cortes onde o zoom muda (pico do som cai na emenda);
-  - pop na palavra-chave quando ela entra;
-  - impact só em momento pedido (gancho, CTA) via sfx_manual.json;
-  - teto por densidade (nível off/leve/media/alta) e distância mínima entre efeitos.
+Regras (auditoria + vídeo-use + guia de SFX aprovado pelo Douglas): menos efeitos, cada um amarrado a algo visível.
+  - rush (acervo) nos cortes que mudam o zoom: rush_in quando aproxima, rush_out quando afasta; pico na emenda;
+  - cartões (cards.json): ui quando o cartão entra, click em item de lista e no riscado, typing na tela tipográfica,
+    riser logo antes e hit logo depois da revelação do "termo";
+  - pop na palavra-chave quando ela entra (só nível media/alta com fx, ver presets);
+  - impact, hit, riser, shutter etc. fora dos cartões só por pedido via sfx_manual.json;
+  - teto por densidade (nível off/leve/media/alta) e distância mínima entre efeitos. Sons de cartão não contam no teto.
 
-Uso: python sfx.py VIDEO [--work DIR] [--nivel leve|media|alta|off] [--profile perfil.json]
-Manual: <work>/sfx_manual.json  ->  [{"t": 12.3, "tipo": "impact"}, {"t": 3.0, "tipo": "tick"}]
+Os sons novos vêm de sfx_acervo.py (assets/sfx/catalogo.json). `python sfx_acervo.py listar` mostra todos.
+
+Uso: python sfx.py VIDEO [--work DIR] [--nivel leve|media|alta|off] [--profile perfil.json] [--no-cards]
+Manual: <work>/sfx_manual.json  ->  [{"t": 12.3, "tipo": "impact"}, {"t": 3.0, "tipo": "tick"},
+        {"t": 20.0, "tipo": "riser", "dur": 1.5}, {"t": 20.0, "tipo": "hit"}, {"t": 5.0, "tipo": "click", "id": "click_mouse"}]
+        tipo = som antigo (whoosh, pop, impact, tick, glitch, shimmer), categoria do acervo (rush, shutter, typing, click,
+        ui, riser, hit) ou id direto do acervo. "dur" vale para riser e typing.
 Saída: sfx.wav (mono 48k) e sfx_events.json
 """
 from __future__ import annotations
@@ -18,6 +25,7 @@ from pathlib import Path
 import numpy as np
 
 from common import load_json, load_presets, merge_profile, save_json, work_dir_for, write_wav
+from sfx_acervo import ACERVO_CATS, carregar, catalogo, pico_s, resolver
 
 SR = 48000
 
@@ -86,12 +94,48 @@ def shimmer(d: float = 0.35) -> np.ndarray:
 SOUNDS = {"whoosh": (whoosh, 0.22, 1.0), "pop": (pop, 0.01, 0.8), "impact": (impact, 0.0, 1.3), "tick": (tick, 0.0, 0.7),
           "glitch": (glitch, 0.02, 0.9), "shimmer": (shimmer, 0.10, 0.6)}
 # tipo -> (gerador, segundos de antecedência do início do som em relação ao evento, ganho relativo)
-PRIORITY = {"impact": 0, "manual": 0, "pop": 1, "glitch": 1, "shimmer": 1, "whoosh": 2, "tick": 2}
+PRIORITY = {"impact": 0, "manual": 0, "riser": 0, "hit": 0, "pop": 1, "glitch": 1, "shimmer": 1, "typing": 1, "click": 1, "ui": 1,
+            "whoosh": 2, "tick": 2, "rush": 2, "shutter": 2}
 
 
 def prev_cont(edl: dict, c: dict) -> bool:
     i = edl["clips"].index(c)
     return i > 0 and edl["clips"][i - 1]["cont"]
+
+
+def mudanca_zoom(edl: dict, t: float) -> float:
+    """Variação de zoom na emenda que começa em t (positivo = aproxima). 0 se não houver emenda ali."""
+    clips = edl["clips"]
+    for i in range(1, len(clips)):
+        if abs(clips[i]["t0"] - t) < 0.2:
+            return clips[i].get("zoom", 1.0) - clips[i - 1].get("zoom", 1.0)
+    return 0.0
+
+
+def eventos_cards(spec: list[dict]) -> list[tuple]:
+    """Um som para cada coisa que aparece na tela (guia de SFX): tudo amarrado a um evento visível."""
+    ev = []
+    for c in spec:
+        de, k = float(c["de"]), c["tipo"]
+        if k == "comentario":
+            ev.append((de + 0.02, "ui", "card", {"id": "ui_aparece"}))
+            if c.get("riscar_em") is not None:
+                ev.append((float(c["riscar_em"]), "click", "card", {"id": "click_seco"}))
+        elif k == "termo":                                       # revelação: riser acaba onde o hit cai
+            ev.append((de, "riser", "card", {"dur": 1.4}))
+            ev.append((de, "hit", "card", {}))
+        elif k == "lista":
+            ev.append((de + 0.02, "ui", "card", {"id": "ui_swipe"}))
+            item = "click_suave" if c.get("icone") == "check" else "click_toque"
+            for it in c["itens"]:
+                ev.append((float(it["t"]), "click", "card", {"id": item}))
+        elif k == "tipografia":
+            ev.append((de, "ui", "card", {"id": "ui_swipe"}))
+            for p in c["palavras"]:                              # uma rajada de teclas por palavra que entra
+                n = len(p["texto"].replace("\\N", "").strip())
+                if n:
+                    ev.append((float(p["t"]), "typing", "card", {"id": "teclado_suave", "dur": min(0.06 * n + 0.1, 0.7)}))
+    return ev
 
 
 def main() -> None:
@@ -101,6 +145,7 @@ def main() -> None:
     ap.add_argument("--profile")
     ap.add_argument("--segmento", default="padrao")
     ap.add_argument("--nivel", choices=["off", "leve", "media", "alta"])
+    ap.add_argument("--no-cards", action="store_true", help="não cria os sons dos cartões (cards.json)")
     a = ap.parse_args()
 
     P = load_presets()
@@ -109,17 +154,20 @@ def main() -> None:
     cfg = merge_profile(P["segmentos"].get(seg, P["segmentos"]["padrao"]), profile)
     nivel = a.nivel or cfg.get("sfx", "media")
     lv = P["sfx_niveis"][nivel]
+    alias = cfg.get("sfx_acervo") or {}                          # personalidade do cliente: troca um som por outro
 
     video = Path(a.video).resolve()
     work = work_dir_for(video, a.work)
     edl = load_json(work / "edl.json")
     total = edl["total"]
 
-    ev = []                                                      # (tempo do evento na tela, tipo, origem)
+    ev = []                                                      # (tempo na tela, tipo, origem, opções {id, dur})
     manual = work / "sfx_manual.json"
     if manual.exists():
         for m in load_json(manual):
-            ev.append((float(m["t"]), m["tipo"], "manual"))
+            ev.append((float(m["t"]), m["tipo"], "manual", {k: m[k] for k in ("id", "dur") if k in m}))
+    if (work / "cards.json").exists() and not a.no_cards:
+        ev += eventos_cards(load_json(work / "cards.json"))
     fxp = work / "fx_events.json"
     if fxp.exists():                                             # cada efeito visual toca o seu som
         from fx import CATALOGO
@@ -131,10 +179,21 @@ def main() -> None:
                 continue
             if e["origem"] == "palavra-chave" and not lv["keywords"]:
                 continue
-            ev.append((float(e["t"]), tipo, e["origem"]))
+            opt = {}
+            if tipo == "whoosh" and e["origem"] in ("corte", "zoom") and cfg.get("sfx_rush_direcional", True):
+                dz = mudanca_zoom(edl, float(e["t"]))
+                if abs(dz) > 0.01:                               # guia: rush em zoom in e zoom out
+                    tipo, opt = "rush", {"id": "rush_in_curto" if dz > 0 else "rush_out_curto"}
+            ev.append((float(e["t"]), tipo, e["origem"], opt))
     elif lv["cuts"]:
-        for c in edl["clips"][1:]:
-            ev.append((c["t0"], "whoosh", "corte" if not prev_cont(edl, c) else "zoom"))
+        clips = edl["clips"]
+        for i, c in enumerate(clips[1:], 1):
+            origem = "corte" if not prev_cont(edl, c) else "zoom"
+            dz = c.get("zoom", 1.0) - clips[i - 1].get("zoom", 1.0)
+            if cfg.get("sfx_rush_direcional", True) and abs(dz) > 0.01:     # guia: rush em zoom in e zoom out
+                ev.append((c["t0"], "rush", origem, {"id": "rush_in_curto" if dz > 0 else "rush_out_curto"}))
+            else:
+                ev.append((c["t0"], "whoosh", origem, {}))
     if not fxp.exists() and lv["keywords"] and (work / "captions.json").exists() and (work / "subs.ass").exists():
         kws = load_json(work / "captions.json")["keywords"]
         words = load_json(work / "words.json")["words"]
@@ -145,39 +204,52 @@ def main() -> None:
             t = src_to_out(edl, (w["s"] + w["e"]) / 2)
             if t is not None and w["w"].lower() not in seen_key:
                 seen_key.add(w["w"].lower())                     # 1 pop por palavra-chave distinta
-                ev.append((max(0.0, t - (w["e"] - w["s"]) / 2), "pop", "palavra-chave"))
+                ev.append((max(0.0, t - (w["e"] - w["s"]) / 2), "pop", "palavra-chave", {}))
 
-    # teto de densidade: manual sempre entra; o resto disputa por prioridade, espaçado
-    rank = lambda e: -1 if e[2] == "manual" else (0 if e[2] == "corte" else PRIORITY[e[1]])   # corte real vence pop e zoom
+    # teto de densidade: manual e cartões sempre entram (e tiram o que cair colado neles); o resto disputa por prioridade
+    fixos = ("manual", "card")
+    rank = lambda e: -1 if e[2] in fixos else (0 if e[2] == "corte" else PRIORITY[e[1]])   # corte real vence pop e zoom
     ev.sort(key=lambda e: (rank(e), e[0]))
     kept = []
-    for t, tipo, origem in ev:
-        if origem == "manual":
-            kept.append((t, tipo, origem))
+    for t, tipo, origem, opt in ev:
+        if origem in fixos:
+            kept.append((t, tipo, origem, opt))
             continue
         if lv["max_per_10s"] == 0:
             continue
-        near = [k for k in kept if abs(k[0] - t) < lv["min_gap"]]
-        win = [k for k in kept if abs(k[0] - t) < 5 and k[2] != "manual"]     # janela de 10 s centrada no evento
+        if any(k[2] == "card" and abs(k[0] - t) < 0.3 for k in kept):
+            continue
+        near = [k for k in kept if abs(k[0] - t) < lv["min_gap"] and k[2] not in fixos]
+        win = [k for k in kept if abs(k[0] - t) < 5 and k[2] not in fixos]     # janela de 10 s centrada no evento
         if near or len(win) >= lv["max_per_10s"]:
             continue
-        kept.append((t, tipo, origem))
-    kept.sort()
+        kept.append((t, tipo, origem, opt))
+    kept.sort(key=lambda e: e[0])
 
     buf = np.zeros(int(SR * (total + 1)))
     log = []
-    for t, tipo, origem in kept:
-        gen, lead, gain = SOUNDS[tipo]
-        sig = gen()
-        at = max(0.0, t - (lead if tipo != "whoosh" else len(sig) / SR * 0.55))
+    for t, tipo, origem, opt in kept:
+        id_ = resolver(tipo, alias, opt.get("id"))
+        if id_ is None:                                          # som antigo (whoosh, pop, impact...)
+            gen, lead, gain = SOUNDS[tipo]
+            sig = gen()
+            at = max(0.0, t - (lead if tipo != "whoosh" else len(sig) / SR * 0.55))
+        else:                                                    # acervo
+            sig = carregar(id_, opt.get("dur"))
+            gain = catalogo()[id_]["ganho"]
+            at = t - pico_s(id_, sig) - (0.04 if catalogo()[id_]["categoria"] == "riser" else 0.0)   # riser acaba um instante antes
+            if at < 0:                                           # começo cortado: o riser perde a parte inicial, que é a mais fraca
+                sig = sig[int(-at * SR):]
+                at = 0.0
         p = int(at * SR)
-        buf[p:p + len(sig)] += lv["gain"] * gain * sig[:len(buf) - p] if lv["gain"] else 0
-        log.append({"t": round(t, 2), "tipo": tipo, "origem": origem})
+        if lv["gain"] and p < len(buf):
+            buf[p:p + len(sig)] += lv["gain"] * gain * sig[:len(buf) - p]
+        log.append({"t": round(t, 2), "tipo": tipo, "id": id_, "origem": origem})
     write_wav(work / "sfx.wav", np.clip(buf, -1, 1), SR)
     save_json(work / "sfx_events.json", log)
     print(f"sfx nível '{nivel}': {len(log)} efeitos em {total:.1f}s ({len(log) / max(total, 1) * 10:.1f} por 10s)")
     for e in log:
-        print(f"  {e['t']:6.2f}s  {e['tipo']:<7} ({e['origem']})")
+        print(f"  {e['t']:6.2f}s  {e['id'] or e['tipo']:<16} ({e['origem']})")
 
 
 if __name__ == "__main__":

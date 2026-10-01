@@ -1,6 +1,6 @@
 ---
 name: edicao-video
-description: Edita vídeo de fala (talking head, reels, criativo de anúncio) com a personalidade do cliente. Transcreve local, corta pausas, dá zoom de retenção, faz legenda animada com destaque na palavra falada (highlight, pop, karaokê, bounce), aplica efeitos sonoros, corrige a imagem conforme o ambiente (luz fraca, sol, contraluz, HDR), mixa música e entrega em -14 LUFS. Use quando o Douglas pedir "edita esse vídeo", "legenda animada", "legenda estilo capcut", "corta as pausas", "tira os vazios", "deixa com mais retenção", "reel", "criativo em vídeo", "coloca efeito sonoro", "zoom" ou "transição". Tudo roda local, sem serviço pago.
+description: Edita vídeo de fala (talking head, reels, criativo de anúncio) com a personalidade do cliente. Transcreve local, corta pausas, dá zoom de retenção, faz legenda animada com destaque na palavra falada (highlight, pop, karaokê, bounce), aplica efeitos sonoros, corrige a imagem conforme o ambiente (luz fraca, sol, contraluz, HDR), mixa música e entrega em -14 LUFS. Use quando o Douglas pedir "edita esse vídeo", "legenda animada", "legenda estilo capcut", "corta as pausas", "tira os vazios", "deixa com mais retenção", "reel", "criativo em vídeo", "coloca efeito sonoro", "acervo de sons", "riser", "hit", "zoom" ou "transição". Tudo roda local, sem serviço pago.
 ---
 
 # Edição de vídeo da The New Ads
@@ -111,7 +111,20 @@ python ".claude/skills/edicao-video/scripts/verify.py" "VIDEO" --gaze --echo --r
 - **Efeitos no estilo CapCut** (recriados em ffmpeg, sem licença de terceiros): transições `flash`, `whip`, `glitch`, `dip_preto`, `zoom_blur` e corte seco; impacto `pulse` e `shake` nas palavras-chave; looks `grain`, `vinheta`, `vhs`. `plan_fx.py` escolhe onde entram pela sequência do perfil (`transicao`, `impacto`, `gancho_fx`, `look`). Lista: `python scripts/fx.py`. Forçar um efeito: `fx_manual.json` na pasta de trabalho, `[{"t": 12.3, "fx": "shake"}]`. Com `--music`, o impacto encaixa na batida mais próxima. `--no-fx` desliga tudo, `--look grain,vinheta` troca o look.
 - **Vídeo horizontal em tela vertical**: `--fit blur` mostra o quadro inteiro sobre um fundo desfocado (como o CapCut), em vez de recortar e ampliar.
 - Os efeitos entram antes da legenda, então o texto continua legível durante flash e glitch. Sempre conferir no preview se o efeito não cai em cima de um gesto ou de um logo.
-- Efeitos: `sfx_manual.json` na pasta de trabalho força um som em um instante (`[{"t": 12.3, "tipo": "impact"}]`). Tipos: whoosh, pop, impact, tick.
+- **Acervo de efeitos sonoros** (`assets/sfx/`, 28 sons originais gerados em código, sem direito autoral; regras do guia de SFX que o Douglas aprovou em 30/09/2026). Cada som é amarrado a algo que aparece na tela:
+
+  | Categoria | Quando usar | Padrão |
+  |---|---|---|
+  | `rush` | zoom in ou zoom out (o corte que aproxima ou afasta). `rush_in_*` quando aproxima, `rush_out_*` quando afasta | automático nos cortes |
+  | `shutter` | cortes rápidos e transições secas | só por pedido |
+  | `typing` | texto digitado ou revelado na tela | automático na tela tipográfica |
+  | `click` | botão, elemento ou informação que aparece; item de lista; riscar | automático nos cartões |
+  | `ui` | animação aparecendo: cartão, ícone, check, notificação | automático nos cartões |
+  | `riser` | ANTES de revelar informação importante; termina na revelação | automático no cartão `termo` |
+  | `hit` | DEPOIS da revelação, no mesmo instante; dá o impacto | automático no cartão `termo` |
+
+  `python scripts/sfx_acervo.py listar` mostra os 28; `demo` gera um vídeo com o nome de cada som na tela para o Douglas ouvir e escolher; `importar ARQ --cat click --id click_x --licenca "CC0 Freesound"` cadastra um som real (a licença é obrigatória; um som importado com o id de um sintético o substitui). Perfil do cliente pode trocar um som por outro (`"sfx_acervo": {"hit_seco": "hit_metal"}`) e desligar o rush direcional (`"sfx_rush_direcional": false`). Nunca extrair áudio de reel de terceiros para o acervo.
+  `sfx.py` põe sozinho os sons dos cartões de `cards.json` (não contam no teto de densidade) e o `rush` direcional nos cortes. Fora dos cartões, qualquer som entra por `sfx_manual.json`: `[{"t": 12.3, "tipo": "impact"}, {"t": 20, "tipo": "riser", "dur": 1.5}, {"t": 20, "tipo": "hit"}, {"t": 5, "tipo": "click", "id": "click_mouse"}]`. `tipo` aceita som antigo (whoosh, pop, impact, tick, glitch, shimmer), categoria ou id do acervo. Riser e hit sempre em par, no mesmo instante. Detalhes e pontos em aberto em `references/sfx-guia.md`.
 - `verify.py` mede: loudness e pico (alvo -14 LUFS, pico até -1 dBFS), pausas que sobraram, fonte/tempos da legenda, folha de contato nas emendas, antes/depois, olhar para baixo (`--gaze`) e cauda de eco (`--echo`, comparar com o bruto via `--ref`).
 
 ### 7. Olhar o resultado de verdade
