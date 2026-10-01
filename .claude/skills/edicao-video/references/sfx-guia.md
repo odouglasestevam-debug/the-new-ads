@@ -20,6 +20,8 @@ Ela termina com "comente para a parte 2": há mais categorias vindo. Quando o Do
 
 ## Sons reais do SaveClip.mp3 (01/10/2026)
 
+**ATENÇÃO: o Douglas ouviu e disse que "tudo errado": todos os palpites de categoria e de contexto abaixo foram reprovados.** Os 10 sons ficam no acervo como "sem classificação" até ele dar o nome real de cada um (por número). As tabelas abaixo registram só o que eu medi e o que errei; não usar como guia. Lição: classificar som de efeito por espectrograma e duração não funciona; a categoria vem de quem ouve.
+
 O Douglas mandou um mp3 de 13,4 s com efeitos de verdade, sem voz. Foram separados por corte/silêncio em 10 sons e importados (mono 48k, pico 0,7, licença "desconhecida: uso interno"). O original e os recortes sem normalizar ficam em `assets/sfx/_origem/saveclip/`. A **categoria é palpite pela medição** (Claude não ouve): conferir de ouvido em `saveclip-sons-conferir.mp3` (a voz diz "Som N" e o som toca 3 vezes) e corrigir.
 
 | Som | Id | Palpite | Medição |

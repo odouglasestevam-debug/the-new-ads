@@ -43,6 +43,46 @@
       "bold": 0,
       "size": 1.1
     },
+    "Instrument Serif": {
+      "file": "InstrumentSerif-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/instrumentserif/InstrumentSerif-Regular.ttf",
+      "bold": 0,
+      "size": 1.18,
+      "_uso": "legenda editorial e a parte itálica dos títulos (ref3). O itálico vem do arquivo abaixo, com \\i1"
+    },
+    "Instrument Serif Italic": {
+      "file": "InstrumentSerif-Italic.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/instrumentserif/InstrumentSerif-Italic.ttf",
+      "bold": 0,
+      "size": 1.18
+    },
+    "Krona One": {
+      "file": "KronaOne-Regular.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/kronaone/KronaOne-Regular.ttf",
+      "bold": 0,
+      "size": 0.82,
+      "_uso": "gancho extra-largo em caixa alta, com palavra em contorno (ref1)"
+    },
+    "Kalam": {
+      "file": "Kalam-Bold.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/kalam/Kalam-Bold.ttf",
+      "bold": 0,
+      "size": 1.0,
+      "_uso": "quadro branco, letra de marcador (ref2)"
+    },
+    "Barlow Condensed Light": {
+      "file": "BarlowCondensed-Light.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-Light.ttf",
+      "bold": 0,
+      "size": 1.2,
+      "_uso": "par fino de título pesado ('clique em' / 'saiba mais', ref3)"
+    },
+    "Barlow Condensed ExtraBold": {
+      "file": "BarlowCondensed-ExtraBold.ttf",
+      "url": "https://raw.githubusercontent.com/google/fonts/main/ofl/barlowcondensed/BarlowCondensed-ExtraBold.ttf",
+      "bold": 0,
+      "size": 1.2
+    },
     "Clash Display": {
       "file": "ClashDisplay-Bold.ttf",
       "url": null,
