@@ -12,7 +12,7 @@ quando usar vêm de lá; os SONS são sintetizados aqui (originais, sem direito 
   hit      DEPOIS da revelação (dá o impacto)
 
 Estado: o reel de referência só tem a voz da criadora (nenhum efeito tocando), então estes sons são criados por nós e
-aprovados um por vez pelo Douglas. Aprovado até agora: nada; os cliques foram reprovados.
+aprovados um por vez pelo Douglas. Aprovado até agora: rush (woosh, a versão `rush_in_curto` e irmãs). Reprovados: cliques e mouse. Em aprovação: camera shutter.
 
 O acervo cresce: `importar` aceita um som real (Freesound CC0, Pixabay etc.), limpa, normaliza e registra com a licença.
 Um som importado com o mesmo id substitui o sintético; o perfil do cliente pode trocar um som por outro
@@ -634,6 +634,46 @@ def audio(saida: Path, repetir: int = 2) -> None:
         f.unlink()
     tmpd.rmdir()
     print(f"audio: {saida} ({t:.0f}s, {len(fila)} sons)")
+
+
+def auditar(opcoes: list[tuple[str, np.ndarray, str]], saida: Path, repetir: int = 3) -> None:
+    """Áudio de aprovação, um som por vez: a voz anuncia cada opção e ela toca `repetir` vezes.
+    opcoes = [(fala, sinal 48k, nome do arquivo)]. Grava também um wav por opção em <saida sem extensão>/."""
+    import json
+    import subprocess
+    saida = Path(saida).resolve()
+    tmpd = saida.parent / "_aud_tmp"
+    tmpd.mkdir(parents=True, exist_ok=True)
+    (tmpd / "falas.json").write_text(json.dumps([o[0] for o in opcoes], ensure_ascii=False), encoding="utf-8")
+    (tmpd / "falar.ps1").write_text(PS_FALAR, encoding="utf-8-sig")
+    r = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(tmpd / "falar.ps1"),
+                        str(tmpd / "falas.json"), str(tmpd)], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(f"Falha na voz do Windows: {r.stderr[:300]}")
+    t, partes = 0.3, []
+    for i, (_, y, _) in enumerate(opcoes):
+        run([FF, "-v", "error", "-y", "-i", tmpd / f"l{i:02d}.wav", "-ac", 1, "-ar", SR, "-c:a", "pcm_s16le", tmpd / f"v{i:02d}.wav"])
+        v, _ = read_wav(tmpd / f"v{i:02d}.wav")
+        v = v.astype(np.float64)
+        partes.append((t, v / (np.abs(v).max() + 1e-9) * 0.5))
+        t += len(v) / SR + 0.5
+        for _ in range(repetir):
+            partes.append((t, y * 0.85))
+            t += len(y) / SR + 0.9
+        t += 0.7
+    buf = np.zeros(int(SR * (t + 0.5)))
+    for at, y in partes:
+        _put(buf, y, at)
+    write_wav(tmpd / "o.wav", buf / max(np.abs(buf).max(), 1e-9) * 0.89, SR)
+    run([FF, "-v", "error", "-y", "-i", tmpd / "o.wav", "-c:a", "libmp3lame", "-q:a", "2", saida])
+    pasta = saida.with_suffix("")
+    pasta.mkdir(exist_ok=True)
+    for _, y, nome in opcoes:
+        write_wav(pasta / f"{nome}.wav", y, SR)
+    for f in tmpd.iterdir():
+        f.unlink()
+    tmpd.rmdir()
+    print(f"{saida} ({t:.0f}s), wavs em {pasta}")
 
 
 # ---------------------------------------------------------------- CLI
