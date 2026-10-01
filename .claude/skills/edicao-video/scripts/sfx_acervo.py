@@ -14,6 +14,11 @@ quando usar vêm de lá; os SONS são sintetizados aqui (originais, sem direito 
 Estado: o reel de referência só tem a voz da criadora (nenhum efeito tocando), então estes sons são criados por nós e
 aprovados um por vez pelo Douglas. Aprovado até agora: rush (woosh, a versão `rush_in_curto` e irmãs). Reprovados: cliques e mouse. Em aprovação: camera shutter.
 
+Sons reais: em 01/10/2026 o Douglas mandou o SaveClip.mp3 (13 s, só efeitos, sem voz). Foram recortados 10 sons e importados
+como `ref01_...` a `ref10_...` (origem "importado", licença desconhecida: uso interno). A categoria de cada um é palpite pela
+medição, a confirmar de ouvido; nenhum é padrão de categoria. Para renomear/recategorizar: apagar a entrada do catalogo.json e o
+wav, e rodar `importar` de novo com a categoria certa (os recortes originais ficam em assets/sfx/_origem/saveclip/).
+
 O acervo cresce: `importar` aceita um som real (Freesound CC0, Pixabay etc.), limpa, normaliza e registra com a licença.
 Um som importado com o mesmo id substitui o sintético; o perfil do cliente pode trocar um som por outro
 (`"sfx_acervo": {"hit_seco": "hit_metal"}`).
