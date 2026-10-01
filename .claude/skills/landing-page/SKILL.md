@@ -87,6 +87,10 @@ Um `index.html` em `clientes/<cliente>/paginas/landing-page/`, compondo blocos d
 - Uma única seção clara (normalmente depoimentos) pra dar ritmo.
 - Título com `.luz` + palavra-chave em `.ouro` em todas as seções.
 - Imagens com `width`/`height` no HTML e `img{height:auto}` no CSS (sem isso o atributo de altura vale e a foto estica).
+- Ícones desenhados pro cliente, nunca de biblioteca (Lucide, Feather...) dentro de quadradinho com fundo: o Douglas
+  achou com "cara de IA". Padrão: sprite de `<symbol>` 32x32 no topo do `<body>`, duotone (miolo preenchido com o
+  gradiente metálico + traço fino na cor clara), objetos do mundo do cliente, sem caixa, só um brilho de chão embaixo.
+  Exemplo completo no `index.html` do Silvio (`#icones`). Seta, check, + e cadeado podem continuar de traço simples.
 - Cuidado com seletor genérico tipo `.chip span{display:block}`: pega os placeholders e os ícones junto. Prefira classe própria.
 - Versão substituída vai pra `paginas/_versoes-anteriores/` antes de sobrescrever.
 
