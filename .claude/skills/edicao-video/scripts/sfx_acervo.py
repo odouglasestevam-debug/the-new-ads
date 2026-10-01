@@ -11,8 +11,8 @@ quando usar vêm de lá; os SONS são sintetizados aqui (originais, sem direito 
   riser    ANTES de revelar informação importante (cria expectativa; termina na revelação)
   hit      DEPOIS da revelação (dá o impacto)
 
-Calibragem: nos efeitos da referência o corpo do som de clique/interface fica em 200 Hz a 1 kHz (nada fino, que foi a
-reclamação do v1). Aqui clique e interface têm fundamental entre 250 e 900 Hz, com transiente agudo curto por cima.
+Estado: o reel de referência só tem a voz da criadora (nenhum efeito tocando), então estes sons são criados por nós e
+aprovados um por vez pelo Douglas. Aprovado até agora: nada; os cliques foram reprovados.
 
 O acervo cresce: `importar` aceita um som real (Freesound CC0, Pixabay etc.), limpa, normaliza e registra com a licença.
 Um som importado com o mesmo id substitui o sintético; o perfil do cliente pode trocar um som por outro

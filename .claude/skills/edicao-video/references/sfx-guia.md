@@ -1,8 +1,8 @@
 # Guia de efeitos sonoros (acervo `assets/sfx/`)
 
-Origem das regras: reel de uma criadora de edição que o Douglas mandou em 30/09/2026 e disse gostar ("precisamos ter no nosso acervo"). O vídeo cita 7 categorias. Os sons sintetizados (`scripts/sfx_acervo.py`) NÃO agradaram: o Douglas reprovou os cliques (o de mouse "nada a ver") e pediu os efeitos IDÊNTICOS aos do vídeo. Por isso `scripts/sfx_ref.py` recorta os sons originais do reel; os sintéticos ficam só como reserva.
+Origem das regras: reel de uma criadora de edição que o Douglas mandou em 30/09/2026 e disse gostar ("precisamos ter no nosso acervo"). **O reel só FALA dos efeitos: o áudio dele é só a voz dela, não toca nenhum efeito.** O que parecia efeito no espectrograma era respiração, estalo de boca e consoante (o "p" de "Para", o "sh" de "Rush"). Foi um erro de leitura meu; não existe som para recortar nele. Conferir isso com o Douglas ouvindo, antes de extrair som de qualquer reel (`scripts/sfx_ref.py`).
 
-O reel demonstra cada efeito junto de um evento visual (flash amarelo, texto aparecendo, cursor clicando em "SALVA"). O clique do mouse dele é um PAR de estalos a ~85 ms (aperta e solta), aos 17,94/18,02 s, 18,30/18,39 s e 45,13/45,22 s.
+Consequência: os sons do acervo precisam ser criados por nós, e o Douglas aprova um por vez. Os sintéticos da primeira rodada foram reprovados nos cliques (o de mouse "nada a ver"). Ordem combinada: "vamos por parte", começando pelo woosh.
 
 ## O que o reel ensina
 
@@ -17,10 +17,6 @@ O reel demonstra cada efeito junto de um evento visual (flash amarelo, texto apa
 | "Logo depois da revelação, coloque um *hit* para dar impacto" | `hit` |
 
 Ela termina com "comente para a parte 2": há mais categorias vindo. Quando o Douglas mandar a parte 2, transcrever com `transcribe.py`, acrescentar a categoria em `sfx_acervo.py` (lista `CATS`, `USO`, `GANHO`, `PADRAO`, geradores em `SONS`), rodar `gerar --forcar` e atualizar a tabela do SKILL.md.
-
-## Calibragem medida no reel
-
-Medido no áudio do reel (trechos sem fala): os sons de clique e interface ficam com o corpo entre 200 Hz e 1 kHz (centroide 400 a 770 Hz); o que parece "shutter" nas transições é brilhante (centroide 4,5 a 4,9 kHz, energia em 4 a 10 kHz, 0,08 a 0,10 s); há um impacto sub-grave (49 Hz, 0,24 s) e uma passagem larga e longa no final (0,84 s). Daí o acervo: clique e UI com fundamental 250 a 900 Hz e estalo curto por cima (nada fino, que foi a reclamação do v1), shutter brilhante, hit grave.
 
 ## Limites
 
