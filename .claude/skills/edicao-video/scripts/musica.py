@@ -33,7 +33,7 @@ CLIMAS = {
 }
 CLIMA_SEGMENTO = {"advocacia": "serio", "clinica_estetica": "leve", "imobiliaria_construcao": "corporativo",
                   "ecommerce_varejo": "energia", "tna": "corporativo", "padrao": "corporativo"}
-REL_DB = 16.0          # a trilha fica ~16 dB abaixo da voz (antes do ducking, que baixa mais durante a fala)
+REL_DB = 13.0          # a trilha fica ~13 dB abaixo da voz (antes do ducking, que baixa mais durante a fala)
 
 
 def carregar() -> dict:

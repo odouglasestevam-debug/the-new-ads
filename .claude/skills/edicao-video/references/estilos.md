@@ -43,7 +43,7 @@ Sempre conferir `verify/antes_depois.png`, principalmente tom de pele. HDR é co
 - Efeitos sintéticos (sem banco, sem direito autoral): `whoosh` nos cortes, `pop` nas palavras-chave, `impact` e `tick` só sob pedido em `sfx_manual.json`. Níveis: `off`, `leve` (1 por 10 s), `media` (2), `alta` (3). Cada efeito amarra a algo visível.
 - Música: **indispensável, todo vídeo tem** (Douglas, 01/10).
   - **Origem:** sai do acervo `assets/musica/`, 21 trilhas do Mixkit em 6 climas, pelo clima do perfil ou do segmento, ou da trilha que o Douglas mandar (`--music`).
-  - **Volume:** medido, 16 dB abaixo da voz. Baixa sozinha quando há fala (sidechain), tem um corte em 2,5 kHz para a voz passar e sai com fade no fim.
+  - **Volume:** medido, 13 dB abaixo da voz. Baixa sozinha quando há fala (sidechain), tem um corte em 2,5 kHz para a voz passar e sai com fade no fim.
   - **Climas:** corporativo (serviço, agência), sério (jurídico, regularização), leve (saúde, estética), energia (varejo), inspirador (institucional), elegante (alto padrão).
   - **Comandos:** `musica.py listar | demo | vetar | favoritar`.
 - Efeitos com música por baixo: teto de 1 momento de som a cada 10 s, e cartão só toca na revelação (ver SKILL.md 6b).

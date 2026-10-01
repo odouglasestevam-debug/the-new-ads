@@ -97,7 +97,7 @@ def main() -> None:
     ap.add_argument("--denoise", choices=["off", "leve", "forte"], default="leve")
     ap.add_argument("--music", help="arquivo ou id do acervo (musica.py listar). Sem isso, a trilha sai do acervo pelo clima do perfil")
     ap.add_argument("--no-music", action="store_true", help="sem trilha. Música é indispensável (Douglas, 01/10): só com pedido dele")
-    ap.add_argument("--music-vol", type=float, help="volume fixo da trilha. Padrão: medido, %.0f dB abaixo da voz" % 16)
+    ap.add_argument("--music-vol", type=float, help="volume fixo da trilha. Padrão: medido, %.0f dB abaixo da voz" % 13)
     ap.add_argument("--music-start", type=float, help="começa a música nesse segundo do arquivo (padrão: o início útil da trilha)")
     ap.add_argument("--music-in", type=float, help="a música entra nesse segundo do vídeo (antes, só voz)")
     ap.add_argument("--music-drop", type=float,

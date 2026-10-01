@@ -201,7 +201,7 @@ Todo vídeo sai com trilha de fundo (Douglas, 01/10: "falta música de fundo, a 
 - **Licença:** permite uso comercial e anúncio online sem crédito. Proíbe TV, rádio, CD/DVD, games e redistribuir o arquivo. Anúncio em TV ou rádio pede outra trilha.
 - **Escolha:** sem `--music`, o `render.py` pega a trilha do clima do perfil (`"musica": {"clima": "serio"}` ou `{"id": "mixkit_440"}`), ou do segmento (`CLIMA_SEGMENTO` em `musica.py`). É rodízio por vídeo, favoritas primeiro e vetadas nunca.
 - **Início:** começa no início útil, pulando a introdução muda.
-- **Volume:** medido, 16 dB abaixo da voz (`"musica": {"rel_db": 14}` deixa mais presente). O ducking baixa a trilha durante a fala e um corte em 2,5 kHz abre espaço para a voz.
+- **Volume:** medido, 13 dB abaixo da voz (`"musica": {"rel_db": 10}` deixa mais presente, 16 mais discreta). Medido no IPTU em 01/10: com 16 dB a trilha ficava 21 dB abaixo da fala e quase sumia. O ducking baixa a trilha durante a fala e um corte em 2,5 kHz abre espaço para a voz.
 - **Fim:** fade de 1,2 s.
 ```
 python ".claude/skills/edicao-video/scripts/musica.py" listar [--clima serio]
