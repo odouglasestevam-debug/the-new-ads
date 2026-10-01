@@ -21,7 +21,10 @@ import numpy as np
 
 from common import ASSETS_DIR
 
-MODEL = ASSETS_DIR / "selfie_multiclass_256x256.tflite"
+MODELOS = {
+    "fino": ASSETS_DIR / "selfie_multiclass_256x256.tflite",     # ~120 ms/quadro, borda melhor (render final)
+    "rapido": ASSETS_DIR / "selfie_segmenter.tflite",           # ~7 ms/quadro (prévia)
+}
 
 
 def _box(x: np.ndarray, r: int) -> np.ndarray:
@@ -42,9 +45,11 @@ def guided(I: np.ndarray, p: np.ndarray, r: int, eps: float) -> np.ndarray:
 class Segmenter:
     """seg = Segmenter(); m = seg(frame_rgb_uint8)  -> máscara float32 HxW (1 = pessoa)."""
 
-    def __init__(self, smooth: float = 0.55, work_w: int = 540):
+    def __init__(self, smooth: float = 0.55, work_w: int = 540, modelo: str = "fino"):
+        MODEL = MODELOS[modelo]
         if not MODEL.exists():
             raise SystemExit("Falta o modelo de recorte. Rode: python fetch_assets.py --only seg")
+        self.multi = modelo == "fino"
         import mediapipe as mp
         from mediapipe.tasks import python as mpt
         from mediapipe.tasks.python import vision
@@ -55,6 +60,12 @@ class Segmenter:
         self.smooth = smooth            # peso do quadro anterior (0 = sem suavização no tempo)
         self.work_w = work_w
         self.prev: np.ndarray | None = None
+
+    def close(self) -> None:
+        """Fechar explicitamente: o fechamento automático do MediaPipe na saída do Python pode travar por minutos."""
+        if self.seg is not None:
+            self.seg.close()
+            self.seg = None
 
     def reset(self) -> None:
         """Chamar em corte seco: a máscara do plano anterior não vale para o novo."""
@@ -68,9 +79,9 @@ class Segmenter:
         wh = int(round(h * ww / w))
         small = cv2.resize(rgb, (ww, wh), interpolation=cv2.INTER_AREA)
         res = self.seg.segment(self.mp.Image(image_format=self.mp.ImageFormat.SRGB, data=np.ascontiguousarray(small)))
-        bg = res.confidence_masks[0].numpy_view()
-        bg = cv2.resize(bg, (ww, wh), interpolation=cv2.INTER_LINEAR)
-        return (1.0 - bg).astype(np.float32), small
+        m = res.confidence_masks[0].numpy_view()          # multiclasse: canal 0 = fundo; selfie: canal 0 = pessoa
+        m = cv2.resize(m, (ww, wh), interpolation=cv2.INTER_LINEAR)
+        return ((1.0 - m) if self.multi else m).astype(np.float32), small
 
     def __call__(self, rgb: np.ndarray, reset: bool = False) -> np.ndarray:
         import cv2
@@ -101,11 +112,12 @@ def main() -> None:
     ap.add_argument("video")
     ap.add_argument("--teste", required=True, help="instantes (s) separados por vírgula")
     ap.add_argument("--out")
+    ap.add_argument("--modelo", choices=list(MODELOS), default="fino")
     a = ap.parse_args()
     src = Path(a.video).resolve()
     out = Path(a.out) if a.out else src.parent / "_edicao" / src.stem / "verify"
     out.mkdir(parents=True, exist_ok=True)
-    seg = Segmenter(smooth=0)
+    seg = Segmenter(smooth=0, modelo=a.modelo)
     tiles = []
     for t in [float(x) for x in a.teste.split(",")]:
         f = Path(tempfile.mkdtemp()) / "q.png"
@@ -121,6 +133,7 @@ def main() -> None:
     sheet.thumbnail((1800, 4000))
     p = out / "mascara.png"
     sheet.save(p)
+    seg.close()
     print(f"folha de máscara (original | máscara | recorte sobre verde): {p}")
 
 

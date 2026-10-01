@@ -495,7 +495,7 @@ class Clone(El):
         img = np.frombuffer(buf, np.uint8).reshape(ctx.H, ctx.W, 3)
         if self.seg is None:
             from segment import Segmenter
-            self.seg = Segmenter()
+            self.seg = Segmenter(modelo=getattr(ctx, "modelo", "fino"))
         mc = self.seg(img)
         a = mc * float(self.s.get("opacidade", 1.0)) * self.alpha_saida(ctx.t, d=0.15)
         if self.s.get("camada", "atras") == "atras":
@@ -506,6 +506,8 @@ class Clone(El):
     def fim(self):
         if self.proc:
             self.proc.kill()
+        if self.seg is not None:
+            self.seg.close()
 
 
 class Rastro(El):
@@ -876,7 +878,9 @@ def processar(work: Path, src_base: Path, out: Path, t_ini: float | None = None,
         return []
     avisos(els, geo)
     from segment import Segmenter
-    ctx = Ctx(W, H, fps, geo, lambda: Segmenter())
+    modelo = "rapido" if g.get("escala", 1.0) < 1 else "fino"       # prévia rápida, render final com a borda melhor
+    ctx = Ctx(W, H, fps, geo, lambda: Segmenter(modelo=modelo))
+    ctx.modelo = modelo
     ss = ["-ss", f"{t_ini:.3f}"] if t_ini else []
     rd = subprocess.Popen([FF, "-v", "error", *ss, "-i", str(src_base), "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
@@ -925,6 +929,8 @@ def processar(work: Path, src_base: Path, out: Path, t_ini: float | None = None,
     for e in els:
         if hasattr(e, "fim"):
             e.fim()
+    if ctx._seg is not None:
+        ctx._seg.close()
     if wr:
         wr.stdin.close()
         wr.wait()

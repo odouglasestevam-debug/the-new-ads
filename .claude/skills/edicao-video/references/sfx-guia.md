@@ -35,6 +35,27 @@ As 4 categorias novas não têm som padrão: escolher o som pelo id (`{"t": 5, "
 
 **Ainda sem uso definido:** o contexto de cada categoria é só o nome que a criadora deu (meme, interface e tecnologia, transição, cinematográficos). Falta o Douglas dizer, ouvindo, em qual momento do vídeo cada som cabe.
 
+## Direção de som: quem decide o quê (01/10/2026)
+
+O Douglas definiu que o **nome do bloco é o contexto** e que o Claude decide quando usar cada efeito. Como o Claude não ouve, a decisão usa o que é verificável: a fala (com tempo), os cortes, os cartões e o nome do bloco. O som exato dentro do bloco é escolhido por regra, não por gosto.
+
+| Quem | Decide |
+|---|---|
+| Claude (lendo `sfx_mapa.py roteiro`) | em que instante entra um efeito de transição, interface ou cinematográfico, e por quê |
+| `sfx.py` | qual som do bloco: fora os vetados, cabe no espaço até o próximo evento, rodízio (menos usado, depois o mais antigo; favorito conta metade), empate por semente estável do nome do vídeo; alinha o ponto mais forte do som ao instante |
+| Douglas | aprova o mapa antes do render, ouve o vídeo e veta ou favorita sons |
+
+Regras de decisão:
+1. **Transição**: virada de assunto, no instante do corte. Entre duas, 6 s no mínimo. O zoom continua com o rush aprovado.
+2. **Interface**: a fala cita tela, app, sistema, botão, site, WhatsApp; no instante da palavra. 1,2 s entre duas.
+3. **Cinematográfico**: afirmação central do gancho (na palavra-chave) ou revelação principal. No máximo 2. Quando já há cartão `termo`, ele tem riser e hit próprios: não pôr cinematográfico em cima.
+4. **Meme**: desligado. Só com `"sfx_meme": true` no perfil do cliente. O Douglas disse que dificilmente usa.
+5. **Um som por evento**: o cartão já toca o seu; um pedido manual tira o som automático (rush) que caia a menos de 0,3 s dele. `"forcar": true` no evento ignora os limites.
+6. **Densidade**: o padrão da skill é discreto (feedback do v1). Olhar o total do mapa; se estiver carregado, tirar primeiro os de interface, depois os de transição. O nível (`--nivel leve`) corta o rush dos cortes.
+7. **Aprendizado**: cada som que o Douglas vetar vai para `assets/sfx/preferencias.json` (`vetar ID`) e nunca mais é escolhido; os favoritos (`favoritar ID`) entram mais vezes.
+
+Caso de teste: vídeo do IPTU da Regularize (44,5 s), mapa com 4 efeitos de direção, 2 deles no lugar de rush: cinematográfico no "dono" do gancho, transição em "Mas isso não é verdade" e em "E isso pode trazer uma série de problemas", interface em "Clique no botão". Nada em cima da matrícula, que já tem riser e hit do cartão.
+
 ## Sons reais do SaveClip.mp3 (01/10/2026): sem voz, sem classificação
 
 **ATENÇÃO: o Douglas ouviu e disse que "tudo errado": todos os palpites de categoria e de contexto abaixo foram reprovados.** Os sons ficam no acervo como "sem classificação" até ele dar o nome real de cada um (por número). Exceção: os sons 2 e 4 aparecem idênticos no bloco meme do SaveClip (1) e foram reclassificados como `meme_06` e `meme_08` (o palpite de hit/ui deles também estava errado). As tabelas abaixo registram só o que eu medi e o que errei; não usar como guia. Lição: classificar som de efeito por espectrograma e duração não funciona; a categoria vem de quem ouve.

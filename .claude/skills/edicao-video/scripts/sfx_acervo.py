@@ -39,6 +39,7 @@ import argparse
 import functools
 import os
 import sys
+import zlib
 from pathlib import Path
 
 import numpy as np
@@ -482,6 +483,52 @@ def pico_s(id_: str, y: np.ndarray) -> float:
     return _pico(catalogo()[id_]["categoria"], y)
 
 
+# ---------------------------------------------------------------- categorias por gênero: escolha automática do som
+
+PREFS = SFX_DIR / "preferencias.json"
+GENEROS = [c for c in CATS if c not in PADRAO]                 # meme, interface, transicao, cinematico: sem som padrão
+
+
+def preferencias() -> dict:
+    """Sons que o Douglas ouviu e vetou, ou de que gostou. Vale para todos os vídeos (`vetar` / `favoritar` na CLI)."""
+    try:
+        p = load_json(PREFS)
+    except (OSError, ValueError):
+        p = {}
+    return {"vetados": list(p.get("vetados", [])), "favoritos": list(p.get("favoritos", []))}
+
+
+def escolher(cat: str, livre: float, usados: list[str], semente: str = "") -> str:
+    """Escolhe o som de uma categoria por gênero para um evento. Sem ouvir, vale a regra:
+    1) fora os vetados; 2) a cauda (do ponto forte ao fim do arquivo) cabe no espaço livre até o próximo evento, senão o de
+    cauda mais curta; 3) rodízio: o menos usado no vídeo, depois o que tocou há mais tempo; favorito conta como metade do uso;
+    4) empate resolvido por uma semente estável (nome do vídeo), para vídeos diferentes não começarem sempre pelo mesmo."""
+    prefs = preferencias()
+    cand = [s for s in catalogo().values() if s["categoria"] == cat and s["id"] not in prefs["vetados"]]
+    if not cand:
+        raise SystemExit(f"Nenhum som liberado na categoria '{cat}' (todos vetados, ou nenhum importado)")
+    cauda = lambda s: s["dur"] - s["pico_s"]
+    cabem = [s for s in cand if cauda(s) <= livre + 0.25] or [min(cand, key=cauda)]
+
+    def chave(s: dict) -> tuple:
+        n = usados.count(s["id"])
+        ultimo = max((i for i, u in enumerate(usados) if u == s["id"]), default=-1)
+        return (n / 2 if s["id"] in prefs["favoritos"] else n, ultimo, zlib.crc32((semente + s["id"]).encode()))
+    return min(cabem, key=chave)["id"]
+
+
+def _prefs_gravar(id_: str, lista: str | None) -> None:
+    if id_ not in catalogo():
+        raise SystemExit(f"Som não existe: {id_}")
+    p = preferencias()
+    for k in p:
+        p[k] = [i for i in p[k] if i != id_]
+    if lista:
+        p[lista].append(id_)
+    save_json(PREFS, p)
+    print(f"{id_}: {'vetado' if lista == 'vetados' else 'favorito' if lista == 'favoritos' else 'sem preferência'}")
+
+
 # ---------------------------------------------------------------- importar
 
 def importar(arq: str, cat: str, id_: str, licenca: str, desc: str | None, dyn: bool) -> None:
@@ -709,6 +756,9 @@ def main() -> None:
     au = sp.add_parser("audio", help="um mp3 para ouvir: a voz diz o nome de cada som e ele toca duas vezes")
     au.add_argument("--saida", default=str(Path.home() / "Downloads" / "acervo-sfx.mp3"))
     au.add_argument("--repetir", type=int, default=2)
+    for nome, ajuda in (("vetar", "não escolher mais este som nas categorias por gênero"),
+                        ("favoritar", "dar preferência a este som"), ("limpar", "tirar o veto ou o favorito")):
+        sp.add_parser(nome, help=ajuda).add_argument("id")
     im = sp.add_parser("importar")
     im.add_argument("arquivo")
     im.add_argument("--cat", required=True)
@@ -730,6 +780,8 @@ def main() -> None:
             print("\n* = padrão da categoria\n")
             for c in CATS:
                 print(f"{c:<8} {USO[c]}")
+    elif a.cmd in ("vetar", "favoritar", "limpar"):
+        _prefs_gravar(a.id, {"vetar": "vetados", "favoritar": "favoritos", "limpar": None}[a.cmd])
     elif a.cmd == "demo":
         demo(Path(a.saida))
     elif a.cmd == "audio":

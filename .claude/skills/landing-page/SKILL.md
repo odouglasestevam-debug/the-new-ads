@@ -91,6 +91,10 @@ Um `index.html` em `clientes/<cliente>/paginas/landing-page/`, compondo blocos d
   achou com "cara de IA". Padrão: sprite de `<symbol>` 32x32 no topo do `<body>`, duotone (miolo preenchido com o
   gradiente metálico + traço fino na cor clara), objetos do mundo do cliente, sem caixa, só um brilho de chão embaixo.
   Exemplo completo no `index.html` do Silvio (`#icones`). Seta, check, + e cadeado podem continuar de traço simples.
+- Recorte com brilho: `drop-shadow` vai num invólucro (`<span class="recorte">`) e a máscara de esmaecer fica na `<img>`.
+  Os dois na mesma imagem cortam o brilho no limite dela e aparece um retângulo atrás da pessoa.
+- Foto em esteira/galeria fica no formato original (altura fixa, `width:auto`). `object-fit:cover` em caixa paisagem
+  corta a cabeça das fotos verticais. Mockup com foto: `object-position` puxado pro topo e conferir se a cabeça aparece.
 - Cuidado com seletor genérico tipo `.chip span{display:block}`: pega os placeholders e os ícones junto. Prefira classe própria.
 - Versão substituída vai pra `paginas/_versoes-anteriores/` antes de sobrescrever.
 

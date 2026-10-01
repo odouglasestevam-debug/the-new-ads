@@ -19,6 +19,8 @@ GAZE_FILE = ASSETS_DIR / "face_landmarker.task"
 # recorte de pessoa (texto atrás da pessoa, perspectiva com oclusão, clones, rastro). Mesma origem do modelo de rosto.
 SEG_URL = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite"
 SEG_FILE = ASSETS_DIR / "selfie_multiclass_256x256.tflite"
+SEG_RAPIDO_URL = "https://storage.googleapis.com/mediapipe-models/image_segmenter/selfie_segmenter/float16/latest/selfie_segmenter.tflite"
+SEG_RAPIDO_FILE = ASSETS_DIR / "selfie_segmenter.tflite"           # versão leve, usada na prévia
 
 
 def get(url: str) -> bytes:
@@ -66,14 +68,15 @@ def fetch_gaze() -> None:
 
 def fetch_seg() -> None:
     ASSETS_DIR.mkdir(exist_ok=True)
-    if SEG_FILE.exists():
-        print(f"  ok (já existe)  {SEG_FILE.name}")
-        return
-    data = get(SEG_URL)
-    if len(data) < 500_000 or b"TFL3" not in data[:16]:
-        sys.exit("Modelo de recorte veio pequeno demais ou não é TFLite, abortando.")
-    SEG_FILE.write_bytes(data)
-    print(f"  baixado  {SEG_FILE.name}  ({len(data) // 1024} KB)")
+    for url, dest, minimo in ((SEG_URL, SEG_FILE, 500_000), (SEG_RAPIDO_URL, SEG_RAPIDO_FILE, 100_000)):
+        if dest.exists():
+            print(f"  ok (já existe)  {dest.name}")
+            continue
+        data = get(url)
+        if len(data) < minimo or b"TFL3" not in data[:16]:
+            sys.exit(f"Modelo {dest.name} veio pequeno demais ou não é TFLite, abortando.")
+        dest.write_bytes(data)
+        print(f"  baixado  {dest.name}  ({len(data) // 1024} KB)")
 
 
 if __name__ == "__main__":

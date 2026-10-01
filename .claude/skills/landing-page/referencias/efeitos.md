@@ -83,13 +83,23 @@ document.querySelectorAll('.card-luz').forEach(c => c.addEventListener('pointerm
   c.style.setProperty('--mx', (e.clientX - r.left) + 'px'); c.style.setProperty('--my', (e.clientY - r.top) + 'px');
 }));
 ```
-Ícone em caixa com brilho: `.ico-box` (50px, raio 15px, gradiente metálico 20% + cor de brilho 22%, borda metálica 32%).
+Ícone sem caixa: `.ico-box` é só o apoio (brilho de chão embaixo via `::after`), o desenho vem do sprite próprio
+do cliente (`<svg class="ig"><use href="#i-mic"/></svg>`). Nada de quadradinho com fundo nem ícone de biblioteca.
+```css
+.ico-box{position:relative;display:inline-grid;place-items:center;flex:none;color:var(--ouro-claro)}
+.ico-box::after{content:"";position:absolute;z-index:-1;left:-6px;right:-6px;bottom:-7px;height:14px;border-radius:50%;
+  background:radial-gradient(closest-side,rgba(244,183,64,.42),transparent)}
+.ig{display:block;width:40px;height:40px;overflow:visible;filter:drop-shadow(0 6px 14px rgba(244,183,64,.22))}
+```
 
 ## 6. Recorte da pessoa com luz de contorno
 
+O brilho vai no invólucro e a máscara na imagem (juntos na `<img>`, o brilho é cortado no limite dela e vira um retângulo):
+`<span class="recorte"><img src="img/cliente-hero.webp" ...></span>`
 ```css
+.recorte{position:relative;z-index:1;display:block;line-height:0}
+.hero-palco .recorte{filter:drop-shadow(-16px 0 40px rgba(109,59,255,.4)) drop-shadow(16px 0 40px rgba(47,91,255,.25))}
 .hero-palco img{height:min(80svh,720px);width:auto;max-width:none;
-  filter:drop-shadow(-16px 0 40px rgba(109,59,255,.4)) drop-shadow(16px 0 40px rgba(47,91,255,.25));
   -webkit-mask-image:linear-gradient(to bottom,#000 82%,transparent);mask-image:linear-gradient(to bottom,#000 82%,transparent)}
 .chao{position:absolute;left:50%;bottom:-40px;width:130%;height:170px;transform:translateX(-50%);background:radial-gradient(50% 50% at 50% 50%,rgba(255,214,140,.34),rgba(109,59,255,.14) 45%,transparent 70%)}
 ```

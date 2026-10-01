@@ -131,6 +131,23 @@ python ".claude/skills/edicao-video/scripts/verify.py" "VIDEO" --gaze --echo --r
   `sfx.py` põe sozinho os sons dos cartões de `cards.json` (não contam no teto de densidade) e o `rush` direcional nos cortes. Fora dos cartões, qualquer som entra por `sfx_manual.json`: `[{"t": 12.3, "tipo": "impact"}, {"t": 20, "tipo": "riser", "dur": 1.5}, {"t": 20, "tipo": "hit"}, {"t": 5, "tipo": "click", "id": "click_mouse"}]`. `tipo` aceita som antigo (whoosh, pop, impact, tick, glitch, shimmer), categoria ou id do acervo. Riser e hit sempre em par, no mesmo instante. Detalhes e pontos em aberto em `references/sfx-guia.md`.
 - `verify.py` mede: loudness e pico (alvo -14 LUFS, pico até -1 dBFS), pausas que sobraram, fonte/tempos da legenda, folha de contato nas emendas, antes/depois, olhar para baixo (`--gaze`) e cauda de eco (`--echo`, comparar com o bruto via `--ref`).
 
+### 6b. Direção de som (eu decido onde entra cada efeito; o Douglas aprova o mapa)
+Com cortes, cartões e fx prontos, antes do render. O nome do bloco do acervo é o contexto (decisão do Douglas, 01/10/2026):
+```
+python ".claude/skills/edicao-video/scripts/sfx_mapa.py" roteiro "VIDEO"      # a edição pronta: fala por trecho, cortes, cartões, pistas
+# ler, decidir e escrever PASTA/sfx_manual.json  [{"t": 11.32, "tipo": "transicao", "motivo": "...", "frase": "..."}]
+python ".claude/skills/edicao-video/scripts/sfx.py" "VIDEO" --profile ...
+python ".claude/skills/edicao-video/scripts/sfx_mapa.py" mapa "VIDEO"         # tempo, frase, som, motivo; mostrar ao Douglas
+```
+| Bloco | Entra quando | Limite |
+|---|---|---|
+| `transicao` | virada de assunto (do que ela comenta para a verdade, da regra para as consequências); no instante do corte | 6 s entre duas |
+| `interface` | a fala cita tela, app, sistema, botão, WhatsApp; no instante da palavra | 1,2 s entre duas |
+| `cinematico` | afirmação central do gancho ou revelação principal | 2 por vídeo |
+| `meme` | só se o perfil tiver `"sfx_meme": true` (padrão desligado; o Douglas quase não usa) | |
+
+Só informar a categoria: o `sfx.py` escolhe o som (cabe antes do próximo evento, rodízio, sem os vetados). Um som por evento: cartão já toca o próprio (não duplicar) e o pedido manual tira o rush automático do mesmo corte. Usar o tempo da PALAVRA (`words.json` + `src_to_out`), não o início do trecho. Mostrar o mapa ao Douglas e tirar o que ele cortar. Quando ele ouvir um vídeo e reprovar um som, `python scripts/sfx_acervo.py vetar ID`; se gostar, `favoritar ID`. Regras completas em `references/sfx-guia.md`.
+
 ### 7. Olhar o resultado de verdade
 Abrir `verify/contato.png` e `verify/antes_depois.png` com a ferramenta de leitura de imagem. Procurar: legenda sobre logo ou rosto, gancho colado em algo, corte no meio de gesto, rosto cortado no zoom, pele alaranjada. Se `--gaze` achar trechos: conferir os quadros e decidir entre cortar logo depois da última sílaba, L-cut, ou cutaway tipográfico com o mesmo texto da fala. Corrigir e renderizar de novo (máximo 3 rodadas; se persistir, avisar o Douglas).
 
