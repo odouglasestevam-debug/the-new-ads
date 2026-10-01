@@ -196,4 +196,4 @@ Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duraç
 - Claude não ouve o áudio: só mede. Eco, voz fanha e música alta demais exigem o ouvido do Douglas.
 - Zoom em torno do rosto depende da detecção; sem rosto (produto), cai no centro. Passe `--focus x,y` se precisar.
 - O recorte de pessoa (texto atrás, clone, rastro) é IA local: cabelo solto, braço esticado rápido e roupa da cor do fundo podem falhar por alguns quadros. Conferir a folha do `segment.py` e a prévia. Rastreio de câmera na mão escorrega em chicote e desfoque forte.
-- Prévia com elementos: ~2,5 min para 36 s (recorte rápido). Render final usa o recorte fino e leva mais.
+- Tempo com elementos (medido em 01/10, 36 s com 13 elementos): prévia ~2,5 min (recorte rápido), render final ~7,5 min (resolução cheia e recorte fino). Para iterar, usar `elementos.py --previa` (segundos) em vez de renderizar tudo.
