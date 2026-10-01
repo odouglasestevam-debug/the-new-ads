@@ -35,6 +35,21 @@ O Douglas mandou um mp3 de 13,4 s com efeitos de verdade, sem voz. Foram separad
 | 9 | `ref09_ui_brilho_metalico` | ui | brilho metálico com parciais agudos, 1,1 s |
 | 10 | `ref10_hit_longo_grave` | hit | impacto grave com cauda de 4,4 s |
 
+**Quando usar cada um** (proposta por categoria e duração, a confirmar de ouvido; fica também no `quando_usar` de cada som no catálogo):
+
+| Id | Contexto |
+|---|---|
+| `ref01_rush_vento` | zoom out ou saída de cena; o ar nasce forte na emenda e morre em 1,7 s |
+| `ref02_hit_sub_pulsado` | logo depois de revelar algo (preço, número, produto), no mesmo instante; par do riser |
+| `ref03_shutter_duplo` | corte seco, foto ou print aparecendo, antes e depois; o segundo estalo encaixa no corte |
+| `ref04_ui_tom_grave` | elemento grande entrando (cartão, título, tela abrindo); suave |
+| `ref05_ui_pop_duplo` | dois itens aparecendo seguidos (ícones, selos, lista curta) |
+| `ref06_ui_ding` | notificação, check, confirmação, venda aprovada; resultado positivo |
+| `ref07_click_toque_grave` | toque em botão ou aba, item de lista marcado, riscar; serve em sequência |
+| `ref08_click_duplo` | clique de mouse (aperta e solta) em botão na tela; um por vez |
+| `ref09_ui_brilho_metalico` | destaque de algo valioso: selo, garantia, "novo", brilho em logo ou número |
+| `ref10_hit_longo_grave` | revelação principal ou abertura do gancho; cauda de 4,4 s cobre pausa dramática; no máximo um por vídeo |
+
 Não há typing nem riser neste arquivo. Nenhum dos 10 é padrão de categoria: o padrão só muda quando o Douglas aprovar um som de ouvido (aí `PADRAO` em `sfx_acervo.py` e `padrao` no catálogo).
 
 ## Limites
