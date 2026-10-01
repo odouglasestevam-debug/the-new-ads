@@ -1,6 +1,12 @@
 {
   "version": 1,
   "skills": {
+    "remotion-best-practices": {
+      "source": "remotion-dev/skills",
+      "sourceType": "github",
+      "skillPath": "skills/remotion-best-practices/SKILL.md",
+      "computedHash": "b887a9e97ab07d61defffbc5b6dbef9f349b401c85eec00c46dbdcff86d01491"
+    },
     "ui-ux-pro-max": {
       "source": "nextlevelbuilder/ui-ux-pro-max-skill",
       "sourceType": "github",
