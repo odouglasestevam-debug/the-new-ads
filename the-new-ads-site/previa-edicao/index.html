@@ -1,0 +1,454 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Caixa de Edição TNA</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="description" content="Prévia do vídeo de teste com cada recurso novo de edição marcado na linha do tempo.">
+<meta property="og:title" content="Caixa de ferramentas de edição | The New Ads">
+<meta property="og:description" content="Os recursos novos de edição aplicados num vídeo vertical de 36 segundos.">
+<meta property="og:image" content="https://thenewads.com.br/previa-edicao/poster.jpg">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#0A0A0A">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: ilha de edição. Monitor vertical fixo à esquerda com a linha do tempo embaixo; lista de recursos à direita, sincronizada com o vídeo. */
+:root {
+  --preto: #0A0A0A;
+  --grafite: #171717;
+  --grafite2: #212121;
+  --trilha: #343434;
+  --ambar: #FF6A00;
+  --branco: #FAFAFA;
+  --nevoa: #8A8A8A;
+  --linha: rgba(255,255,255,.09);
+  --display: 'Clash Display', 'Space Grotesk', system-ui, sans-serif;
+  --corpo: 'Switzer', 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+img { max-width: 100%; }
+[hidden] { display: none !important; }
+html { background: var(--preto); }
+body {
+  background: var(--preto);
+  color: var(--branco);
+  font-family: var(--corpo);
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: 24px;
+  padding-block: 40px 56px;
+  display: grid;
+  gap: 56px;
+}
+@media (max-width: 520px) { .wrap { padding-inline: 16px; padding-block: 28px 40px; gap: 44px; } }
+
+/* Cabeçalho */
+.topo { display: grid; gap: 18px; max-width: 760px; }
+.topo img { width: 132px; height: auto; display: block; }
+.eyebrow {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  color: var(--nevoa);
+  margin: 0;
+}
+h1 {
+  font-family: var(--display);
+  font-weight: 600;
+  font-size: clamp(34px, 5.2vw, 56px);
+  line-height: 1.04;
+  letter-spacing: -0.015em;
+  margin: 0;
+  text-wrap: balance;
+}
+.lead { font-size: 18px; color: #C9C9C9; margin: 0; max-width: 60ch; }
+
+/* Palco: monitor + lista */
+.palco {
+  display: grid;
+  grid-template-columns: minmax(260px, 340px) minmax(0, 1fr);
+  gap: 48px;
+  align-items: start;
+}
+.monitor {
+  position: sticky;
+  top: calc(env(safe-area-inset-top, 0px) + 20px);
+  display: grid;
+  gap: 16px;
+}
+.tela {
+  position: relative;
+  width: 100%;
+  max-width: 100%;
+  aspect-ratio: 9 / 16;
+  background: radial-gradient(120% 80% at 50% 0%, rgba(255,106,0,.14), transparent 60%), var(--grafite);
+  border: 1px solid var(--linha);
+}
+.tela video { position: absolute; inset: 0; width: 100%; height: 100%; display: block; object-fit: cover; background: #000; }
+
+/* Linha do tempo */
+.lt { display: grid; grid-template-columns: 62px minmax(0, 1fr); column-gap: 10px; }
+.lt-rotulos { display: grid; grid-auto-rows: 14px; row-gap: 6px; }
+.lt-rotulos span {
+  font-family: var(--mono);
+  font-size: 10px;
+  line-height: 14px;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  color: var(--nevoa);
+  white-space: nowrap;
+}
+.lt-area { position: relative; display: grid; grid-auto-rows: 14px; row-gap: 6px; cursor: pointer; }
+.lt-faixa { position: relative; background: var(--grafite); }
+.seg {
+  position: absolute;
+  top: 2px;
+  bottom: 2px;
+  min-width: 3px;
+  background: var(--trilha);
+  transition: background-color .15s;
+}
+.seg.ativo { background: var(--ambar); }
+.seg.legenda { background: var(--grafite2); outline: 1px solid var(--linha); outline-offset: -1px; }
+.cabeca {
+  position: absolute;
+  top: -4px;
+  bottom: -4px;
+  width: 1px;
+  background: var(--branco);
+  left: 0;
+  pointer-events: none;
+}
+.cabeca::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -3px;
+  width: 7px;
+  height: 7px;
+  background: var(--branco);
+}
+.lt-escala {
+  grid-column: 2;
+  position: relative;
+  height: 16px;
+  margin-top: 6px;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--nevoa);
+  font-variant-numeric: tabular-nums;
+}
+.lt-escala span { position: absolute; top: 0; transform: translateX(-50%); }
+.lt-escala span:first-child { transform: none; }
+.relogio {
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--nevoa);
+  font-variant-numeric: tabular-nums;
+  margin: 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.relogio b { color: var(--branco); font-weight: 500; }
+
+/* Lista de recursos */
+.lista-cab { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-bottom: 12px; border-bottom: 1px solid var(--linha); }
+.lista-cab h2 { font-family: var(--display); font-weight: 600; font-size: 22px; letter-spacing: -0.01em; margin: 0; }
+.lista-cab p { margin: 0; font-family: var(--mono); font-size: 12px; color: var(--nevoa); }
+.caps { list-style: none; margin: 0; padding: 0; display: grid; }
+.caps li { border-bottom: 1px solid var(--linha); }
+.cap {
+  all: unset;
+  box-sizing: border-box;
+  position: relative;
+  display: grid;
+  grid-template-columns: 54px minmax(0, 1fr);
+  gap: 18px;
+  width: 100%;
+  padding: 16px 14px 18px;
+  cursor: pointer;
+  transition: background-color .15s;
+}
+.cap:hover { background: var(--grafite); }
+.cap:focus-visible { outline: 2px solid var(--ambar); outline-offset: -2px; }
+.cap img { width: 54px; height: 96px; object-fit: cover; display: block; border: 1px solid var(--linha); background: var(--grafite); }
+.cap-corpo { display: grid; gap: 4px; min-width: 0; align-content: start; }
+.cap-topo { display: flex; align-items: center; gap: 10px; font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; }
+.tc { color: var(--branco); }
+.faixa { color: var(--nevoa); text-transform: uppercase; letter-spacing: .06em; font-size: 10px; border: 1px solid var(--linha); padding: 1px 6px; }
+.cap-nome { font-family: var(--display); font-weight: 600; font-size: 19px; line-height: 1.25; letter-spacing: -0.005em; }
+.cap-faz { color: #C9C9C9; font-size: 15px; }
+.cap-quando { color: var(--nevoa); font-size: 14px; }
+.cap-quando b { color: var(--branco); font-weight: 500; }
+.cap-prog { position: absolute; left: 0; bottom: -1px; height: 2px; width: 0; background: var(--ambar); }
+.cap.ativo { background: var(--grafite); }
+.cap.ativo .tc { color: var(--ambar); }
+.nota-legenda { margin: 16px 0 0; padding: 14px; border: 1px solid var(--linha); font-size: 14px; color: #C9C9C9; }
+.nota-legenda b { color: var(--branco); font-weight: 500; }
+
+/* Critérios e o resto da caixa */
+.bloco { display: grid; gap: 20px; }
+.bloco h2 { font-family: var(--display); font-weight: 600; font-size: clamp(24px, 3vw, 30px); letter-spacing: -0.01em; margin: 0; text-wrap: balance; }
+.bloco > p { margin: 0; color: #C9C9C9; max-width: 62ch; }
+.regras { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--linha); border-left: 1px solid var(--linha); }
+.regra { padding: 20px 18px 22px; border-right: 1px solid var(--linha); border-bottom: 1px solid var(--linha); display: grid; gap: 8px; align-content: start; min-width: 0; }
+.regra h3 { font-family: var(--display); font-weight: 600; font-size: 17px; line-height: 1.3; margin: 0; }
+.regra p { margin: 0; font-size: 14px; color: #C9C9C9; }
+.mais { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: 32px; }
+.mais li { padding: 14px 0; border-bottom: 1px solid var(--linha); display: grid; gap: 2px; min-width: 0; }
+.mais b { font-family: var(--display); font-weight: 600; font-size: 16px; }
+.mais span { font-size: 14px; color: #C9C9C9; }
+.rodape { border-top: 1px solid var(--linha); padding-top: 20px; display: grid; gap: 8px; }
+.rodape p { margin: 0; font-size: 13px; color: var(--nevoa); max-width: 80ch; }
+
+@media (max-width: 980px) {
+  .regras { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 820px) {
+  .palco { grid-template-columns: minmax(0, 1fr); gap: 32px; }
+  .monitor { position: static; width: min(100%, 320px); margin-inline: auto; }
+}
+@media (max-width: 560px) {
+  .regras, .mais { grid-template-columns: minmax(0, 1fr); }
+  .cap { gap: 14px; padding-inline: 4px; }
+  .cap-nome { font-size: 18px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .seg, .cap { transition: none; }
+}
+</style>
+
+</head>
+<body>
+<main class="wrap">
+  <header class="topo">
+    <img src="/previa-edicao/logo.svg" alt="The New Ads" width="520" height="110">
+    <p class="eyebrow">Edição de vídeo · prévia de 01/10/2026</p>
+    <h1>Caixa de ferramentas de edição</h1>
+    <p class="lead">Os recursos novos de edição aplicados num vídeo vertical de 36 segundos. Toque num item da lista para ir direto ao trecho.</p>
+  </header>
+
+  <section class="palco" aria-label="Vídeo e recursos">
+    <div class="monitor" id="monitor">
+      <div class="tela">
+        <video id="v" controls playsinline preload="metadata" poster="/previa-edicao/poster.jpg">
+          <source src="/previa-edicao/previa.mp4" type="video/mp4">
+        </video>
+      </div>
+      <div class="lt">
+        <div class="lt-rotulos" id="rotulos"></div>
+        <div class="lt-area" id="area" aria-hidden="true"><div class="cabeca" id="cabeca"></div></div>
+        <div class="lt-escala" id="escala" aria-hidden="true"></div>
+      </div>
+      <p class="relogio"><span><b id="agora">0:00.0</b> / 0:35.7</span><span id="rotulo-agora">Gancho com contorno</span></p>
+    </div>
+
+    <div>
+      <div class="lista-cab">
+        <h2>O que aparece em cada trecho</h2>
+        <p id="contagem"></p>
+      </div>
+      <ol class="caps" id="caps"></ol>
+      <p class="nota-legenda"><b>Legenda, do início ao fim:</b> estilo editorial, serifada e pequena, com a palavra-chave em itálico. Ela fica discreta para não disputar com os títulos de cena.</p>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-regras">
+    <h2 id="h-regras">Como cada recurso entra numa edição</h2>
+    <p>A caixa vem com um guia de uso. A diferença entre edição profissional e efeito aleatório está em quando cada recurso aparece.</p>
+    <div class="regras">
+      <div class="regra"><h3>Interage com a cena ou com a fala</h3><p>O texto fica atrás da pessoa, deita na mesa, a palavra é sublinhada quando é dita. Efeito solto por cima da imagem parece aleatório.</p></div>
+      <div class="regra"><h3>Um protagonista por vez</h3><p>Título grande pede legenda pequena. Quando uma tela cheia entra, a legenda sai.</p></div>
+      <div class="regra"><h3>Respiro entre efeitos</h3><p>Entre dois recursos fortes, 2 a 3 segundos só de fala, com corte e zoom.</p></div>
+      <div class="regra"><h3>Transição só na virada</h3><p>A transição por foco marca a mudança de assunto. Dentro do mesmo assunto, o corte é seco.</p></div>
+    </div>
+  </section>
+
+  <section class="bloco" aria-labelledby="h-mais">
+    <h2 id="h-mais">Também na caixa, fora deste teste</h2>
+    <ul class="mais">
+      <li><b>Rastro da pessoa</b><span>Cópias atrasadas seguindo um movimento amplo, como caminhar ou girar.</span></li>
+      <li><b>Refrão em close</b><span>A frase-gancho volta em close entre os blocos do vídeo.</span></li>
+      <li><b>Música com drop</b><span>A trilha entra depois do gancho e a batida cai na virada para o bloco forte.</span></li>
+      <li><b>Texto que segue a câmera</b><span>Com câmera na mão, o texto fica preso à parede e acompanha o movimento.</span></li>
+      <li><b>B-roll em tela cheia</b><span>O trecho de apoio ocupa a tela enquanto a fala continua.</span></li>
+      <li><b>Cartão de logo no fim</b><span>Logo do cliente sobre fundo de cor, fechando o anúncio.</span></li>
+    </ul>
+  </section>
+
+  <footer class="rodape">
+    <p>Prévia de teste. Os recursos foram posicionados para mostrar cada um funcionando, por isso aparecem mais próximos do que numa edição real. O print da matrícula é uma imagem de exemplo e o trecho de B-roll é um vídeo de referência usado só no teste.</p>
+    <p>The New Ads · edição de vídeo</p>
+  </footer>
+</main>
+
+<script>
+(function () {
+  var TOTAL = 35.75;
+  var FAIXAS = ['Cena', 'Pessoa', 'Transição', 'Tela', 'Chamada', 'Legenda'];
+  var CAPS = [
+    { nome: 'Gancho com contorno', faixa: 'Tela', ir: 0, faixas: [[0.3, 6.1]], img: 't_3.0.jpg',
+      faz: 'A pergunta-gancho entra em fonte extra-larga e a palavra-chave aparece só no contorno, na cor de destaque.',
+      quando: 'Primeiros 2 segundos do anúncio.' },
+    { nome: 'Transição por foco', faixa: 'Transição', ir: 5.6, faixas: [[5.75, 6.65], [14.75, 15.65]], tc: '0:06 e 0:15', img: 't_6.1.jpg',
+      faz: 'A imagem desfoca e clareia até o corte. O plano seguinte entra desfocado e ganha foco.',
+      quando: 'Na virada de assunto ou de cenário, nunca em todo corte.' },
+    { nome: 'Texto atrás da pessoa', faixa: 'Cena', ir: 8.3, faixas: [[8.4, 15.1]], img: 't_14.3.jpg',
+      faz: 'O título fica no cenário, atrás dela, e acompanha o zoom dos cortes como se estivesse na parede.',
+      quando: 'Gancho e títulos de cena. Pede fundo livre atrás da pessoa.' },
+    { nome: 'Clone', faixa: 'Pessoa', ir: 8.3, faixas: [[8.4, 10.8]], img: 't_9.2.jpg',
+      faz: 'Uma segunda tomada da mesma pessoa aparece em transparência, atrás dela.',
+      quando: 'Bastidor ou roteiro em que a pessoa faz vários papéis. Pede câmera no tripé.' },
+    { nome: 'Quadro branco', faixa: 'Tela', ir: 15.3, faixas: [[15.3, 17.8]], img: 't_17.5.jpg',
+      faz: 'Texto e setas desenhados à mão sobre a parede. A palavra é circulada e sublinhada no instante em que é dita.',
+      quando: 'Explicar processo, método, funil ou comparação.' },
+    { nome: 'Print de prova', faixa: 'Tela', ir: 17.9, faixas: [[18.0, 21.7]], img: 't_19.5.jpg',
+      faz: 'A imagem entra com um pop no momento em que é citada e flutua de leve até a fala mudar.',
+      quando: 'Resultado, documento ou conversa que prova o que está sendo dito.' },
+    { nome: 'Tipografia cinética', faixa: 'Tela', ir: 21.9, faixas: [[22.0, 23.5]], img: 't_23.0.jpg',
+      faz: 'A frase principal ocupa a tela e o marca-texto cresce atrás da palavra mais importante.',
+      quando: 'Uma frase curta por vídeo, a ideia central.' },
+    { nome: 'B-roll em janela', faixa: 'Tela', ir: 23.6, faixas: [[23.7, 26.2]], img: 't_25.0.jpg',
+      faz: 'Um trecho de apoio entra numa janela sobre a fala, sem cobrir o rosto.',
+      quando: 'Mostrar o serviço acontecendo, o produto ou o espaço.' },
+    { nome: 'Texto em perspectiva', faixa: 'Cena', ir: 26.3, faixas: [[26.4, 31.8]], img: 't_29.0.jpg',
+      faz: 'A palavra fica deitada na mesa e a textura da madeira aparece através das letras.',
+      quando: 'Chão, mesa ou parede, quando o espaço faz parte da mensagem.' },
+    { nome: 'Moldura com chamada fixa', faixa: 'Tela', ir: 31.9, faixas: [[32.0, 35.75]], img: 't_32.8.jpg',
+      faz: 'O vídeo reduz sobre um fundo de cor, com o título fixo e as alças de seleção de editor.',
+      quando: 'Bloco final de oferta, enquanto a pessoa termina a fala.' },
+    { nome: 'Botão com cursor', faixa: 'Chamada', ir: 33.1, faixas: [[33.2, 35.75]], img: 't_34.6.jpg',
+      faz: 'O cursor entra na tela e clica no botão da chamada.',
+      quando: 'Últimos segundos de anúncio com chamada para WhatsApp ou site.' }
+  ];
+
+  var v = document.getElementById('v');
+  var area = document.getElementById('area');
+  var cabeca = document.getElementById('cabeca');
+  var lista = document.getElementById('caps');
+  var agora = document.getElementById('agora');
+  var rotuloAgora = document.getElementById('rotulo-agora');
+  var monitor = document.getElementById('monitor');
+  var reduz = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  function fmt(t, dec) {
+    var m = Math.floor(t / 60), s = t - m * 60;
+    var ss = dec ? s.toFixed(1) : String(Math.floor(s));
+    if (s < 10) ss = '0' + ss;
+    return m + ':' + ss;
+  }
+  function pct(t) { return (t / TOTAL * 100) + '%'; }
+
+  // Rótulos e faixas da linha do tempo
+  var rotulos = document.getElementById('rotulos');
+  var linhas = {};
+  FAIXAS.forEach(function (f) {
+    var r = document.createElement('span'); r.textContent = f; rotulos.appendChild(r);
+    var l = document.createElement('div'); l.className = 'lt-faixa'; area.insertBefore(l, cabeca); linhas[f] = l;
+  });
+  var leg = document.createElement('div');
+  leg.className = 'seg legenda'; leg.style.left = '0'; leg.style.width = '100%';
+  linhas['Legenda'].appendChild(leg);
+
+  var escala = document.getElementById('escala');
+  [0, 10, 20, 30].forEach(function (t) {
+    var s = document.createElement('span'); s.textContent = t + 's'; s.style.left = pct(t); escala.appendChild(s);
+  });
+
+  // Lista e segmentos
+  CAPS.forEach(function (c, i) {
+    c.segs = c.faixas.map(function (fx) {
+      var s = document.createElement('div');
+      s.className = 'seg';
+      s.style.left = pct(fx[0]);
+      s.style.width = pct(fx[1] - fx[0]);
+      s.title = c.nome;
+      s.addEventListener('click', function (e) { e.stopPropagation(); ir(c); });
+      linhas[c.faixa].appendChild(s);
+      return s;
+    });
+
+    var li = document.createElement('li');
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cap';
+    b.id = 'cap-' + i;
+    b.setAttribute('aria-label', fmt(c.ir) + ', ' + c.nome + '. Ir para o trecho.');
+    b.innerHTML =
+      '<img src="/previa-edicao/' + c.img + '" alt="" width="54" height="96" loading="lazy">' +
+      '<span class="cap-corpo">' +
+        '<span class="cap-topo"><span class="tc">' + (c.tc || fmt(c.faixas[0][0])) + '</span><span class="faixa">' + c.faixa + '</span></span>' +
+        '<span class="cap-nome">' + c.nome + '</span>' +
+        '<span class="cap-faz">' + c.faz + '</span>' +
+        '<span class="cap-quando"><b>Quando usar:</b> ' + c.quando + '</span>' +
+      '</span>' +
+      '<span class="cap-prog"></span>';
+    b.addEventListener('click', function () { ir(c); });
+    li.appendChild(b);
+    lista.appendChild(li);
+    c.btn = b;
+    c.prog = b.querySelector('.cap-prog');
+  });
+  document.getElementById('contagem').textContent = CAPS.length + ' recursos';
+
+  function ir(c) {
+    try { v.currentTime = c.ir; } catch (e) {}
+    var p = v.play(); if (p && p.catch) p.catch(function () {});
+    if (window.matchMedia('(max-width: 820px)').matches) {
+      monitor.scrollIntoView({ behavior: reduz ? 'auto' : 'smooth', block: 'start' });
+    }
+    atualizar();
+  }
+
+  area.addEventListener('click', function (e) {
+    var r = area.getBoundingClientRect();
+    var t = Math.max(0, Math.min(TOTAL, (e.clientX - r.left) / r.width * TOTAL));
+    try { v.currentTime = t; } catch (err) {}
+    atualizar();
+  });
+
+  function atualizar() {
+    var t = v.currentTime || 0;
+    cabeca.style.left = pct(Math.min(t, TOTAL));
+    agora.textContent = fmt(t, true);
+    var nomes = [];
+    CAPS.forEach(function (c) {
+      var dentro = null;
+      c.faixas.forEach(function (fx, k) {
+        var on = t >= fx[0] && t < fx[1] + 0.05;
+        c.segs[k].classList.toggle('ativo', on);
+        if (on) dentro = fx;
+      });
+      c.btn.classList.toggle('ativo', !!dentro);
+      c.prog.style.width = dentro ? Math.min(100, (t - dentro[0]) / (dentro[1] - dentro[0]) * 100) + '%' : '0';
+      if (dentro) nomes.push(c.nome);
+    });
+    rotuloAgora.textContent = nomes.length ? nomes.join(' + ') : 'Fala com corte e zoom';
+  }
+
+  var rodando = false;
+  function laco() {
+    atualizar();
+    if (!v.paused && !v.ended) requestAnimationFrame(laco); else rodando = false;
+  }
+  v.addEventListener('play', function () { if (!rodando) { rodando = true; requestAnimationFrame(laco); } });
+  ['seeked', 'timeupdate', 'loadedmetadata', 'pause'].forEach(function (ev) { v.addEventListener(ev, atualizar); });
+  atualizar();
+})();
+</script>
+</body>
+</html>
