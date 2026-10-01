@@ -102,10 +102,10 @@ class Linha:
             sw = max(1, int(round((0.035 if contorno is True else float(contorno)) * px)))
             full, box = _mask(txt, f, esp, sw)
             fill, _ = _mask(txt, f, esp, 0)
-            off = sw                                    # o stroke acrescenta sw de cada lado: recentrar a versão sem stroke
+            off = 2 * sw                                # a versão com stroke desenha a origem 2*sw mais para dentro
             pad = np.zeros_like(full)
             hh, ww = fill.shape
-            pad[off:off + hh, off:off + ww] = fill[:pad.shape[0] - off, :pad.shape[1] - off]
+            pad[off:off + hh, off:off + ww] = fill
             alpha = np.clip(full - pad, 0, 1)
         else:
             alpha, box = _mask(txt, f, esp, 0)
@@ -115,7 +115,7 @@ class Linha:
                 full, box = _mask(txt, f, esp, sw)
                 hh, ww = alpha.shape
                 a2 = np.zeros_like(full)
-                a2[sw:sw + hh, sw:sw + ww] = alpha[:full.shape[0] - sw, :full.shape[1] - sw]
+                a2[2 * sw:2 * sw + hh, 2 * sw:2 * sw + ww] = alpha
                 self._borda = (full, np.array(hex_rgb(borda.get("cor", "#000000")), np.float32))
                 alpha = a2
         # margem para brilho / desfoque / marca
@@ -141,8 +141,7 @@ class Linha:
         sh = float(s.get("sombra", 0) or 0)
         if sh:
             k = int(px * 0.03) + 1
-            S = np.roll(np.roll(cv2.GaussianBlur(A, (0, 0), px * 0.06), k, 0), k, 1) * sh
-            front = front * (1 - S[..., None] * 0) + 0                       # sombra preta: só alpha
+            S = np.roll(np.roll(cv2.GaussianBlur(A, (0, 0), px * 0.06), k, 0), k, 1) * sh   # sombra preta: só alpha
             front[..., 3] = np.clip(front[..., 3] + S * (1 - front[..., 3]), 0, 1)
         if getattr(self, "_borda", None) is not None:
             bfull, bcol = self._borda
