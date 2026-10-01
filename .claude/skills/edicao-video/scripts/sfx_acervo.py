@@ -22,6 +22,7 @@ Uso:
   python sfx_acervo.py gerar [--forcar]        cria assets/sfx/<categoria>/*.wav e o catalogo.json
   python sfx_acervo.py listar [--cat hit]      mostra id, duração e quando usar
   python sfx_acervo.py demo [--saida X.mp4]    vídeo com o nome de cada som na tela, para ouvir e aprovar
+  python sfx_acervo.py audio [--saida X.mp3]   mp3 só de áudio: voz (Windows) diz o nome, o som toca 2 vezes; gera o índice .txt
   python sfx_acervo.py importar ARQ --cat click --id click_x --licenca "CC0 Freesound" [--desc ".."]
 """
 from __future__ import annotations
@@ -520,7 +521,8 @@ def _ass_dem(itens: list[dict], W: int, H: int, total: int) -> str:
     return head + "\n".join(ev) + "\n"
 
 
-def demo(saida: Path) -> None:
+def _fila() -> list[dict]:
+    """Todos os sons do acervo na ordem das categorias, mais o combo riser + hit no fim."""
     cat = catalogo()
     ordem = [s for c in CATS for s in cat.values() if s["categoria"] == c]
     fila = []                                                # (id, rótulo, uso, dur do som, sinal)
@@ -534,7 +536,11 @@ def demo(saida: Path) -> None:
     combo = np.concatenate([r, np.zeros(int(SR * 0.04)), h])
     fila.append({"id": "riser_ruido + hit_seco", "cat": "combo", "uso": "Riser termina na revelação e o hit cai no mesmo instante: é a dupla da referência.",
                  "y": combo, "g": 1.0, "extra": None})
+    return fila
 
+
+def demo(saida: Path) -> None:
+    fila = _fila()
     buf_len, t, itens = 0, 0.0, []
     for f in fila:
         dur_som = len(f["y"]) / SR
@@ -561,6 +567,75 @@ def demo(saida: Path) -> None:
     print(f"demo: {saida} ({t:.0f}s, {len(itens)} sons)")
 
 
+PS_FALAR = """param($json, $dir)
+Add-Type -AssemblyName System.Speech
+$s = New-Object System.Speech.Synthesis.SpeechSynthesizer
+$s.SelectVoice('Microsoft Maria Desktop')
+$itens = Get-Content -Raw -Encoding UTF8 $json | ConvertFrom-Json
+$i = 0
+foreach ($t in $itens) { $s.SetOutputToWaveFile((Join-Path $dir ('l{0:00}.wav' -f $i))); $s.Speak($t); $i++ }
+$s.Dispose()
+"""
+
+
+def _mmss(x: float) -> str:
+    return f"{int(x // 60):02d}:{int(x % 60):02d}"
+
+
+def audio(saida: Path, repetir: int = 2) -> None:
+    """Um arquivo só para ouvir o acervo: a voz anuncia o nome, o som toca `repetir` vezes. Gera também o índice com os tempos."""
+    import json
+    import subprocess
+    fila = _fila()
+    saida = Path(saida).resolve()
+    tmpd = saida.parent / "_audio_tmp"
+    tmpd.mkdir(parents=True, exist_ok=True)
+    falas, ult = [], None
+    for i, f in enumerate(fila, 1):
+        nome = f["id"].replace("_", " ").replace("+", "mais")
+        pre = f"Categoria {f['cat']}. " if f["cat"] != ult else ""
+        ult = f["cat"]
+        falas.append(f"{pre}Número {i}. {nome}.")
+    (tmpd / "falas.json").write_text(json.dumps(falas, ensure_ascii=False), encoding="utf-8")
+    (tmpd / "falar.ps1").write_text(PS_FALAR, encoding="utf-8-sig")
+    r = subprocess.run(["powershell", "-NoProfile", "-ExecutionPolicy", "Bypass", "-File", str(tmpd / "falar.ps1"),
+                        str(tmpd / "falas.json"), str(tmpd)], capture_output=True, text=True)
+    if r.returncode != 0:
+        raise SystemExit(f"Falha na voz do Windows: {r.stderr[:300]}")
+    t, partes, indice = 0.3, [], []
+    for i, f in enumerate(fila):
+        run([FF, "-v", "error", "-y", "-i", tmpd / f"l{i:02d}.wav", "-ac", 1, "-ar", SR, "-c:a", "pcm_s16le", tmpd / f"v{i:02d}.wav"])
+        v, _ = read_wav(tmpd / f"v{i:02d}.wav")
+        v = v.astype(np.float64)
+        v = v / (np.abs(v).max() + 1e-9) * 0.5
+        indice.append((t, f))
+        partes.append((t, v, 1.0))
+        t += len(v) / SR + 0.45
+        for _ in range(repetir):
+            partes.append((t, f["y"], 0.8 * f["g"]))
+            t += len(f["y"]) / SR + 0.7
+        t += 0.8
+    buf = np.zeros(int(SR * (t + 0.5)))
+    for at, y, g in partes:
+        _put(buf, y, at, g)
+    buf = buf / max(np.abs(buf).max(), 1e-9) * 0.89
+    wav = tmpd / "acervo.wav"
+    write_wav(wav, buf, SR)
+    run([FF, "-v", "error", "-y", "-i", wav, "-c:a", "libmp3lame", "-q:a", "2", saida])
+    linhas = ["ACERVO DE EFEITOS SONOROS: índice do áudio", f"Cada som toca {repetir} vezes depois do nome.", ""]
+    ult = None
+    for at, f in indice:
+        if f["cat"] != ult:
+            linhas += ["", f"== {f['cat'].upper()}: {USO.get(f['cat'], f['uso'])}"]
+            ult = f["cat"]
+        linhas.append(f"{_mmss(at)}  {f['id']}")
+    saida.with_name(saida.stem + "-indice.txt").write_text("\n".join(linhas) + "\n", encoding="utf-8")
+    for f in tmpd.iterdir():
+        f.unlink()
+    tmpd.rmdir()
+    print(f"audio: {saida} ({t:.0f}s, {len(fila)} sons)")
+
+
 # ---------------------------------------------------------------- CLI
 
 def main() -> None:
@@ -574,6 +649,9 @@ def main() -> None:
     li.add_argument("--cat")
     d = sp.add_parser("demo")
     d.add_argument("--saida", default=str(Path.home() / "Downloads" / "acervo-sfx-demo.mp4"))
+    au = sp.add_parser("audio", help="um mp3 para ouvir: a voz diz o nome de cada som e ele toca duas vezes")
+    au.add_argument("--saida", default=str(Path.home() / "Downloads" / "acervo-sfx.mp3"))
+    au.add_argument("--repetir", type=int, default=2)
     im = sp.add_parser("importar")
     im.add_argument("arquivo")
     im.add_argument("--cat", required=True)
@@ -597,6 +675,8 @@ def main() -> None:
                 print(f"{c:<8} {USO[c]}")
     elif a.cmd == "demo":
         demo(Path(a.saida))
+    elif a.cmd == "audio":
+        audio(Path(a.saida), a.repetir)
     elif a.cmd == "importar":
         importar(a.arquivo, a.cat, a.id, a.licenca, a.desc, a.dinamico)
 
