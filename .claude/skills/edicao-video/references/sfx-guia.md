@@ -1,6 +1,8 @@
 # Guia de efeitos sonoros (acervo `assets/sfx/`)
 
-Origem das regras: reel de uma criadora de edição que o Douglas mandou em 30/09/2026 e disse gostar ("precisamos ter no nosso acervo"). O vídeo cita 7 categorias. Os SONS do acervo são nossos (sintetizados em `scripts/sfx_acervo.py`); não foi copiado áudio do reel, que traz voz e música misturadas e é de terceiro.
+Origem das regras: reel de uma criadora de edição que o Douglas mandou em 30/09/2026 e disse gostar ("precisamos ter no nosso acervo"). O vídeo cita 7 categorias. Os sons sintetizados (`scripts/sfx_acervo.py`) NÃO agradaram: o Douglas reprovou os cliques (o de mouse "nada a ver") e pediu os efeitos IDÊNTICOS aos do vídeo. Por isso `scripts/sfx_ref.py` recorta os sons originais do reel; os sintéticos ficam só como reserva.
+
+O reel demonstra cada efeito junto de um evento visual (flash amarelo, texto aparecendo, cursor clicando em "SALVA"). O clique do mouse dele é um PAR de estalos a ~85 ms (aperta e solta), aos 17,94/18,02 s, 18,30/18,39 s e 45,13/45,22 s.
 
 ## O que o reel ensina
 
