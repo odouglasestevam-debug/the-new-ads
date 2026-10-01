@@ -109,7 +109,8 @@ AVISO_POR_10S = 3.0
 # Segunda correção (Douglas, 01/10/2026): a v4 do IPTU, com 13 efeitos (2,9 por 10 s), ainda foi "exagero de efeito sonoro",
 # e o vídeo agora sempre tem música por baixo. Por isso:
 #   - teto DURO de MOMENTOS_POR_10S momentos de som (sons a menos de 0,35 s um do outro contam como um momento);
-#   - passando do teto, sai primeiro o que vem antes em CORTE_ORDEM (transição sem transição na imagem sai antes da que tem);
+#   - passando do teto, sai primeiro o automático (rush de corte), depois o que vem antes em CORTE_ORDEM
+#     (transição sem transição na imagem sai antes da que tem);
 #   - cartão só toca na revelação (termo: riser + hit); o resto dos cartões fica mudo, salvo "sfx_cartoes": "completo" no perfil.
 MOMENTOS_POR_10S = 1.0
 CORTE_ORDEM = ["interface", "meme", "ui", "click", "typing", "pop", "tick", "shutter", "whoosh", "rush",
@@ -221,6 +222,8 @@ def aplicar_teto(kept: list[tuple], total: float, visuais: list[float], por10: f
     cat = catalogo()
 
     def peso(m: list[tuple]) -> int:
+        if all(e[2] not in ("manual", "card") for e in m):
+            return -1                                    # automático (rush de corte) sai antes de qualquer direção
         melhor = 0
         for t, tipo, origem, opt in m:
             c = next((cat[k]["categoria"] for k in (opt.get("id"), tipo) if k and k in cat), tipo)

@@ -1,0 +1,20 @@
+{
+  "cliente": "the-new-ads",
+  "segmento": "tna",
+  "caption_style": "highlight",
+  "font": "Poppins ExtraBold",
+  "accent": "#FF6A00",
+  "uppercase": true,
+  "gap": 0.38,
+  "zoom": 1.1,
+  "progress_bar": true,
+  "transicao": ["corte_seco"],
+  "impacto": null,
+  "gancho_fx": null,
+  "look": [],
+  "grade": "auto",
+  "musica": {"clima": "corporativo"},
+  "palavras_destaque": ["resultado", "zero", "retorno", "caixa", "saída", "parceiro", "escalar"],
+  "cta": "Toquem no botão abaixo e falem comigo",
+  "observacoes": "Perfil da própria TNA (marca/design-guide.md): preto, âmbar #FF6A00 só como sinal, sério mas humano, sem hype. Douglas grava selfie na mão, câmera frontal (o iPhone salva espelhado; ele prefere manter assim, 01/10/2026), parede cinza lisa atrás: bom para recorte da pessoa, ruim para rastreio (sem textura), então texto preso na cena fica sem rastrear. Sem pulse nem shake (feedback 30/09)."
+}
