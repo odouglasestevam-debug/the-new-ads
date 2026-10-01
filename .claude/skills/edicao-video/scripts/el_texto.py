@@ -187,6 +187,12 @@ def bloco(linhas: list[dict], W: int, H: int, x: float, y: float, gap: float = 0
     objs = [Linha(l, W) for l in linhas]
     if not objs:
         return []
+    larg = max(o.tw + abs(float(l.get("dx", 0))) * W for o, l in zip(objs, linhas))
+    if larg > W * 0.94:                                 # não deixar o texto sair da tela/do plano: reduz o bloco todo
+        k = W * 0.92 / larg
+        print(f"  aviso: texto '{' / '.join(o.txt for o in objs)}' não cabia; reduzido para {k:.0%} do tamanho pedido.")
+        linhas = [dict(l, tam=float(l.get("tam", 0.08)) * k) for l in linhas]
+        objs = [Linha(l, W) for l in linhas]
     alturas = [o.th for o in objs]
     gaps = [float(l.get("gap", gap)) * W for l in linhas]
     total = sum(alturas) + sum(gaps[1:])

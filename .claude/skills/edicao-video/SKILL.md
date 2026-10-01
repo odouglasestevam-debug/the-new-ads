@@ -1,6 +1,6 @@
 ---
 name: edicao-video
-description: Edita vídeo de fala (talking head, reels, criativo de anúncio) com a personalidade do cliente. Transcreve local, corta pausas, dá zoom de retenção, faz legenda animada com destaque na palavra falada (highlight, pop, karaokê, bounce), aplica efeitos sonoros, corrige a imagem conforme o ambiente (luz fraca, sol, contraluz, HDR), mixa música e entrega em -14 LUFS. Use quando o Douglas pedir "edita esse vídeo", "legenda animada", "legenda estilo capcut", "corta as pausas", "tira os vazios", "deixa com mais retenção", "reel", "criativo em vídeo", "coloca efeito sonoro", "acervo de sons", "riser", "hit", "zoom" ou "transição". Tudo roda local, sem serviço pago.
+description: Edita vídeo de fala (talking head, reels, criativo de anúncio) com a personalidade do cliente. Transcreve local, corta pausas, dá zoom de retenção, faz legenda animada com destaque na palavra falada (highlight, pop, karaokê, bounce), aplica efeitos sonoros, corrige a imagem conforme o ambiente (luz fraca, sol, contraluz, HDR), mixa música e entrega em -14 LUFS. Use quando o Douglas pedir "edita esse vídeo", "legenda animada", "legenda estilo capcut", "corta as pausas", "tira os vazios", "deixa com mais retenção", "reel", "criativo em vídeo", "coloca efeito sonoro", "acervo de sons", "riser", "hit", "zoom" ou "transição". Também tem a caixa de ferramentas de edição profissional: texto atrás da pessoa, texto em perspectiva no chão ou na parede, transição por foco, clone, rastro, moldura com título, print e B-roll, tipografia cinética com marca-texto, CTA com cursor e quadro branco desenhado sincronizado com a fala. Use também quando ele pedir "edição profissional", "efeito de texto atrás", "texto no chão", "clone", "motion", "quadro branco" ou mandar um reel de referência. Tudo roda local, sem serviço pago.
 ---
 
 # Edição de vídeo da The New Ads
@@ -27,7 +27,7 @@ Scripts em `.claude/skills/edicao-video/scripts/`. Saídas em `<pasta do vídeo>
 pip install -r ".claude/skills/edicao-video/requirements.txt"     # só em máquina nova; nesta já está tudo instalado
 python ".claude/skills/edicao-video/scripts/fetch_assets.py"
 ```
-Baixa 7 fontes (Poppins, Anton, Bebas Neue, Archivo Black, DM Serif Display) e o modelo de rosto. Requisitos já instalados: ffmpeg (via imageio-ffmpeg), faster-whisper, mediapipe, PIL, numpy. A fonte da marca TNA (Clash Display) é manual: baixar na Fontshare e colocar em `fonts/ClashDisplay-Bold.ttf`.
+Baixa 13 fontes OFL (Poppins, Anton, Bebas Neue, Archivo Black, DM Serif Display, Instrument Serif e itálico, Krona One, Kalam, Barlow Condensed Light e ExtraBold), o modelo de rosto e os dois modelos de recorte de pessoa (fino para o render final, rápido para a prévia). Requisitos já instalados: ffmpeg (via imageio-ffmpeg), faster-whisper, mediapipe, PIL, numpy. A fonte da marca TNA (Clash Display) é manual: baixar na Fontshare e colocar em `fonts/ClashDisplay-Bold.ttf`.
 
 ## Fluxo
 
@@ -96,9 +96,38 @@ python ".claude/skills/edicao-video/scripts/cards.py" "VIDEO" --work "PASTA" --p
 ```
 Escolher onde entra cada cartão é decisão editorial minha: ler a transcrição e procurar citação ("todo dia alguém comenta..."), termo que define o assunto, enumeração ("dificuldade de venda, de financiamento, ...") e negação. Rodar `captions.py` de novo depois de criar cartão tipográfico (ele tira a legenda do trecho). Pode ficar em cima do logo: é proposital.
 
+### 5c. Caixa de ferramentas de edição profissional (referências de 01/10/2026)
+O Douglas mandou 3 reels como o nível de edição que ele quer (`references/referencias-douglas.md`) e pediu que eu saiba fazer e saiba QUANDO usar cada elemento. **Antes de escolher, ler `references/caixa-ferramentas.md`**: princípio (efeito que interage com a cena ou com a fala, nunca solto), ferramenta por ferramenta com quando usar e quando não, receitas por objetivo, teto de densidade e o checklist de gravação. O formato de cada elemento está no topo de `scripts/elementos.py`.
+
+| Ferramenta | Tipo em `elementos.json` |
+|---|---|
+| Título de cena (pesada + serifada itálica, brilho, contorno, marca-texto) | `texto` |
+| Texto atrás da pessoa / preso na cena (acompanha zoom; `rastrear` com câmera na mão) | `texto` com `camada: atras`, `ancora: cena` |
+| Texto em perspectiva no chão, mesa ou parede, com oclusão e textura | `texto` com `plano` (4 cantos) |
+| Transição por foco (desfoca, clareia, foca) | `foco`, ou `"transicao": ["foco"]` no perfil |
+| Clone (outra tomada da mesma pessoa, tripé) e rastro (eco do movimento) | `clone`, `rastro` |
+| Moldura com título fixo (bloco de oferta/CTA) | `moldura` |
+| Print, mockup, logo, cartão final; B-roll em janela ou tela cheia | `imagem`, `video` |
+| Tipografia cinética em tela cheia (palavra entra focando, marca-texto cresce) | `cinetica` |
+| CTA falso com cursor que clica | `cta` |
+| Quadro branco desenhado à mão, sincronizado com a fala, câmera andando pela lousa | `quadro` (ver `el_quadro.py`) |
+
+```
+python ".claude/skills/edicao-video/scripts/segment.py" "VIDEO" --teste 3.2,8.0          # o recorte pega a pessoa inteira?
+python ".claude/skills/edicao-video/scripts/render.py" "VIDEO" --profile ... --preview     # gera base.mp4 e geometria.json
+python ".claude/skills/edicao-video/scripts/elementos.py" "VIDEO" --work "PASTA" --quadro 4.2   # quadro com grade de 10% (posição, cantos do plano)
+# escrever PASTA/elementos.json, conferir sem renderizar tudo:
+python ".claude/skills/edicao-video/scripts/elementos.py" "VIDEO" --work "PASTA" --previa 3.1,8.4,12.0
+```
+- O `render.py` aplica sozinho quando existe `elementos.json`: base (cortes, zoom, cor) -> elementos -> cartões e legenda por cima. A legenda some sozinha nas telas `cinetica` e em qualquer elemento com `"esconde_legenda": true`.
+- Com títulos de cena, usar a legenda `editorial` (serifada pequena, palavra-chave em itálico) ou `discreta`; a `highlight` compete com eles.
+- Música: `--music-in 7.0` (entra depois do gancho) e `--music-drop 5.7` (acha o drop da música e encaixa na virada para o bloco forte). Conferir de ouvido.
+- Elemento preso na cena não atravessa corte seco: o script avisa. Clone, rastro, perspectiva e texto atrás pedem câmera parada; se o bruto não foi gravado assim, dizer ao Douglas antes de prometer o efeito.
+- O plano editorial (quais ferramentas, em que instante e por quê) vai junto do plano da etapa 1 ou depois dos cortes, para o Douglas aprovar antes do render.
+
 ### 6. Efeitos visuais, efeitos sonoros, render e verificação
 
-**Feedback do Douglas (30/09, vale para todos os clientes): o "zoom" que ele quer é o CORTE que aproxima o personagem da tela e fica assim até o próximo corte, em ritmo de ~2 s. Zoom que vai e volta (`pulse`, `shake`), sons agudos (`pop`, `shimmer`) e efeitos de transição chamativos (`flash`, `whip`, `glitch`) parecem "aleatórios" para ele. Padrão: só corte seco com zoom alternado e whoosh discreto nos cortes.** Os efeitos abaixo existem, mas só usar quando ele pedir.
+**Feedback do Douglas (30/09, vale para todos os clientes): o "zoom" que ele quer é o CORTE que aproxima o personagem da tela e fica assim até o próximo corte, em ritmo de ~2 s. Zoom que vai e volta (`pulse`, `shake`), sons agudos (`pop`, `shimmer`) e efeitos de transição chamativos (`flash`, `whip`, `glitch`) parecem "aleatórios" para ele. Padrão: só corte seco com zoom alternado e whoosh discreto nos cortes.** Os efeitos abaixo existem, mas só usar quando ele pedir. **Isso não vale para a caixa de ferramentas da etapa 5c (01/10):** aqueles elementos interagem com a cena e com a fala, ele quer esse nível, e eu decido onde entram seguindo `references/caixa-ferramentas.md`. A transição `foco` é a exceção elegante para virada de assunto.
 ```
 python ".claude/skills/edicao-video/scripts/plan_fx.py" "VIDEO" --profile ... [--nivel leve|media|alta|off] [--music "arquivo.mp3"]
 python ".claude/skills/edicao-video/scripts/sfx.py" "VIDEO" --profile ...
@@ -156,9 +185,9 @@ Render final (sem `--preview`), `verify.py` de novo, e mandar: caminho completo 
 
 ## O que entra na retenção (e o que não)
 
-Entra, tudo por código: corte de pausa; punch-in alternado em cada troca; troca de zoom sem corte a cada ~4 s em trecho longo; aproximação lenta no gancho; legenda com destaque na palavra falada e pop; palavra-chave acesa; gancho de texto; barra de progresso (segmentos que pedem); transições e efeitos de impacto estilo CapCut (flash, whip, glitch, dip, zoom blur, pulse, shake) com som próprio; beat sync com música; fundo desfocado para horizontal em vertical; música com ducking sob a voz; loudness de plataforma. Cada som e efeito tem teto de densidade e fica amarrado a um corte ou palavra-chave.
+Entra, tudo por código: corte de pausa; punch-in alternado em cada troca; troca de zoom sem corte a cada ~4 s em trecho longo; aproximação lenta no gancho; legenda com destaque na palavra falada e pop; palavra-chave acesa; gancho de texto; barra de progresso (segmentos que pedem); transições e efeitos de impacto estilo CapCut (flash, whip, glitch, dip, zoom blur, pulse, shake) com som próprio; beat sync com música; fundo desfocado para horizontal em vertical; música com ducking sob a voz, entrada tardia e drop encaixado; loudness de plataforma; a caixa de ferramentas da etapa 5c (texto atrás da pessoa, perspectiva, foco, clone, rastro, moldura, print, B-roll, tipografia cinética, CTA com cursor, quadro branco). Cada som e efeito tem teto de densidade e fica amarrado a um corte ou palavra-chave.
 
-Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duração e na sincronia da fala; só faz sentido em vídeo sem fala ou B-roll, ainda não implementado), stickers e elementos animados do CapCut, emoji na legenda (libass não renderiza emoji colorido), B-roll e cutaway com imagem, mapeamento de animação por Remotion, tratamento de eco com VoiceFixer (procedimento em memória: `edicao-video-olhar-e-eco`, feito à mão quando o áudio vem de mic distante), biblioteca de trilhas (a música vem do Douglas), reenquadramento inteligente além de rosto central.
+Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duração e na sincronia da fala; só faz sentido em vídeo sem fala ou B-roll, ainda não implementado), personagem ou objeto gerado por IA (fora do motor local, decisão do Douglas em 01/10), stickers animados prontos do CapCut (dá para usar PNG/vídeo próprio como `imagem`/`video`), emoji na legenda (libass não renderiza emoji colorido), mapeamento de animação por Remotion, tratamento de eco com VoiceFixer (procedimento em memória: `edicao-video-olhar-e-eco`, feito à mão quando o áudio vem de mic distante), biblioteca de trilhas (a música vem do Douglas), reenquadramento inteligente além de rosto central.
 
 ## Limites que precisam ser ditos
 
@@ -166,3 +195,5 @@ Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duraç
 - Vertical virar horizontal amplia a imagem ~1,8x e fica mole. O render avisa.
 - Claude não ouve o áudio: só mede. Eco, voz fanha e música alta demais exigem o ouvido do Douglas.
 - Zoom em torno do rosto depende da detecção; sem rosto (produto), cai no centro. Passe `--focus x,y` se precisar.
+- O recorte de pessoa (texto atrás, clone, rastro) é IA local: cabelo solto, braço esticado rápido e roupa da cor do fundo podem falhar por alguns quadros. Conferir a folha do `segment.py` e a prévia. Rastreio de câmera na mão escorrega em chicote e desfoque forte.
+- Prévia com elementos: ~2,5 min para 36 s (recorte rápido). Render final usa o recorte fino e leva mais.

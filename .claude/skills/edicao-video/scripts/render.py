@@ -336,6 +336,8 @@ def main() -> None:
         vsrc = base_el
     run([FF, "-v", "error", "-y", "-i", vsrc, "-i", norm_wav, "-filter_complex_script", work / "video.filter",
          "-map", "[vout]", "-map", "1:a", *enc, "-t", f"{total:.3f}", out], cwd=work)
+    if staged:
+        base_el.unlink(missing_ok=True)                  # intermediário grande; o base.mp4 fica para o elementos.py --previa
     size = out.stat().st_size / 1e6
     save_json(work / "render.json", {"out": str(out), "grade": gname, "grade_motivo": why, "scene": scene, "aspect": a.aspect,
                                      "size_px": [W, H], "total": total, "music": a.music, "sfx": use_sfx,

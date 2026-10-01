@@ -47,6 +47,7 @@ def detect(video: Path, times: list[float]) -> dict | None:
             xs = [p.x for p in res.face_landmarks[0]]
             ys = [p.y for p in res.face_landmarks[0]]
             pts.append((np.mean([min(xs), max(xs)]), np.mean([min(ys), max(ys)]), min(ys), max(ys)))
+    lm.close()                      # sem isso o MediaPipe pode travar minutos na saída do Python
     if not pts:
         return None
     a = np.median(np.array(pts), axis=0)

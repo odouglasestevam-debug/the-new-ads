@@ -63,20 +63,26 @@ Som: trilha com **drop em 5,7 s**, exatamente na entrada do motion graphics (kic
 3. Transição por foco (desfoca, clareia, foca) em vez de whip ou glitch.
 4. Motion graphics de tela cheia com conteúdo do cliente (ref1) e diagrama sincronizado com a fala (ref2).
 
-## Viabilidade no motor local
+## O que virou ferramenta (implementado em 01/10/2026)
 
-| Efeito | Como | Estado |
-|---|---|---|
-| Legenda editorial (serifada, itálico na palavra-chave) | ASS + fonte OFL nova (Instrument Serif) | Fácil |
-| Título pesada + serifada itálica com brilho | ASS/PIL, `\blur` para o brilho | Fácil |
-| Transição por foco (desfoque + clarão + foco puxado) | ffmpeg `gblur` animado + curva de brilho | Fácil |
-| Layout emoldurado com header | ffmpeg `overlay`/`pad` | Fácil |
-| Rastro fantasma | ffmpeg `lagfun`/`tmix` em trecho | Fácil |
-| **Texto atrás da pessoa** | MediaPipe segmentação (modelo novo, mesma origem do face_landmarker) + composição em 3 camadas | Médio, efeito de maior impacto |
-| Texto em perspectiva na parede/chão, câmera parada | Homografia fixa de 4 pontos (OpenCV) + máscara da pessoa | Médio |
-| Texto em perspectiva com câmera em movimento | Rastreio de plano (OpenCV) | Difícil, frágil |
-| Clones | Exige gravar no tripé, várias tomadas; composição por máscara | Médio, depende da gravação |
-| Tipografia cinética / portfólio / CTA com cursor (ref1) | HTML+CSS animado capturado quadro a quadro (precisa Playwright no Python) ou PIL | Médio |
-| Quadro branco sincronizado (ref2) | SVG com traço animado + fonte manuscrita OFL, tempos do `words.json` | Médio a difícil |
-| Personagem gerado por IA | Precisa gerador de imagem/vídeo, fora do motor local | Fora |
-| Caminhão / sumiço | Encenado na gravação | Roteiro, não edição |
+O Douglas pediu para levar todo o acervo para a skill, menos o personagem gerado por IA. Tudo abaixo está em `scripts/elementos.py` (+ `el_texto.py`, `el_quadro.py`, `segment.py`), testado em vídeo real de câmera parada e na abertura em movimento da ref3. Quando usar cada um: `caixa-ferramentas.md`.
+
+| Efeito da referência | Ferramenta |
+|---|---|
+| "sabe / fazer?" atrás da pessoa, preso na parede com a câmera andando (ref3) | `texto` com `camada: atras`, `ancora: cena`, `rastrear: true` |
+| "perspectiva no chão", "TEXTO" no paralelepípedo, a pessoa pisa em cima (ref3) | `texto` com `plano`, `camada: atras`, `textura` |
+| Transição desfoca, clareia e foca (ref3) | `foco` |
+| Clones (ref3) | `clone` (precisa de tripé e tomadas gravadas para isso) |
+| Rastro fantasma (ref3) | `rastro` |
+| Layout emoldurado com "clique em saiba mais" e alças de seleção (ref3) | `moldura` |
+| Tela do celular, prints de prova (ref2, ref3) | `video` (janela ou tela cheia) e `imagem` |
+| Legenda serifada pequena com itálico (ref3) e legenda discreta (ref1) | estilos `editorial` e `discreta` |
+| Gancho extra-largo com palavra em contorno (ref1) | `texto` com fonte `larga` e `contorno` |
+| Tipografia cinética com marca-texto limão (ref1) | `cinetica` |
+| Portfólio de clientes e logo final (ref1) | `imagem` (com `fundo` para o cartão de logo) + `texto` com `sublinhado` |
+| Botão de WhatsApp com cursor clicando (ref1) | `cta` |
+| Drop da música na entrada do motion (ref1), trilha que entra depois do gancho (ref3) | `render.py --music-drop T`, `--music-in T` |
+| Quadro branco no céu, sublinhado vermelho na palavra, câmera andando pela lousa (ref2) | `quadro` |
+| Refrão de close "não sabe, né?" (ref3) | Padrão editorial (gravação + corte + `texto`), em `caixa-ferramentas.md` |
+| Sumir atrás do caminhão (ref3) | Encenação na gravação, no checklist de gravação |
+| Personagem gerado por IA (ref3) | Fora, por decisão do Douglas |
