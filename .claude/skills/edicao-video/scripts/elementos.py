@@ -780,7 +780,7 @@ class Cta(El):
         d.rounded_rectangle((0, 0, pw * 2 - 1, ph * 2 - 1), radius=ph, fill=(255, 255, 255, 255))
         f1 = font("poppins_semi", int(W * 0.03) * 2)
         f2 = font("poppins", int(W * 0.026) * 2)
-        bt = s.get("botao", "SAIBA MAIS")
+        bt = s.get("botao", "SAIBA MAIS").upper()
         bw = int(f2.getlength(bt)) + int(W * 0.06) * 2
         bh = int(ph * 0.66) * 2
         bx0, by0 = pw * 2 - bw - int(ph * 0.17) * 2, (ph * 2 - bh) // 2
@@ -788,7 +788,9 @@ class Cta(El):
         self.btn = (bx0 // 2, by0 // 2, (bx0 + bw) // 2, (by0 + bh) // 2)
         d.rounded_rectangle((bx0, by0, bx0 + bw, by0 + bh), radius=bh // 2, fill=acc + (255,))
         d.text((bx0 + bw // 2, ph), bt, font=f2, fill=(17, 17, 17, 255), anchor="mm")
-        d.text((int(ph * 0.45) * 2, ph), s.get("texto", ""), font=f1, fill=(51, 51, 51, 255), anchor="lm")
+        txt = s.get("texto", "")
+        d.text((int(ph * 0.45) * 2, ph), txt.upper() if s.get("caixa_alta", True) else txt, font=f1,
+               fill=(51, 51, 51, 255), anchor="lm")
         im = im.resize((pw, ph), Image.LANCZOS)
         a = np.asarray(im, np.float32) / 255
         self.pill = Imagem._moldar(a, {"sombra": 0.35}, W)

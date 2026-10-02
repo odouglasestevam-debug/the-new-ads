@@ -90,7 +90,7 @@ class Linha:
     def __init__(self, spec: dict, W: int):
         s = dict(spec)
         txt = clean_text(str(s.get("texto", "")))
-        if s.get("caixa_alta"):
+        if s.get("caixa_alta", True):                   # texto de destaque sempre em caixa alta (Douglas, 01/10/2026)
             txt = txt.upper()
         self.spec, self.txt = s, txt
         px = max(8, int(round(float(s.get("tam", 0.08)) * W)))

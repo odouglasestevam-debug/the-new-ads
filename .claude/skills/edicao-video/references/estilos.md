@@ -39,7 +39,7 @@ Sempre conferir `verify/antes_depois.png`, principalmente tom de pele. HDR é co
 
 ## Som
 
-- Voz: corta graves abaixo de 85 Hz, redução de ruído leve (`--denoise off|leve|forte`), presença em 3,5 kHz, compressor, depois loudness medido em duas passadas (-14 LUFS, pico -2 dB de folga para o AAC).
+- Voz: corta graves abaixo de 85 Hz (70 com VoiceFixer), redução de ruído leve (`--denoise off|leve|forte`), equalização medida para a curva-padrão de fala (`voz_eq.py`, desde 01/10: a fixa deixava fanho), compressor, depois loudness medido em duas passadas (-14 LUFS, pico -2 dB de folga para o AAC).
 - Efeitos sintéticos (sem banco, sem direito autoral): `whoosh` nos cortes, `pop` nas palavras-chave, `impact` e `tick` só sob pedido em `sfx_manual.json`. Níveis: `off`, `leve` (1 por 10 s), `media` (2), `alta` (3). Cada efeito amarra a algo visível.
 - Música: **indispensável, todo vídeo tem** (Douglas, 01/10).
   - **Origem:** sai do acervo `assets/musica/`, 21 trilhas do Mixkit em 6 climas, pelo clima do perfil ou do segmento, ou da trilha que o Douglas mandar (`--music`).

@@ -74,7 +74,14 @@ Mostra cada corte, quanto tira, pausas longas (podem ser dramáticas), regravaç
 ```
 python ".claude/skills/edicao-video/scripts/voz.py" "VIDEO" --work "PASTA"      # VoiceFixer, ~1,5x a duração, em segundo plano
 ```
-Tira eco e ruído, alinha com o áudio da câmera (o VoiceFixer adianta ou atrasa a voz em alguns ms, e o script mede e corrige; o "lag residual" impresso tem que ser ~0) e o render aplica a EQ compensatória. Os cortes continuam saindo do áudio original. Sem `voz_restaurada.wav` o render usa o áudio da câmera com denoise leve, que soa claramente pior. Conferir: curva de frequências contra uma edição que o Douglas aprovou (3 faixas bastam: 1-2k, 2-4k e 4-8k) e transcrição do áudio final contra o roteiro.
+Tira eco e ruído, alinha com o áudio da câmera (o VoiceFixer adianta ou atrasa a voz em alguns ms, e o script mede e corrige; o "lag residual" impresso tem que ser ~0) Os cortes continuam saindo do áudio original. Sem `voz_restaurada.wav` o render usa o áudio da câmera com denoise leve.
+
+**Equalização medida (Douglas, 01/10/2026: "a skill está deixando fanho"):** o render mede o espectro médio da fala de cada vídeo e corrige para a curva-padrão de fala (ANSI S3.5), com `scripts/voz_eq.py`.
+- **O que corrige:** só o formato do espectro, com corte até -9 dB e reforço até +6 dB. É um FIR de fase linear sem atraso no áudio.
+- **Por que mudou:** a EQ fixa antiga pós-VoiceFixer foi calibrada no IPTU, com mic distante. No vídeo da TNA, com celular perto da boca, ela deixou 160 a 630 Hz de 8 a 14 dB acima do normal e 4 a 8 kHz de 12 a 17 dB acima. Com 1 a 3 kHz afundado no meio, a voz ficou oca e anasalada.
+- **Como conferir:** `python scripts/voz_eq.py ARQUIVO --pre "highpass=f=70"` mostra medido, alvo, depois e o erro médio por terço de oitava. Em 01/10 o erro caiu de 3,1 para 1,3 dB na TNA e de 5,2 para 2,2 dB no IPTU. No IPTU, a correção medida bateu com a EQ que tinha sido calibrada nele.
+- **Transcrição:** conferir a do áudio final contra o roteiro.
+- **Limite:** Claude não ouve. Se o Douglas ainda achar fanho, testar a versão sem VoiceFixer (`--voz original`), que também passa pela EQ medida.
 
 ### 5. Legendas e palavras-chave
 Claude lê a transcrição e escolhe as palavras-chave (em média 1 a cada 2 frases: o número, o termo do negócio, a promessa, o "não"). Nada de destacar tudo.

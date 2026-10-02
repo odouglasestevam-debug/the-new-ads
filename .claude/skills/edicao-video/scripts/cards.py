@@ -38,6 +38,12 @@ def rrect(w: float, h: float, r: float) -> str:
             f"b {k} {h} 0 {h - k} 0 {h - r} l 0 {r} b 0 {k} {k} 0 {r} 0")
 
 
+def CA(c: dict, txt: str) -> str:
+    """Texto de destaque sempre em caixa alta (Douglas, 01/10/2026). Só o comentário citado (cartão "comentario")
+    fica como foi escrito, porque imita uma mensagem real; "caixa_alta": false no cartão desliga."""
+    return txt.upper() if c.get("caixa_alta", True) else txt
+
+
 def fade_out(st: float, en: float, d: float = 0.25) -> str:
     return f"\\t({int(max(en - st - d, 0) * 1000)},{int((en - st) * 1000)},\\alpha&HFF&)"
 
@@ -62,7 +68,7 @@ def build(spec: list[dict], W: int, H: int, accent: str, fonts: dict) -> list[st
                       f"\\alpha&HFF&\\t(0,200,\\alpha&H00&){fo}}}{rrect(BW, BH, P(34))}{{\\p0}}")
             ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},Shape,,0,0,0,,{{\\an7\\pos({bx + P(40)},{by + P(38)})\\p1\\c&HC8C8C8&\\bord0\\shad0\\alpha&HFF&"
                       f"\\t(0,200,\\alpha&H00&){fo}\\fscx{P(100)}\\fscy{P(100)}}}m 32 0 b 50 0 64 14 64 32 b 64 50 50 64 32 64 b 14 64 0 50 0 32 b 0 14 14 0 32 0{{\\p0}}")
-            ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},CmtLbl,,0,0,0,,{{\\an7\\pos({bx + P(124)},{by + P(44)})\\alpha&HFF&\\t(0,200,\\alpha&H00&){fo}}}{c.get('rotulo', 'COMENTÁRIO')}")
+            ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},CmtLbl,,0,0,0,,{{\\an7\\pos({bx + P(124)},{by + P(44)})\\alpha&HFF&\\t(0,200,\\alpha&H00&){fo}}}{CA(c, c.get('rotulo', 'COMENTÁRIO'))}")
             ev.append(f"Dialogue: 4,{ts(de + 0.15)},{ts(ate)},Cmt,,0,0,0,,{{\\an7\\pos({bx + P(124)},{by + P(104)})\\alpha&HFF&\\t(0,220,\\alpha&H00&){fo}}}{c['texto']}")
             if c.get("riscar_em") is not None:
                 t_r = float(c["riscar_em"])
@@ -72,9 +78,9 @@ def build(spec: list[dict], W: int, H: int, accent: str, fonts: dict) -> list[st
             BW, BH = P(800), P(290)
             ev.append(f"Dialogue: 3,{ts(de)},{ts(ate)},Shape,,0,0,0,,{{\\an7\\pos({(W - BW) // 2},{cy - BH // 2})\\p1\\c{DARK}\\alpha&H0A&\\3c{accent}\\bord2\\shad0"
                       f"\\fscx96\\fscy96\\t(0,200,\\fscx100\\fscy100){fo}}}{rrect(BW, BH, P(36))}{{\\p0}}")
-            ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},Kick,,0,0,0,,{{\\an5\\move({W // 2},{cy - P(70)},{W // 2},{cy - P(84)},0,300)\\alpha&HFF&\\t(0,220,\\alpha&H00&){fo}}}{c['kicker']}")
+            ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},Kick,,0,0,0,,{{\\an5\\move({W // 2},{cy - P(70)},{W // 2},{cy - P(84)},0,300)\\alpha&HFF&\\t(0,220,\\alpha&H00&){fo}}}{CA(c, c['kicker'])}")
             ev.append(f"Dialogue: 4,{ts(de + 0.05)},{ts(ate)},Serif,,0,0,0,,{{\\an5\\move({W // 2},{cy + P(48)},{W // 2},{cy + P(24)},0,320)\\alpha&HFF&\\t(0,240,\\alpha&H00&)"
-                      f"\\fscx94\\fscy94\\t(0,320,\\fscx100\\fscy100){fo}}}{c['texto']}")
+                      f"\\fscx94\\fscy94\\t(0,320,\\fscx100\\fscy100){fo}}}{CA(c, c['texto'])}")
             ev.append(f"Dialogue: 4,{ts(de + 0.3)},{ts(ate)},Shape,,0,0,0,,{{\\an5\\pos({W // 2},{cy + P(112)})\\p1\\c{accent}\\bord0\\shad0\\fscx0\\t(0,420,\\fscx100){fo}}}m 0 0 l {P(340)} 0 l {P(340)} 5 l 0 5{{\\p0}}")
         elif kind == "lista":
             itens = c["itens"]
@@ -82,7 +88,7 @@ def build(spec: list[dict], W: int, H: int, accent: str, fonts: dict) -> list[st
             lx, ly = (W - BW) // 2, cy - BH // 2 + P(30)
             ev.append(f"Dialogue: 3,{ts(de)},{ts(ate)},Shape,,0,0,0,,{{\\an7\\pos({lx},{ly})\\p1\\c{DARK}\\alpha&H0A&\\3c{accent}\\bord2\\shad0"
                       f"\\alpha&HFF&\\t(0,200,\\alpha&H0A&){fo}}}{rrect(BW, BH, P(36))}{{\\p0}}")
-            ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},Kick,,0,0,0,,{{\\an5\\move({W // 2},{ly + P(72)},{W // 2},{ly + P(62)},0,250)\\alpha&HFF&\\t(0,200,\\alpha&H00&){fo}}}{c['titulo']}")
+            ev.append(f"Dialogue: 4,{ts(de)},{ts(ate)},Kick,,0,0,0,,{{\\an5\\move({W // 2},{ly + P(72)},{W // 2},{ly + P(62)},0,250)\\alpha&HFF&\\t(0,200,\\alpha&H00&){fo}}}{CA(c, c['titulo'])}")
             icon, icol = (CHECK, accent) if c.get("icone") == "check" else (XMARK, RED)
             for k, it in enumerate(itens):
                 yy = ly + P(150 + k * 100)
@@ -90,7 +96,7 @@ def build(spec: list[dict], W: int, H: int, accent: str, fonts: dict) -> list[st
                 f2 = fade_out(t_i, ate)
                 ev.append(f"Dialogue: 4,{ts(t_i)},{ts(ate)},Shape,,0,0,0,,{{\\an7\\pos({lx + P(60)},{yy - P(22)})\\p1\\c{icol}\\bord0\\shad0\\fscx40\\fscy40"
                           f"\\t(0,160,\\fscx105\\fscy105)\\t(160,240,\\fscx100\\fscy100){f2}}}{icon}{{\\p0}}")
-                ev.append(f"Dialogue: 4,{ts(t_i)},{ts(ate)},Item,,0,0,0,,{{\\an4\\move({lx + P(150)},{yy},{lx + P(130)},{yy},0,220)\\alpha&HFF&\\t(0,200,\\alpha&H00&){f2}}}{it['texto']}")
+                ev.append(f"Dialogue: 4,{ts(t_i)},{ts(ate)},Item,,0,0,0,,{{\\an4\\move({lx + P(150)},{yy},{lx + P(130)},{yy},0,220)\\alpha&HFF&\\t(0,200,\\alpha&H00&){f2}}}{CA(c, it['texto'])}")
         elif kind == "tipografia":
             size = P(c.get("tamanho", 150))
             nlines = sum(p["texto"].count("\\N") for p in c["palavras"]) + 1
@@ -102,7 +108,7 @@ def build(spec: list[dict], W: int, H: int, accent: str, fonts: dict) -> list[st
             for p in c["palavras"]:
                 ms = int((float(p["t"]) - de) * 1000)
                 col = accent if p.get("ouro") else "&HFFFFFF&"
-                txt += f"{{\\c{col}\\alpha&HFF&\\t({ms},{ms + 140},\\alpha&H00&)}}{p['texto']}"
+                txt += f"{{\\c{col}\\alpha&HFF&\\t({ms},{ms + 140},\\alpha&H00&)}}{CA(c, p['texto'])}"
             ev.append(f"Dialogue: 9,{ts(de)},{ts(ate)},Serif,,0,0,0,,{{\\an8\\pos({W // 2},{top})\\fs{size}}}{txt}")
         else:
             raise SystemExit(f"Tipo de cartão desconhecido: {kind}")

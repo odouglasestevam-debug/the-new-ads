@@ -71,6 +71,8 @@ class Quadro(El):
             if f == "texto":
                 tam = float(it.get("tam", 0.04))
                 linhas = str(it["texto"]).replace("\\n", "\n").split("\n")
+                if it.get("caixa_alta", True):              # caixa alta sempre; posição das palavras medida no mesmo texto
+                    linhas = [l.upper() for l in linhas]
                 objs = [Linha({"texto": l, "fonte": it.get("fonte", self.fonte), "tam": tam,
                                "cor": it.get("cor", self.cor)}, W) for l in linhas]
                 lh = tam * W * 1.18

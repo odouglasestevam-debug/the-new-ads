@@ -63,6 +63,11 @@ Depois de ver o vídeo de teste com as 13 ferramentas, o Douglas aprovou o resul
 
 Texto de cena: no máximo 4 palavras. O que for maior é cartão (cards.py) ou legenda.
 
+**Texto de destaque sempre em CAIXA ALTA (Douglas, 01/10/2026).**
+- **Onde vale:** título de cena, texto atrás da pessoa, perspectiva, tipografia cinética, quadro branco, botão do CTA e os cartões `termo`, `lista` e `tipografia`. O código já faz sozinho: `el_texto.Linha`, `el_quadro`, `cards.CA`.
+- **Exceções:** só o comentário citado (cartão `comentario`), que imita uma mensagem real, fica como foi escrito. `"caixa_alta": false` desliga numa linha ou cartão específico.
+- **Ao escolher o tamanho:** caixa alta ocupa mais largura. O `bloco()` reduz sozinho e avisa, mas texto atrás da cabeça pode subir e perder a oclusão. Conferir na `--previa`.
+
 Exemplo de dose (01/10, IPTU da Regularize, 44,5 s, 3 cartões já existentes): entraram só 3 ferramentas. Título atrás da pessoa no gancho, tipografia cinética no meio dos 12 s só de fala e foco na virada para as consequências. O cartão do comentário andou para o instante em que ela começa a ler o comentário, e assim abriu respiro depois do gancho. O CTA com cursor ficou de fora porque a lista termina a 3,6 s do fim e não sobra respiro.
 
 ## Checklist de gravação para o Douglas ou o cliente

@@ -278,6 +278,11 @@ def main() -> None:
     af.append("".join(f"[a{n}]" for n in range(len(clips))) + f"concat=n={len(clips)}:v=0:a=1[ac]")
     voz = (P["voz"]["cadeia_restaurada"] if use_vf
            else P["voz"]["cadeia"].replace("{denoise}", P["voz"]["denoise"][a.denoise]))
+    if "{eq}" in voz:                                # EQ medida neste vídeo (fixa deixava a voz fanha, 01/10/2026)
+        from voz_eq import eq_auto
+        eq, resumo = eq_auto(restored if use_vf else src, voz.split("{eq}")[0].rstrip(","))
+        voz = voz.replace("{eq}", eq)
+        print(f"voz: equalização medida para a curva-padrão de fala: {resumo}")
     use_sfx = (work / "sfx.wav").exists() and not a.no_sfx
     inputs = ["-i", src]
     idx = 1

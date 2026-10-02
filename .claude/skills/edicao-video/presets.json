@@ -347,9 +347,10 @@
       "leve": "afftdn=nr=6:nf=-55,",
       "forte": "afftdn=nr=12:nf=-50,"
     },
-    "cadeia": "highpass=f=85,{denoise}equalizer=f=250:t=q:w=1.2:g=-2,equalizer=f=3500:t=q:w=1:g=2.5,acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2",
+    "cadeia": "highpass=f=85,{denoise}{eq}acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2",
     "alvo_lufs": -14.0,
     "pico_db": -2.0,
-    "cadeia_restaurada": "highpass=f=55,equalizer=f=120:t=q:w=0.8:g=6,equalizer=f=220:t=q:w=0.9:g=4.5,equalizer=f=400:t=q:w=1:g=1.5,equalizer=f=1400:t=q:w=1.2:g=-4,equalizer=f=2600:t=q:w=1:g=-3,equalizer=f=5500:t=q:w=1:g=-3,acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2"
+    "cadeia_restaurada": "highpass=f=70,{eq}acompressor=threshold=-22dB:ratio=3:attack=5:release=80:makeup=2",
+    "_eq": "{eq} = equalização medida em cada vídeo (scripts/voz_eq.py), que leva a fala para a curva-padrão (ANSI S3.5). Substituiu em 01/10/2026 a EQ fixa pós-VoiceFixer (calibrada no IPTU de mic distante), que deixou a voz da TNA fanha: graves +8 a +14 dB e 1 a 3 kHz afundado."
   }
 }
