@@ -146,6 +146,7 @@ python ".claude/skills/edicao-video/scripts/verify.py" "VIDEO" --gaze --echo --r
 ```
 - `render.py` escolhe a correção de imagem pela exposição (`--grade auto`): luz fraca, sol forte ou natural. Cast de cor só vira aviso. **Ver sempre o `antes_depois.png`.** O preset `natural` foi calibrado em pessoa; em comida e produto esquenta demais, usar `--grade estudio_neutro`.
 - HDR (iPhone/câmera) é convertido para SDR sozinho.
+- Vídeo de iPhone vem com marca de giro (displaymatrix: o 4K é gravado deitado). O ffmpeg 7.1 copia essa marca para a saída quando o filtro usa a entrada em vários trechos, e quem lê o arquivo gira de novo. O `render.py` apaga a marca (`sidedata=delete`) e o `elementos.py` lê a base com `-noautorotate`. Achado em 01/10: os quadros da prévia saíram em listras.
 - **Efeitos no estilo CapCut** (recriados em ffmpeg, sem licença de terceiros): transições `flash`, `whip`, `glitch`, `dip_preto`, `zoom_blur` e corte seco; impacto `pulse` e `shake` nas palavras-chave; looks `grain`, `vinheta`, `vhs`. `plan_fx.py` escolhe onde entram pela sequência do perfil (`transicao`, `impacto`, `gancho_fx`, `look`). Lista: `python scripts/fx.py`. Forçar um efeito: `fx_manual.json` na pasta de trabalho, `[{"t": 12.3, "fx": "shake"}]`. Com `--music`, o impacto encaixa na batida mais próxima. `--no-fx` desliga tudo, `--look grain,vinheta` troca o look.
 - **Vídeo horizontal em tela vertical**: `--fit blur` mostra o quadro inteiro sobre um fundo desfocado (como o CapCut), em vez de recortar e ampliar.
 - Os efeitos entram antes da legenda, então o texto continua legível durante flash e glitch. Sempre conferir no preview se o efeito não cai em cima de um gesto ou de um logo.
@@ -199,7 +200,7 @@ python ".claude/skills/edicao-video/scripts/sfx_mapa.py" mapa "VIDEO"         # 
 Todo vídeo sai com trilha de fundo (Douglas, 01/10: "falta música de fundo, a skill precisa fazer isso, música é indispensável").
 - **Origem:** acervo em `assets/musica/` com 21 trilhas instrumentais do Mixkit em 6 climas: corporativo, sério, leve, energia, inspirador e elegante.
 - **Licença:** permite uso comercial e anúncio online sem crédito. Proíbe TV, rádio, CD/DVD, games e redistribuir o arquivo. Anúncio em TV ou rádio pede outra trilha.
-- **Escolha:** sem `--music`, o `render.py` pega a trilha do clima do perfil (`"musica": {"clima": "serio"}` ou `{"id": "mixkit_440"}`), ou do segmento (`CLIMA_SEGMENTO` em `musica.py`). É rodízio por vídeo, favoritas primeiro e vetadas nunca.
+- **Escolha:** sem `--music`, o `render.py` pega a trilha do clima do perfil (`"musica": {"clima": "serio"}` ou `{"id": "mixkit_440"}`), ou do segmento (`CLIMA_SEGMENTO` em `musica.py`). É rodízio por vídeo, favoritas primeiro e vetadas nunca. Faixa com quebra forte (variação acima de 20 dB entre o trecho baixo e o alto) só entra se for favorita, porque fundo de fala pede trilha estável.
 - **Início:** começa no início útil, pulando a introdução muda.
 - **Volume:** medido, 13 dB abaixo da voz (`"musica": {"rel_db": 10}` deixa mais presente, 16 mais discreta). Medido no IPTU em 01/10: com 16 dB a trilha ficava 21 dB abaixo da fala e quase sumia. O ducking baixa a trilha durante a fala e um corte em 2,5 kHz abre espaço para a voz.
 - **Fim:** fade de 1,2 s.
@@ -233,4 +234,4 @@ Não entra ainda: **speed ramp** (um dos efeitos mais usados, mas mexe na duraç
 - Claude não ouve o áudio: só mede. Eco, voz fanha e música alta demais exigem o ouvido do Douglas.
 - Zoom em torno do rosto depende da detecção; sem rosto (produto), cai no centro. Passe `--focus x,y` se precisar.
 - O recorte de pessoa (texto atrás, clone, rastro) é IA local: cabelo solto, braço esticado rápido e roupa da cor do fundo podem falhar por alguns quadros. Conferir a folha do `segment.py` e a prévia. Rastreio de câmera na mão escorrega em chicote e desfoque forte.
-- Tempo com elementos (medido em 01/10, 36 s com 13 elementos): prévia ~2,5 min (recorte rápido), render final ~7,5 min (resolução cheia e recorte fino). Para iterar, usar `elementos.py --previa` (segundos) em vez de renderizar tudo.
+- Tempo com elementos (medido em 01/10, 36 s com 13 elementos): prévia ~2,5 min (recorte rápido), render final ~7,5 min (resolução cheia e recorte fino). Para iterar, usar `elementos.py --previa` (segundos) em vez de renderizar tudo. 4K HDR de iPhone (70 s) é bem mais lento: a prévia levou ~20 min com o VoiceFixer rodando junto, por causa da conversão HDR quadro a quadro em 4K.

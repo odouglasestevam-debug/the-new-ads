@@ -236,7 +236,9 @@ def main() -> None:
     if staged:
         if a.preview:
             tail.append(f"scale={Wp}:{Hp}")
-        fc_base = fc + [f"[{vlabel}]" + ",".join(tail + ["format=yuv420p"]) + "[vbase]"]
+        # sidedata=delete: com a mesma entrada em vários trechos + concat, o ffmpeg 7.1 copia a marca de giro do iPhone
+        # (displaymatrix) para a saída, e quem lê o arquivo gira de novo (quadro deitado, listras no elementos.py)
+        fc_base = fc + [f"[{vlabel}]" + ",".join(tail + ["format=yuv420p", "sidedata=delete:type=DISPLAYMATRIX"]) + "[vbase]"]
         tail = post
     if cards_ok:
         tail.append("ass=cards.ass:fontsdir=fonts")      # cartões e telas tipográficas: por baixo da legenda
@@ -249,7 +251,7 @@ def main() -> None:
                     f"drawbox=x=0:y=0:w='iw*t/{total:.3f}':h=12:color={color}:t=fill")
     if a.preview and not staged:
         tail.append("scale=trunc(iw/4)*2:-2")
-    tail.append("format=yuv420p")
+    tail += ["format=yuv420p", "sidedata=delete:type=DISPLAYMATRIX"]   # vídeo de iPhone não sai deitado no player
     if staged:
         (work / "video_base.filter").write_text(";\n".join(fc_base), encoding="utf-8")
         fc = ["[0:v]" + ",".join(tail) + "[vout]"]

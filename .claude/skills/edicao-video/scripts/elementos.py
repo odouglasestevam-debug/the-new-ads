@@ -882,7 +882,7 @@ def processar(work: Path, src_base: Path, out: Path, t_ini: float | None = None,
     ctx = Ctx(W, H, fps, geo, lambda: Segmenter(modelo=modelo))
     ctx.modelo = modelo
     ss = ["-ss", f"{t_ini:.3f}"] if t_ini else []
-    rd = subprocess.Popen([FF, "-v", "error", *ss, "-i", str(src_base), "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
+    rd = subprocess.Popen([FF, "-v", "error", "-noautorotate", *ss, "-i", str(src_base), "-an", "-f", "rawvideo", "-pix_fmt", "rgb24", "-"],
                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL)
     wr = None
     if so_quadros is None:
@@ -976,7 +976,7 @@ def main() -> None:
             raise SystemExit("Ainda não há vídeo renderizado. Rode render.py --preview antes (ele gera base.mp4).")
         from PIL import Image
         f = vdir / f"quadro_{a.quadro:.2f}.png"
-        run([FF, "-v", "error", "-y", "-ss", f"{a.quadro:.3f}", "-i", srcv, "-frames:v", 1, f])
+        run([FF, "-v", "error", "-y", "-noautorotate", "-ss", f"{a.quadro:.3f}", "-i", srcv, "-frames:v", 1, f])
         quadro_grade(np.array(Image.open(f).convert("RGB")), f, a.quadro)
         print(f"quadro com grade: {f}  (fonte: {srcv.name})")
         return

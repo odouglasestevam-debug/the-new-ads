@@ -34,6 +34,7 @@ CLIMAS = {
 CLIMA_SEGMENTO = {"advocacia": "serio", "clinica_estetica": "leve", "imobiliaria_construcao": "corporativo",
                   "ecommerce_varejo": "energia", "tna": "corporativo", "padrao": "corporativo"}
 REL_DB = 13.0          # a trilha fica ~13 dB abaixo da voz (antes do ducking, que baixa mais durante a fala)
+VARIACAO_MAX = 20.0    # dB entre o trecho mais baixo e o mais alto (p10 a p90): acima disso a trilha tem quebra e subida fortes
 
 
 def carregar() -> dict:
@@ -72,7 +73,9 @@ def escolher(cfg: dict, semente: str) -> dict:
         raise SystemExit(f"Nenhuma trilha disponível no clima '{clima}'. Rodar fetch_assets.py --only musica, "
                          f"ou passar --music ARQUIVO.")
     fav = [f for f in fs if f.get("status") == "favorita"]
-    pool = fav or fs
+    # fundo de fala pede trilha estável: faixa com quebra forte (variação acima de VARIACAO_MAX) só entra se for favorita
+    estaveis = [f for f in fs if f.get("variacao_db", 0) <= VARIACAO_MAX]
+    pool = fav or estaveis or fs
     k = int(hashlib.md5(semente.encode("utf-8")).hexdigest(), 16) % len(pool)
     return pool[k]
 
