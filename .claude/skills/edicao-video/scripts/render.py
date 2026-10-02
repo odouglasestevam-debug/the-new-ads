@@ -265,7 +265,7 @@ def main() -> None:
     use_vf = restored.exists() and a.voz == "auto"
     aidx = 1 if use_vf else 0                        # entrada de onde sai a voz (1 = VoiceFixer, 0 = câmera)
     if use_vf:
-        print("voz: restaurada (VoiceFixer) + EQ compensatória")
+        print("voz: restaurada (VoiceFixer)")
     for n, c in enumerate(clips):
         d = c["out"] - c["in"]
         prev_cont = n > 0 and clips[n - 1]["cont"]
