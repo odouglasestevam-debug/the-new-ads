@@ -77,7 +77,7 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 **Contexto:** Público quente da Fátima Criança, onde o Douglas pediu envolvimento mais seguidores.
 
 ### 2026-10-02 — Conta nova exige aceitar os termos de público personalizado antes de lista e site
-**Regra:** Em conta de anúncio nova, criar público de visitantes do site (code 2663) ou usar lista de clientes num conjunto (subcode 1870090) falha até alguém aceitar os termos em `https://business.facebook.com/ads/manage/customaudiences/tos/?act=<ID>`. Público de envolvimento passa sem isso. Aceite é manual no navegador, pedir ao usuário logo no início.
+**Regra:** Em conta de anúncio nova, criar público de visitantes do site (code 2663) ou usar lista de clientes num conjunto (subcode 1870090) falha até alguém aceitar os termos em `https://business.facebook.com/ads/manage/customaudiences/tos/?act=<ID>`. Público de envolvimento passa sem isso. Aceite é manual no navegador, pedir ao usuário logo no início. **O aceite é por pessoa, não por conta:** precisa ser feito logado no perfil dono do token (o do Pedro Henrique, ppestevammachado), nos dois links: `business.facebook.com/ads/manage/customaudiences/tos/?act=<ID>` (lista de clientes) e `facebook.com/customaudiences/app/tos/?act=<ID>` (público criado via API). O Douglas aceitar no perfil dele não libera a API.
 **Contexto:** Conta CA01 da Fátima Criança, criada no mesmo dia.
 
 ### 2026-10-02 — Número de WhatsApp no promoted_object recusado, testar com validate_only
