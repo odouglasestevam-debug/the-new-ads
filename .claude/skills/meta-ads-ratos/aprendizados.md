@@ -71,3 +71,23 @@ Regras aprendidas durante o uso. O Claude DEVE ler este arquivo antes de criar q
 ### 2026-09-24 — Nome de conjunto não prova targeting, sempre conferir custom_audiences
 **Regra:** Antes de recomendar qualquer coisa baseada em "público quente x público frio", ler o targeting real do conjunto e checar `custom_audiences` e `excluded_custom_audiences` explicitamente (`AdSet.api_get(fields=["targeting"])`). Nome de conjunto é rótulo, não configuração.
 **Contexto:** Fátima Esportes tinha dois conjuntos, "00_AUTO_ENVOLVIMENTO" e "00_AUTO_ABERTO", com targeting idêntico e nenhum público personalizado em nenhum dos dois. Rodaram 2 meses competindo entre si pelas mesmas pessoas.
+
+### 2026-10-02 — Público de envolvimento: uma origem por regra, e "seguidores da página" sempre sozinho
+**Regra:** Uma regra de público de envolvimento aceita um único tipo de origem (`ig_business` OU `page`), senão volta subcode 1870028 "Muitos tipos de origem de eventos". E `page_liked` (quem segue a página hoje) não combina com nenhum outro evento de página (code 2654). Criar públicos separados (IG, FB envolvimento, FB seguidores) e somar no `custom_audiences` do conjunto. Origem do Instagram é o ID novo (17841...); o ID legado do Instagram está descontinuado (code 36106). Seguidores do Instagram não existem como público: o mais próximo é `ig_business_profile_all`.
+**Contexto:** Público quente da Fátima Criança, onde o Douglas pediu envolvimento mais seguidores.
+
+### 2026-10-02 — Conta nova exige aceitar os termos de público personalizado antes de lista e site
+**Regra:** Em conta de anúncio nova, criar público de visitantes do site (code 2663) ou usar lista de clientes num conjunto (subcode 1870090) falha até alguém aceitar os termos em `https://business.facebook.com/ads/manage/customaudiences/tos/?act=<ID>`. Público de envolvimento passa sem isso. Aceite é manual no navegador, pedir ao usuário logo no início.
+**Contexto:** Conta CA01 da Fátima Criança, criada no mesmo dia.
+
+### 2026-10-02 — Número de WhatsApp no promoted_object recusado, testar com validate_only
+**Regra:** `promoted_object.whatsapp_phone_number` voltou "This WhatsApp phone number is not linked to your account" (subcode 1487246) para os dois números da loja, em qualquer formato. Sem o campo, o conjunto usa o WhatsApp padrão da página, que a API não mostra qual é. Para testar sem criar nada, mandar `execution_options=["validate_only"]` no POST do conjunto. Quando o cliente tem dois números na mesma página, a escolha do número por campanha fica para o Gerenciador.
+**Contexto:** Fátima Criança com loja de rua e Nações Shopping, cada uma com o próprio WhatsApp.
+
+### 2026-10-02 — frequently_in volta mesmo com advantage_audience 0
+**Regra:** Complementa a regra de 23/09: mesmo com `advantage_audience: 0`, conjunto de WhatsApp ou de site criado com `location_types: ["home","recent"]` retorna `["frequently_in","home","recent"]`. Se o cliente exigir só morador e visitante recente, ajustar no Gerenciador.
+**Contexto:** Os 6 conjuntos da Fátima Criança.
+
+### 2026-10-02 — Anúncio de publicação existente do Instagram precisa de instagram_basic no token
+**Regra:** `GET /{ig-user-id}/media` volta "(#10) Application does not have permission" porque o token não tem `instagram_basic` (tem ads_management, ads_read, business_management, pages_read_engagement, pages_show_list). Sem o ID da mídia não dá pra montar `source_instagram_media_id`, então anúncio com post existente do Instagram fica com o usuário no Gerenciador. Curtidas e legenda dá pra ver pelo link público (WebFetch) para escolher os melhores posts.
+**Contexto:** 5 links de reels da Fátima Criança para as campanhas de WhatsApp.
