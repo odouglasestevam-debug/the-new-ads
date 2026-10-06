@@ -1,0 +1,11 @@
+Generation mode: built-in image_gen
+
+Use case: ads-marketing.
+Asset type: Wide horizontal celebration banner, approximately 3:1 composition.
+Primary request: Create a polished Pokémon 30th anniversary celebration banner for a Brazilian audience. Theme: "30 anos Pokémon / 30 Celebration".
+Scene/backdrop: Rich royal blue celebration background with luminous golden accents, elegant scattered confetti and subtle radiating energy, subtle Poké Ball motifs. Joyful, collectible anniversary artwork.
+Subject: Faithful, recognizable Pokémon characters, Pikachu as the main character joyfully jumping near the central anniversary lettering, with Charizard, Bulbasaur, Squirtle and Eevee arranged in balanced supporting groups toward the sides. Carefully drawn correct character anatomy, charming expressive faces, vibrant clean anime illustration, premium sharp cel shading.
+Composition/framing: Finished flat banner artwork, landscape panoramic layout, no physical banner mockup. Strong central typographic hierarchy and readable text; characters frame the lettering without covering it. Generous safe margins, no cropped faces, balanced composition, enough breathing room around the central anniversary mark.
+Text (verbatim): "Pokémon" at top center, "30" as a very large central gold anniversary number, "ANOS" directly below, and "CELEBRATION" as a clear smaller line underneath. Render Pokémon with correct acute accent and familiar yellow lettering with blue outline. Keep all text beautifully legible.
+Style/medium: High-quality anime promotional illustration with clean linework and sophisticated gold metallic anniversary typography. Color palette royal blue, Pikachu yellow, gold, white, restrained red accents.
+Constraints: Only the specified text. No dates, invented sponsors, watermark, official-endorsement claims, or extra slogans.

@@ -1,0 +1,12 @@
+Generation mode: built-in image_gen
+Reference: https://www.pokemon.com/es/noticias/ya-esta-disponible-la-expansion-megaevolucion-oscuridad-absoluta-de-jcc-pokemon
+
+Use case: ads-marketing.
+Asset type: Finished panoramic Pokémon TCG collection banner, 3:1 aspect ratio, same wide format as a celebratory advertising banner.
+Primary request: Create a spectacular Brazilian Portuguese banner for the expansion "Megaevolução — Escuridão Absoluta".
+Input image: Official Spanish expansion illustration provided as visual reference for Mega Darkrai's exact character design, palette and expansion branding. Adapt into a NEW polished panoramic composition with Portuguese lettering. Do not retain Spanish text.
+Subject: Mega Darkrai as depicted in the reference: enormous rounded black floating body with pale jagged cracks, narrow bright magenta eye beneath an elongated white wispy crest, wispy black arms, shadowy pointed lower appendages, magenta rim lighting. Preserve this recognizable design faithfully. Character occupies right half, eye and crest safely inside margins. Dramatic outstretched arms and flowing shadow energy create movement around the title.
+Scene/backdrop: dark stormy night, distant city lights, deep black and violet, swirling magenta nebula-like smoke with vivid lime-green and white spectral energy ribbons inspired by the reference. Premium anime Pokémon TCG promotional illustration, crisp, richly detailed, cinematic contrast. Energy concentrates near character and perimeter; quieter area behind text.
+Composition: very wide horizontal 3:1 flat banner artwork, no mockup. Left half has a large, extremely readable expansion title with careful visual hierarchy; right half has Mega Darkrai. Subtle thin sweeping gold and magenta arcs at the outer corners reminiscent of the reference. Safe margins around all lettering and important character features.
+Text verbatim, Portuguese ONLY: "Pokémon" in familiar yellow-and-blue logo treatment; small red strip below with "ESTAMPAS ILUSTRADAS"; below that a smaller gold "MEGAEVOLUÇÃO"; then very large stacked "ESCURIDÃO" / "ABSOLUTA". Title letter style sharp angular bold block letters with dark fill and clean silver, lime and violet luminous outlines, similar to reference expansion identity, very readable. Correct Ã in ESCURIDÃO and ÇÃ in MEGAEVOLUÇÃO.
+Constraints: only these texts. No anniversary number, no 30 anos, no celebration text, no Charizard, no extra characters, no date, price, button, website, watermark or added slogan. Maintain subject accuracy and clear typography.
