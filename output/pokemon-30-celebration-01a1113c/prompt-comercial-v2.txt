@@ -1,0 +1,14 @@
+Generation mode: built-in image_gen (edit)
+
+Use case: precise-object-edit / ads-marketing.
+Edit target: supplied Pokémon 30 ANOS CELEBRATION blue-and-gold panoramic banner.
+Primary request: Add prominent commercial elements matching the existing celebration artwork, in Brazilian Portuguese.
+Keep invariant: panoramic 3:1 format, royal blue and metallic gold palette, celebratory confetti and light effects, Pokémon logo, central gold "30" with Poké Ball zero, "ANOS" and "CELEBRATION", joyful Pikachu with Charizard on left, Bulbasaur, Squirtle and Eevee on right. Preserve recognizable character designs, expressions, clean anime illustration and overall balanced arrangement.
+Layout: Carefully reduce and shift the central anniversary lockup upward, preserving its hierarchy and all its text, and slightly adjust character placement only as necessary to reserve a lower central promotional strip. Keep every character face clearly visible. The gold 30 remains the main focal point. New promotional information must feel purposefully integrated with the blue-and-gold anniversary art.
+Add two coordinated dark navy commercial panels with thin gold borders, arranged side by side beneath the central anniversary lockup, centered in the lower part of the banner. High-contrast bold clean sans-serif letters, white and gold, generous padding; tasteful small gold credit-card and delivery-truck icons. Size these panels for excellent readability while leaving the character faces unobscured.
+Exact new text:
+Left panel: "ATÉ 10X" with prominent gold "10X", then "NO CARTÃO".
+Right panel: "FRETE GRÁTIS".
+One easily legible centered line under both panels: "Consulte as regras no site".
+The rules line must have clear contrast against a dark navy backing. Keep all lettering fully inside frame with safe margins. All accents correct: ATÉ, CARTÃO, GRÁTIS, Pokémon.
+Constraints: Only add these three commercial messages. Do not add "sem juros", prices, minimum purchases, discounts, dates, store names, website addresses, buttons, extra slogans or characters. Preserve original anniversary theme and existing text. Deliver finished flat banner art, no mockup, no watermark.

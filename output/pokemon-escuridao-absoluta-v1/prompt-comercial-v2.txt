@@ -1,0 +1,14 @@
+Generation mode: built-in image_gen (edit)
+
+Use case: precise-object-edit / ads-marketing.
+Edit target: the supplied Portuguese Pokémon Megaevolução Escuridão Absoluta banner.
+Requested change: Add tasteful prominent commercial information for a store campaign, preserving the existing banner's visual identity.
+Keep invariant: panoramic 3:1 aspect ratio, Pokémon / ESTAMPAS ILUSTRADAS branding, MEGAEVOLUÇÃO / ESCURIDÃO ABSOLUTA collection title, Mega Darkrai's exact design and face, stormy city background, magenta and lime-green energy, gold corner accents, crisp illustrated visual quality.
+Layout adjustment: proportionally reduce and move the existing left-side branding and expansion-title group upward just enough to create a clear commercial area underneath in the lower-left portion. Preserve the complete wording and accurate Portuguese accents in the existing branding. Keep the right-hand Mega Darkrai character and its face unobscured. Do not place new text on noisy imagery without an opaque dark backing.
+Add two highly readable coordinated promotional panels arranged side by side beneath the collection title, contained comfortably inside the banner. Sleek dark near-black panel surfaces, fine lime-green edges, restrained gold accents matching the original art. Strong simple bold sans-serif typography, sharp contrast, generous internal padding. Small clean credit-card and delivery-truck pictograms can accompany the corresponding messages.
+Exact new promotional text:
+Panel 1: "ATÉ 10X" large, with "NO CARTÃO" below. Make "10X" especially prominent.
+Panel 2: "FRETE" then "GRÁTIS", equally prominent.
+Directly beneath BOTH promotional panels, one visible easily readable light-colored line on a dark backing: "Consulte as regras no site".
+All three commercial messages must be visible together and comfortably legible, including the qualifier. Keep at least 3% outer safe margins.
+Constraints: Never add "sem juros", never invent a price, minimum purchase amount, deadline, discount, store name or website address. No extra calls to action or copy. Retain the original character and scene as closely as possible; change only layout as needed for the requested commercial messages. Deliver the flat finished banner, not a mockup.
