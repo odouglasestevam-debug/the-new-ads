@@ -69,15 +69,28 @@ const url = require('url').pathToFileURL(path.resolve(arquivo)).href;
 
     let formulario = 'sem formulário padrão (#formLead)';
     if (await page.$('#formLead')) {
-      await page.evaluate(() => document.getElementById('formLead').scrollIntoView());
-      await page.click('#btnEnviar');
-      const validou = await page.evaluate(() => !!document.querySelector('.campo.invalido'));
-      await page.fill('#nome', 'Teste QA');
-      await page.fill('#whatsapp', '48999998888');
-      const mascara = await page.inputValue('#whatsapp');
-      await page.click('#btnEnviar'); await page.waitForTimeout(400);
-      const enviou = await page.evaluate(() => document.getElementById('formCard').classList.contains('enviado'));
-      formulario = `validação vazia: ${validou ? 'ok' : 'FALHOU'} | máscara: ${mascara} | envio: ${enviou ? 'ok' : 'FALHOU'}`;
+      // formulário em pop-up: abre pelo primeiro botão visível com data-abre-form
+      let popup = '';
+      if (!(await page.isVisible('#formLead'))) {
+        for (const b of await page.$$('[data-abre-form]')) {
+          if (await b.isVisible()) { await b.click(); break; }
+        }
+        await page.waitForTimeout(600);
+        popup = (await page.isVisible('#formLead')) ? 'pop-up abre: ok | ' : 'pop-up abre: FALHOU';
+      }
+      if (popup !== 'pop-up abre: FALHOU') {
+        // #telefone é o id que as variáveis do template GTM leem; #whatsapp fica para páginas antigas
+        const fone = (await page.$('#telefone')) ? '#telefone' : '#whatsapp';
+        await page.evaluate(() => document.getElementById('formLead').scrollIntoView());
+        await page.click('#btnEnviar');
+        const validou = await page.evaluate(() => !!document.querySelector('.campo.invalido'));
+        await page.fill('#nome', 'Teste QA');
+        await page.fill(fone, '48999998888');
+        const mascara = await page.inputValue(fone);
+        await page.click('#btnEnviar'); await page.waitForTimeout(400);
+        const enviou = await page.evaluate(() => document.getElementById('formCard').classList.contains('enviado'));
+        formulario = popup + `validação vazia: ${validou ? 'ok' : 'FALHOU'} | máscara: ${mascara} | envio: ${enviou ? 'ok' : 'FALHOU'}`;
+      } else formulario = popup;
     }
 
     console.log(`\n[${nome}] ${w}px, altura ${total}px, ${i} fatias`);
