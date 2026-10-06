@@ -1,0 +1,118 @@
+﻿[
+    {
+        "Source":  "WhatsApp Image 2026-10-06 at 09.31.41 (3).jpeg",
+        "Output":  "01-blister-moeda",
+        "Width":  1600,
+        "Height":  1600,
+        "OriginalWidth":  276,
+        "OriginalHeight":  309,
+        "Crop":  [
+                     19,
+                     11,
+                     230,
+                     223
+                 ],
+        "FlagRemoval":  [
+                            216,
+                            260,
+                            40,
+                            31
+                        ],
+        "Scale":  6.2608695652173916
+    },
+    {
+        "Source":  "WhatsApp Image 2026-10-06 at 09.31.41 (2).jpeg",
+        "Output":  "02-blister-livro",
+        "Width":  1600,
+        "Height":  1600,
+        "OriginalWidth":  326,
+        "OriginalHeight":  325,
+        "Crop":  [
+                     30,
+                     25,
+                     215,
+                     208
+                 ],
+        "FlagRemoval":  [
+                            217,
+                            267,
+                            41,
+                            30
+                        ],
+        "Scale":  6.6976744186046515
+    },
+    {
+        "Source":  "WhatsApp Image 2026-10-06 at 09.31.41 (1).jpeg",
+        "Output":  "03-colecao-mega-master",
+        "Width":  1600,
+        "Height":  1600,
+        "OriginalWidth":  323,
+        "OriginalHeight":  334,
+        "Crop":  [
+                     34,
+                     20,
+                     231,
+                     249
+                 ],
+        "FlagRemoval":  [
+                            230,
+                            281,
+                            41,
+                            33
+                        ],
+        "Scale":  5.7831325301204819
+    },
+    {
+        "Source":  "WhatsApp Image 2026-10-06 at 09.31.41.jpeg",
+        "Output":  "04-binder-collection",
+        "Width":  1600,
+        "Height":  1600,
+        "OriginalWidth":  315,
+        "OriginalHeight":  365,
+        "Crop":  [
+                     20,
+                     8,
+                     235,
+                     315
+                 ],
+        "FlagRemoval":  [
+                            218,
+                            307,
+                            42,
+                            28
+                        ],
+        "Scale":  4.5714285714285712
+    },
+    {
+        "Source":  "WhatsApp Image 2026-10-06 at 09.31.42 (1).jpeg",
+        "Output":  "05-display-30th",
+        "Width":  1600,
+        "Height":  1600,
+        "OriginalWidth":  425,
+        "OriginalHeight":  425,
+        "Crop":  [
+                     30,
+                     0,
+                     366,
+                     420
+                 ],
+        "FlagRemoval":  null,
+        "Scale":  3.4285714285714284
+    },
+    {
+        "Source":  "WhatsApp Image 2026-10-06 at 09.31.42.jpeg",
+        "Output":  "06-premium-espeon-umbreon",
+        "Width":  1600,
+        "Height":  1600,
+        "OriginalWidth":  804,
+        "OriginalHeight":  732,
+        "Crop":  [
+                     140,
+                     10,
+                     508,
+                     714
+                 ],
+        "FlagRemoval":  null,
+        "Scale":  2.0168067226890756
+    }
+]
