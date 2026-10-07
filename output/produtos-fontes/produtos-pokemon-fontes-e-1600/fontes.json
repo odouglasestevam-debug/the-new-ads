@@ -1,0 +1,98 @@
+[
+  {
+    "arquivo": "01-blister-eevee-ptbr",
+    "idioma": "PT-BR",
+    "largura_original": 2048,
+    "altura_original": 2048,
+    "formato_original": "AVIF",
+    "recorte": [
+      0,
+      19,
+      2048,
+      2028
+    ],
+    "escala_para_1600": 0.7031,
+    "pagina_fonte": "https://supertcg.com.br/pokemon-30-anos/",
+    "url_imagem": "https://supertcg.com.br/wp-content/uploads/2026/07/2-pack-celebracao-30-anos-pokemon-pt-br.webp"
+  },
+  {
+    "arquivo": "02-blister-lucario-ptbr",
+    "idioma": "PT-BR",
+    "largura_original": 1650,
+    "altura_original": 1650,
+    "formato_original": "AVIF",
+    "recorte": [
+      26,
+      58,
+      1624,
+      1592
+    ],
+    "escala_para_1600": 0.9011,
+    "pagina_fonte": "https://supertcg.com.br/pokemon-30-anos/",
+    "url_imagem": "https://supertcg.com.br/wp-content/uploads/2026/07/blister-triplo-celebracoes-30-anos-lucario-pokemon-adesivo-pt-br.webp"
+  },
+  {
+    "arquivo": "03-colecao-poster-ptbr",
+    "idioma": "PT-BR",
+    "largura_original": 1200,
+    "altura_original": 1267,
+    "formato_original": "AVIF",
+    "recorte": [
+      25,
+      0,
+      1199,
+      1267
+    ],
+    "escala_para_1600": 1.1365,
+    "pagina_fonte": "https://supertcg.com.br/pokemon-30-anos/",
+    "url_imagem": "https://supertcg.com.br/wp-content/uploads/2026/07/colecao-poster-pokemon-celebracao-30-anos-portugues-brasil.webp"
+  },
+  {
+    "arquivo": "04-binder-collection-en",
+    "idioma": "Inglês",
+    "largura_original": 2560,
+    "altura_original": 2560,
+    "formato_original": "WEBP",
+    "recorte": [
+      342,
+      0,
+      2218,
+      2560
+    ],
+    "escala_para_1600": 0.5625,
+    "pagina_fonte": "https://www.tcgradar.es/aniversario",
+    "url_imagem": "https://cdn.shopify.com/s/files/1/0608/8045/3878/files/Pokemon_TCG_30th_Celebration_Binder_Collection_EN-copy-scaled.jpg?v=1782840618"
+  },
+  {
+    "arquivo": "05-display-30th-jp",
+    "idioma": "Japonês",
+    "largura_original": 1335,
+    "altura_original": 1335,
+    "formato_original": "WEBP",
+    "recorte": [
+      162,
+      76,
+      1173,
+      1256
+    ],
+    "escala_para_1600": 1.2203,
+    "pagina_fonte": "https://boosterbox.ch/products/pokemon-30th-celebration-display-jp",
+    "url_imagem": "https://boosterbox.ch/cdn/shop/files/pokemon-30th-celebration-display-jp-01-std.jpg"
+  },
+  {
+    "arquivo": "06-premium-espeon-umbreon-jp",
+    "idioma": "Japonês",
+    "largura_original": 1760,
+    "altura_original": 1174,
+    "formato_original": "WEBP",
+    "recorte": [
+      542,
+      103,
+      1219,
+      1071
+    ],
+    "escala_para_1600": 1.4876,
+    "pagina_fonte": "https://www.30th.pokemon-card.com/product/mf?slide=modal",
+    "url_imagem": "https://www.30th.pokemon-card.com/images/mf/thumb_16471c73.webp"
+  }
+]

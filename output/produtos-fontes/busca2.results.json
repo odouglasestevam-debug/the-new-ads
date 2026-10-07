@@ -1,0 +1,74 @@
+[
+  {
+    "file": "candidatas/01-supertcg.webp",
+    "url": "https://supertcg.com.br/wp-content/uploads/2026/07/2-pack-celebracao-30-anos-pokemon-pt-br.webp",
+    "bytes": 153286,
+    "status": "ok",
+    "width": 2048,
+    "height": 2048,
+    "format": "AVIF"
+  },
+  {
+    "file": "candidatas/02-supertcg.webp",
+    "url": "https://supertcg.com.br/wp-content/uploads/2026/07/blister-triplo-celebracoes-30-anos-lucario-pokemon-adesivo-pt-br.webp",
+    "bytes": 97001,
+    "status": "ok",
+    "width": 1650,
+    "height": 1650,
+    "format": "AVIF"
+  },
+  {
+    "file": "candidatas/03-supertcg.webp",
+    "url": "https://supertcg.com.br/wp-content/uploads/2026/07/colecao-poster-pokemon-celebracao-30-anos-portugues-brasil.webp",
+    "bytes": 93454,
+    "status": "ok",
+    "width": 1200,
+    "height": 1267,
+    "format": "AVIF"
+  },
+  {
+    "file": "candidatas/04-binder.jpg",
+    "url": "https://cdn.shopify.com/s/files/1/0608/8045/3878/files/Pokemon_TCG_30th_Celebration_Binder_Collection_EN-copy-scaled.jpg?v=1782840618",
+    "bytes": 382240,
+    "status": "ok",
+    "width": 2560,
+    "height": 2560,
+    "format": "WEBP"
+  },
+  {
+    "file": "candidatas/05-display.jpg",
+    "url": "https://boosterbox.ch/cdn/shop/files/pokemon-30th-celebration-display-jp-01-std.jpg",
+    "bytes": 110518,
+    "status": "ok",
+    "width": 1335,
+    "height": 1335,
+    "format": "WEBP"
+  },
+  {
+    "file": "candidatas/06-thumb.webp",
+    "url": "https://www.30th.pokemon-card.com/images/mf/thumb_16471c73.webp",
+    "bytes": 251148,
+    "status": "ok",
+    "width": 1760,
+    "height": 1174,
+    "format": "WEBP"
+  },
+  {
+    "file": "candidatas/01-fngames.jpg",
+    "url": "https://images.tcdn.com.br/img/img_prod/1258736/tcg_blister_duplo_com_moeda_celebrao_30_anos_pokmo_1_20260929144750_af01660a90c4.jpg",
+    "bytes": 47026,
+    "status": "ok",
+    "width": 634,
+    "height": 474,
+    "format": "WEBP"
+  },
+  {
+    "file": "candidatas/04-binder-alt.webp",
+    "url": "https://card-binder.com/cdn/shop/files/Pokemon_TCG_30th_Celebration_Binder_Collection_EN.webp",
+    "bytes": 109766,
+    "status": "ok",
+    "width": 1080,
+    "height": 1080,
+    "format": "WEBP"
+  }
+]
