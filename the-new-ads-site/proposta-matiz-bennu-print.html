@@ -140,7 +140,7 @@
   .plano .preco { font-family: 'Clash Display', sans-serif; font-size: 30px; font-weight: 700; line-height: 1; margin-bottom: 20px; white-space: nowrap; }
   .plano.destaque .preco { color: var(--amber); }
   .de-preco { display: block; font-family: 'Switzer','Inter',system-ui,sans-serif; font-size: 14px; font-weight: 500; color: var(--muted); margin-bottom: 8px; }
-  .de-preco s { text-decoration-color: var(--amber); text-decoration-thickness: 2px; }
+  .de-preco s { text-decoration-color: var(--amber); text-decoration-thickness: 2px; white-space: nowrap; }
   .parceiro { display: block; font-family: 'JetBrains Mono', monospace; font-size: 10.5px; font-weight: 500; letter-spacing: .06em; text-transform: uppercase; color: var(--amber); margin-top: 10px; white-space: normal; line-height: 1.4; }
   .plano .comp-tit { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); margin: 18px 0 4px; }
   .comp-preco { margin-top: 0; white-space: normal; font-family: 'Switzer','Inter',system-ui,sans-serif; font-weight: 400; }
@@ -152,6 +152,28 @@
   .plano ul.check li.fora::before { background: transparent; border: 1px solid var(--muted); }
   .degrau { margin-top: 14px; padding: 20px 24px; border: 1px solid rgba(255,106,0,.35); font-size: 16px; }
   .degrau strong { color: var(--amber); }
+
+  /* módulos */
+  .tag-mod { justify-self: start; align-self: start; display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: .08em; text-transform: uppercase; color: var(--amber); border: 1px solid rgba(255,106,0,.4); padding: 3px 9px; margin-bottom: 14px; }
+  .plano.modulo-base { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 32px; align-items: start; padding: 26px 26px; border-color: rgba(255,255,255,.2); }
+  .modulo-base .para-quem { min-height: 0; }
+  .modulo-base .preco { margin-bottom: 0; }
+  .modulo-base ul.check { padding-top: 34px; }
+  .sub-tit { display: block; font-family: 'JetBrains Mono', monospace; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); margin: 30px 0 12px; }
+  .de-preco { white-space: normal; line-height: 1.4; }
+  .nota-preco { display: block; font-family: 'Switzer','Inter',system-ui,sans-serif; font-size: 12.5px; font-weight: 500; color: var(--amber); margin-top: 8px; white-space: normal; }
+  .resumo {
+    margin-top: 16px; padding: 26px 28px; border: 1px solid rgba(255,106,0,.65);
+    background: radial-gradient(120% 80% at 100% 0%, rgba(255,106,0,.13), transparent 60%), var(--surface);
+    display: flex; flex-direction: column;
+  }
+  .resumo h3 { font-size: 21px; margin-bottom: 14px; }
+  .resumo .lin { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; border-top: 1px solid var(--line); padding: 10px 0; font-size: 15px; color: var(--muted); }
+  .resumo .lin b { color: var(--text); font-weight: 600; white-space: nowrap; }
+  .resumo .lin.total { padding-top: 14px; }
+  .resumo .lin.total span { color: var(--text); font-weight: 600; }
+  .resumo .lin.total b { font-family: 'Clash Display', sans-serif; font-size: 30px; font-weight: 700; color: var(--amber); }
+  .resumo .depois { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
 
   /* 06 condições */
   .conds li { padding: 14px 0; border-bottom: 1px solid var(--line); font-size: 15px; color: var(--muted); }
@@ -181,6 +203,8 @@
     section { margin-bottom: 56px; }
     .sec-h { font-size: 22px; }
     .pilares, .comp, .planos { grid-template-columns: 1fr; }
+    .plano.modulo-base { grid-template-columns: 1fr; }
+    .modulo-base ul.check { padding-top: 12px; }
     .comp-quem, .plano .para-quem { min-height: 0; }
     .plano.destaque { order: -1; }
     .selo.vazio { display: none; }
@@ -212,11 +236,12 @@
     <p class="sec-lead">Tudo o que a marca precisa para vender, feito por uma equipe só.</p>
 
     <div class="entrega">
-      <div class="entrega-top"><span class="n">1</span><h3>Marca</h3></div>
+      <div class="entrega-top"><span class="n">1</span><h3>Tráfego</h3></div>
       <ul class="check">
-        <li>Escolha do nome junto com vocês: domínio, @ nas redes e busca prévia no INPI</li>
-        <li>Logo, cores, tipografia e manual de marca em PDF</li>
-        <li>Arquivos prontos para o digital e para a gráfica, perfil do Instagram e cartão de visita</li>
+        <li>Campanhas no Instagram e Facebook</li>
+        <li>Criativos estáticos novos todo mês</li>
+        <li>Google Meu Negócio configurado e otimizado</li>
+        <li>Ajuste contínuo pelo custo de cada contato que chega</li>
       </ul>
     </div>
 
@@ -239,7 +264,7 @@
       <div class="entrega-top"><span class="n">3</span><h3>Edição de vídeo</h3></div>
       <p class="dor">Vídeo é o formato que mais vende e o que mais trava quem não sabe editar. <strong>Vocês gravam no celular, do jeito que der. A gente transforma em anúncio.</strong></p>
       <ul class="check">
-        <li>Edição dos vídeos que vocês gravarem</li>
+        <li>Até 10 vídeos editados por mês, a partir do que vocês gravarem</li>
         <li>Cortes, legenda na tela, trilha e capa</li>
         <li>Roteiro simples para vocês saberem o que gravar</li>
         <li>Vídeos prontos para anúncio, Reels e Stories</li>
@@ -247,89 +272,87 @@
     </div>
 
     <div class="entrega">
-      <div class="entrega-top"><span class="n">4</span><h3>Tráfego</h3></div>
+      <div class="entrega-top"><span class="n">4</span><h3>Marca</h3></div>
       <ul class="check">
-        <li>Campanhas no Instagram e Facebook</li>
-        <li>Criativos estáticos novos todo mês</li>
-        <li>Google Meu Negócio configurado e otimizado</li>
-        <li>Ajuste contínuo pelo custo de cada contato que chega</li>
+        <li>Escolha do nome junto com vocês: domínio, @ nas redes e busca prévia no INPI</li>
+        <li>Logo, cores, tipografia e manual de marca em PDF</li>
+        <li>Arquivos prontos para o digital e para a gráfica, perfil do Instagram e cartão de visita</li>
       </ul>
     </div>
   </section>
 
   <section>
     <span class="sec-n">02</span>
-    <h2 class="sec-h">Planos</h2>
-    <p class="sec-lead">Os três partem do mesmo tráfego. O que muda é quanto da estrutura vocês já têm pronta.</p>
-    <span class="base">Todos os planos: contrato de 6 meses · sem custo de criação para começar</span>
+    <h2 class="sec-h">Monte o plano de vocês</h2>
+    <p class="sec-lead">O tráfego é a base. Páginas, vídeo e marca entram conforme a necessidade de vocês.</p>
+    <span class="base">Contrato de 6 meses · condição para empresas parceiras</span>
+
+    <div class="plano modulo-base">
+      <div>
+        <span class="tag-mod">Base</span>
+        <h3 class="nome">Tráfego</h3>
+        <p class="para-quem">Anúncios rodando, criativos novos todo mês e presença no Google.</p>
+        <div class="preco"><span class="de-preco">de <s>R$ 1.500</s> por</span>R$ 997<small>/mês</small></div>
+      </div>
+      <ul class="check">
+        <li>Tráfego no Instagram e Facebook</li>
+        <li>Criativos estáticos todo mês</li>
+        <li>Google Meu Negócio</li>
+        <li>Ajuste contínuo pelo custo de cada contato</li>
+      </ul>
+    </div>
+
+    <span class="sub-tit">Adicionais</span>
     <div class="planos">
       <div class="plano">
-        <span class="selo vazio">.</span>
-        <h3 class="nome">Essencial</h3>
-        <p class="para-quem">Para quem já tem marca, site e vídeos prontos.</p>
-        <div class="preco"><span class="de-preco">de <s>R$ 1.500</s> por</span>R$ 897<small>/mês</small><span class="parceiro">Condição para empresas parceiras</span></div>
+        <span class="tag-mod">Adicional</span>
+        <h3 class="nome">Landing pages</h3>
+        <p class="para-quem">Anúncio levando para página própria, no Google e no Instagram.</p>
+        <div class="preco"><span class="de-preco">Tráfego + páginas: de <s>R$ 1.850</s> por <span style="white-space:nowrap">R$ 1.292</span></span>+ R$ 295<small>/mês</small></div>
         <ul class="check">
-          <li>Tráfego no Instagram e Facebook</li>
-          <li>Criativos estáticos todo mês</li>
-          <li>Google Meu Negócio</li>
-          <li class="fora">Anúncios no Google</li>
-          <li class="fora">Landing pages conforme a necessidade</li>
-          <li class="fora">Toda e qualquer manutenção das páginas</li>
-          <li class="fora">SEO para aparecer no Google</li>
-          <li class="fora">Otimização para ChatGPT e outras IAs</li>
-          <li class="fora">Hospedagem, domínio e segurança</li>
-          <li class="fora">Edição de vídeo</li>
-          <li class="fora">Criação da marca e manual</li>
+          <li>Anúncios no Google</li>
+          <li>Landing pages conforme a necessidade</li>
+          <li>Toda e qualquer manutenção das páginas</li>
+          <li>SEO para aparecer no Google</li>
+          <li>Otimização para ChatGPT e outras IAs</li>
+          <li>Hospedagem, domínio e segurança</li>
         </ul>
       </div>
       <div class="plano">
-        <span class="selo vazio">.</span>
-        <h3 class="nome">Essencial + Vídeo + Páginas</h3>
-        <p class="para-quem">Para quem já tem marca pronta.</p>
-        <div class="preco"><span class="de-preco">de <s>R$ 2.449</s> por</span>R$ 1.597<small>/mês</small><span class="parceiro">Condição para empresas parceiras</span></div>
-        <div>
+        <span class="tag-mod">Adicional</span>
+        <h3 class="nome">Edição de vídeo</h3>
+        <p class="para-quem">Vocês gravam no celular, a gente transforma em anúncio.</p>
+        <div class="preco"><span class="de-preco">Tráfego + páginas + vídeo: de <s>R$ 2.449</s> por <span style="white-space:nowrap">R$ 1.742</span></span>+ R$ 450<small>/mês</small><span class="nota-preco">Até 10 vídeos por mês</span></div>
         <ul class="check">
-          <li>Tráfego no Instagram e Facebook</li>
-          <li>Criativos estáticos todo mês</li>
-          <li>Google Meu Negócio</li>
-          <li>Anúncios no Google</li>
-          <li>Landing pages conforme a necessidade</li>
-          <li>Toda e qualquer manutenção das páginas</li>
-          <li>SEO para aparecer no Google</li>
-          <li>Otimização para ChatGPT e outras IAs</li>
-          <li>Hospedagem, domínio e segurança</li>
-          <li>Edição de vídeo</li>
-          <li class="fora">Criação da marca e manual</li>
+          <li>Até 10 vídeos editados por mês</li>
+          <li>Cortes, legenda, trilha e capa</li>
+          <li>Roteiro simples de gravação</li>
+          <li>Formatos para anúncio, Reels e Stories</li>
         </ul>
-          <p class="comp-tit">Como se compõe o valor</p>
-          <div class="comp-preco">
-            <div><span>Tráfego, criativos e Google Meu Negócio</span><b>R$ 897</b></div>
-            <div><span>Edição de vídeo</span><b>R$ 450</b></div>
-            <div><span>Site: desenvolvimento, manutenção, hospedagem e domínio</span><b>R$ 250</b></div>
-          </div>
-        </div>
       </div>
-      <div class="plano destaque">
-        <span class="selo">Recomendado para vocês</span>
-        <h3 class="nome">Lançamento completo</h3>
+      <div class="plano">
+        <span class="tag-mod">Adicional</span>
+        <h3 class="nome">Marca</h3>
         <p class="para-quem">Para quem está começando a marca do zero.</p>
-        <div class="preco"><span class="de-preco">de <s>R$ 2.449</s> por</span>R$ 1.797<small>/mês</small><span class="parceiro">Condição para empresas parceiras</span></div>
+        <div class="preco"><span class="de-preco">de <s>R$ 3.000</s> por</span>+ R$ 300<small>/mês</small><span class="nota-preco">Sem pagamento de entrada</span></div>
         <ul class="check">
-          <li>Tráfego no Instagram e Facebook</li>
-          <li>Criativos estáticos todo mês</li>
-          <li>Google Meu Negócio</li>
-          <li>Anúncios no Google</li>
-          <li>Landing pages conforme a necessidade</li>
-          <li>Toda e qualquer manutenção das páginas</li>
-          <li>SEO para aparecer no Google</li>
-          <li>Otimização para ChatGPT e outras IAs</li>
-          <li>Hospedagem, domínio e segurança</li>
-          <li>Edição de vídeo</li>
-          <li>Criação da marca e manual</li>
+          <li>Escolha do nome: domínio, @ e busca no INPI</li>
+          <li>Logo, cores e tipografia</li>
+          <li>Manual de marca em PDF</li>
+          <li>Arquivos para o digital e para a gráfica</li>
         </ul>
       </div>
     </div>
-    <div class="degrau">Do plano com vídeo e páginas para o completo são <strong>R$ 200 por mês</strong>. Nesse valor vem a marca inteira, que no mercado custa R$ 4.000 só para ser criada.</div>
+
+    <div class="resumo">
+      <span class="selo">Recomendado para vocês</span>
+      <h3>Tudo junto</h3>
+      <div class="lin"><span>Tráfego</span><b>R$ 997</b></div>
+      <div class="lin"><span>Landing pages</span><b>+ R$ 295</b></div>
+      <div class="lin"><span>Edição de vídeo (até 10 por mês)</span><b>+ R$ 450</b></div>
+      <div class="lin"><span>Marca</span><b>+ R$ 300</b></div>
+      <div class="lin total"><span>Total por mês</span><b>R$ 2.042</b></div>
+    </div>
   </section>
 
   <section>
@@ -337,8 +360,8 @@
     <h2 class="sec-h">Condições</h2>
     <ul class="conds">
       <li><strong>Contrato de 6 meses.</strong> É o tempo para a marca nascer, as páginas juntarem dados e as campanhas saírem da fase de aprendizado. É também o que permite fazer toda a criação sem custo de entrada.</li>
-      <li><strong>A mensalidade paga o trabalho de todo mês</strong> e segue a mesma depois dos 6 meses, com reajuste anual pelo IPCA.</li>
-      <li><strong>Encerramento antes de 6 meses:</strong> a criação (marca e páginas) é cobrada de forma proporcional aos meses que faltarem.</li>
+      <li><strong>A mensalidade é uma assinatura</strong> e segue a mesma depois dos 6 meses, com reajuste anual pelo IPCA.</li>
+      <li><strong>Encerramento antes de 6 meses:</strong> a criação da marca e das páginas é cobrada de forma proporcional aos meses que faltarem.</li>
     </ul>
   </section>
 
@@ -347,9 +370,9 @@
     <h2 class="sec-h">Próximo passo</h2>
     <div class="cta">
       <ol>
-        <li>Escolha do plano e assinatura do contrato</li>
+        <li>Escolha dos serviços e assinatura do contrato</li>
         <li>Primeira mensalidade, que reserva a agenda de criação</li>
-        <li>Conversa de 1 hora para decidir o nome e começar a marca</li>
+        <li>Conversa de 1 hora para alinhar o negócio e começar</li>
       </ol>
     </div>
   </section>
