@@ -10,11 +10,11 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="RegularizeReurb"
           component={RegularizeMotion}
-          durationInFrames={795}
+          durationInFrames={758}
           fps={30}
           width={1080}
           height={1920}
-          defaultProps={{ narracao: "regularize/narracao.wav" }}
+          defaultProps={{ narracao: "regularize/narracao.wav", trilha: "regularize/trilha.mp3", volumeTrilha: 0.024 }}
         />
       </Folder>
     </>

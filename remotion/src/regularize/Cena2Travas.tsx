@@ -2,7 +2,7 @@ import React from "react";
 import { Easing, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
 import { CLAMP, COR, Fundo, Kicker } from "./tema";
 
-// "Sem matrícula você não vende, não financia e a herança trava."
+// "Sem matrícula você não vende, não financia."
 const IconeVenda: React.FC = () => (
   <svg viewBox="0 0 120 120" width={150} height={150} fill="none" stroke={COR.ouro} strokeWidth={6} strokeLinejoin="round" strokeLinecap="round">
     <path d="M30 112 V14" />
@@ -18,17 +18,6 @@ const IconeBanco: React.FC = () => (
     <path d="M14 44 L60 16 L106 44 Z" />
     <path d="M28 52 V92 M50 52 V92 M70 52 V92 M92 52 V92" />
     <path d="M12 104 H108" />
-  </svg>
-);
-
-const IconeFamilia: React.FC = () => (
-  <svg viewBox="0 0 120 120" width={150} height={150} fill="none" stroke={COR.ouro} strokeWidth={6} strokeLinejoin="round" strokeLinecap="round">
-    <circle cx="36" cy="32" r="13" />
-    <circle cx="84" cy="32" r="13" />
-    <circle cx="60" cy="62" r="10" />
-    <path d="M14 104 V78 a22 22 0 0 1 44 0" />
-    <path d="M62 78 a22 22 0 0 1 44 0 V104" />
-    <path d="M44 106 V96 a16 16 0 0 1 32 0 V106" />
   </svg>
 );
 
@@ -88,7 +77,6 @@ export const Cena2Travas: React.FC = () => {
         <div style={{ display: "flex", flexDirection: "column", gap: 40, marginTop: 80 }}>
           <Linha inicio={22} icone={<IconeVenda />} texto="Vende" />
           <Linha inicio={49} icone={<IconeBanco />} texto="Financia" />
-          <Linha inicio={79} icone={<IconeFamilia />} texto="Deixa herança" />
         </div>
       </div>
     </Fundo>
