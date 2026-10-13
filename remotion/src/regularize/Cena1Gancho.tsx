@@ -83,14 +83,14 @@ export const Cena1Gancho: React.FC = () => {
           <div
             style={{
               position: "absolute",
-              left: 70,
+              left: 40,
               top: 210,
               border: `9px solid ${COR.vermelho}`,
               borderRadius: 16,
               padding: "14px 30px",
               color: COR.vermelho,
               fontWeight: 900,
-              fontSize: 64,
+              fontSize: 48,
               letterSpacing: "0.02em",
               whiteSpace: "nowrap",
               mixBlendMode: "multiply",

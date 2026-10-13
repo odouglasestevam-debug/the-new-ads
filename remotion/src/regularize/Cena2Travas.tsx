@@ -54,10 +54,22 @@ const Linha: React.FC<{ inicio: number; icone: React.ReactNode; texto: string }>
     >
       {icone}
       <div style={{ fontWeight: 900, fontSize: 82, letterSpacing: "-0.03em", textTransform: "uppercase" }}>{texto}</div>
-      {/* X vermelho desenhado sobre a linha */}
-      <svg viewBox="0 0 100 100" preserveAspectRatio="none" style={{ position: "absolute", inset: 0, width: "100%", height: "100%", overflow: "visible" }}>
-        <path d="M3 88 L97 12" stroke={COR.vermelho} strokeWidth={1.6} vectorEffect="non-scaling-stroke" fill="none" pathLength={1} strokeDasharray={1} strokeDashoffset={1 - risco} style={{ strokeWidth: 14, strokeLinecap: "round" }} />
-      </svg>
+      {/* risco vermelho atravessando a linha */}
+      <div
+        style={{
+          position: "absolute",
+          left: 30,
+          top: "50%",
+          height: 14,
+          width: `calc(${risco * 100}% - ${60 * risco}px)`,
+          marginTop: -7,
+          borderRadius: 7,
+          background: COR.vermelho,
+          boxShadow: "0 0 24px rgba(229,72,77,.6)",
+          rotate: "-3deg",
+          transformOrigin: "0% 50%",
+        }}
+      />
     </div>
   );
 };
