@@ -16,7 +16,7 @@ export type RegularizeMotionProps = {
 
 // Duração de cada cena (quadros a 30 fps); encaixar na narração. Cada transição sobrepõe TRANS quadros.
 export const TRANS = 8;
-export const DURACOES = [105, 150, 165, 150, 120];
+export const DURACOES = [192, 129, 159, 169, 178];
 export const DURACAO_TOTAL = DURACOES.reduce((a, b) => a + b, 0) - TRANS * (DURACOES.length - 1);
 
 export const RegularizeMotion: React.FC<RegularizeMotionProps> = ({ narracao }) => {
@@ -24,23 +24,23 @@ export const RegularizeMotion: React.FC<RegularizeMotionProps> = ({ narracao }) 
   return (
     <>
       <TransitionSeries>
-        <TransitionSeries.Sequence name="Gancho" durationInFrames={105} premountFor={fps}>
+        <TransitionSeries.Sequence name="Gancho" durationInFrames={192} premountFor={fps}>
           <Cena1Gancho />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({ direction: "from-bottom" })} timing={linearTiming({ durationInFrames: TRANS })} />
-        <TransitionSeries.Sequence name="Travas" durationInFrames={150} premountFor={fps}>
+        <TransitionSeries.Sequence name="Travas" durationInFrames={129} premountFor={fps}>
           <Cena2Travas />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={wipe({ direction: "from-left" })} timing={linearTiming({ durationInFrames: TRANS })} />
-        <TransitionSeries.Sequence name="REURB" durationInFrames={165} premountFor={fps}>
+        <TransitionSeries.Sequence name="REURB" durationInFrames={159} premountFor={fps}>
           <Cena3Reurb />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({ direction: "from-right" })} timing={linearTiming({ durationInFrames: TRANS })} />
-        <TransitionSeries.Sequence name="Etapas" durationInFrames={150} premountFor={fps}>
+        <TransitionSeries.Sequence name="Etapas" durationInFrames={169} premountFor={fps}>
           <Cena4Etapas />
         </TransitionSeries.Sequence>
         <TransitionSeries.Transition presentation={slide({ direction: "from-bottom" })} timing={linearTiming({ durationInFrames: TRANS })} />
-        <TransitionSeries.Sequence name="CTA" durationInFrames={120} premountFor={fps}>
+        <TransitionSeries.Sequence name="CTA" durationInFrames={178} premountFor={fps}>
           <Cena6Cta />
         </TransitionSeries.Sequence>
       </TransitionSeries>

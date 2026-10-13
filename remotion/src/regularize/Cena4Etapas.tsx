@@ -9,8 +9,8 @@ const ETAPAS = [
   { n: "03", titulo: "Cartório", sub: "registro do título" },
   { n: "04", titulo: "Matrícula no seu nome", sub: "o imóvel passa a ser seu no papel" },
 ];
-const INICIO = 14;
-const PASSO = 22;
+const INICIO = 51; // "levantamento"
+const PASSO = 23; // a 4ª etapa acende em "matrícula"
 const TOPO = 640;
 const ALTURA = 250;
 

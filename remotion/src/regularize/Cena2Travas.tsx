@@ -86,9 +86,9 @@ export const Cena2Travas: React.FC = () => {
           </div>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: 40, marginTop: 80 }}>
-          <Linha inicio={14} icone={<IconeVenda />} texto="Vende" />
-          <Linha inicio={44} icone={<IconeBanco />} texto="Financia" />
-          <Linha inicio={74} icone={<IconeFamilia />} texto="Deixa herança" />
+          <Linha inicio={22} icone={<IconeVenda />} texto="Vende" />
+          <Linha inicio={49} icone={<IconeBanco />} texto="Financia" />
+          <Linha inicio={79} icone={<IconeFamilia />} texto="Deixa herança" />
         </div>
       </div>
     </Fundo>

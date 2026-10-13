@@ -3,14 +3,14 @@ import { Easing, Img, interpolate, spring, staticFile, useCurrentFrame, useVideo
 import { CLAMP, COR, Fundo } from "./tema";
 
 // "Veja se o seu imóvel pode ser regularizado. Clique e fale com a gente."
-export const CLIQUE_EM = 62;
+export const CLIQUE_EM = 86; // "botão"
 
 export const Cena6Cta: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   const logo = spring({ frame, fps, config: { damping: 15 } });
-  const botao = spring({ frame: frame - 22, fps, config: { damping: 14 } });
-  const cursor = interpolate(frame, [30, CLIQUE_EM - 4], [0, 1], { ...CLAMP, easing: Easing.inOut(Easing.cubic) });
+  const botao = spring({ frame: frame - 56, fps, config: { damping: 14 } });
+  const cursor = interpolate(frame, [62, CLIQUE_EM - 4], [0, 1], { ...CLAMP, easing: Easing.inOut(Easing.cubic) });
   const aperta = interpolate(frame, [CLIQUE_EM - 2, CLIQUE_EM + 2, CLIQUE_EM + 8], [1, 0.93, 1], CLAMP);
   const onda = interpolate(frame, [CLIQUE_EM, CLIQUE_EM + 22], [0, 1], CLAMP);
 
@@ -90,7 +90,7 @@ export const Cena6Cta: React.FC = () => {
           fontWeight: 500,
           fontSize: 44,
           color: COR.cinza,
-          opacity: interpolate(frame, [30, 42], [0, 1], CLAMP),
+          opacity: interpolate(frame, [96, 108], [0, 1], CLAMP),
         }}
       >
         Fale com a nossa equipe
@@ -105,7 +105,7 @@ export const Cena6Cta: React.FC = () => {
           position: "absolute",
           left: interpolate(cursor, [0, 1], [900, 640]),
           top: interpolate(cursor, [0, 1], [1700, 1250]),
-          opacity: interpolate(frame, [28, 34], [0, 1], CLAMP),
+          opacity: interpolate(frame, [60, 66], [0, 1], CLAMP),
           scale: aperta,
           filter: "drop-shadow(0 6px 10px rgba(0,0,0,.5))",
         }}

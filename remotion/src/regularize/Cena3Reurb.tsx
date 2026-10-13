@@ -12,7 +12,7 @@ const ordem = [9, 14, 5, 18, 2, 21, 12, 7, 16, 0, 23, 10, 3, 19, 13, 6, 22, 1, 1
 export const Cena3Reurb: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
-  const sobe = spring({ frame: frame - 54, fps, config: { damping: 14, stiffness: 140 } });
+  const sobe = spring({ frame: frame - 48, fps, config: { damping: 14, stiffness: 140 } });
   const varre = interpolate(frame, [0, 70], [-10, 110], CLAMP);
 
   return (
@@ -112,16 +112,16 @@ export const Cena3Reurb: React.FC = () => {
         <div
           style={{
             fontWeight: 900,
-            fontSize: 290,
+            fontSize: 250,
             lineHeight: 0.9,
-            letterSpacing: `${interpolate(sobe, [0, 1], [0.3, -0.04])}em`,
+            letterSpacing: `${interpolate(sobe, [0, 1], [0.12, -0.03])}em`,
             background: `linear-gradient(180deg, #FFF1C4 0%, ${COR.ouroHi} 40%, ${COR.ouro} 100%)`,
             WebkitBackgroundClip: "text",
             backgroundClip: "text",
             color: "transparent",
             filter: `drop-shadow(0 18px 50px rgba(0,0,0,.6)) drop-shadow(0 0 40px rgba(242,210,122,${0.35 * sobe}))`,
             opacity: sobe,
-            scale: interpolate(sobe, [0, 1], [1.4, 1]),
+            scale: interpolate(sobe, [0, 1], [1.25, 1]),
           }}
         >
           REURB
@@ -135,8 +135,8 @@ export const Cena3Reurb: React.FC = () => {
             lineHeight: 1.1,
             textTransform: "uppercase",
             letterSpacing: "-0.02em",
-            opacity: interpolate(frame, [70, 84], [0, 1], CLAMP),
-            translate: `0px ${interpolate(frame, [70, 84], [30, 0], CLAMP)}px`,
+            opacity: interpolate(frame, [76, 90], [0, 1], CLAMP),
+            translate: `0px ${interpolate(frame, [76, 90], [30, 0], CLAMP)}px`,
           }}
         >
           Regularização fundiária
@@ -151,7 +151,7 @@ export const Cena3Reurb: React.FC = () => {
             fontSize: 30,
             color: COR.cinza,
             letterSpacing: "0.1em",
-            opacity: interpolate(frame, [84, 96], [0, 1], CLAMP),
+            opacity: interpolate(frame, [114, 126], [0, 1], CLAMP),
           }}
         >
           LEI FEDERAL 13.465/2017

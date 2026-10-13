@@ -1,17 +1,24 @@
 import React from "react";
 import { AbsoluteFill, Easing, interpolate, spring, useCurrentFrame, useVideoConfig } from "remotion";
-import { CLAMP, COR, Fundo, Kicker, MONO } from "./tema";
+import { CLAMP, COR, Fundo, MONO } from "./tema";
 
 // "Você paga IPTU, tem luz e água no nome... mas no papel a casa não é sua."
 // Casa desenhada em linha dourada, recibo entra, carimbo SEM MATRÍCULA bate.
-export const CARIMBO_EM = 62;
+// Tempos em quadros, presos na narração (Gravando (20), pausas cortadas)
+export const CARIMBO_EM = 161; // "não é sua"
+const RECIBO_EM = 100; // "papel"
+const SELOS = [
+  { t: 22, texto: "IPTU" },
+  { t: 48, texto: "Luz" },
+  { t: 62, texto: "Água" },
+];
 
 export const Cena1Gancho: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
   const desenho = interpolate(frame, [0, 34], [1, 0], { ...CLAMP, easing: Easing.bezier(0.65, 0, 0.35, 1) });
-  const recibo = spring({ frame: frame - 26, fps, config: { damping: 16, stiffness: 120 } });
+  const recibo = spring({ frame: frame - RECIBO_EM, fps, config: { damping: 16, stiffness: 120 } });
   const carimbo = spring({ frame: frame - CARIMBO_EM, fps, config: { damping: 11, stiffness: 260 } });
   const tremor = frame >= CARIMBO_EM && frame < CARIMBO_EM + 8 ? Math.sin(frame * 9) * (CARIMBO_EM + 8 - frame) * 2.2 : 0;
   const titulo = spring({ frame: frame - (CARIMBO_EM + 8), fps, config: { damping: 18 } });
@@ -19,8 +26,41 @@ export const Cena1Gancho: React.FC = () => {
   return (
     <Fundo>
       <AbsoluteFill style={{ translate: `${tremor}px ${tremor * 0.6}px` }}>
-        <div style={{ position: "absolute", top: 150, width: "100%", textAlign: "center", opacity: interpolate(frame, [4, 16], [0, 1], CLAMP) }}>
-          <Kicker>IPTU pago · luz e água no nome</Kicker>
+        {/* selos: IPTU, luz e água no nome */}
+        <div style={{ position: "absolute", top: 150, width: "100%", display: "flex", justifyContent: "center", gap: 24 }}>
+          {SELOS.map((selo) => {
+            const p = spring({ frame: frame - selo.t, fps, config: { damping: 13, stiffness: 200 } });
+            return (
+              <div
+                key={selo.texto}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 14,
+                  padding: "16px 30px",
+                  borderRadius: 100,
+                  background: "rgba(17,19,58,.75)",
+                  border: `2px solid ${COR.linha}`,
+                  fontFamily: MONO,
+                  fontWeight: 700,
+                  fontSize: 38,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: COR.ouroHi,
+                  opacity: p,
+                  scale: interpolate(p, [0, 1], [0.6, 1]),
+                }}
+              >
+                <svg viewBox="0 0 48 48" width={34} height={34}>
+                  <path d="M8 25 L19 36 L40 13" fill="none" stroke="#3DDC84" strokeWidth={7} strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                {selo.texto}
+              </div>
+            );
+          })}
+        </div>
+        <div style={{ position: "absolute", top: 262, width: "100%", textAlign: "center", fontFamily: MONO, fontWeight: 500, fontSize: 30, color: COR.cinza, letterSpacing: "0.1em", opacity: interpolate(frame, [76, 88], [0, 1], CLAMP) }}>
+          NO SEU NOME
         </div>
 
         {/* casa em traço dourado */}
@@ -68,7 +108,8 @@ export const Cena1Gancho: React.FC = () => {
             padding: "46px 50px",
             color: "#2A2C44",
             rotate: `${interpolate(recibo, [0, 1], [14, -4])}deg`,
-            translate: `0px ${interpolate(recibo, [0, 1], [900, 0])}px`,
+            translate: `0px ${interpolate(recibo, [0, 1], [1300, 0])}px`,
+            opacity: frame >= RECIBO_EM ? 1 : 0,
           }}
         >
           <div style={{ fontFamily: MONO, fontWeight: 700, fontSize: 25, letterSpacing: "0.12em" }}>RECIBO DE</div>
