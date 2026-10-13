@@ -58,3 +58,6 @@ contas.yaml
 # Sistema
 .DS_Store
 node_modules/
+
+# assets de cliente usados no Remotion (dado real de cliente)
+remotion/public/regularize/
