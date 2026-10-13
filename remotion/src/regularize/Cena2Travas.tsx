@@ -67,7 +67,7 @@ export const Cena2Travas: React.FC = () => {
   const frame = useCurrentFrame();
   return (
     <Fundo>
-      <div style={{ position: "absolute", top: 300, left: 90, right: 90 }}>
+      <div style={{ position: "absolute", top: 520, left: 90, right: 90 }}>
         <div style={{ opacity: interpolate(frame, [0, 10], [0, 1], CLAMP) }}>
           <Kicker>Sem matrícula</Kicker>
           <div style={{ fontWeight: 900, fontSize: 110, letterSpacing: "-0.035em", lineHeight: 1, marginTop: 30, textTransform: "uppercase" }}>
