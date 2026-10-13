@@ -10,7 +10,7 @@ export const RemotionRoot: React.FC = () => {
         <Composition
           id="RegularizeReurb"
           component={RegularizeMotion}
-          durationInFrames={800}
+          durationInFrames={658}
           fps={30}
           width={1080}
           height={1920}
