@@ -167,7 +167,7 @@ Parametros de insights:
 | `adset` | `create.py adset --account act_123 --name "Publico-Frio" --campaign 123 --optimization-goal LINK_CLICKS --targeting '{...}' --daily-budget 5000` |
 | `ad` | `create.py ad --account act_123 --name "Carrossel-V1" --adset 123 --creative '{"creative_id":"456"}' --degrees-of-freedom-spec '{...}'` |
 | `creative` | `create.py creative --account act_123 --name "Criativo-V1" --instagram-user-id 123 --object-story-spec '{...}' --url-tags "utm_source=facebook&utm_medium=cpc"` |
-| `image` | `create.py image --account act_123 --url "https://exemplo.com/imagem.jpg"` |
+| `image` | `create.py image --account act_123 --url "https://exemplo.com/imagem.jpg"` ou `--file "C:/caminho/imagem.png"` (arquivo local) |
 | `video` | `create.py video --account act_123 --url "https://exemplo.com/video.mp4"` |
 | `custom-audience` | `create.py custom-audience --account act_123 --name "Compradores-2026"` |
 | `lookalike` | `create.py lookalike --account act_123 --name "LAL-Compradores" --source 123 --spec '{"country":"BR","ratio":0.01}'` |
