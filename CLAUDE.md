@@ -21,6 +21,8 @@ Workspace de operação da The New Ads, agência de marketing de performance de 
 
 **Dentro de `clientes/<cliente>/`**, o material fica separado por tipo, e a subpasta só existe quando há o que guardar nela: `assets/`, `propostas/`, `paginas/`, `dashboards/`, `relatorios/`, `treinamentos/`, `conteudo/`, `automacoes/`, `gtm/`, `docs/`. `briefing.md` fica na raiz da pasta do cliente. Versão substituída vai pra `_versoes-anteriores/` em vez de ser apagada.
 
+**Churn:** quando o Douglas disser que um cliente saiu, compactar `clientes/<cliente>/` em `clientes/_churn/<cliente>.zip`, conferir se a contagem de arquivos do zip bate com a pasta e só então apagar a pasta original. Cliente ativo = pasta fora de `_churn/`.
+
 **O que não está no Git:** `clientes/`, `conteudo/`, `contratos/`, `briefings/` e `dados/*.json` estão no `.gitignore` por conterem dado real de cliente. Eles existem só no disco, então mover ou apagar ali não tem desfazer pelo histórico.
 
 ## Sobre o negócio
