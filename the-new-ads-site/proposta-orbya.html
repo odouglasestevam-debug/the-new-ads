@@ -1,0 +1,245 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Proposta · Site e tráfego Orbya Tecnologia · The New Ads</title>
+<meta name="robots" content="noindex" />
+<link href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" rel="stylesheet" />
+<link href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --bg:#0A0A0A;
+  --surface:#171717;
+  --surface2:#212121;
+  --accent:#FF6A00;
+  --accent-glow:#FFA24D;
+  --text:#FAFAFA;
+  --muted:#8A8A8A;
+  --line:rgba(255,255,255,.09);
+  --display:'Clash Display','Space Grotesk',system-ui,sans-serif;
+  --body:'Switzer','Inter',system-ui,sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--bg);color:var(--text);font-family:var(--body);
+  font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;
+}
+::selection{background:var(--accent);color:#0A0A0A;}
+a{color:var(--accent-glow);}
+p{margin:0 0 14px;max-width:70ch;}
+h1,h2,h3{font-family:var(--display);font-weight:600;margin:0;text-wrap:balance;}
+
+.wrap{max-width:920px;margin:0 auto;padding:0 32px 100px;}
+@media (max-width:640px){.wrap{padding:0 20px 80px;}}
+
+/* header */
+header{padding:56px 0 40px;border-bottom:1px solid var(--line);}
+.header-inner{max-width:920px;margin:0 auto;padding:0 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+@media (max-width:640px){.header-inner{padding:0 20px;}}
+.logo-mark{height:32px;width:auto;}
+.date-tag{font-family:var(--body);font-size:13px;color:var(--muted);border:1px solid var(--line);padding:6px 12px;}
+
+/* hero / destinatario */
+.hero{padding:64px 0 8px;}
+.eyebrow{
+  font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent);
+  display:flex;align-items:center;gap:10px;margin-bottom:18px;
+}
+.eyebrow::before{content:"";width:7px;height:7px;background:var(--accent);flex:none;}
+h1{font-size:clamp(28px,4.2vw,42px);line-height:1.12;letter-spacing:-.01em;margin-bottom:16px;max-width:22ch;}
+.hero-sub{font-size:17px;color:var(--muted);max-width:62ch;}
+
+/* section shell */
+section{padding:52px 0;border-bottom:1px solid var(--line);}
+section:last-of-type{border-bottom:none;}
+.section-head{display:flex;align-items:baseline;gap:14px;margin-bottom:24px;}
+.section-num{font-family:var(--body);font-weight:600;color:var(--accent);font-size:13px;flex:none;}
+h2{font-size:clamp(21px,2.6vw,27px);letter-spacing:-.005em;}
+
+/* lists */
+.checklist{list-style:none;margin:0;padding:0;display:grid;gap:1px;background:var(--line);border:1px solid var(--line);}
+.checklist li{background:var(--surface);padding:16px 18px;font-size:15px;display:flex;gap:12px;align-items:flex-start;}
+.checklist li::before{content:"→";color:var(--accent);flex:none;font-weight:600;}
+.checklist.out li::before{content:"×";color:var(--muted);}
+.checklist.out li{color:var(--muted);}
+
+/* cards */
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);border:1px solid var(--line);}
+@media (max-width:640px){.grid-2{grid-template-columns:1fr;}}
+.card{background:var(--surface);padding:24px 26px;}
+.card h3{font-size:17px;margin-bottom:8px;color:var(--text);}
+.card p{font-size:14px;color:var(--muted);margin-bottom:0;}
+
+/* investimento */
+.invest-box{
+  background:var(--surface);border:1px solid var(--line);padding:36px 32px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:24px;
+}
+.invest-label{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;}
+.invest-value{font-family:var(--display);font-size:clamp(34px,5vw,48px);color:var(--text);}
+.invest-value span{color:var(--accent);}
+.invest-note{font-size:13.5px;color:var(--muted);max-width:32ch;}
+
+/* prazo */
+.prazo-box{
+  border:1px dashed var(--line);padding:20px 22px;font-size:14.5px;color:var(--muted);
+}
+.prazo-box b{color:var(--text);}
+
+/* cta */
+.cta-box{
+  background:var(--surface);border:1px solid var(--line);padding:32px 30px;text-align:left;
+}
+.cta-box h2{margin-bottom:14px;}
+.btn{
+  display:inline-flex;align-items:center;gap:10px;
+  background:var(--accent);color:#0A0A0A;font-weight:600;font-size:15px;
+  padding:14px 26px;text-decoration:none;margin-top:18px;
+  box-shadow:0 8px 30px rgba(255,106,0,.28);
+}
+
+/* sobre */
+.sobre p{color:var(--muted);font-size:14.5px;}
+
+footer{padding:40px 0 0;text-align:center;}
+footer p{margin:0;font-size:12px;color:var(--muted);max-width:none;}
+.marca{color:var(--accent-glow);}
+.fase{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);margin-bottom:10px;}
+.invest-stack{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);}
+.invest-stack .invest-box{border:none;}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <svg class="logo-mark" viewBox="0 0 520 110" xmlns="http://www.w3.org/2000/svg">
+      <g transform="translate(4.25,4) scale(1)"><path d="M24 78 L48 26 L48 58 L78 24" fill="none" stroke="#FF6A00" stroke-width="8.5" stroke-linejoin="round" stroke-linecap="round"/></g><g transform="translate(110.5,78) scale(0.6571)"><path d="M26.09 -0.00 Q21.30 -0.00 18.44 -2.84 Q15.59 -5.70 15.59 -10.59 L15.59 -39.91 L2.70 -39.91 L2.70 -49.41 L15.59 -49.41 L15.59 -65.30 L27.09 -65.30 L27.09 -49.41 L41.30 -49.41 L41.30 -39.91 L27.09 -39.91 L27.09 -12.50 Q27.09 -9.50 29.91 -9.50 L39.80 -9.50 L39.80 -0.00 L26.09 -0.00 Z M53.00 -0.00 L53.00 -70.00 L64.50 -70.00 L64.50 -42.91 L66.20 -42.91 Q67.00 -44.59 68.79 -46.30 Q70.61 -48.00 73.54 -49.09 Q76.50 -50.20 81.00 -50.20 Q86.70 -50.20 91.09 -47.64 Q95.50 -45.09 97.95 -40.50 Q100.40 -35.91 100.40 -29.59 L100.40 -0.00 L88.90 -0.00 L88.90 -28.70 Q88.90 -34.70 85.95 -37.64 Q83.00 -40.59 77.61 -40.59 Q71.50 -40.59 68.00 -36.55 Q64.50 -32.50 64.50 -25.00 L64.50 -0.00 L53.00 -0.00 Z M137.11 1.41 Q129.70 1.41 124.04 -1.75 Q118.40 -4.91 115.25 -10.66 Q112.11 -16.41 112.11 -24.09 L112.11 -25.30 Q112.11 -33.09 115.20 -38.80 Q118.29 -44.50 123.89 -47.64 Q129.50 -50.80 136.79 -50.80 Q144.00 -50.80 149.39 -47.64 Q154.79 -44.50 157.79 -38.80 Q160.79 -33.09 160.79 -25.50 L160.79 -21.41 L123.70 -21.41 Q123.90 -15.59 127.79 -12.09 Q131.70 -8.59 137.40 -8.59 Q143.00 -8.59 145.70 -11.05 Q148.40 -13.50 149.79 -16.59 L159.29 -11.70 Q157.90 -9.00 155.25 -5.95 Q152.61 -2.91 148.20 -0.75 Q143.79 1.41 137.11 1.41 Z M123.79 -30.09 L149.11 -30.09 Q148.70 -35.00 145.34 -37.89 Q142.00 -40.80 136.70 -40.80 Q131.20 -40.80 127.90 -37.89 Q124.61 -35.00 123.79 -30.09 Z M198.10 -0.00 L198.10 -49.41 L209.39 -49.41 L209.39 -42.50 L211.10 -42.50 Q212.39 -45.30 215.80 -47.80 Q219.21 -50.30 226.10 -50.30 Q231.80 -50.30 236.19 -47.69 Q240.60 -45.09 243.05 -40.50 Q245.50 -35.91 245.50 -29.59 L245.50 -0.00 L234.00 -0.00 L234.00 -28.70 Q234.00 -34.70 231.05 -37.64 Q228.10 -40.59 222.71 -40.59 Q216.60 -40.59 213.10 -36.55 Q209.60 -32.50 209.60 -25.00 L209.60 -0.00 L198.10 -0.00 Z M282.21 1.41 Q274.80 1.41 269.14 -1.75 Q263.50 -4.91 260.35 -10.66 Q257.21 -16.41 257.21 -24.09 L257.21 -25.30 Q257.21 -33.09 260.30 -38.80 Q263.39 -44.50 268.99 -47.64 Q274.60 -50.80 281.89 -50.80 Q289.10 -50.80 294.49 -47.64 Q299.89 -44.50 302.89 -38.80 Q305.89 -33.09 305.89 -25.50 L305.89 -21.41 L268.80 -21.41 Q269.00 -15.59 272.89 -12.09 Q276.80 -8.59 282.50 -8.59 Q288.10 -8.59 290.80 -11.05 Q293.50 -13.50 294.89 -16.59 L304.39 -11.70 Q303.00 -9.00 300.35 -5.95 Q297.71 -2.91 293.30 -0.75 Q288.89 1.41 282.21 1.41 Z M268.89 -30.09 L294.21 -30.09 Q293.80 -35.00 290.44 -37.89 Q287.10 -40.80 281.80 -40.80 Q276.30 -40.80 273.00 -37.89 Q269.71 -35.00 268.89 -30.09 Z M322.40 -0.00 L314.70 -49.41 L326.10 -49.41 L331.40 -7.70 L333.10 -7.70 L340.60 -49.41 L358.99 -49.41 L366.49 -7.70 L368.20 -7.70 L373.49 -49.41 L384.90 -49.41 L377.20 -0.00 L358.10 -0.00 L350.70 -41.70 L348.99 -41.70 L341.49 -0.00 L322.40 -0.00 Z M437.29 1.41 Q432.11 1.41 427.90 -0.44 Q423.70 -2.30 421.25 -5.80 Q418.79 -9.30 418.79 -14.41 Q418.79 -19.41 421.25 -22.80 Q423.70 -26.20 428.00 -27.95 Q432.29 -29.70 437.79 -29.70 L452.11 -29.70 L452.11 -32.70 Q452.11 -36.59 449.70 -39.05 Q447.29 -41.50 442.20 -41.50 Q437.20 -41.50 434.65 -39.14 Q432.11 -36.80 431.29 -33.09 L420.70 -36.59 Q421.90 -40.50 424.54 -43.70 Q427.20 -46.91 431.59 -48.84 Q436.00 -50.80 442.40 -50.80 Q452.11 -50.80 457.65 -45.94 Q463.20 -41.09 463.20 -31.91 L463.20 -12.50 Q463.20 -9.50 466.00 -9.50 L470.20 -9.50 L470.20 -0.00 L462.11 -0.00 Q458.50 -0.00 456.20 -1.80 Q453.90 -3.59 453.90 -6.70 L453.90 -6.91 L452.20 -6.91 Q451.61 -5.50 450.11 -3.50 Q448.61 -1.50 445.54 -0.05 Q442.50 1.41 437.29 1.41 Z M439.20 -8.00 Q444.90 -8.00 448.50 -11.25 Q452.11 -14.50 452.11 -20.00 L452.11 -21.00 L438.50 -21.00 Q434.79 -21.00 432.50 -19.39 Q430.20 -17.80 430.20 -14.70 Q430.20 -11.70 432.59 -9.84 Q435.00 -8.00 439.20 -8.00 Z M499.90 1.41 Q493.90 1.41 488.70 -1.55 Q483.49 -4.50 480.40 -10.20 Q477.31 -15.91 477.31 -23.91 L477.31 -25.50 Q477.31 -33.50 480.40 -39.20 Q483.49 -44.91 488.65 -47.84 Q493.81 -50.80 499.90 -50.80 Q504.49 -50.80 507.70 -49.69 Q510.90 -48.59 512.85 -46.89 Q514.81 -45.20 515.90 -43.20 L517.60 -43.20 L517.60 -70.00 L528.99 -70.00 L528.99 -0.00 L517.81 -0.00 L517.81 -6.50 L516.10 -6.50 Q514.31 -3.50 510.60 -1.05 Q506.90 1.41 499.90 1.41 Z M503.31 -8.59 Q509.49 -8.59 513.59 -12.64 Q517.70 -16.70 517.70 -24.20 L517.70 -25.20 Q517.70 -32.80 513.65 -36.80 Q509.60 -40.80 503.31 -40.80 Q497.10 -40.80 492.95 -36.80 Q488.81 -32.80 488.81 -25.20 L488.81 -24.20 Q488.81 -16.70 492.95 -12.64 Q497.10 -8.59 503.31 -8.59 Z M564.00 1.41 Q554.39 1.41 548.19 -2.80 Q542.00 -7.00 540.71 -15.09 L551.30 -17.80 Q552.00 -14.00 553.80 -11.80 Q555.60 -9.59 558.24 -8.69 Q560.89 -7.80 564.00 -7.80 Q568.71 -7.80 571.05 -9.50 Q573.39 -11.20 573.39 -13.80 Q573.39 -16.50 571.14 -17.80 Q568.89 -19.09 564.30 -20.00 L561.21 -20.50 Q556.10 -21.50 551.89 -23.25 Q547.71 -25.00 545.14 -28.05 Q542.60 -31.09 542.60 -35.80 Q542.60 -43.00 547.94 -46.89 Q553.30 -50.80 562.00 -50.80 Q570.30 -50.80 575.69 -47.09 Q581.10 -43.41 582.71 -37.20 L572.10 -34.00 Q571.30 -38.20 568.60 -39.95 Q565.89 -41.70 562.00 -41.70 Q558.00 -41.70 555.85 -40.30 Q553.71 -38.91 553.71 -36.30 Q553.71 -33.70 555.89 -32.39 Q558.10 -31.09 561.80 -30.50 L564.89 -29.91 Q570.39 -28.91 574.85 -27.30 Q579.30 -25.70 581.89 -22.70 Q584.50 -19.70 584.50 -14.59 Q584.50 -6.91 578.94 -2.75 Q573.39 1.41 564.00 1.41 Z" fill="#FAFAFA" fill-rule="nonzero"/></g>
+    </svg>
+    <span class="date-tag">21 de outubro de 2026</span>
+  </div>
+</header>
+
+<div class="hero wrap">
+  <span class="eyebrow">Proposta comercial</span>
+  <h1>Site e tráfego pago da Orbya Tecnologia</h1>
+  <p class="hero-sub">Pra Allan Cabral e Jéssica. Implementação do site da nova marca a partir do design já criado pela equipe, e depois gestão contínua do site junto com o tráfego pago.</p>
+</div>
+
+<div class="wrap">
+
+<section id="contexto">
+  <div class="section-head"><span class="section-num">01</span><h2>Ponto de partida</h2></div>
+  <p>A Orbya Tecnologia nasce no mesmo campo da Entretec, com foco inicial em autoatendimento, varejo, automação e indústria, e comercial conduzido pela Jéssica. O design do site já existe. Falta colocar esse layout no ar e montar toda a estrutura de anúncio em volta dele, do zero.</p>
+</section>
+
+<section id="solucao">
+  <div class="section-head"><span class="section-num">02</span><h2>Como funciona</h2></div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="fase">Mês 1 · Setup</div>
+      <h3>Site no ar e estrutura de tráfego pronta</h3>
+      <p>O design criado pela equipe vira código no Cloudflare Pages, com hospedagem gratuita. No mesmo mês, criamos todas as contas de anúncio, o tracking e a copy das páginas, já pensados pra campanha.</p>
+    </div>
+    <div class="card">
+      <div class="fase">Mês 2 em diante · Recorrente</div>
+      <h3>Tráfego pago e gestão do site</h3>
+      <p>Campanhas rodando e o site em evolução contínua: otimizações, ajustes, melhorias e inclusão de mudanças sempre que o negócio pedir.</p>
+    </div>
+  </div>
+</section>
+
+<section id="escopo">
+  <div class="section-head"><span class="section-num">03</span><h2>Escopo incluso</h2></div>
+  <h3 style="font-size:17px;margin-bottom:14px">Setup do site (mês 1)</h3>
+  <ul class="checklist">
+    <li>Implementação de todas as páginas do layout aprovado, responsivas em desktop e celular</li>
+    <li>Hospedagem no Cloudflare Pages (gratuita) e conexão com o domínio da marca</li>
+    <li>Copywriting das páginas: headlines, subtítulos e descrição de cada serviço</li>
+    <li>CTA na primeira dobra e navegação por âncora nas páginas de anúncio, mantendo o visitante na oferta</li>
+    <li>Formulário de cadastro com redirecionamento pro WhatsApp como destino único de conversão</li>
+    <li>Rodapé padrão com CNPJ, e-mail, endereço, política de privacidade e termos de uso</li>
+  </ul>
+  <h3 style="font-size:17px;margin:32px 0 14px">Setup do tráfego (mês 1)</h3>
+  <ul class="checklist">
+    <li>Criação do Business Manager e da conta de anúncio na Meta</li>
+    <li>Criação da conta do Google Ads</li>
+    <li>Criação do perfil no Google Meu Negócio</li>
+    <li>Trackeamento e rastreamento completo (GTM, GA4 e conversões nas plataformas) pra medir cada lead desde o primeiro dia</li>
+    <li>Pesquisa de termos de busca aplicada nas páginas anunciantes, pra aumentar o índice de qualidade da página e baixar o custo por clique</li>
+  </ul>
+  <h3 style="font-size:17px;margin:32px 0 14px">Gestão mensal (mês 2 em diante)</h3>
+  <ul class="checklist">
+    <li>Gestão de tráfego pago: estrutura de campanhas, palavras-chave, negativação, otimização contínua e acompanhamento de custo por lead</li>
+    <li>Gestão do site: otimizações, ajustes, melhorias e inclusão de novas seções ou páginas conforme a operação pedir</li>
+    <li>Ajuste de páginas a partir do que os dados de campanha mostrarem (conversão, qualidade da página, termos que trazem lead)</li>
+  </ul>
+</section>
+
+<section id="fora">
+  <div class="section-head"><span class="section-num">04</span><h2>O que não está incluso</h2></div>
+  <ul class="checklist out">
+    <li>Criação de design ou identidade visual (já feitos pela equipe interna)</li>
+    <li>Verba de anúncio, paga direto às plataformas</li>
+    <li>Registro e renovação do domínio</li>
+    <li>Produção de fotos, vídeos e depoimentos (a equipe envia o material, a gente aplica)</li>
+  </ul>
+</section>
+
+<section id="prazo">
+  <div class="section-head"><span class="section-num">05</span><h2>Prazo</h2></div>
+  <div class="prazo-box">
+    Site no ar em <b>5 a 10 dias úteis</b> a partir do recebimento dos arquivos do layout.
+  </div>
+</section>
+
+<section id="investimento">
+  <div class="section-head"><span class="section-num">06</span><h2>Investimento</h2></div>
+  <div class="invest-stack">
+    <div class="invest-box">
+      <div>
+        <div class="invest-label">Mês 1 · Setup do site e do tráfego</div>
+        <div class="invest-value">R$ <span>2.500</span></div>
+      </div>
+      <p class="invest-note">Site no ar com copy, contas de anúncio e Google Meu Negócio criados, tracking instalado e páginas preparadas pro índice de qualidade.</p>
+    </div>
+    <div class="invest-box">
+      <div>
+        <div class="invest-label">Mês 2 em diante · Mensal</div>
+        <div class="invest-value">R$ <span>2.000</span>/mês</div>
+      </div>
+      <p class="invest-note">Tráfego pago mais gestão do site. A hospedagem continua gratuita, sem custo extra de servidor.</p>
+    </div>
+  </div>
+</section>
+
+<section id="proximos-passos">
+  <div class="section-head"><span class="section-num">07</span><h2>Próximos passos</h2></div>
+  <div class="cta-box">
+    <h2>Pra começar</h2>
+    <ul class="checklist" style="margin-top:18px">
+      <li>Aprovação desta proposta</li>
+      <li>Arquivo com todas as páginas do layout</li>
+      <li>Acesso ao domínio da marca</li>
+      <li>Dados da empresa (CNPJ, endereço, e-mail da marca) pra criação das contas</li>
+    </ul>
+    <a class="btn" href="https://wa.me/5511932319282?text=Oi%20Douglas%2C%20aprovamos%20a%20proposta%20do%20site%20da%20nova%20marca" target="_blank" rel="noopener">Aprovar pelo WhatsApp</a>
+  </div>
+</section>
+
+<section class="sobre" id="sobre">
+  <div class="section-head"><span class="section-num">08</span><h2>Sobre a The New Ads</h2></div>
+  <p>Agência de performance operada por Douglas Estevam: Google Ads, Meta Ads, tracking e sites orientados por dado. Já opera o tráfego pago da Entretec.</p>
+</section>
+
+</div>
+
+<footer>
+  <div class="wrap" style="padding-bottom:0">
+    <p>the new ads · proposta Orbya Tecnologia · válida por 15 dias a partir da data de envio</p>
+  </div>
+</footer>
+</body>
+</html>
