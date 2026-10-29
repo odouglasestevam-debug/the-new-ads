@@ -886,10 +886,16 @@ function renderEvolucao(meses, gran) {
   document.querySelectorAll('.range-btn[data-gran]').forEach((b) => b.classList.toggle('active', b.dataset.gran === gran));
   document.getElementById('tit-tbl-evolucao').textContent = ROTULO_TABELA[gran];
   const cats = meses.map((m) => m.rotulo);
+  // ROAS de um dia so oscila demais (venda num dia quase sem verba vira 1000x): na visao
+  // por dia e por semana o painel mostra o ROAS acumulado no periodo ate aquele ponto
+  const acumulado = gran !== 'mes';
+  let fatAc = 0, invAc = 0;
+  const roasAc = meses.map((m) => { fatAc += m.fat; invAc += m.inv; return invAc ? fatAc / invAc : null; });
+  const roasSerie = acumulado ? roasAc : meses.map((m) => m.roas);
   const dicaMes = (i) => {
     const m = meses[i];
     return ttLinhas(m.titulo, [
-      'Faturamento ' + fmtMoney(m.fat), 'Investimento ' + fmtMoney(m.inv), 'ROAS ' + ou(m.roas, fmtX),
+      'Faturamento ' + fmtMoney(m.fat), 'Investimento ' + fmtMoney(m.inv), (acumulado ? 'ROAS acumulado ' : 'ROAS ') + ou(roasSerie[i], fmtX),
       'Leads ' + fmtInt(m.leads) + ' · CPL ' + ou(m.cpl, fmtMoney),
       'Vendas ' + fmtInt(m.vendas) + ' · ticket ' + ou(m.ticket, fmtMoney), 'Conversão ' + ou(m.conv, fmtPct),
     ]);
@@ -897,7 +903,7 @@ function renderEvolucao(meses, gran) {
   const retorno = [
     { titulo: 'Faturamento', valores: meses.map((m) => m.fat), cor: COR.accent, fmt: fmtMoneyCurto, eixo: fmtK },
     { titulo: 'Investimento', valores: meses.map((m) => m.inv), cor: COR.navy, fmt: fmtMoneyCurto, eixo: fmtK },
-    { titulo: 'ROAS', valores: meses.map((m) => m.roas), cor: COR.navy, fmt: fmtX, eixo: (v) => nf(v) + 'x' },
+    { titulo: acumulado ? 'ROAS acumulado' : 'ROAS', valores: roasSerie, cor: COR.navy, fmt: fmtX, eixo: (v) => nf(v) + 'x' },
   ];
   if (OCULTAR_INVESTIMENTO) retorno.splice(1, 2);
   desenha('ch-mes-retorno', (el) => paineis(el, cats, retorno, { alturaPainel: 130, tooltip: dicaMes }));

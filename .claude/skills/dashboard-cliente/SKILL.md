@@ -164,7 +164,7 @@ Regra do Douglas (29/10/2026): **dashboard e relatório são pra empresa, então
 **Versão BI (referência: `dashboard-fatima.html`, 29/10/2026).** Quando o Douglas pedir "riqueza de dados" ou "um BI de verdade", o padrão é o da Fátima, e não o clone da Confiança:
 - Período do dash começa no primeiro dia de anúncio (primeiro gasto na API da Meta, não a data que estiver no código).
 - Resultado com variação contra o mesmo número de dias imediatamente antes.
-- Evolução mensal em painéis empilhados com o mesmo eixo X (faturamento, investimento e ROAS nunca em eixo duplo) e tabela mês a mês.
+- Evolução em painéis empilhados com o mesmo eixo X (faturamento, investimento e ROAS nunca em eixo duplo) e tabela. **Tudo na página segue o período selecionado**, inclusive a evolução: a granularidade é automática pelo tamanho do período (até 31 dias por dia, até 92 por semana, acima disso por mês), com botões Dia/Semana/Mês para trocar. Na visão por dia e por semana o painel mostra o ROAS acumulado, porque o ROAS de um dia só explode (venda num dia quase sem verba). A série termina no último dia com investimento ou venda.
 - Funil impressão, clique, lead e venda.
 - Vendas por dia da semana, faixa de ticket, forma de pagamento e maiores vendas.
 - Vendedores com cor fixa por pessoa: ranking, colunas empilhadas por mês, ticket e cadastro de telefone.
