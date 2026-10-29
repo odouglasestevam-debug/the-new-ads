@@ -161,7 +161,18 @@ Regra do Douglas (29/10/2026): **dashboard e relatório são pra empresa, então
 7. **Header**: logo colorido à esquerda, título "Dashboard de resultados", faixa de 3 px na cor de destaque da marca. The New Ads aparece só no rodapé.
 8. **Conferir com print** (Playwright, 1280 px e 390 px) antes do deploy: logo visível, nenhum texto em cor de marca sem contraste, nada estourando a largura no celular.
 
-Se o cliente tiver `<slug>_vendas` com a coluna `vendedor`, incluir também os blocos "Ranking de vendedores" (respeita o período selecionado, lista quem está zerado no período) e "Vendedores mês a mês" (série completa, mês sem planilha marcado). Código pronto em `dashboard-fatima.html` (`renderRanking` e `renderVendedorMes`).
+**Versão BI (referência: `dashboard-fatima.html`, 29/10/2026).** Quando o Douglas pedir "riqueza de dados" ou "um BI de verdade", o padrão é o da Fátima, e não o clone da Confiança:
+- Período do dash começa no primeiro dia de anúncio (primeiro gasto na API da Meta, não a data que estiver no código).
+- Resultado com variação contra o mesmo número de dias imediatamente antes.
+- Evolução mensal em painéis empilhados com o mesmo eixo X (faturamento, investimento e ROAS nunca em eixo duplo) e tabela mês a mês.
+- Funil impressão, clique, lead e venda.
+- Vendas por dia da semana, faixa de ticket, forma de pagamento e maiores vendas.
+- Vendedores com cor fixa por pessoa: ranking, colunas empilhadas por mês, ticket e cadastro de telefone.
+- Mídia por dia da semana e retenção de vídeo.
+- Dispersão investimento x leads por criativo.
+- Mapa de calor idade x gênero.
+
+Os dados são carregados uma vez, paginados (o Supabase devolve no máximo 1000 linhas e o `anon` tem `statement_timeout` de 3s), e filtrados no navegador. `meta_breakdowns` carrega depois, sem segurar o resto, e ordena por `data` para usar o índice `(cliente, data)`. Nessa tabela `resultados` vem vazio para a Fátima, por isso o público é lido por clique e CTR. Antes de publicar, testar com Playwright clicando nos atalhos do seletor e conferir `scrollWidth` igual à largura da tela em 390 px.
 
 ## Passo 3.5 — Fluxo n8n de tracking (CTWA), se o cliente ainda não tem
 
