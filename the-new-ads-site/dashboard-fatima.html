@@ -286,9 +286,6 @@
       <button class="date-picker-option" data-preset="tudo">Tudo</button>
       <div class="date-picker-meses">
         <div class="date-picker-custom-label">Mês</div>
-        <button class="date-picker-option" data-de="2026-05-01" data-ate="2026-05-31">Maio 2026</button>
-        <button class="date-picker-option" data-de="2026-06-01" data-ate="2026-06-30">Junho 2026</button>
-        <button class="date-picker-option" data-de="2026-07-01" data-ate="2026-07-31">Julho 2026</button>
         <button class="date-picker-option" data-de="2026-08-01" data-ate="2026-08-31">Agosto 2026</button>
         <button class="date-picker-option" data-de="2026-09-01" data-ate="2026-09-30">Setembro 2026</button>
         <button class="date-picker-option" data-de="2026-10-01" data-ate="2026-10-31">Outubro 2026</button>
@@ -296,8 +293,8 @@
       <div class="date-picker-custom">
         <div class="date-picker-custom-label">Personalizado</div>
         <div class="date-picker-custom-row">
-          <span>de</span><input type="date" id="date-from" />
-          <span>até</span><input type="date" id="date-to" />
+          <span>de</span><input type="date" id="date-from" min="2026-07-27" />
+          <span>até</span><input type="date" id="date-to" min="2026-07-27" />
         </div>
         <button class="date-picker-apply" id="btn-custom">Aplicar</button>
       </div>
@@ -512,6 +509,11 @@ const fmtDate = (iso) => iso ? iso.slice(0, 10).split('-').reverse().join('/') :
 function toISODate(d) { return d.toISOString().slice(0, 10); }
 function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); }
 
+// Periodo do dash, definido pelo Douglas em 29/10/2026: do primeiro dia de anuncio
+// (27/07/2026, primeiro gasto na conta segundo a API da Meta) ate hoje. Venda anterior
+// nao entra em nenhuma metrica; so aparece nos blocos de comparacao com maio.
+const INICIO_ANUNCIOS = '2026-07-27';
+
 let currentRange = { since: daysAgo(30), until: toISODate(new Date()) };
 // Modo cliente: true esconde investimento, CPL, CPC, CPM, ROAS e custo por venda.
 // Trocar pra false devolve a visao interna completa.
@@ -558,7 +560,7 @@ function applyPreset(preset) {
 
   const today = toISODate(new Date());
   currentRange = preset === 'hoje' ? { since: today, until: today }
-    : preset === 'tudo' ? { since: '2020-01-01', until: today }
+    : preset === 'tudo' ? { since: INICIO_ANUNCIOS, until: today }
     : { since: daysAgo(Number(preset)), until: today };
 
   document.getElementById('date-from').value = currentRange.since;
@@ -854,14 +856,8 @@ const MESES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'se
 
 let vendasCache = null;
 
-// Base de calculo, definida pelo Douglas em 29/10/2026: so da segunda quinzena
-// de julho em diante, quando a midia comecou. O que vem antes e base de
-// comparacao: entra em faturamento, ranking e serie mensal, nunca em ROAS,
-// custo por venda ou conversao de lead em venda.
-const BASE_CALCULO = '2026-07-16';
-
 // Verba que puxou agosto, so pro bloco fixo "Ganho de agosto sobre maio".
-const INV_DE = '2026-07-21';
+const INV_DE = INICIO_ANUNCIOS;
 const INV_ATE = '2026-08-31';
 let invVeiculacaoCache = null;
 
@@ -908,30 +904,28 @@ async function loadVendas() {
     return;
   }
 
-  // KPIs do periodo selecionado
+  // KPIs do periodo selecionado, que ja comeca no maximo em INICIO_ANUNCIOS (ver loadAll)
   const { n, total } = somaVendas(rows, currentRange.since, currentRange.until);
+  const inv = lastInvestimento;
   document.getElementById('kpi-faturamento').textContent = n ? fmtMoneyCurto(total) : '—';
   document.getElementById('kpi-vendas').textContent = n ? fmtInt(n) : '—';
   document.getElementById('kpi-ticket').textContent = n ? fmtMoney(total / n) : '—';
-  // ROAS, custo por venda e conversao so contam venda da base de calculo.
-  // Investimento e lead ja nascem dentro dela, entao vem direto do recorte.
-  const calcDe = currentRange.since > BASE_CALCULO ? currentRange.since : BASE_CALCULO;
-  const naBase = calcDe <= currentRange.until ? somaVendas(rows, calcDe, currentRange.until) : { n: 0, total: 0 };
-  const inv = lastInvestimento;
-  document.getElementById('kpi-roas').textContent = (inv && naBase.total)
-    ? (naBase.total / inv).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'x'
+  document.getElementById('kpi-roas').textContent = (inv && total)
+    ? (total / inv).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'x'
     : '—';
-  document.getElementById('kpi-cpv').textContent = (inv && naBase.n) ? fmtMoney(inv / naBase.n) : '—';
-  renderFunil(naBase.n);
+  document.getElementById('kpi-cpv').textContent = (inv && n) ? fmtMoney(inv / n) : '—';
+  renderFunil(n);
 
-  renderRanking(rows);
-  renderVendedorMes(rows);
+  const comAnuncio = rows.filter((v) => v.data >= INICIO_ANUNCIOS);
+  renderRanking(comAnuncio);
+  renderVendedorMes(comAnuncio);
+  // daqui pra baixo e comparacao com maio, por isso recebe a base inteira
   renderTabelaMeses(rows);
   renderCorrida(rows);
   renderIncremental(rows);
 }
 
-// Funil: lead (conversa iniciada) em venda lancada na planilha, dentro da base de calculo
+// Funil: lead (conversa iniciada) em venda lancada na planilha, no periodo selecionado
 function renderFunil(vendas) {
   const funnelEl = document.getElementById('funnel');
   const leads = lastLeadsTotal;
@@ -1020,6 +1014,7 @@ function renderRanking(rows) {
 }
 
 function renderVendedorMes(rows) {
+  if (!rows.length) return;
   // meses corridos do primeiro ao ultimo lancamento, pra mes sem planilha aparecer como buraco
   const meses = [];
   let [a, m] = rows[0].data.slice(0, 7).split('-').map(Number);
@@ -1179,6 +1174,8 @@ function renderCorrida(rows) {
 }
 
 async function loadAll() {
+  if (currentRange.since < INICIO_ANUNCIOS) currentRange.since = INICIO_ANUNCIOS;
+  if (currentRange.until < currentRange.since) currentRange.until = currentRange.since;
   document.getElementById('date-from').value = currentRange.since;
   document.getElementById('date-to').value = currentRange.until;
   await Promise.all([loadKpisAndAds(), loadFollowers()]);
