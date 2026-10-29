@@ -218,7 +218,7 @@ const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<
 
 // campanha -> canal; o sufixo do nome diz a loja
 const LOJAS = [
-  { chave: 'CRICIUMA', nome: 'Loja de rua', cor: '#344676' },
+  { chave: 'CRICIUMA', nome: 'Centro', cor: '#344676' },
   { chave: 'NACOES', nome: 'Nações Shopping', cor: '#F17036' },
 ];
 const lojaDe = (camp) => LOJAS.find((l) => camp.endsWith(l.chave));
