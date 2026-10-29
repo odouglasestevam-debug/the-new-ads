@@ -50,14 +50,7 @@
     font-size:clamp(20px,2.6vw,26px);
     color:var(--navy);
   }
-  .sub{color:var(--muted);font-size:13px;margin-top:2px;}
-  .updated{
-    font-family:'JetBrains Mono',monospace;
-    font-size:11px;color:var(--muted);
-    text-align:right;
-  }
-  .updated b{color:var(--navy);}
-  @media (max-width:560px){.marca .titulo{padding-left:0;border-left:none;} .updated{text-align:left;}}
+  @media (max-width:560px){.marca .titulo{padding-left:0;border-left:none;}}
 
   /* seletor de datas */
   .range-bar{
@@ -130,7 +123,6 @@
     font-weight:700;font-size:26px;color:var(--navy);
   }
   .kpi .value.accent{color:var(--accent-ink);}
-  .kpi .pe{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);line-height:1.5;margin-top:7px;}
 
   /* KPIs primárias (visão geral) vs secundárias (eficiência de entrega) — contraste de escala cria hierarquia dentro do grupo Performance */
   .kpis.kpis-primary{grid-template-columns:repeat(auto-fit,minmax(200px,1fr));}
@@ -153,14 +145,12 @@
     display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;
   }
   .macro-title::before{content:'';width:4px;height:18px;background:var(--accent);align-self:center;}
-  .macro-title .macro-sub{font-family:'Switzer';font-weight:400;font-size:13px;color:var(--muted);}
 
   .section-title{
     font-family:var(--display);
     font-weight:700;font-size:17px;margin-bottom:12px;
     display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;
   }
-  .section-title .hint{font-family:'Switzer';font-weight:400;font-size:12px;color:var(--muted);}
 
   .card{background:var(--surface);border:1px solid var(--line);padding:20px;}
 
@@ -191,16 +181,7 @@
 
   #bars-meses .bar-row{grid-template-columns:110px 1fr 96px;}
   #bars-meses .bar-val{white-space:nowrap;}
-  .bar-mark{font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.1em;text-transform:uppercase;
-    color:var(--accent-ink);border:1px solid rgba(242,113,53,.45);padding:1px 4px;margin-left:6px;vertical-align:1px;}
-  .bar-mark.neutro{color:var(--muted);border-color:var(--line-forte);}
 
-  .ressalvas{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--line);
-    border:1px solid var(--line);margin-bottom:8px;}
-  .ressalvas>div{background:var(--surface);padding:16px 18px;}
-  .ressalvas .k{font-family:var(--display);font-weight:700;font-size:21px;color:var(--navy);}
-  .ressalvas .v{font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--muted);line-height:1.55;margin-top:7px;}
-  .ressalvas .k.accent{color:var(--accent-ink);}
 
   /* corrida acumulada maio x agosto */
   svg.corrida{width:100%;height:auto;display:block;}
@@ -288,10 +269,8 @@
       <img class="logo" src="/logos/fatima-esportes-cor.png" alt="Fátima Esportes" width="202" height="46" />
       <div class="titulo">
         <h1>Dashboard de resultados</h1>
-        <div class="sub">Tráfego pago, leads e vendas · Meta Ads + planilha da loja</div>
       </div>
     </div>
-    <div class="updated">Atualizado em <b id="updated-at">—</b></div>
   </header>
 
   <div class="date-picker" id="date-picker">
@@ -326,7 +305,7 @@
   </div>
 
   <div class="macro">
-    <div class="macro-title">Performance <span class="macro-sub">investimento e eficiência de entrega no período</span></div>
+    <div class="macro-title">Performance</div>
 
     <section>
       <div class="kpis kpis-primary" id="kpis">
@@ -348,18 +327,18 @@
   </div>
 
   <div class="macro">
-    <div class="macro-title">Vendas e retorno <span class="macro-sub" id="vendas-hint">canal WhatsApp · planilha da loja importada em <code>fatima_vendas</code></span></div>
+    <div class="macro-title">Vendas e retorno</div>
 
     <section>
       <div class="kpis kpis-primary" id="kpis-vendas">
         <div class="kpi"><div class="label">Faturamento</div><div class="value accent" id="kpi-faturamento"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Vendas</div><div class="value" id="kpi-vendas"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Ticket médio</div><div class="value" id="kpi-ticket"><div class="skel"></div></div></div>
-        <div class="kpi kpi-sigilo"><div class="label">ROAS do canal</div><div class="value" id="kpi-roas"><div class="skel"></div></div><div class="pe" id="kpi-roas-pe"></div></div>
-        <div class="kpi kpi-sigilo"><div class="label">Custo por venda</div><div class="value" id="kpi-cpv"><div class="skel"></div></div><div class="pe" id="kpi-cpv-pe"></div></div>
+        <div class="kpi kpi-sigilo"><div class="label">ROAS do canal</div><div class="value" id="kpi-roas"><div class="skel"></div></div></div>
+        <div class="kpi kpi-sigilo"><div class="label">Custo por venda</div><div class="value" id="kpi-cpv"><div class="skel"></div></div></div>
       </div>
 
-      <div class="section-title">Ranking de vendedores <span class="hint" id="ranking-hint">período selecionado</span></div>
+      <div class="section-title">Ranking de vendedores</div>
       <div class="card" style="padding:0;margin-bottom:24px;overflow-x:auto;">
         <table id="tbl-ranking">
           <thead><tr>
@@ -377,12 +356,12 @@
         </table>
       </div>
 
-      <div class="section-title">Vendedores mês a mês <span class="hint">faturamento e vendas lançadas por vendedor · série completa, não muda com o período selecionado</span></div>
+      <div class="section-title">Vendedores mês a mês</div>
       <div class="card" style="padding:0;margin-bottom:24px;overflow-x:auto;">
         <table id="tbl-vendedor-mes"><tbody><tr><td class="loading">Carregando…</td></tr></tbody></table>
       </div>
 
-      <div class="section-title">Comparativo mês a mês <span class="hint">vendas, ticket médio e faturamento · série completa, não muda com o período selecionado</span></div>
+      <div class="section-title">Comparativo mês a mês</div>
       <div class="card" style="padding:0;margin-bottom:24px;overflow-x:auto;">
         <table id="tbl-meses">
           <thead><tr>
@@ -397,39 +376,37 @@
         </table>
       </div>
 
-      <div class="section-title">Ganho de agosto sobre maio <span class="hint">maio foi o melhor mês antes da mídia · janela fixa</span></div>
-      <div class="ressalvas" style="margin-bottom:24px;">
-        <div><div class="k accent" id="inc-fat">—</div><div class="v">de faturamento a mais em agosto do que no melhor mês antes da mídia</div></div>
-        <div><div class="k" id="inc-vendas">—</div><div class="v" id="inc-vendas-pe">vendas a mais</div></div>
-        <div class="kpi-sigilo"><div class="k" id="inc-inv">—</div><div class="v">investido em mídia no total, de 21/07 a 31/08</div></div>
-        <div class="kpi-sigilo"><div class="k accent" id="inc-roas">—</div><div class="v">de retorno sobre a diferença, descontando tudo que a loja já vendia sozinha e contando a verba inteira</div></div>
+      <div class="section-title">Ganho de agosto sobre maio</div>
+      <div class="kpis" style="margin-bottom:24px;">
+        <div class="kpi"><div class="label">Faturamento a mais</div><div class="value accent" id="inc-fat">—</div></div>
+        <div class="kpi"><div class="label">Vendas a mais</div><div class="value" id="inc-vendas">—</div></div>
+        <div class="kpi kpi-sigilo"><div class="label">Investimento</div><div class="value" id="inc-inv">—</div></div>
+        <div class="kpi kpi-sigilo"><div class="label">Retorno sobre a diferença</div><div class="value accent" id="inc-roas">—</div></div>
       </div>
 
-      <div class="section-title">Maio e agosto dia a dia <span class="hint">faturamento acumulado dentro do mês, com marco na data comemorativa · janela fixa</span></div>
+      <div class="section-title">Maio e agosto dia a dia</div>
       <div class="card" style="margin-bottom:16px;">
         <div class="corrida-leg">
-          <span><i style="background:#A3ADC2"></i>Maio, sem mídia</span>
-          <span><i style="background:var(--accent)"></i>Agosto, com mídia</span>
+          <span><i style="background:#A3ADC2"></i>Maio</span>
+          <span><i style="background:var(--accent)"></i>Agosto</span>
         </div>
         <svg class="corrida" id="svg-corrida" viewBox="0 0 900 330"></svg>
       </div>
-      <div class="ressalvas" id="fase-cards" style="margin-bottom:8px;">
-        <div><div class="k" id="fase-mai-antes">—</div><div class="v" id="fase-mai-antes-pe"></div></div>
-        <div><div class="k accent" id="fase-ago-antes">—</div><div class="v" id="fase-ago-antes-pe"></div></div>
-        <div><div class="k" id="fase-mai-depois">—</div><div class="v" id="fase-mai-depois-pe"></div></div>
-        <div><div class="k accent" id="fase-ago-depois">—</div><div class="v" id="fase-ago-depois-pe"></div></div>
+      <div class="kpis" id="fase-cards" style="margin-bottom:8px;">
+        <div class="kpi"><div class="label">Maio até o Dia das Mães</div><div class="value" id="fase-mai-antes">—</div></div>
+        <div class="kpi"><div class="label">Agosto até o Dia dos Pais</div><div class="value accent" id="fase-ago-antes">—</div></div>
+        <div class="kpi"><div class="label">Maio após o Dia das Mães</div><div class="value" id="fase-mai-depois">—</div></div>
+        <div class="kpi"><div class="label">Agosto após o Dia dos Pais</div><div class="value accent" id="fase-ago-depois">—</div></div>
       </div>
     </section>
   </div>
 
   <div class="macro">
-    <div class="macro-title">Funil comercial <span class="macro-sub" id="funnel-hint">período selecionado</span></div>
+    <div class="macro-title">Funil comercial</div>
 
     <section>
       <div class="kpis" style="margin-bottom:20px;">
-        <div class="kpi"><div class="label">Taxa de qualificação</div><div class="value" id="kpi-taxa-qualificacao"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">Taxa de conversão comercial</div><div class="value accent" id="kpi-taxa-comercial"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">Taxa de conversão do funil</div><div class="value" id="kpi-taxa-funil"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Conversão de lead em venda</div><div class="value accent" id="kpi-taxa-funil"><div class="skel"></div></div></div>
       </div>
       <div class="card">
         <div class="funnel" id="funnel"><div class="loading">Carregando…</div></div>
@@ -438,7 +415,7 @@
   </div>
 
   <div class="macro">
-    <div class="macro-title">Engajamento <span class="macro-sub">como o público reage ao criativo, além do clique</span></div>
+    <div class="macro-title">Engajamento</div>
 
     <section>
       <div class="kpis" style="margin-bottom:20px;">
@@ -452,20 +429,10 @@
   </div>
 
   <div class="macro">
-    <div class="macro-title">Rastreamento <span class="macro-sub">o que o Meta reporta vs quem realmente virou lead, por campanha/conjunto/anúncio</span></div>
+    <div class="macro-title">Campanhas e criativos</div>
 
     <section>
-      <div class="section-title">Gap geral <span class="hint">mensagens iniciadas (Meta) vs leads confirmados (CRM) · só mensagem direta</span></div>
-      <div class="kpis" style="margin-bottom:0;">
-        <div class="kpi"><div class="label">Mensagens iniciadas</div><div class="value" id="kpi-gap-msgs"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">Leads reais</div><div class="value" id="kpi-gap-leads"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">Gap</div><div class="value accent" id="kpi-gap-pct"><div class="skel"></div></div></div>
-      </div>
-      <div class="note">Gap = mensagens iniciadas no Meta que não viraram lead confirmado no CRM (número errado, sem resposta, fora do público certo etc).</div>
-    </section>
-
-    <section>
-      <div class="section-title">Métricas detalhadas <span class="hint" id="metrics-hint">período selecionado</span></div>
+      <div class="section-title">Métricas detalhadas</div>
       <div class="range-bar" style="margin-bottom:12px;">
         <button class="range-btn active" data-tab="campanha">Campanha</button>
         <button class="range-btn" data-tab="conjunto">Conjunto</button>
@@ -477,38 +444,30 @@
             <tr>
               <th>Nome</th><th class="num col-inv">Investimento</th><th class="num">Impressões</th><th class="num">Cliques</th>
               <th class="num">CTR</th><th class="num">CPC</th><th class="num">CPM</th><th class="num">Freq.</th>
-              <th class="num">Msgs. iniciadas</th><th class="num">Leads reais</th><th class="num">Gap</th><th class="num">Resultados</th>
+              <th class="num">Leads</th><th class="num col-inv">CPL</th><th class="num">Resultados</th>
             </tr>
           </thead>
-          <tbody><tr><td colspan="12" class="loading">Carregando…</td></tr></tbody>
+          <tbody><tr><td colspan="11" class="loading">Carregando…</td></tr></tbody>
         </table>
       </div>
     </section>
 
-    <section>
-      <div class="grid2">
-        <div>
-          <div class="section-title">Origem do lead</div>
-          <div class="card"><div class="pie-wrap" id="pie-origem"><div class="loading">Carregando…</div></div></div>
-        </div>
-        <div id="followers-block">
-          <div class="section-title">Seguidores no Instagram <span class="hint" id="followers-hint"></span></div>
-          <div class="card trend-wrap" id="trend-card"><div class="loading">Carregando…</div></div>
-        </div>
-      </div>
+    <section id="followers-block">
+      <div class="section-title">Seguidores no Instagram</div>
+      <div class="card trend-wrap" id="trend-card"><div class="loading">Carregando…</div></div>
     </section>
 
     <section>
-      <div class="section-title">Top criativos <span class="hint">os 5 anúncios com mais leads reais confirmados no período</span></div>
+      <div class="section-title">Top criativos</div>
       <div class="card" style="overflow-x:auto;">
         <table id="top-criativos-table">
           <thead>
             <tr>
               <th>Criativo</th><th class="num col-inv">Investimento</th><th class="num">CTR</th>
-              <th class="num">Msgs. iniciadas</th><th class="num">Leads reais</th><th class="num">Gap</th><th class="num">Resultados</th><th></th>
+              <th class="num">Leads</th><th class="num col-inv">CPL</th><th class="num">Resultados</th>
             </tr>
           </thead>
-          <tbody><tr><td colspan="8" class="loading">Carregando…</td></tr></tbody>
+          <tbody><tr><td colspan="6" class="loading">Carregando…</td></tr></tbody>
         </table>
       </div>
     </section>
@@ -523,20 +482,14 @@
           <div class="section-title">Plataforma e posição</div>
           <div class="card">
             <div class="bars" id="bars-placement"><div class="loading">Carregando…</div></div>
-            <div style="margin-top:16px;padding-top:16px;border-top:1px solid var(--line);">
-              <div class="section-title" style="font-size:12px;margin-bottom:8px;">Leads reais por posicionamento</div>
-              <div class="bars" id="bars-placement-leads"><div class="loading">Carregando…</div></div>
-            </div>
           </div>
         </div>
       </div>
-      <div class="note">Breakdowns de idade/gênero/plataforma começaram a ser coletados em 07/08/2026 — cobrem todo o histórico disponível, não respeitam o filtro de data acima.</div>
     </section>
   </div>
 
   <footer>
     <span>The New Ads · thenewads.com.br</span>
-    <span>Dashboard gerado automaticamente a partir do Meta Ads</span>
   </footer>
 
 </div>
@@ -659,6 +612,7 @@ async function loadKpisAndAds() {
   metaRowsCache = data;
 
   let investimento = 0, impressoes = 0, alcance = 0, leads = 0, resultados = 0, videoView = 0;
+  // Lead da Fatima = conversa iniciada por mensagem (Meta), decisao do Douglas em 29/10/2026
   let engajamento = 0, reacoes = 0, comentarios = 0, compartilhamentos = 0, salvamentos = 0;
   let ctrSum = 0, ctrN = 0, cpcSum = 0, cpcN = 0, cpmSum = 0, cpmN = 0, freqSum = 0, freqN = 0;
 
@@ -666,7 +620,7 @@ async function loadKpisAndAds() {
     investimento += Number(row.investimento || 0);
     impressoes += Number(row.impressoes || 0);
     alcance += Number(row.alcance || 0);
-    leads += Number(row.lead || 0);
+    leads += Number(row.mensagens_iniciadas || 0);
     resultados += Number(row.resultados || 0);
     videoView += Number(row.video_view || 0);
     engajamento += Number(row.post_engajament || 0);
@@ -689,7 +643,9 @@ async function loadKpisAndAds() {
   document.getElementById('kpi-freq').textContent = freqN ? (freqSum / freqN).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   document.getElementById('kpi-gancho').textContent = impressoes ? fmtPct((videoView / impressoes) * 100) : '—';
   document.getElementById('kpi-resultados-meta').textContent = fmtInt(resultados);
+  document.getElementById('kpi-leads').textContent = fmtInt(leads);
   lastInvestimento = investimento;
+  lastLeadsTotal = leads;
 
   document.getElementById('kpi-engajamento-total').textContent = fmtInt(engajamento);
   document.getElementById('kpi-engajamento-taxa').textContent = impressoes ? fmtPct((engajamento / impressoes) * 100) : '—';
@@ -701,123 +657,18 @@ async function loadKpisAndAds() {
   ].filter((r) => r.impressoes > 0), (r) => r.label);
 }
 
-let trackingRowsCache = [];
-
-async function loadLeads() {
-  const { data, error } = await sb
-    .from('fatima_tracking')
-    .select('nome,origem,etapa,qualificacao,data,url_criativo,campaing_name,adset_name,ad_name,posicionamento')
-    .eq('cliente', 'fatima-esportes')
-    .gte('data', currentRange.since)
-    .lte('data', currentRange.until)
-    .order('data', { ascending: false });
-
-  const funnelEl = document.getElementById('funnel');
-  const pieEl = document.getElementById('pie-origem');
-
-  if (error || !data) {
-    funnelEl.innerHTML = pieEl.innerHTML = '<div class="loading">Erro ao carregar.</div>';
-    return;
-  }
-
-  trackingRowsCache = data;
-
-  // --- funil ---
-  const total = data.length;
-  const qualificados = data.filter((l) => l.qualificacao === 'Qualificado').length;
-  const ganhos = data.filter((l) => l.etapa === 'Lead Ganho').length;
-  document.getElementById('kpi-leads').textContent = fmtInt(total);
-  lastLeadsTotal = total;
-  const stages = [
-    { label: 'Leads recebidos', value: total, pctOf: total },
-    { label: 'Qualificados', value: qualificados, pctOf: total },
-    { label: 'Lead Ganho', value: ganhos, pctOf: total },
-  ];
-  const maxVal = total || 1;
-  funnelEl.innerHTML = stages.map((s) => `
-    <div class="funnel-stage">
-      <div class="funnel-label">${s.label}</div>
-      <div class="funnel-track"><div class="funnel-fill" style="width:${Math.max((s.value / maxVal) * 100, s.value > 0 ? 4 : 0)}%">${fmtInt(s.value)}</div></div>
-      <div class="funnel-pct">${s.pctOf ? fmtPct((s.value / s.pctOf) * 100) : '—'} do total</div>
-    </div>
-  `).join('');
-
-  document.getElementById('kpi-taxa-qualificacao').textContent = total ? fmtPct((qualificados / total) * 100) : '—';
-  document.getElementById('kpi-taxa-comercial').textContent = qualificados ? fmtPct((ganhos / qualificados) * 100) : '—';
-  document.getElementById('kpi-taxa-funil').textContent = total ? fmtPct((ganhos / total) * 100) : '—';
-
-  // --- pizza origem ---
-  const origemMap = new Map();
-  for (const l of data) {
-    const key = l.origem || 'desconhecida';
-    origemMap.set(key, (origemMap.get(key) || 0) + 1);
-  }
-  const origemLabels = { mensagem_direto: 'Mensagem direta', link_bio: 'Link na bio', desconhecida: 'Desconhecida' };
-  const origemColors = ['#344676', '#F27135', '#A3ADC2', '#D5DAE5'];
-  const origemRows = [...origemMap.entries()].sort((a, b) => b[1] - a[1]);
-  const origemTotal = origemRows.reduce((a, [, v]) => a + v, 0) || 1;
-
-  let cumAngle = 0;
-  const slices = origemRows.map(([label, val], i) => {
-    const frac = val / origemTotal;
-    const startAngle = cumAngle;
-    cumAngle += frac * 360;
-    return { label, val, color: origemColors[i % origemColors.length], startAngle, endAngle: cumAngle };
-  });
-
-  function polarToCartesian(cx, cy, r, angleDeg) {
-    const a = ((angleDeg - 90) * Math.PI) / 180;
-    return [cx + r * Math.cos(a), cy + r * Math.sin(a)];
-  }
-  function arcPath(cx, cy, r, startAngle, endAngle) {
-    const [x1, y1] = polarToCartesian(cx, cy, r, endAngle);
-    const [x2, y2] = polarToCartesian(cx, cy, r, startAngle);
-    const largeArc = endAngle - startAngle > 180 ? 1 : 0;
-    return `M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${largeArc} 0 ${x2} ${y2} Z`;
-  }
-
-  const svgSlices = slices.map((s) => `<path d="${arcPath(70, 70, 68, s.startAngle, s.endAngle)}" fill="${s.color}" stroke="#FFFFFF" stroke-width="2"/>`).join('');
-  const legend = slices.map((s) => `
-    <div class="legend-item">
-      <div class="legend-swatch" style="background:${s.color}"></div>
-      <span>${origemLabels[s.label] || s.label}</span>
-      <span class="legend-val">${fmtInt(s.val)} (${fmtPct((s.val / origemTotal) * 100)})</span>
-    </div>
-  `).join('');
-
-  pieEl.innerHTML = data.length
-    ? `<svg class="pie" viewBox="0 0 140 140">${svgSlices}</svg><div class="legend">${legend}</div>`
-    : '<div class="loading">Sem leads no período.</div>';
-}
-
 function renderTopCriativos() {
-  const rows = buildMetricasPorChave('anuncio');
-
-  const urlPorAnuncio = new Map();
-  for (const row of trackingRowsCache) {
-    if (row.ad_name && row.url_criativo && !urlPorAnuncio.has(row.ad_name)) {
-      urlPorAnuncio.set(row.ad_name, row.url_criativo);
-    }
-  }
-
-  const top5 = [...rows].sort((a, b) => b.leadsReais - a.leadsReais).slice(0, 5);
-  const tbody = document.querySelector('#top-criativos-table tbody');
-
-  tbody.innerHTML = top5.map((r) => {
-    const url = urlPorAnuncio.get(r.nome);
-    return `
+  const top5 = buildMetricasPorChave('anuncio').sort((a, b) => b.msgs - a.msgs).slice(0, 5);
+  document.querySelector('#top-criativos-table tbody').innerHTML = top5.map((r) => `
       <tr>
         <td class="name">${r.nome}</td>
         <td class="num col-inv">${fmtMoney(r.investimento)}</td>
         <td class="num">${r.ctr != null ? fmtPct(r.ctr) : '—'}</td>
         <td class="num">${fmtInt(r.msgs)}</td>
-        <td class="num">${fmtInt(r.leadsReais)}</td>
-        <td class="num" style="color:${r.gapPct >= 50 ? 'var(--accent-ink)' : 'inherit'}">${r.msgs ? fmtInt(r.gap) + ' (' + fmtPct(r.gapPct) + ')' : '—'}</td>
+        <td class="num col-inv">${r.msgs ? fmtMoney(r.investimento / r.msgs) : '—'}</td>
         <td class="num">${fmtInt(r.resultados)}</td>
-        <td class="num">${url ? `<a class="criativo" href="${url}" target="_blank" rel="noopener">ver criativo</a>` : '—'}</td>
       </tr>
-    `;
-  }).join('') || '<tr><td colspan="8">Sem leads reais no período.</td></tr>';
+    `).join('') || '<tr><td colspan="6">Sem leads no período.</td></tr>';
 }
 
 async function loadFollowers() {
@@ -830,21 +681,17 @@ async function loadFollowers() {
   const card = document.getElementById('trend-card');
   const bloco = document.getElementById('followers-block');
   if (error || !data || data.length === 0) {
-    // cliente sem coleta de seguidores: esconde a secao inteira em vez de mostrar card vazio,
-    // e devolve a coluna irma pra largura toda
+    // cliente sem coleta de seguidores: esconde a secao inteira em vez de mostrar card vazio
     bloco.hidden = true;
-    bloco.parentElement.style.gridTemplateColumns = '1fr';
     return;
   }
   bloco.hidden = false;
 
   if (data.length === 1) {
-    document.getElementById('followers-hint').textContent = 'histórico inicia em ' + fmtDate(data[0].data);
     card.innerHTML = `<div class="kpi"><div class="label">Seguidores hoje</div><div class="value accent">${fmtInt(data[0].seguidores)}</div></div>`;
     return;
   }
 
-  document.getElementById('followers-hint').textContent = data.length + ' dias de histórico';
   const w = 1000, h = 140, pad = 24;
   const vals = data.map((d) => d.seguidores);
   const min = Math.min(...vals), max = Math.max(...vals);
@@ -927,16 +774,12 @@ async function loadBreakdowns() {
   renderBars(placeEl, toRows(placeMap), (r) => r.label);
 }
 
-// Chaves de cruzamento: coluna em fatima_meta -> coluna correspondente em fatima_tracking
-const METRICAS_CHAVES = {
-  campanha: { meta: 'campanha', track: 'campaing_name' },
-  conjunto: { meta: 'conjunto_anuncio', track: 'adset_name' },
-  anuncio: { meta: 'anuncio', track: 'ad_name' },
-};
+// Coluna de agrupamento em fatima_meta pra cada aba da tabela
+const METRICAS_CHAVES = { campanha: 'campanha', conjunto: 'conjunto_anuncio', anuncio: 'anuncio' };
 let metricasAtual = 'campanha';
 
 function buildMetricasPorChave(chave) {
-  const { meta: metaKey, track: trackKey } = METRICAS_CHAVES[chave];
+  const metaKey = METRICAS_CHAVES[chave];
   const agg = new Map();
 
   for (const row of metaRowsCache) {
@@ -944,7 +787,7 @@ function buildMetricasPorChave(chave) {
     if (!nome) continue;
     const acc = agg.get(nome) || {
       nome, investimento: 0, impressoes: 0, cliques: 0, resultados: 0, msgs: 0,
-      ctrSum: 0, ctrN: 0, cpcSum: 0, cpcN: 0, cpmSum: 0, cpmN: 0, freqSum: 0, freqN: 0, leads: 0,
+      ctrSum: 0, ctrN: 0, cpcSum: 0, cpcN: 0, cpmSum: 0, cpmN: 0, freqSum: 0, freqN: 0,
     };
     acc.investimento += Number(row.investimento || 0);
     acc.impressoes += Number(row.impressoes || 0);
@@ -958,35 +801,19 @@ function buildMetricasPorChave(chave) {
     agg.set(nome, acc);
   }
 
-  const leadsMap = new Map();
-  for (const row of trackingRowsCache) {
-    if (row.origem !== 'mensagem_direto') continue;
-    const nome = row[trackKey];
-    if (!nome) continue;
-    leadsMap.set(nome, (leadsMap.get(nome) || 0) + 1);
-  }
-
   return [...agg.values()]
-    .map((r) => {
-      const leadsReais = leadsMap.get(r.nome) || 0;
-      const gap = r.msgs - leadsReais;
-      const gapPct = r.msgs ? (gap / r.msgs) * 100 : 0;
-      return {
-        nome: r.nome,
-        investimento: r.investimento,
-        impressoes: r.impressoes,
-        cliques: r.cliques,
-        ctr: r.ctrN ? r.ctrSum / r.ctrN : null,
-        cpc: r.cpcN ? r.cpcSum / r.cpcN : null,
-        cpm: r.cpmN ? r.cpmSum / r.cpmN : null,
-        freq: r.freqN ? r.freqSum / r.freqN : null,
-        msgs: r.msgs,
-        leadsReais,
-        gap,
-        gapPct,
-        resultados: r.resultados,
-      };
-    })
+    .map((r) => ({
+      nome: r.nome,
+      investimento: r.investimento,
+      impressoes: r.impressoes,
+      cliques: r.cliques,
+      ctr: r.ctrN ? r.ctrSum / r.ctrN : null,
+      cpc: r.cpcN ? r.cpcSum / r.cpcN : null,
+      cpm: r.cpmN ? r.cpmSum / r.cpmN : null,
+      freq: r.freqN ? r.freqSum / r.freqN : null,
+      msgs: r.msgs,
+      resultados: r.resultados,
+    }))
     .sort((a, b) => b.investimento - a.investimento)
     .slice(0, 15);
 }
@@ -1005,11 +832,10 @@ function renderMetricsTable() {
       <td class="num">${r.cpm != null ? fmtMoney(r.cpm) : '—'}</td>
       <td class="num">${r.freq != null ? r.freq.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</td>
       <td class="num">${fmtInt(r.msgs)}</td>
-      <td class="num">${fmtInt(r.leadsReais)}</td>
-      <td class="num" style="color:${r.gapPct >= 50 ? 'var(--accent-ink)' : 'inherit'}">${r.msgs ? fmtInt(r.gap) + ' (' + fmtPct(r.gapPct) + ')' : '—'}</td>
+      <td class="num col-inv">${r.msgs ? fmtMoney(r.investimento / r.msgs) : '—'}</td>
       <td class="num">${fmtInt(r.resultados)}</td>
     </tr>
-  `).join('') || '<tr><td colspan="12">Sem dados no período.</td></tr>';
+  `).join('') || '<tr><td colspan="11">Sem dados no período.</td></tr>';
 }
 
 document.querySelectorAll('.range-btn[data-tab]').forEach((btn) => {
@@ -1021,33 +847,6 @@ document.querySelectorAll('.range-btn[data-tab]').forEach((btn) => {
   });
 });
 
-function loadGapGeral() {
-  let msgs = 0;
-  for (const row of metaRowsCache) msgs += Number(row.mensagens_iniciadas || 0);
-
-  let leadsReais = 0;
-  const leadsByPlacement = new Map();
-  for (const row of trackingRowsCache) {
-    if (row.origem !== 'mensagem_direto') continue;
-    leadsReais++;
-    if (row.posicionamento) leadsByPlacement.set(row.posicionamento, (leadsByPlacement.get(row.posicionamento) || 0) + 1);
-  }
-
-  const gap = msgs - leadsReais;
-  const gapPct = msgs ? (gap / msgs) * 100 : 0;
-  document.getElementById('kpi-gap-msgs').textContent = fmtInt(msgs);
-  document.getElementById('kpi-gap-leads').textContent = fmtInt(leadsReais);
-  document.getElementById('kpi-gap-pct').textContent = msgs ? fmtInt(gap) + ' (' + fmtPct(gapPct) + ')' : '—';
-
-  const placementRows = [...leadsByPlacement.entries()]
-    .map(([label, count]) => ({ label, impressoes: count }))
-    .sort((a, b) => b.impressoes - a.impressoes)
-    .slice(0, 6);
-  renderBars(document.getElementById('bars-placement-leads'), placementRows, (r) => r.label);
-
-  renderMetricsTable();
-}
-
 // ---------- Vendas e retorno (fatima_vendas) ----------
 // Tres leituras: KPI do periodo selecionado, serie mes a mes (fixa) e
 // comparativo sazonal Dia das Maes x Dia dos Pais (janela fixa).
@@ -1055,9 +854,13 @@ const MESES_CURTO = ['jan', 'fev', 'mar', 'abr', 'mai', 'jun', 'jul', 'ago', 'se
 
 let vendasCache = null;
 
-// Janela de veiculacao paga fechada, definida pelo Douglas: 21/07 a 31/08/2026.
-// Serve de denominador unico de ROAS e custo por venda, pra nao dar retorno
-// inflado quando o recorte selecionado pega venda sem pegar a verba que gerou.
+// Base de calculo, definida pelo Douglas em 29/10/2026: so da segunda quinzena
+// de julho em diante, quando a midia comecou. O que vem antes e base de
+// comparacao: entra em faturamento, ranking e serie mensal, nunca em ROAS,
+// custo por venda ou conversao de lead em venda.
+const BASE_CALCULO = '2026-07-16';
+
+// Verba que puxou agosto, so pro bloco fixo "Ganho de agosto sobre maio".
 const INV_DE = '2026-07-21';
 const INV_ATE = '2026-08-31';
 let invVeiculacaoCache = null;
@@ -1110,36 +913,16 @@ async function loadVendas() {
   document.getElementById('kpi-faturamento').textContent = n ? fmtMoneyCurto(total) : '—';
   document.getElementById('kpi-vendas').textContent = n ? fmtInt(n) : '—';
   document.getElementById('kpi-ticket').textContent = n ? fmtMoney(total / n) : '—';
-  // ROAS e custo por venda usam a verba TOTAL de veiculacao (21/07 a 31/08) como
-  // denominador, nao o gasto do recorte selecionado: venda de agosto tambem foi
-  // puxada por midia que rodou no fim de julho, e assim o numero nunca infla.
-  // O numerador e recortado na mesma janela, senao faturamento de maio e junho
-  // (sem midia nenhuma) entraria dividido pela verba de agosto.
-  const invT = await investimentoVeiculacao();
-  const jDe = currentRange.since > INV_DE ? currentRange.since : INV_DE;
-  const jAte = currentRange.until < INV_ATE ? currentRange.until : INV_ATE;
-  const naJanela = jDe <= jAte ? somaVendas(rows, jDe, jAte) : { n: 0, total: 0 };
-  const parcial = jDe > INV_DE || jAte < INV_ATE;
-
-  document.getElementById('kpi-roas').textContent = (invT && naJanela.total)
-    ? (naJanela.total / invT).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'x'
+  // ROAS, custo por venda e conversao so contam venda da base de calculo.
+  // Investimento e lead ja nascem dentro dela, entao vem direto do recorte.
+  const calcDe = currentRange.since > BASE_CALCULO ? currentRange.since : BASE_CALCULO;
+  const naBase = calcDe <= currentRange.until ? somaVendas(rows, calcDe, currentRange.until) : { n: 0, total: 0 };
+  const inv = lastInvestimento;
+  document.getElementById('kpi-roas').textContent = (inv && naBase.total)
+    ? (naBase.total / inv).toLocaleString('pt-BR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + 'x'
     : '—';
-  document.getElementById('kpi-roas-pe').textContent = !naJanela.total
-    ? 'sem venda dentro da veiculação (21/07 a 31/08)'
-    : fmtMoney(naJanela.total) + (parcial ? ' de ' + fmtDate(jDe) + ' a ' + fmtDate(jAte) : ' de 21/07 a 31/08')
-      + ' sobre ' + fmtMoney(invT) + ' de verba total';
-
-  document.getElementById('kpi-cpv').textContent = (invT && naJanela.n) ? fmtMoney(invT / naJanela.n) : '—';
-  document.getElementById('kpi-cpv-pe').textContent = naJanela.n
-    ? fmtMoney(invT) + ' ÷ ' + fmtInt(naJanela.n) + (naJanela.n === 1 ? ' venda' : ' vendas') + ' na veiculação'
-    : '';
-
-  const hint = document.getElementById('vendas-hint');
-  if (!n) {
-    hint.textContent = 'sem venda lançada no período selecionado · última venda em ' + fmtDate(rows[rows.length - 1].data);
-  } else {
-    hint.textContent = 'canal WhatsApp · ' + fmtInt(rows.length) + ' vendas na base, de ' + fmtDate(rows[0].data) + ' a ' + fmtDate(rows[rows.length - 1].data);
-  }
+  document.getElementById('kpi-cpv').textContent = (inv && naBase.n) ? fmtMoney(inv / naBase.n) : '—';
+  renderFunil(naBase.n);
 
   renderRanking(rows);
   renderVendedorMes(rows);
@@ -1148,11 +931,29 @@ async function loadVendas() {
   renderIncremental(rows);
 }
 
+// Funil: lead (conversa iniciada) em venda lancada na planilha, dentro da base de calculo
+function renderFunil(vendas) {
+  const funnelEl = document.getElementById('funnel');
+  const leads = lastLeadsTotal;
+  const maxVal = Math.max(leads, vendas) || 1;
+  funnelEl.innerHTML = [
+    { label: 'Leads', value: leads },
+    { label: 'Vendas', value: vendas },
+  ].map((s) => `
+    <div class="funnel-stage">
+      <div class="funnel-label">${s.label}</div>
+      <div class="funnel-track">${s.value ? `<div class="funnel-fill" style="width:${Math.max((s.value / maxVal) * 100, 4)}%">${fmtInt(s.value)}</div>` : ''}</div>
+      <div class="funnel-pct">${leads ? fmtPct((s.value / leads) * 100) + ' dos leads' : '—'}</div>
+    </div>
+  `).join('');
+  document.getElementById('kpi-taxa-funil').textContent = leads ? fmtPct((vendas / leads) * 100) : '—';
+}
+
 // ---------- Ranking de vendedores ----------
 // O nome vem digitado a mao na planilha da loja ("Gessica", "Géssica"), entao
 // agrupa sem acento e sem caixa e exibe a grafia mais usada.
 const chaveVendedor = (nome) => (nome || 'Sem vendedor').trim().toLowerCase()
-  .normalize('NFD').replace(/[̀-ͯ]/g, '');
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 
 function agregaVendedores(rows) {
   const mapa = new Map();
@@ -1180,8 +981,8 @@ function renderRanking(rows) {
   // vendedor sem lancamento costuma ser planilha nao preenchida, nao venda zero
   const base = agregaVendedores(rows);
   const periodo = agregaVendedores(rows.filter((v) => v.data >= currentRange.since && v.data <= currentRange.until));
-  let totalPeriodo = 0, vendasPeriodo = 0;
-  for (const a of periodo.values()) { totalPeriodo += a.total; vendasPeriodo += a.n; }
+  let totalPeriodo = 0;
+  for (const a of periodo.values()) totalPeriodo += a.total;
 
   const linhas = [...base.entries()]
     .map(([k, accBase]) => ({ nome: nomeVendedor(accBase), base: accBase, p: periodo.get(k) }))
@@ -1195,7 +996,11 @@ function renderRanking(rows) {
         <td class="vend">${nome}</td>
         <td class="num">0</td>
         <td class="num">—</td>
-        <td colspan="5">sem venda lançada no período · última em ${fmtDate(b.ultima)}</td>
+        <td></td>
+        <td class="num">—</td>
+        <td class="num">—</td>
+        <td class="num">${fmtDate(b.ultima)}</td>
+        <td class="num">—</td>
       </tr>`;
     pos++;
     const share = totalPeriodo ? (p.total / totalPeriodo) * 100 : 0;
@@ -1212,10 +1017,6 @@ function renderRanking(rows) {
         <td class="num">${fmtInt(p.comTel)} de ${fmtInt(p.n)}</td>
       </tr>`;
   }).join('');
-
-  document.getElementById('ranking-hint').textContent = vendasPeriodo
-    ? `${fmtInt(vendasPeriodo)} ${vendasPeriodo === 1 ? 'venda' : 'vendas'} de ${fmtInt(periodo.size)} ${periodo.size === 1 ? 'vendedor' : 'vendedores'} no período selecionado`
-    : 'sem venda lançada no período selecionado';
 }
 
 function renderVendedorMes(rows) {
@@ -1244,7 +1045,7 @@ function renderVendedorMes(rows) {
 
   const cabecalho = `<thead><tr><th>Vendedor</th>${meses.map((ym) => doMes[ym].n
     ? `<th class="num">${rotulo(ym)}</th>`
-    : `<th class="num vazio">${rotulo(ym)} <span class="bar-mark neutro">sem planilha</span></th>`).join('')}<th class="num">Total</th></tr></thead>`;
+    : `<th class="num vazio">${rotulo(ym)}</th>`).join('')}<th class="num">Total</th></tr></thead>`;
 
   const corpo = ordem.map(([k, acc]) => `
     <tr>
@@ -1300,7 +1101,7 @@ function renderTabelaMeses(rows) {
     const ehBase = ym === '2026-05';
     return `
       <tr class="${comMidia ? 'destaque' : ''}">
-        <td class="mes">${MESES_CURTO[Number(mes) - 1]}/${ano.slice(2)}${comMidia ? ' <span class="bar-mark">mídia</span>' : ''}${corrente ? ' <span class="bar-mark neutro">parcial</span>' : ''}</td>
+        <td class="mes">${MESES_CURTO[Number(mes) - 1]}/${ano.slice(2)}</td>
         <td class="num">${fmtInt(m.n)}</td>
         <td class="num">${fmtMoney(m.ticket)}</td>
         <td class="num">${fmtMoney(m.total)}</td>
@@ -1319,10 +1120,8 @@ async function renderIncremental(rows) {
 
   document.getElementById('inc-fat').textContent = fmtMoney(difFat);
   document.getElementById('inc-vendas').textContent = (difVendas >= 0 ? '+' : '') + fmtInt(difVendas);
-  document.getElementById('inc-vendas-pe').textContent =
-    'vendas a mais que maio, com ticket médio de ' + fmtMoney(ago.ticket) + ' contra ' + fmtMoney(mai.ticket);
 
-  // mesmo denominador do bloco de cima: verba total de veiculacao, 21/07 a 31/08
+  // verba que puxou agosto, 21/07 a 31/08
   const inv = await investimentoVeiculacao();
   document.getElementById('inc-inv').textContent = inv ? fmtMoney(inv) : '—';
   document.getElementById('inc-roas').textContent = (inv && difFat > 0)
@@ -1370,28 +1169,22 @@ function renderCorrida(rows) {
   g += `<text x="${W - padR + 10}" y="${(y(ago[30]) + 4).toFixed(1)}" fill="#C4511A" font-family="JetBrains Mono, monospace" font-size="11" font-weight="700">${fmtMoneyCurto(ago[30])}</text>`;
   svg.innerHTML = g;
 
-  // leitura das duas fases do mes, antes e depois da data comemorativa
-  const fases = [
-    ['fase-mai-antes', somaVendas(rows, '2026-05-01', MAES), 'maio, do dia 1 até o Dia das Mães', 10],
-    ['fase-ago-antes', somaVendas(rows, '2026-08-01', PAIS), 'agosto, do dia 1 até o Dia dos Pais', 9],
-    ['fase-mai-depois', somaVendas(rows, diasDepois(MAES, 1), '2026-05-31'), 'maio, do dia 11 ao fim do mês', 21],
-    ['fase-ago-depois', somaVendas(rows, diasDepois(PAIS, 1), '2026-08-31'), 'agosto, do dia 10 ao fim do mês', 22],
-  ];
-  fases.forEach(([id, r, rot, dias]) => {
-    document.getElementById(id).textContent = fmtMoneyCurto(r.total);
-    document.getElementById(id + '-pe').textContent =
-      rot + ' · ' + r.n + (r.n === 1 ? ' venda' : ' vendas') + ' · ' + fmtMoneyCurto(r.total / dias) + ' por dia';
-  });
+  // faturamento das duas fases do mes, antes e depois da data comemorativa
+  [
+    ['fase-mai-antes', somaVendas(rows, '2026-05-01', MAES)],
+    ['fase-ago-antes', somaVendas(rows, '2026-08-01', PAIS)],
+    ['fase-mai-depois', somaVendas(rows, diasDepois(MAES, 1), '2026-05-31')],
+    ['fase-ago-depois', somaVendas(rows, diasDepois(PAIS, 1), '2026-08-31')],
+  ].forEach(([id, r]) => { document.getElementById(id).textContent = fmtMoneyCurto(r.total); });
 }
 
 async function loadAll() {
-  document.getElementById('updated-at').textContent = new Date().toLocaleString('pt-BR');
   document.getElementById('date-from').value = currentRange.since;
   document.getElementById('date-to').value = currentRange.until;
-  await Promise.all([loadKpisAndAds(), loadLeads(), loadFollowers()]);
+  await Promise.all([loadKpisAndAds(), loadFollowers()]);
   document.getElementById('kpi-cpl').textContent = lastLeadsTotal ? fmtMoney(lastInvestimento / lastLeadsTotal) : '—';
-  // depende dos caches (metaRowsCache/trackingRowsCache) preenchidos pelas duas chamadas acima
-  loadGapGeral();
+  // depende do metaRowsCache preenchido acima
+  renderMetricsTable();
   renderTopCriativos();
   loadVendas();
 }
