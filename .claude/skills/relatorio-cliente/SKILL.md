@@ -1,11 +1,11 @@
 ---
 name: relatorio-cliente
-description: Gera relatório de performance de mídia paga (Meta Ads + tracking de leads) pra um cliente, num período específico, como artifact HTML com a identidade visual da The New Ads. Inclui bloco de métricas gerais, leads reais (não os "resultados" brutos da Meta), gap Meta×CRM por campanha, gráficos de evolução diária com marcação de fim de semana, e top criativos com miniatura em alta resolução. Use quando o usuário pedir "relatório", "relatório de performance", "relatório pro cliente X", "monta um relatório de [período]", ou pedir pra mostrar/comparar métricas de campanha num formato visual pra enviar ao cliente.
+description: Gera relatório de performance de mídia paga (Meta Ads + tracking de leads) pra um cliente, num período específico, como artifact HTML com a identidade visual do próprio cliente (logo e cores da empresa; The New Ads só assina no rodapé). Inclui bloco de métricas gerais, leads reais (não os "resultados" brutos da Meta), gap Meta×CRM por campanha, gráficos de evolução diária com marcação de fim de semana, e top criativos com miniatura em alta resolução. Use quando o usuário pedir "relatório", "relatório de performance", "relatório pro cliente X", "monta um relatório de [período]", ou pedir pra mostrar/comparar métricas de campanha num formato visual pra enviar ao cliente.
 ---
 
 # Relatório de cliente
 
-Skill de referência pra montar relatórios de performance (Meta Ads) em formato de artifact HTML, no padrão visual da The New Ads. Nasceu do relatório da Dédalos Móveis (06/07 a 06/08/2026) — usar esse histórico de conversa como exemplo de execução completa se precisar relembrar detalhes.
+Skill de referência pra montar relatórios de performance (Meta Ads) em formato de artifact HTML, vestido com a identidade visual do cliente (ver "Identidade visual" abaixo). Nasceu do relatório da Dédalos Móveis (06/07 a 06/08/2026) — usar esse histórico de conversa como exemplo de execução completa se precisar relembrar detalhes.
 
 ## Fontes de dados
 
@@ -45,7 +45,7 @@ Só é necessário sair do Supabase pra Graph API quando o usuário pedir **link
 ## Montando o artifact
 
 1. Carregar as skills `artifact-design` e `dataviz` antes de escrever HTML (guidance de tokens de tema claro/escuro e de forma de gráfico).
-2. Seguir `marca/design-guide.md` pra cores/tipografia/tom. Fundo preto `#0A0A0A` / grafite `#171717`, âmbar `#FF6A00` só como sinal pontual (5%), cantos vivos, sem sombra pesada. Logo inline via `marca/logo-SVG/tna-mono-branco.svg` (usar `style="fill:var(--text)"` pra herdar o tema).
+2. **Identidade visual: sempre a do cliente, nunca a da The New Ads.** Regra do Douglas (29/10/2026): relatório é pra empresa, então vai com a cara da empresa. Mesma regra e mesmo passo a passo do `dashboard-cliente` (seção "Passo 4.5"): logo colorido do cliente no topo, cores tiradas do logo com contraste conferido, e The New Ads só como assinatura discreta no rodapé. `marca/design-guide.md` continua valendo só pra estrutura (cantos vivos, sem sombra pesada, hierarquia por escala) e pra material da própria The New Ads (proposta, carrossel, site). Se o cliente não tiver logo em `clientes/<slug>/assets/` nem cor no `briefing.md`, perguntar ao Douglas antes de montar, não cair no preto e âmbar da agência.
 3. Estrutura recomendada: header (marca + período) → **seletor de datas (obrigatório, ver item 4)** → hero com 1-2 KPIs principais em destaque (**Leads = tracking, não Meta** — ver "Padrão de métricas" acima) → métricas gerais **divididas em subgrupos temáticos pequenos** (ex: visão geral / leads e CPL / cliques e engajamento / perfil), nunca um grid único de 15+ células → gráficos de evolução diária → top criativos → tabela de campanhas (com gap Meta×CRM se fizer sentido pro período).
 
 4. **Seletor de datas: obrigatório em todo relatório, sem exceção.** Nenhum relatório sai com período fixo travado no HTML. Regras:

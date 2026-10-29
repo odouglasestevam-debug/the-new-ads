@@ -22,7 +22,7 @@ Skill de referência pra criar ou auditar o dashboard de tráfego pago de qualqu
 2. Criar `<slug>_meta` e `<slug>_tracking` com RLS
 3. Popular dado (backfill de Meta se pedido / importar CSV de tracking se tiver)
 4. Montar ou atualizar o fluxo n8n de tracking (só se ainda não existir automação)
-5. Clonar o dashboard de `dashboard-confianca.html`
+5. Clonar o dashboard de `dashboard-confianca.html` e vestir com a identidade do cliente (Passo 4.5)
 6. Deploy do site completo
 
 **(b) Todas as variáveis necessárias, perguntadas de uma vez só (não uma pergunta por vez, não descobrir no meio do processo):**
@@ -33,6 +33,7 @@ Sempre necessário (dashboard + tabelas):
 - **Tem CSV de vendas/leads pra importar** agora, ou começa vazio? (ver regra geral em `_contexto/empresa.md`, seção "Padrão de relatórios e dashboards")
 - **Precisa de histórico retroativo** de métricas da Meta? Desde quando?
 - **Instagram ID** pra seguidores diários (opcional)
+- **Logo colorido e cores da marca**, só se não houver logo em `clientes/<slug>/assets/` nem cor no `briefing.md` (ver Passo 4.5)
 
 **Se for montar/atualizar o fluxo n8n (Passo 3.5), fazer a descoberta ANTES de perguntar, não perguntar tudo por padrão:**
 
@@ -147,6 +148,21 @@ Depois, checar manualmente (`Grep` por `[Cc]onfiança|confianca` no arquivo novo
 - Tabelas de nível "gerenciador de anúncios" (top anúncios por investimento) usam só Meta, sem mistura com tracking.
 - Seção "Rastreamento" usa tracking com atribuição (`campaing_name`/`adset_name`/`ad_name`) pra cruzar com a Meta por campanha.
 
+## Passo 4.5 — Vestir o dashboard com a identidade do cliente (obrigatório)
+
+Regra do Douglas (29/10/2026): **dashboard e relatório são pra empresa, então vão com a identidade da empresa**, nunca com o preto e âmbar da The New Ads. O template `dashboard-confianca.html` está no tema da agência; todo clone tem que ser re-tematizado antes do deploy. Implementação de referência: `the-new-ads-site/dashboard-fatima.html` (Fátima Esportes, azul-marinho `#344676` e laranja `#F27135`, tema claro).
+
+1. **Logo colorido**: pegar de `clientes/<slug>/assets/`. Cuidado com `the-new-ads-site/logos/<cliente>.png`: ali costuma estar a versão mono clara feita pras páginas escuras da agência (a da Fátima é cinza `#E9E9E9` e some no fundo branco). Se precisar, gerar uma cópia nova redimensionada (~600 px de largura) como `logos/<slug>-cor.png`, sem sobrescrever a mono, que outras páginas usam.
+2. **Cores**: extrair os hex do logo com PIL (`Counter` dos pixels opacos, as 3 ou 4 cores mais frequentes). Se o `briefing.md` do cliente já tiver as cores oficiais, elas mandam.
+3. **Contraste**: calcular a razão de contraste de cada cor contra o fundo. Texto pequeno precisa de 4,5:1. Cor de marca clara demais (laranja, amarelo, verde-limão) fica pra preenchimento, barra e borda, e ganha uma variante escurecida só pra texto (`--accent-ink`; na Fátima, `#F27135` deu 2,9:1 e virou `#C4511A` com 4,6:1).
+4. **Tema claro ou escuro**: decidir pelo logo. Logo pensado pra fundo branco pede página clara (o logo colorido some no escuro); só usar escuro se a marca do cliente for escura.
+5. **Trocar os tokens do `:root`** (fundo, superfície, tinta, cor primária, destaque) e depois caçar cor fixa fora do CSS: pizza (`origemColors`), linha de seguidores, gráfico de corrida em SVG, `stroke`/`fill` com hex. `Grep` por `#FF6A00`, `#0A0A0A`, `amber` e `rgba(255,255,255` no arquivo tem que voltar vazio no fim.
+6. **Fonte**: Clash Display é da The New Ads. Trocar o display por uma fonte que combine com a marca (Fátima: Barlow Semi Condensed, esportiva) e carregar de verdade a fonte mono dos números (`JetBrains Mono` no Google Fonts; sem isso cai em Courier).
+7. **Header**: logo colorido à esquerda, título "Dashboard de resultados", faixa de 3 px na cor de destaque da marca. The New Ads aparece só no rodapé.
+8. **Conferir com print** (Playwright, 1280 px e 390 px) antes do deploy: logo visível, nenhum texto em cor de marca sem contraste, nada estourando a largura no celular.
+
+Se o cliente tiver `<slug>_vendas` com a coluna `vendedor`, incluir também os blocos "Ranking de vendedores" (respeita o período selecionado, lista quem está zerado no período) e "Vendedores mês a mês" (série completa, mês sem planilha marcado). Código pronto em `dashboard-fatima.html` (`renderRanking` e `renderVendedorMes`).
+
 ## Passo 3.5 — Fluxo n8n de tracking (CTWA), se o cliente ainda não tem
 
 Nasceu de montar o fluxo do Fátima Esportes em 2026-08-13. Só é necessário se o Passo "Antes de tudo" #2 confirmar que ainda não existe automação — se já existe fluxo n8n rodando, pular pra auditoria (última seção deste passo).
@@ -210,6 +226,7 @@ URL final: `https://thenewads.com.br/dashboard-<slug>`.
 - [ ] Dado de tracking populado (CSV ou n8n) e de Meta (cron + backfill se pedido)
 - [ ] Se montou/atualizou fluxo n8n: os 5 nós Supabase Tracking em série (não paralelo), `n8n_validate_workflow` sem erro, confirmado no `mode: active` (não só draft), `frase_qualificacao`/`frase_compra`/link-bio preenchidos de verdade (ou avisado ao Douglas que faltam)
 - [ ] Dashboard é cópia de `dashboard-confianca.html`, com todas as referências ao cliente errado trocadas
+- [ ] Dashboard vestido com a identidade do cliente (Passo 4.5): logo colorido, cores do cliente com contraste conferido, nenhum resto do preto e âmbar da The New Ads
 - [ ] KPI "Leads" = tracking, "CPL" = investimento/leads tracking, "Resultados" separado
 - [ ] Deploy feito com o site completo, não isolado
 - [ ] Testar a URL final abrindo no navegador antes de reportar como pronto
