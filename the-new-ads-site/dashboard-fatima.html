@@ -245,9 +245,14 @@
     </section>
   </div>
 
-  <!-- 2. Evolucao mensal -->
+  <!-- 2. Evolucao no periodo selecionado (dia, semana ou mes conforme o tamanho do periodo) -->
   <div class="macro">
-    <div class="macro-title">Evolução mensal</div>
+    <div class="macro-title">Evolução</div>
+    <div class="range-bar" id="granularidade">
+      <button class="range-btn" data-gran="dia">Dia</button>
+      <button class="range-btn" data-gran="semana">Semana</button>
+      <button class="range-btn" data-gran="mes">Mês</button>
+    </div>
     <section>
       <div class="section-title">Faturamento, investimento e ROAS</div>
       <div class="chart" id="ch-mes-retorno"></div>
@@ -265,7 +270,7 @@
       </div>
     </section>
     <section>
-      <div class="section-title">Mês a mês</div>
+      <div class="section-title" id="tit-tbl-evolucao">Mês a mês</div>
       <div class="tabela"><table class="dados" id="tbl-mes"></table></div>
     </section>
   </div>
@@ -321,20 +326,12 @@
       </div>
     </section>
     <section>
-      <div class="section-title">Faturamento por vendedor por mês</div>
+      <div class="section-title">Faturamento por vendedor</div>
       <div class="chart" id="ch-vendedor-mes"></div>
     </section>
     <section>
-      <div class="grid2">
-        <div>
-          <div class="section-title">Ticket médio por vendedor</div>
-          <div class="card"><div class="hbar" id="lst-ticket-vendedor"></div></div>
-        </div>
-        <div>
-          <div class="section-title">Vendas com telefone por mês</div>
-          <div class="chart" id="ch-telefone"></div>
-        </div>
-      </div>
+      <div class="section-title">Ticket médio por vendedor</div>
+      <div class="card"><div class="hbar" id="lst-ticket-vendedor"></div></div>
     </section>
   </div>
 
@@ -494,6 +491,7 @@ document.addEventListener('click', (e) => { if (!datePicker.contains(e.target)) 
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeDatePicker(); });
 
 function marcaOpcao(btn, rotulo) {
+  granularidade = null; // periodo novo volta pra granularidade automatica
   document.querySelectorAll('.date-picker-option').forEach((b) => b.classList.remove('active'));
   if (btn) btn.classList.add('active');
   datePickerLabel.textContent = rotulo;
@@ -570,7 +568,7 @@ const chaveVendedor = (nome) => (nome || 'sem vendedor').trim().toLowerCase().no
 // tudo que o periodo precisa, somado uma vez so
 function resumo(r) {
   const s = { inv: 0, impr: 0, cliques: 0, cliquesTodos: 0, leads: 0, video: 0, v25: 0, v50: 0, v75: 0, v95: 0,
-    eng: 0, reacoes: 0, comentarios: 0, compartilhamentos: 0, salvamentos: 0, fat: 0, vendas: 0, comTel: 0 };
+    eng: 0, reacoes: 0, comentarios: 0, compartilhamentos: 0, salvamentos: 0, fat: 0, vendas: 0 };
   for (const m of META) {
     if (!noPeriodo(m.data, r)) continue;
     const impr = Number(m.impressoes || 0);
@@ -594,7 +592,6 @@ function resumo(r) {
     if (!noPeriodo(v.data, r)) continue;
     s.fat += Number(v.valor || 0);
     s.vendas++;
-    if (v.telefone) s.comTel++;
   }
   s.roas = div(s.fat, s.inv);
   s.cpl = div(s.inv, s.leads);
@@ -606,22 +603,66 @@ function resumo(r) {
   s.cpm = s.impr ? (s.inv / s.impr) * 1000 : null;
   s.cpc = div(s.inv, s.cliques);
   s.gancho = s.impr ? (s.video / s.impr) * 100 : null;
-  s.pctTel = s.vendas ? (s.comTel / s.vendas) * 100 : null;
   return s;
 }
 
-function mesesDoPeriodo() {
-  const meses = [];
+// ---------- evolucao: o periodo selecionado quebrado em dias, semanas ou meses ----------
+// Escolha automatica pelo tamanho do periodo; o seletor Dia/Semana/Mes sobrepoe ate o
+// proximo troca de periodo.
+let granularidade = null;
+const ROTULO_TABELA = { dia: 'Dia a dia', semana: 'Semana a semana', mes: 'Mês a mês' };
+const COLUNA_TABELA = { dia: 'Dia', semana: 'Semana', mes: 'Mês' };
+
+function diasNoPeriodo(r) {
   const hoje = toISODate(new Date());
-  let ym = INICIO_ANUNCIOS.slice(0, 7);
-  while (ym <= hoje.slice(0, 7)) {
-    meses.push(ym);
-    let [a, m] = ym.split('-').map(Number);
-    if (++m > 12) { m = 1; a++; }
-    ym = `${a}-${String(m).padStart(2, '0')}`;
-  }
-  return meses.map((ym) => ({ ym, rotulo: rotuloMes(ym), ...resumo({ since: ym + '-01' < INICIO_ANUNCIOS ? INICIO_ANUNCIOS : ym + '-01', until: ym + '-31' }) }));
+  const ate = r.until < hoje ? r.until : hoje;
+  return Math.round((new Date(ate + 'T12:00:00') - new Date(r.since + 'T12:00:00')) / 864e5) + 1;
 }
+function granularidadeAuto(r) {
+  const dias = diasNoPeriodo(r);
+  return dias <= 31 ? 'dia' : dias <= 92 ? 'semana' : 'mes';
+}
+
+// a serie termina no ultimo dia com investimento ou venda, pra nao desenhar dias vazios no fim
+function fimDaSerie(r) {
+  const hoje = toISODate(new Date());
+  const fim = r.until < hoje ? r.until : hoje;
+  let ultimo = null;
+  for (const m of META) if (Number(m.investimento) > 0 && m.data >= r.since && m.data <= fim && (!ultimo || m.data > ultimo)) ultimo = m.data;
+  for (const v of VENDAS) if (v.data >= r.since && v.data <= fim && (!ultimo || v.data > ultimo)) ultimo = v.data;
+  return ultimo || fim;
+}
+
+const diaMes = (iso) => iso.slice(8, 10) + '/' + iso.slice(5, 7);
+const segundaDa = (iso) => somaDias(iso, -((diaSemana(iso) + 6) % 7));
+
+function baldes(r, gran) {
+  const fim = fimDaSerie(r);
+  const lista = [];
+  if (gran === 'dia') {
+    for (let d = r.since; d <= fim; d = somaDias(d, 1)) lista.push({ de: d, ate: d, rotulo: diaMes(d), titulo: DIAS[diaSemana(d)] + ', ' + fmtDate(d) });
+  } else if (gran === 'semana') {
+    for (let ini = segundaDa(r.since); ini <= fim; ini = somaDias(ini, 7)) {
+      const de = ini < r.since ? r.since : ini;
+      const ate = somaDias(ini, 6) < fim ? somaDias(ini, 6) : fim;
+      lista.push({ de, ate, rotulo: diaMes(de), titulo: diaMes(de) + ' a ' + diaMes(ate) });
+    }
+  } else {
+    for (let ym = r.since.slice(0, 7); ym <= fim.slice(0, 7);) {
+      const de = ym + '-01' < r.since ? r.since : ym + '-01';
+      const ate = ym + '-31' < fim ? ym + '-31' : fim;
+      lista.push({ de, ate, rotulo: rotuloMes(ym), titulo: rotuloMes(ym) });
+      let [a, m] = ym.split('-').map(Number);
+      if (++m > 12) { m = 1; a++; }
+      ym = `${a}-${String(m).padStart(2, '0')}`;
+    }
+  }
+  return lista.map((b) => ({ ...b, ...resumo({ since: b.de, until: b.ate }) }));
+}
+
+document.querySelectorAll('.range-btn[data-gran]').forEach((btn) => {
+  btn.addEventListener('click', () => { granularidade = btn.dataset.gran; renderTudo(); });
+});
 
 // ---------- tooltip ----------
 const tt = document.getElementById('tt');
@@ -707,8 +748,9 @@ function paineis(el, cats, lista, { alturaPainel = 120, tooltip } = {}) {
       });
     }
   });
+  const passo = Math.max(1, Math.ceil((n * 46) / (W - padL - padR))); // rotulo do eixo X sem encavalar na visao diaria
   cats.forEach((c, i) => {
-    g += `<text class="g-tick" x="${cx(i)}" y="${H - 6}" text-anchor="middle">${c}</text>`;
+    if (i % passo === 0) g += `<text class="g-tick" x="${cx(i)}" y="${H - 6}" text-anchor="middle">${c}</text>`;
     const dica = tooltip ? ` data-tt="${tooltip(i)}"` : '';
     g += `<g class="col"><rect class="g-sombra" x="${cx(i) - banda / 2}" y="0" width="${banda}" height="${H - base}" fill="transparent"/>`
       + `<line class="g-cross" x1="${cx(i)}" x2="${cx(i)}" y1="${topo - 6}" y2="${H - base}"/>`
@@ -758,6 +800,7 @@ function empilhado(el, cats, series, { fmtTotal, eixo, altura = 230 }) {
   }
   g += `<line class="g-base" x1="${padL}" x2="${W - padR}" y1="${topo + altura}" y2="${topo + altura}"/>`;
   const w = Math.min(banda * 0.56, 64);
+  const passo = Math.max(1, Math.ceil((n * 46) / (W - padL - padR)));
   cats.forEach((c, i) => {
     const x = padL + banda * i + (banda - w) / 2;
     let acum = 0;
@@ -768,12 +811,12 @@ function empilhado(el, cats, series, { fmtTotal, eixo, altura = 230 }) {
       const ehTopo = k === visiveis.length - 1;
       const hDesenho = Math.max(h - (k > 0 ? 2 : 0), 1);
       const d = ehTopo ? colunaPath(x, yTopo, w, hDesenho) : `M${x},${yTopo}h${w}v${hDesenho}h${-w}Z`;
-      const dica = ttLinhas(esc(se.nome) + ' · ' + c, [fmtMoney(se.valores[i]), se.qtd[i] + (se.qtd[i] === 1 ? ' venda' : ' vendas'), fmtPct1((se.valores[i] / totais[i]) * 100) + ' do mês']);
+      const dica = ttLinhas(esc(se.nome) + ' · ' + c, [fmtMoney(se.valores[i]), se.qtd[i] + (se.qtd[i] === 1 ? ' venda' : ' vendas'), fmtPct1((se.valores[i] / totais[i]) * 100) + ' do total']);
       g += `<path class="marca-hover" d="${d}" fill="${se.cor}" data-tt="${dica}"/>`;
       acum += h;
     });
-    if (totais[i] > 0) g += `<text class="g-val" x="${x + w / 2}" y="${(topo + altura - acum - 6).toFixed(1)}" text-anchor="middle">${fmtTotal(totais[i])}</text>`;
-    g += `<text class="g-tick" x="${x + w / 2}" y="${H - 7}" text-anchor="middle">${c}</text>`;
+    if (totais[i] > 0 && cabe(fmtTotal(totais[i]), banda)) g += `<text class="g-val" x="${x + w / 2}" y="${(topo + altura - acum - 6).toFixed(1)}" text-anchor="middle">${fmtTotal(totais[i])}</text>`;
+    if (i % passo === 0) g += `<text class="g-tick" x="${x + w / 2}" y="${H - 7}" text-anchor="middle">${c}</text>`;
   });
   const legenda = '<div class="legenda">' + series.map((se) => `<span><i style="background:${se.cor}"></i>${esc(se.nome)}</span>`).join('') + '</div>';
   el.innerHTML = legenda + `<svg viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" role="img">${g}</svg>`;
@@ -838,12 +881,14 @@ function renderResultado(s, ant) {
   }
 }
 
-// ---------- 2. Evolucao mensal ----------
-function renderMensal(meses) {
+// ---------- 2. Evolucao ----------
+function renderEvolucao(meses, gran) {
+  document.querySelectorAll('.range-btn[data-gran]').forEach((b) => b.classList.toggle('active', b.dataset.gran === gran));
+  document.getElementById('tit-tbl-evolucao').textContent = ROTULO_TABELA[gran];
   const cats = meses.map((m) => m.rotulo);
   const dicaMes = (i) => {
     const m = meses[i];
-    return ttLinhas(m.rotulo, [
+    return ttLinhas(m.titulo, [
       'Faturamento ' + fmtMoney(m.fat), 'Investimento ' + fmtMoney(m.inv), 'ROAS ' + ou(m.roas, fmtX),
       'Leads ' + fmtInt(m.leads) + ' · CPL ' + ou(m.cpl, fmtMoney),
       'Vendas ' + fmtInt(m.vendas) + ' · ticket ' + ou(m.ticket, fmtMoney), 'Conversão ' + ou(m.conv, fmtPct),
@@ -870,7 +915,7 @@ function renderMensal(meses) {
     { titulo: 'Conversão de lead em venda', valores: meses.map((m) => m.conv), cor: COR.navy, fmt: fmtPct1, eixo: (v) => nf(v) + '%' },
   ], { alturaPainel: 80, tooltip: dicaMes }));
 
-  const tot = resumo({ since: INICIO_ANUNCIOS, until: toISODate(new Date()) });
+  const tot = resumo(currentRange);
   const linha = (rot, m, cls = '') => `
     <tr class="${cls}">
       <td class="forte">${rot}</td>
@@ -884,13 +929,12 @@ function renderMensal(meses) {
       <td class="num">${ou(m.ticket, fmtMoney)}</td>
       <td class="num">${ou(m.conv, fmtPct)}</td>
       <td class="num">${ou(m.fatLead, fmtMoney)}</td>
-      <td class="num">${ou(m.pctTel, fmtPct1)}</td>
     </tr>`;
   document.getElementById('tbl-mes').innerHTML = `
-    <thead><tr><th>Mês</th><th class="num kpi-sigilo">Investimento</th><th class="num">Faturamento</th><th class="num kpi-sigilo">ROAS</th>
+    <thead><tr><th>${COLUNA_TABELA[gran]}</th><th class="num kpi-sigilo">Investimento</th><th class="num">Faturamento</th><th class="num kpi-sigilo">ROAS</th>
       <th class="num">Leads</th><th class="num kpi-sigilo">CPL</th><th class="num">Vendas</th><th class="num kpi-sigilo">Custo por venda</th>
-      <th class="num">Ticket médio</th><th class="num">Conversão</th><th class="num">Faturamento por lead</th><th class="num">Com telefone</th></tr></thead>
-    <tbody>${meses.map((m) => linha(m.rotulo, m)).join('')}${linha('Total', tot, 'soma')}</tbody>`;
+      <th class="num">Ticket médio</th><th class="num">Conversão</th><th class="num">Faturamento por lead</th></tr></thead>
+    <tbody>${meses.map((m) => linha(gran === 'semana' ? m.titulo : m.rotulo, m)).join('')}${linha('Total', tot, 'soma')}</tbody>`;
 }
 
 // ---------- 3. Funil ----------
@@ -1003,14 +1047,15 @@ function renderVendedores(vendasPeriodo, meses) {
       <td class="num">${fmtInt(p.comTel)} de ${fmtInt(p.n)}</td></tr>`;
   }).join('');
 
-  // faturamento por vendedor por mes (serie completa do periodo com anuncio)
-  const chaves = [...base.keys()].sort((a, b) => ordemVendedor(a) - ordemVendedor(b));
+  // faturamento por vendedor nos mesmos intervalos da evolucao (so quem vendeu no periodo)
+  const chaves = [...periodo.keys()].sort((a, b) => ordemVendedor(a) - ordemVendedor(b));
   const series = chaves.map((k) => {
-    const doVend = VENDAS.filter((v) => chaveVendedor(v.vendedor) === k);
+    const doVend = vendasPeriodo.filter((v) => chaveVendedor(v.vendedor) === k);
+    const noBalde = (b) => doVend.filter((v) => v.data >= b.de && v.data <= b.ate);
     return {
-      nome: nomeVendedor(base.get(k)), cor: corVendedor(k),
-      valores: meses.map((m) => doVend.filter((v) => v.data.startsWith(m.ym)).reduce((s, v) => s + Number(v.valor), 0)),
-      qtd: meses.map((m) => doVend.filter((v) => v.data.startsWith(m.ym)).length),
+      nome: nomeVendedor(periodo.get(k)), cor: corVendedor(k),
+      valores: meses.map((b) => noBalde(b).reduce((s, v) => s + Number(v.valor), 0)),
+      qtd: meses.map((b) => noBalde(b).length),
     };
   });
   desenha('ch-vendedor-mes', (el) => empilhado(el, meses.map((m) => m.rotulo), series, { fmtTotal: fmtK, eixo: fmtK }));
@@ -1019,12 +1064,6 @@ function renderVendedores(vendasPeriodo, meses) {
   listaBarras(document.getElementById('lst-ticket-vendedor'), [...periodo.entries()]
     .map(([k, a]) => ({ rotulo: nomeVendedor(a), valor: a.total / a.n, texto: fmtMoney(a.total / a.n), texto2: a.n + (a.n === 1 ? ' venda' : ' vendas'), cor: corVendedor(k) }))
     .sort((a, b) => b.valor - a.valor), { cabecalho: ['Ticket', 'Vendas'] });
-
-  // disciplina de cadastro: venda com telefone por mes
-  desenha('ch-telefone', (el) => colunas(el, meses.map((m) => m.rotulo), meses.map((m) => m.pctTel || 0), {
-    fmt: fmtPct1, eixo: (v) => nf(v) + '%', destaca: false,
-    tooltip: (i) => ttLinhas(meses[i].rotulo, [meses[i].comTel + ' de ' + meses[i].vendas + ' vendas com telefone']),
-  }));
 }
 
 // ---------- 6. Midia ----------
@@ -1193,10 +1232,11 @@ function renderTudo() {
   const ant = periodoAnterior(currentRange);
   const meta = META.filter((m) => noPeriodo(m.data, currentRange));
   const vendas = VENDAS.filter((v) => noPeriodo(v.data, currentRange));
-  const meses = mesesDoPeriodo();
+  const gran = granularidade || granularidadeAuto(currentRange);
+  const meses = baldes(currentRange, gran);
 
   renderResultado(s, ant ? resumo(ant) : null);
-  renderMensal(meses);
+  renderEvolucao(meses, gran);
   renderFunil(s);
   renderVendas(vendas);
   renderVendedores(vendas, meses);
