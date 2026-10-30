@@ -481,28 +481,18 @@ try {
   await page.waitForFunction(()=>document.getElementById('lateral').getBoundingClientRect().width<100);
   await page.evaluate(()=>{limparSelecao();document.getElementById('toast').className='toast';location.hash='#/central';});
   await page.waitForFunction(()=>rotaAtual().tipo==='central');
-  // Mover espaço: menu do espaço > Mover, destino em outro espaço, confirmação conta o que vai junto.
-  await page.evaluate(()=>{
-    fixture.moverOriginal=sb.rpc;
-    sb.rpc=async(name,args)=>{fixture.rpcWrites.push({name,args});return {data:'pa-nova',error:null};};
-    fixture.rpcWrites=[];
-    menuDe('projeto','p2',document.getElementById('arvore'));
-  });
-  await page.locator('#menu-flutuante').getByRole('button',{name:'Mover',exact:true}).click();
-  const destinos=await page.locator('#modal-sel option').allInnerTexts();
-  assert.ok(!destinos.some(t=>t.startsWith('Operação interna')),'o espaço não aparece como destino dele mesmo');
-  assert.ok(destinos.includes('Demandas da agência (raiz do espaço)'),'outro espaço aparece como destino');
-  await page.locator('#modal-sel').selectOption('pasta:pa1');
-  await page.locator('#form-modal').getByRole('button',{name:'Mover',exact:true}).click();
-  const aviso=await page.locator('#modal').innerText();
-  const esperado=await page.evaluate(()=>({pasta:caminhoPasta('pa1').join(' › '),n:S.tarefas.filter(t=>t.lista_id==='l3').length}));
-  assert.ok(aviso.includes('Operação interna vira uma pasta dentro de Demandas da agência › '+esperado.pasta),'a confirmação diz origem e destino');
-  assert.match(aviso,new RegExp(`0 pastas, 1 lista\\s+e ${esperado.n} tarefa`),'a confirmação conta o que vai junto');
-  await page.locator('#btn-confirmar').click();
-  await page.waitForFunction(()=>fixture.rpcWrites.length===1);
-  assert.deepEqual(await page.evaluate(()=>fixture.rpcWrites[0]),{name:'tarefas_mover_espaco',args:{p_espaco:'p2',p_destino_projeto:null,p_destino_pasta:'pa1'}});
-  await page.waitForFunction(()=>document.getElementById('toast').textContent.includes('Movido'));
-  await page.evaluate(()=>{sb.rpc=fixture.moverOriginal;document.getElementById('toast').className='toast';});
+  // Mover pasta e lista: o destino é só a raiz de um espaço, nunca outra pasta.
+  for(const [tipo,id,tabela,campoPai] of [['lista','l8','tarefas_listas','pasta_id'],['pasta','pa1','tarefas_pastas','pasta_pai_id']]){
+    await page.evaluate(([tipo,id])=>menuDe(tipo,id,document.getElementById('arvore')),[tipo,id]);
+    await page.locator('#menu-flutuante').getByRole('button',{name:'Mover',exact:true}).click();
+    const destinos=await page.locator('#modal-sel option').evaluateAll(os=>os.map(o=>o.value));
+    assert.deepEqual(destinos.sort(),['p1','p2'],tipo+': só os espaços aparecem como destino');
+    await page.locator('#modal-sel').selectOption('p2');
+    await page.locator('#form-modal').getByRole('button',{name:'Mover',exact:true}).click();
+    await page.waitForFunction(t=>fixture.writes.some(x=>x.table===t&&x.action==='update'&&x.payload.projeto_id==='p2'),tabela);
+    assert.deepEqual(await page.evaluate(t=>fixture.writes.filter(x=>x.table===t&&x.action==='update').at(-1).payload,tabela),{projeto_id:'p2',[campoPai]:null},tipo+' vai para a raiz do espaço');
+  }
+  await page.evaluate(()=>{document.getElementById('toast').className='toast';});
   await page.evaluate(()=>authEvent('SIGNED_OUT'));
   assert.equal(await page.locator('#conteudo').innerText(),'');
   assert.equal(await page.locator('#form-login').isVisible(),true);

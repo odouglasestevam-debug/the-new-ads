@@ -655,69 +655,19 @@ async function mudarCor(id) {
   recarregarERender();
 }
 
+// Destino é sempre a raiz de um espaço, para nunca cair dentro de outra pasta por engano.
+// O conteúdo vai junto: o banco leva subpastas e listas para o espaço novo.
 async function mover(tipo, id) {
-  const opcoes = [];
-  const proibidas = tipo === "pasta" ? pastasDescendentes(id) : new Set();
-  for (const p of S.projetos) {
-    opcoes.push({ v: `projeto:${p.id}`, t: `${p.nome} (raiz do espaço)` });
-    for (const pa of S.pastas.filter((x) => x.projeto_id === p.id && !proibidas.has(x.id))) {
-      opcoes.push({ v: `pasta:${pa.id}`, t: [p.nome, ...caminhoPasta(pa.id)].join(" › ") });
-    }
-  }
   const obj = objeto(tipo, id);
-  const pai = tipo === "pasta" ? obj.pasta_pai_id : obj.pasta_id;
-  const escolha = await escolher({ titulo: tipo === "pasta" ? "Mover pasta" : "Mover lista", rotulo: "Para onde", opcoes, valor: pai ? `pasta:${pai}` : `projeto:${obj.projeto_id}` });
-  if (!escolha) return;
-  const [destTipo, destId] = escolha.split(":");
-  const projetoId = destTipo === "projeto" ? destId : S.pastas.find((x) => x.id === destId).projeto_id;
-  const pastaId = destTipo === "pasta" ? destId : null;
-  const patch = tipo === "pasta" ? { projeto_id: projetoId, pasta_pai_id: pastaId } : { projeto_id: projetoId, pasta_id: pastaId };
+  const opcoes = S.projetos.map((p) => ({ v: p.id, t: p.nome }));
+  const projetoId = await escolher({ titulo: tipo === "pasta" ? "Mover pasta" : "Mover lista", rotulo: "Para o espaço", opcoes, valor: obj.projeto_id });
+  if (!projetoId) return;
+  const patch = tipo === "pasta" ? { projeto_id: projetoId, pasta_pai_id: null } : { projeto_id: projetoId, pasta_id: null };
   const { error } = await db().from(TABELA[tipo]).update(patch).eq("id", id);
   if (error) return toast(erroBanco(error, "Não deu pra mover"), true);
   await recarregarERender();
   expandirAte(tipo, id);
   renderArvore();
-  toast("Movido.");
-}
-
-// Espaço não tem pai: mover é virar uma pasta com o mesmo nome no destino, com tudo o que tem dentro.
-async function moverEspaco(id) {
-  const obj = objeto("projeto", id);
-  const opcoes = [];
-  for (const p of S.projetos.filter((x) => x.id !== id)) {
-    opcoes.push({ v: `projeto:${p.id}`, t: `${p.nome} (raiz do espaço)` });
-    for (const pa of S.pastas.filter((x) => x.projeto_id === p.id)) {
-      opcoes.push({ v: `pasta:${pa.id}`, t: [p.nome, ...caminhoPasta(pa.id)].join(" › ") });
-    }
-  }
-  if (!opcoes.length) return toast("Não há outro espaço para onde mover.", true);
-  const escolha = await escolher({ titulo: "Mover espaço", rotulo: "Para onde", opcoes, valor: opcoes[0].v });
-  if (!escolha) return;
-  const [destTipo, destId] = escolha.split(":");
-  const espacoDestino = objeto("projeto", destTipo === "projeto" ? destId : objeto("pasta", destId).projeto_id);
-  const destino = destTipo === "projeto" ? espacoDestino.nome : [espacoDestino.nome, ...caminhoPasta(destId)].join(" › ");
-  const conta = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
-  const listas = listasDoLocal(`projeto:${id}`);
-  const n = S.tarefas.filter((t) => listas.has(t.lista_id)).length;
-  const ok = await confirmar({
-    titulo: "Mover espaço?", botao: "Mover",
-    texto: `<b>${esc(obj.nome)}</b> vira uma pasta dentro de <b>${esc(destino)}</b> e leva junto
-      ${conta(S.pastas.filter((p) => p.projeto_id === id).length, "pasta", "pastas")}, ${conta(listas.size, "lista", "listas")}
-      e ${conta(n, "tarefa", "tarefas")}. Membros que tinham só este espaço liberado deixam de ver o conteúdo:
-      passa a valer o acesso de <b>${esc(espacoDestino.nome)}</b>.`,
-  });
-  if (!ok) return;
-  const { data: pastaNova, error } = await sb.rpc("tarefas_mover_espaco", {
-    p_espaco: id, p_destino_projeto: destTipo === "projeto" ? destId : null, p_destino_pasta: destTipo === "pasta" ? destId : null,
-  });
-  if (error) return toast(erroBanco(error, "Não deu pra mover"), true);
-  const r = rotaAtual();
-  expandidos.delete("projeto:" + id);
-  expandidos.add("pasta:" + pastaNova);
-  await recarregarERender();
-  expandirAte("pasta", pastaNova);
-  if (r.tipo === "projeto" && r.id === id) irPara("#/pasta/" + pastaNova);
-  else renderArvore();
   toast("Movido.");
 }
 
@@ -745,7 +695,7 @@ function menuDe(tipo, id, ancora) {
   const itens = [];
   if (tipo === "projeto") {
     itens.push({ t: "Nova pasta", acao: () => novaPasta(id, null) }, { t: "Nova lista", acao: () => novaLista(id, null) }, "-",
-      { t: "Nome e cor", acao: () => mudarCor(id) }, { t: "Mover", acao: () => moverEspaco(id) });
+      { t: "Nome e cor", acao: () => mudarCor(id) });
   }
   if (tipo === "pasta") {
     itens.push({ t: "Nova subpasta", acao: () => novaPasta(obj.projeto_id, id) }, { t: "Nova lista", acao: () => novaLista(obj.projeto_id, id) }, "-",
