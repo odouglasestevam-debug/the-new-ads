@@ -1,8 +1,8 @@
 ---
-name: central-demandas
+name: tarefas
 description: >
   Opera o gestor de tarefas próprio do Douglas (tarefas.thenewads.com.br, que substituiu o
-  ClickUp) como central de demandas: cada cliente tem sua pasta com a lista "Gestão de Tráfego"
+  ClickUp), antes chamado de "central de demandas": cada cliente tem sua pasta com a lista "Gestão de Tráfego"
   (e Contrato, Pagamento, Onboarding), e demandas internas caem na lista "Interno" de cada
   agência (The New Ads ou Tubarão Ads). O Claude Code lança demanda direto na lista certa,
   lista o que está pendente (atrasadas e de hoje primeiro), executa em conversa movendo o
@@ -12,7 +12,7 @@ description: >
   marcar algo como feito.
 ---
 
-# Central de demandas
+# Tarefas
 
 O estado compartilhado é o banco do gestor de tarefas (schema `tarefas` no Supabase
 `xrvjlhseyqfgyvwwlwwb`). Acesso pelo conector MCP `supabase-app`, com `execute_sql`.

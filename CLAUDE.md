@@ -53,7 +53,7 @@ Objetivo, técnico, direto, sem enrolação, em português do Brasil. Nunca usar
 ## Ferramentas conectadas
 
 - [x] N8N (MCP instalado e conectado — `flow.neoai.systems`)
-- [x] Gestor de tarefas próprio (https://tarefas.thenewads.com.br, substituiu o ClickUp em 19/09/2026; banco no Supabase `xrvjlhseyqfgyvwwlwwb`, conector `supabase-app`; código em `gestor-tarefas/`). Skill `central-demandas` lança/lista/executa/relata produtividade e `onboarding-cliente` copia o modelo `Modelos > 00 - Cliente tráfego`. Não usar ferramentas `clickup_*`
+- [x] Gestor de tarefas próprio (https://tarefas.thenewads.com.br, substituiu o ClickUp em 19/09/2026; banco no Supabase `xrvjlhseyqfgyvwwlwwb`, conector `supabase-app`; código em `gestor-tarefas/`). Skill `tarefas` (antiga `central-demandas`) lança/lista/executa/relata produtividade e `onboarding-cliente` copia o modelo `Modelos > 00 - Cliente tráfego`. Não usar ferramentas `clickup_*`
 - [ ] Google Calendar (agendar reuniões)
 - [ ] Gmail (comunicação com clientes)
 - [ ] Google Drive (briefings, decks)
