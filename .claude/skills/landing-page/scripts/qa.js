@@ -23,7 +23,8 @@ function carregaPlaywright() {
 const [, , arquivo, saida] = process.argv;
 if (!arquivo || !saida) { console.error('Uso: node qa.js <index.html> <pasta-de-saida>'); process.exit(1); }
 fs.mkdirSync(saida, { recursive: true });
-const url = require('url').pathToFileURL(path.resolve(arquivo)).href;
+// aceita caminho de arquivo ou URL (servidor local, necessário quando a página usa fonte própria)
+const url = /^https?:\/\//.test(arquivo) ? arquivo : require('url').pathToFileURL(path.resolve(arquivo)).href;
 
 (async () => {
   const { chromium } = carregaPlaywright();
@@ -86,6 +87,7 @@ const url = require('url').pathToFileURL(path.resolve(arquivo)).href;
         const validou = await page.evaluate(() => !!document.querySelector('.campo.invalido'));
         await page.fill('#nome', 'Teste QA');
         await page.fill(fone, '48999998888');
+        if (await page.$('#email')) await page.fill('#email', 'qa@teste.com.br');
         const mascara = await page.inputValue(fone);
         await page.click('#btnEnviar'); await page.waitForTimeout(400);
         const enviou = await page.evaluate(() => document.getElementById('formCard').classList.contains('enviado'));
