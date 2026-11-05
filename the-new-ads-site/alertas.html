@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-<title>The New Ads — Alertas</title>
-<meta name="description" content="Saude das contas de anuncio dos clientes" />
+<title>TNA Alertas</title>
+<meta name="description" content="O que precisa de atenção nas contas, páginas e tracking dos clientes" />
 <link rel="manifest" href="/manifest.json" />
 <meta name="theme-color" content="#0A0A0A" />
 <link rel="apple-touch-icon" href="/icons/icon-192.png" />
@@ -27,129 +27,186 @@
     --ok: #3DDC84;
     --atencao: #FFC53D;
     --critico: #FF4D4D;
+    --display: 'Clash Display','Space Grotesk',system-ui,sans-serif;
+    --body: 'Switzer','Inter',system-ui,sans-serif;
+    --mono: 'JetBrains Mono', ui-monospace, monospace;
   }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Switzer','Inter',system-ui,sans-serif;
+    font-family: var(--body);
     min-height: 100vh;
-    padding: 24px 16px 60px;
+    padding: max(20px, env(safe-area-inset-top)) 16px 64px;
     -webkit-font-smoothing: antialiased;
   }
   .wrap { max-width: 720px; margin: 0 auto; }
-  header { display: flex; align-items: center; gap: 12px; margin-bottom: 28px; }
-  header img { width: 36px; height: 36px; }
-  header h1 {
-    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
-    font-weight: 600;
-    font-size: 22px;
-    letter-spacing: -0.5%;
-  }
-  header p { color: var(--muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
+  button { font-family: var(--body); }
+  a { color: inherit; }
 
-  .card {
-    background: var(--surface);
+  header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  header img { width: 32px; height: 32px; }
+  header h1 { font-family: var(--display); font-weight: 600; font-size: 20px; letter-spacing: -0.005em; }
+  header .sub { color: var(--muted); font-size: 12px; font-family: var(--mono); margin-top: 2px; }
+
+  /* Resumo do topo: uma frase que responde "preciso fazer algo?" */
+  .resumo {
     border: 1px solid var(--line);
     border-radius: 4px;
+    background: var(--surface);
     padding: 20px;
     margin-bottom: 16px;
   }
+  .resumo .frase { font-family: var(--display); font-weight: 600; font-size: 26px; line-height: 1.15; letter-spacing: -0.01em; }
+  .resumo .frase .n { color: var(--critico); }
+  .resumo.ok .frase .n { color: var(--ok); }
+  .resumo .detalhe { color: var(--muted); font-size: 14px; margin-top: 8px; line-height: 1.5; }
 
-  .subscribe-card { text-align: center; }
-  .subscribe-card p { color: var(--muted); font-size: 16px; margin: 8px 0 16px; line-height: 1.5; }
+  .push-card {
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    background: var(--surface);
+  }
+  .push-card p { color: var(--muted); font-size: 14px; line-height: 1.45; }
+  .push-card.hidden { display: none; }
+  .status-push:empty { display: none; }
+
   .btn {
     background: var(--amber);
     color: #0A0A0A;
     border: none;
-    font-family: 'Switzer', sans-serif;
     font-weight: 600;
-    font-size: 16px;
-    padding: 12px 24px;
+    font-size: 15px;
+    padding: 11px 18px;
     border-radius: 4px;
     cursor: pointer;
     box-shadow: 0 8px 30px rgba(255,106,0,.28);
-    transition: filter .15s ease;
-  }
-  .btn:hover { filter: brightness(1.08); }
-  .btn:disabled { opacity: .5; cursor: default; box-shadow: none; }
-  .btn.outline {
-    background: transparent;
-    color: var(--amber);
-    border: 1px solid var(--amber);
-    box-shadow: none;
-  }
-  .status-msg { font-size: 12px; font-family: 'JetBrains Mono', monospace; color: var(--muted); margin-top: 12px; }
-
-  .section-title {
-    font-family: 'Clash Display','Space Grotesk',system-ui,sans-serif;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.04em;
-    color: var(--muted);
-    margin: 28px 0 12px;
-  }
-
-  .conta-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 14px 16px;
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    margin-bottom: 8px;
-    background: var(--surface);
-  }
-  .conta-nome { font-size: 16px; font-weight: 500; }
-  .conta-motivo { font-size: 12px; color: var(--muted); margin-top: 2px; font-family: 'JetBrains Mono', monospace; }
-  .badge {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 12px;
-    font-weight: 500;
-    padding: 4px 10px;
-    border-radius: 3px;
     white-space: nowrap;
-    flex-shrink: 0;
-    margin-left: 12px;
+    min-height: 44px;
   }
-  .badge.ok { background: rgba(61,220,132,.12); color: var(--ok); }
-  .badge.atencao { background: rgba(255,197,61,.12); color: var(--atencao); }
-  .badge.critico { background: rgba(255,77,77,.14); color: var(--critico); }
+  .btn:disabled { opacity: .5; cursor: default; box-shadow: none; }
+  .btn-sec {
+    background: transparent;
+    color: var(--text);
+    border: 1px solid var(--line);
+    font-weight: 500;
+    font-size: 14px;
+    padding: 9px 14px;
+    border-radius: 4px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+  .btn-sec:hover { border-color: rgba(255,255,255,.22); }
+  .btn-sec.amber { color: var(--amber); border-color: var(--amber); }
 
-  .skel { background: linear-gradient(90deg, var(--surface) 0%, var(--surface2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; height: 52px; margin-bottom: 8px; }
-  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
-
-  footer { text-align: center; margin-top: 32px; color: var(--muted); font-size: 12px; font-family: 'JetBrains Mono', monospace; }
-
-  .tabs { display: flex; gap: 4px; margin-bottom: 20px; border: 1px solid var(--line); border-radius: 4px; padding: 4px; }
+  .tabs { display: flex; gap: 4px; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 4px; padding: 4px; }
   .tab-btn {
     flex: 1;
     background: transparent;
     border: none;
     color: var(--muted);
-    font-family: 'Switzer', sans-serif;
     font-weight: 600;
-    font-size: 13px;
-    padding: 10px 8px;
+    font-size: 14px;
+    padding: 10px 6px;
     border-radius: 3px;
     cursor: pointer;
+    min-height: 40px;
   }
   .tab-btn.active { background: var(--surface2); color: var(--text); }
+  .tab-btn .cont { font-family: var(--mono); font-size: 12px; color: var(--critico); margin-left: 4px; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
-  .log-item {
+  .section-title {
+    font-family: var(--mono);
+    font-weight: 500;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    margin: 24px 0 10px;
+  }
+  .section-title:first-child { margin-top: 4px; }
+
+  /* Card de problema aberto */
+  .prob {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--critico);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .prob.atencao { border-left-color: var(--atencao); }
+  .prob.silenciado { border-left-color: var(--muted); opacity: .7; }
+  .prob .meta { display: flex; justify-content: space-between; gap: 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .prob .tipo { text-transform: uppercase; letter-spacing: 0.05em; }
+  .prob.critico .tipo { color: var(--critico); }
+  .prob.atencao .tipo { color: var(--atencao); }
+  .prob h3 { font-size: 17px; font-weight: 600; margin: 8px 0 6px; line-height: 1.3; }
+  .prob .msg { color: #CFCFCF; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+  .prob .acoes { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+  .silenciar-menu { display: none; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .silenciar-menu.aberto { display: flex; }
+
+  .vazio {
+    border: 1px dashed var(--line);
+    border-radius: 4px;
+    padding: 24px 16px;
+    text-align: center;
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  /* Linhas de status (aba Monitorando) e resolvidos */
+  .linha {
+    display: flex;
+    align-items: center;
+    gap: 12px;
     padding: 12px 14px;
     border: 1px solid var(--line);
     border-radius: 4px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     background: var(--surface);
   }
-  .log-item .log-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .log-item .log-cliente { font-size: 14px; font-weight: 500; }
-  .log-item .log-quando { font-size: 11px; color: var(--muted); font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
-  .log-item .log-msg { font-size: 13px; color: var(--muted); margin-top: 4px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--ok); }
+  .dot.atencao { background: var(--atencao); }
+  .dot.critico { background: var(--critico); }
+  .dot.cinza { background: var(--muted); }
+  .linha .txt { flex: 1; min-width: 0; }
+  .linha .nome { font-size: 15px; font-weight: 500; }
+  .linha .det { font-size: 12px; color: var(--muted); font-family: var(--mono); margin-top: 3px; overflow-wrap: anywhere; }
+  .linha .quando { font-size: 12px; color: var(--muted); font-family: var(--mono); white-space: nowrap; }
+
+  .skel { background: linear-gradient(90deg, var(--surface) 0%, var(--surface2) 50%, var(--surface) 100%); background-size: 200% 100%; animation: shimmer 1.4s infinite; border-radius: 4px; height: 64px; margin-bottom: 8px; }
+  @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+  @media (prefers-reduced-motion: reduce) { .skel { animation: none; } }
+
+  /* Login pra silenciar */
+  .modal-fundo { position: fixed; inset: 0; background: rgba(0,0,0,.7); display: none; align-items: flex-end; justify-content: center; padding: 16px; z-index: 10; }
+  .modal-fundo.aberto { display: flex; }
+  .modal { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--line); border-radius: 4px; padding: 20px; }
+  .modal h2 { font-family: var(--display); font-weight: 600; font-size: 20px; }
+  .modal p { color: var(--muted); font-size: 14px; margin: 6px 0 14px; line-height: 1.45; }
+  .modal input {
+    width: 100%; background: var(--bg); border: 1px solid var(--line); color: var(--text);
+    border-radius: 4px; padding: 12px; font-size: 16px; margin-bottom: 10px; font-family: var(--body);
+  }
+  .modal .linha-btn { display: flex; gap: 8px; justify-content: flex-end; margin-top: 4px; }
+  .erro { color: var(--critico); font-size: 13px; margin-bottom: 8px; min-height: 1em; }
+
+  footer { text-align: center; margin-top: 32px; color: var(--muted); font-size: 12px; font-family: var(--mono); line-height: 1.6; }
+  footer button { background: none; border: none; color: var(--muted); text-decoration: underline; font-family: var(--mono); font-size: 12px; cursor: pointer; }
 </style>
 </head>
 <body>
@@ -157,58 +214,343 @@
     <header>
       <img src="/icons/icon-192.png" alt="" />
       <div>
-        <h1>Alertas de Conta</h1>
-        <p id="updated-at">carregando...</p>
+        <h1>Alertas</h1>
+        <div class="sub" id="atualizado">carregando...</div>
       </div>
     </header>
 
-    <div class="card subscribe-card" id="subscribe-card">
-      <p>Ative as notificacoes pra receber um aviso no celular assim que uma conta de anuncio tiver bloqueio, problema de pagamento ou saldo baixo, ou o fluxo de tracking tiver problema.</p>
-      <button class="btn" id="btn-subscribe">Ativar notificacoes</button>
-      <div class="status-msg" id="subscribe-status"></div>
+    <div class="resumo" id="resumo">
+      <div class="frase">Carregando...</div>
     </div>
 
-    <div class="tabs">
-      <button class="tab-btn active" id="tab-btn-contas" data-tab="contas">Contas de Anuncio</button>
-      <button class="tab-btn" id="tab-btn-tracking" data-tab="tracking">Fluxo de Tracking (n8n)</button>
+    <div class="push-card hidden" id="push-card">
+      <p>Ative as notificações neste aparelho pra ser avisado quando algo precisar de você.</p>
+      <button class="btn" id="btn-subscribe">Ativar</button>
+    </div>
+    <div class="status-push" id="subscribe-status" style="color:var(--muted);font-size:12px;font-family:var(--mono);margin:-8px 0 12px"></div>
+
+    <div class="tabs" role="tablist">
+      <button class="tab-btn active" data-tab="agora" role="tab">Agora<span class="cont" id="cont-agora"></span></button>
+      <button class="tab-btn" data-tab="monitorando" role="tab">Monitorando</button>
+      <button class="tab-btn" data-tab="historico" role="tab">Histórico</button>
     </div>
 
-    <div class="tab-panel active" id="tab-contas">
-      <div class="section-title">Status atual das contas</div>
-      <div id="contas-list">
-        <div class="skel"></div>
-        <div class="skel"></div>
-        <div class="skel"></div>
-      </div>
-    </div>
+    <section class="tab-panel active" id="tab-agora">
+      <div id="lista-abertos"><div class="skel"></div><div class="skel"></div></div>
+      <div id="bloco-silenciados"></div>
+      <div id="bloco-resolvidos"></div>
+    </section>
 
-    <div class="tab-panel" id="tab-tracking">
-      <div class="section-title">Status dos fluxos de tracking</div>
-      <div id="tracking-list">
-        <div class="skel"></div>
-        <div class="skel"></div>
-      </div>
+    <section class="tab-panel" id="tab-monitorando">
+      <div class="section-title">Páginas</div>
+      <div id="lista-sites"><div class="skel"></div></div>
+      <div class="section-title">Contas de anúncio</div>
+      <div id="lista-contas"><div class="skel"></div></div>
+      <div class="section-title">Tracking do n8n</div>
+      <div id="lista-tracking"><div class="skel"></div></div>
+    </section>
 
-      <div class="section-title">Ultimas notificacoes</div>
-      <div id="log-list">
-        <div class="skel"></div>
-        <div class="skel"></div>
-      </div>
-    </div>
+    <section class="tab-panel" id="tab-historico">
+      <div class="section-title">Últimas notificações</div>
+      <div id="lista-historico"><div class="skel"></div></div>
+    </section>
 
-    <footer>The New Ads &middot; checagem automatica diaria</footer>
+    <footer>
+      <div id="rodape-push"></div>
+      <div>The New Ads · páginas a cada 10 min, leads a cada hora, contas a cada 2 h</div>
+    </footer>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <div class="modal-fundo" id="modal-login">
+    <form class="modal" id="form-login">
+      <h2>Entrar pra silenciar</h2>
+      <p>Use o mesmo login do painel do funil. Só quem tem acesso ao painel pode silenciar alertas.</p>
+      <input type="email" id="login-email" placeholder="E-mail" autocomplete="username" required />
+      <input type="password" id="login-senha" placeholder="Senha" autocomplete="current-password" required />
+      <div class="erro" id="login-erro"></div>
+      <div class="linha-btn">
+        <button type="button" class="btn-sec" id="login-cancelar">Cancelar</button>
+        <button type="submit" class="btn" id="login-entrar">Entrar</button>
+      </div>
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
   <script>
     const SUPABASE_URL = "https://iklynyncffneuvutvgxa.supabase.co";
     const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlrbHlueW5jZmZuZXV2dXR2Z3hhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODIwMzA3NDUsImV4cCI6MjA5NzYwNjc0NX0.-vIteLhTDir-PeOrVzeGt7TdG05cYLMMJXmePauhdy4";
     const VAPID_PUBLIC_KEY = "BDDeqpWqOp-dMo0kSCvIEc9Ii_PVajOheOY4BI76sNlVl7gV32DzUZm0YZuvvTaCwavbcO_u76tL_1vSrY9zI6M";
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    // Duas conexoes: a de leitura e sempre anonima (as tabelas liberam leitura
+    // so pro anon; com a sessao do /funil o pedido viraria "authenticated" e
+    // voltaria vazio). A com sessao, compartilhada com o /funil, so silencia.
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      auth: { persistSession: false, autoRefreshToken: false, storageKey: "alertas-leitura" },
+    });
+    const sbAuth = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     const CHAVE_ENDPOINT_LOCAL = "alertas_push_endpoint";
     const CHAVE_LIMPEZA = "alertas_escopo_limpo";
+
+    const TIPO = {
+      site: "Página",
+      sem_lead: "Gasto sem lead",
+      queda_lead: "Queda de lead",
+      saldo: "Saldo",
+      saude_conta: "Conta de anúncio",
+      tracking: "Tracking",
+    };
+
+    function esc(s) {
+      return String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function linkSeguro(u) {
+      try { const x = new URL(u); return x.protocol === "https:" ? x.href : null; } catch { return null; }
+    }
+    function ha(iso) {
+      if (!iso) return "";
+      const min = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+      if (min < 1) return "agora";
+      if (min < 60) return `há ${min} min`;
+      const h = Math.round(min / 60);
+      if (h < 24) return `há ${h} h`;
+      const d = Math.round(h / 24);
+      return d === 1 ? "há 1 dia" : `há ${d} dias`;
+    }
+    function dataHora(iso) {
+      return new Date(iso).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+    }
+    function silenciado(p) {
+      return p.silenciado_ate && (p.silenciado_ate === "infinity" || new Date(p.silenciado_ate) > new Date());
+    }
+    function textoSilencio(p) {
+      if (p.silenciado_ate === "infinity") return "silenciado até resolver";
+      return "silenciado até " + dataHora(p.silenciado_ate);
+    }
+
+    // ---------- Agora ----------
+
+    let problemas = [];
+
+    function cardProblema(p) {
+      const sil = silenciado(p);
+      const url = linkSeguro(p.url_acao);
+      const textoBotao = p.tipo === "site" ? "Abrir página" : "Abrir no Gerenciador";
+      const avisos = p.pushes === 1 ? "1 aviso" : `${p.pushes} avisos`;
+      return `
+        <article class="prob ${sil ? "silenciado" : p.nivel}" data-id="${esc(p.id)}">
+          <div class="meta">
+            <span class="tipo">${esc(TIPO[p.tipo] || p.tipo)}</span>
+            <span>aberto ${ha(p.aberto_em)} · ${avisos}</span>
+          </div>
+          <h3>${esc(p.titulo)}</h3>
+          <div class="msg">${esc(p.mensagem)}</div>
+          ${sil ? `<div class="meta" style="margin-top:8px"><span>${esc(textoSilencio(p))}</span></div>` : ""}
+          <div class="acoes">
+            ${url ? `<a class="btn-sec amber" href="${esc(url)}" target="_blank" rel="noopener">${textoBotao}</a>` : ""}
+            ${sil
+              ? `<button class="btn-sec" data-acao="silenciar" data-horas="0">Reativar avisos</button>`
+              : `<button class="btn-sec" data-acao="menu">Silenciar</button>`}
+          </div>
+          <div class="silenciar-menu">
+            <button class="btn-sec" data-acao="silenciar" data-horas="24">Por 24 horas</button>
+            <button class="btn-sec" data-acao="silenciar" data-horas="168">Por 7 dias</button>
+            <button class="btn-sec" data-acao="silenciar" data-horas="-1">Até resolver</button>
+          </div>
+        </article>`;
+    }
+
+    async function carregarAgora() {
+      const desde = new Date(Date.now() - 48 * 3600000).toISOString();
+      const [{ data: abertos, error }, { data: resolvidos }] = await Promise.all([
+        sb.from("alertas_problemas").select("*").is("resolvido_em", null).order("aberto_em", { ascending: false }),
+        sb.from("alertas_problemas").select("id, tipo, titulo, aberto_em, resolvido_em, pushes")
+          .gte("resolvido_em", desde).gt("pushes", 0).order("resolvido_em", { ascending: false }).limit(10),
+      ]);
+
+      const lista = document.getElementById("lista-abertos");
+      if (error) {
+        lista.innerHTML = '<div class="vazio">Não foi possível carregar os alertas. Puxe pra atualizar.</div>';
+        return;
+      }
+      problemas = abertos || [];
+      const ativos = problemas.filter((p) => !silenciado(p))
+        .sort((a, b) => (a.nivel === b.nivel ? 0 : a.nivel === "critico" ? -1 : 1));
+      const sils = problemas.filter(silenciado);
+
+      lista.innerHTML = ativos.length
+        ? ativos.map(cardProblema).join("")
+        : '<div class="vazio">Nada precisa de você agora.<br>Se uma página cair, um anúncio gastar sem lead ou uma conta tiver problema, aparece aqui e no celular.</div>';
+
+      document.getElementById("bloco-silenciados").innerHTML = sils.length
+        ? `<div class="section-title">Silenciados</div>${sils.map(cardProblema).join("")}`
+        : "";
+
+      document.getElementById("bloco-resolvidos").innerHTML = (resolvidos || []).length
+        ? `<div class="section-title">Resolvidos nas últimas 48 h</div>` + resolvidos.map((r) => `
+            <div class="linha">
+              <span class="dot"></span>
+              <div class="txt"><div class="nome">${esc(r.titulo)}</div><div class="det">${esc(TIPO[r.tipo] || r.tipo)} · ficou aberto ${duracao(r.aberto_em, r.resolvido_em)}</div></div>
+              <span class="quando">${ha(r.resolvido_em)}</span>
+            </div>`).join("")
+        : "";
+
+      pintarResumo(ativos, sils.length);
+    }
+
+    function duracao(a, b) {
+      const min = Math.round((new Date(b) - new Date(a)) / 60000);
+      if (min < 60) return `${min} min`;
+      const h = Math.round(min / 60);
+      return h < 48 ? `${h} h` : `${Math.round(h / 24)} dias`;
+    }
+
+    let monitorados = { sites: 0, contas: 0, tracking: 0 };
+
+    function pintarResumo(ativos, nSil) {
+      const el = document.getElementById("resumo");
+      const criticos = ativos.filter((p) => p.nivel === "critico").length;
+      const n = ativos.length;
+      document.getElementById("cont-agora").textContent = n ? String(n) : "";
+      const cobertura = `Monitorando ${monitorados.sites} páginas, ${monitorados.contas} contas de anúncio e ${monitorados.tracking} fluxos de tracking.`;
+      if (!n) {
+        el.className = "resumo ok";
+        el.innerHTML = `<div class="frase"><span class="n">Tudo certo</span> agora.</div><div class="detalhe">${cobertura}${nSil ? ` ${nSil} silenciado(s).` : ""}</div>`;
+        return;
+      }
+      el.className = "resumo";
+      const frase = n === 1 ? `<span class="n">1 problema</span> precisa de você.` : `<span class="n">${n} problemas</span> precisam de você.`;
+      const detalhe = criticos && criticos < n ? `${criticos} crítico(s). ` : "";
+      el.innerHTML = `<div class="frase">${frase}</div><div class="detalhe">${detalhe}${cobertura}</div>`;
+    }
+
+    // ---------- Monitorando ----------
+
+    let nomes = {};
+
+    async function carregarMonitorando() {
+      const [sites, contas, tracking, clientes] = await Promise.all([
+        sb.from("sites_monitorados").select("nome, url, ativo, falhas_seguidas, ultimo_erro, ultimo_check, ultimo_ok").eq("ativo", true).order("nome"),
+        sb.from("conta_saude").select("slug, status_texto, nivel, saldo, checked_at"),
+        sb.from("tracking_saude").select("slug, nome, nivel, status_texto, checked_at, checagem_falhou"),
+        sb.from("alertas_clientes").select("slug, nome"),
+      ]);
+      nomes = Object.fromEntries((clientes.data || []).map((x) => [x.slug, x.nome]));
+
+      const ordem = { critico: 0, atencao: 1, ok: 2 };
+      const s = sites.data || [];
+      monitorados.sites = s.length;
+      document.getElementById("lista-sites").innerHTML = s.length ? s.map((x) => {
+        const nivel = x.falhas_seguidas >= 2 ? "critico" : x.falhas_seguidas === 1 ? "atencao" : x.ultimo_check ? "ok" : "cinza";
+        const det = x.ultimo_erro ? x.ultimo_erro : x.ultimo_check ? "No ar" : "Aguardando primeira checagem";
+        return `<div class="linha"><span class="dot ${nivel}"></span><div class="txt"><div class="nome">${esc(x.nome)}</div><div class="det">${esc(det)}</div></div><span class="quando">${ha(x.ultimo_check)}</span></div>`;
+      }).join("") : '<div class="vazio">Nenhuma página cadastrada.</div>';
+
+      const c = (contas.data || []).sort((a, b) => (ordem[a.nivel] ?? 3) - (ordem[b.nivel] ?? 3));
+      monitorados.contas = c.length;
+      document.getElementById("lista-contas").innerHTML = c.length ? c.map((x) => {
+        const nome = nomes[x.slug] || x.slug;
+        const saldo = x.saldo != null ? ` · saldo R$ ${Number(x.saldo).toFixed(2).replace(".", ",")}` : "";
+        const det = x.nivel === "ok" ? "Ativa" + saldo : (x.status_texto || "");
+        return `<div class="linha"><span class="dot ${x.nivel === "ok" ? "" : x.nivel}"></span><div class="txt"><div class="nome">${esc(nome)}</div><div class="det">${esc(det)}</div></div><span class="quando">${ha(x.checked_at)}</span></div>`;
+      }).join("") : '<div class="vazio">Nenhuma checagem rodou ainda.</div>';
+
+      const t = (tracking.data || []).sort((a, b) => (ordem[a.nivel] ?? 3) - (ordem[b.nivel] ?? 3));
+      monitorados.tracking = t.length;
+      document.getElementById("lista-tracking").innerHTML = t.length ? t.map((x) => {
+        const det = x.checagem_falhou ? "Não deu pra checar: o n8n não respondeu" : (x.status_texto || "Enviando eventos normalmente");
+        return `<div class="linha"><span class="dot ${x.nivel === "ok" ? "" : x.nivel}"></span><div class="txt"><div class="nome">${esc(x.nome)}</div><div class="det">${esc(det)}</div></div><span class="quando">${ha(x.checked_at)}</span></div>`;
+      }).join("") : '<div class="vazio">Nenhuma checagem de tracking rodou ainda.</div>';
+
+      const datas = [...s.map((x) => x.ultimo_check), ...c.map((x) => x.checked_at)].filter(Boolean).sort();
+      document.getElementById("atualizado").textContent = datas.length ? "última checagem " + ha(datas[datas.length - 1]) : "aguardando checagem";
+    }
+
+    // ---------- Histórico ----------
+
+    async function carregarHistorico() {
+      const { data, error } = await sb
+        .from("alertas_enviados")
+        .select("slug, tipo, mensagem, nivel, enviado_em")
+        .order("enviado_em", { ascending: false })
+        .limit(40);
+      const el = document.getElementById("lista-historico");
+      if (error) { el.innerHTML = '<div class="vazio">Não foi possível carregar o histórico.</div>'; return; }
+      if (!data?.length) { el.innerHTML = '<div class="vazio">Nenhuma notificação ainda.</div>'; return; }
+      el.innerHTML = data.map((r) => {
+        const resolvido = /_resolvido$/.test(r.tipo);
+        const base = r.tipo.replace(/_resolvido$/, "");
+        const nivel = resolvido ? "" : r.nivel;
+        const rotulo = (TIPO[base] || base) + (resolvido ? " · resolvido" : "");
+        return `<div class="linha"><span class="dot ${nivel}"></span><div class="txt"><div class="nome">${esc(r.mensagem)}</div><div class="det">${esc(rotulo)}</div></div><span class="quando">${dataHora(r.enviado_em)}</span></div>`;
+      }).join("");
+    }
+
+    // ---------- Silenciar ----------
+
+    let pendente = null;
+
+    document.getElementById("tab-agora").addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("button[data-acao]");
+      if (!btn) return;
+      const card = btn.closest(".prob");
+      if (btn.dataset.acao === "menu") {
+        card.querySelector(".silenciar-menu").classList.toggle("aberto");
+        return;
+      }
+      if (btn.dataset.acao === "silenciar") {
+        await silenciar(card.dataset.id, Number(btn.dataset.horas));
+      }
+    });
+
+    async function silenciar(id, horas) {
+      const { data: { session } } = await sbAuth.auth.getSession();
+      if (!session) {
+        pendente = { id, horas };
+        document.getElementById("modal-login").classList.add("aberto");
+        document.getElementById("login-email").focus();
+        return;
+      }
+      const { error } = await sbAuth.rpc("alerta_silenciar", { p_id: id, p_horas: horas });
+      if (error) {
+        alert(error.message.includes("sem acesso") ? "Esse login não tem acesso ao painel." : "Não deu pra silenciar: " + error.message);
+        return;
+      }
+      await carregarAgora();
+    }
+
+    document.getElementById("login-cancelar").addEventListener("click", () => {
+      pendente = null;
+      document.getElementById("modal-login").classList.remove("aberto");
+    });
+    document.getElementById("form-login").addEventListener("submit", async (ev) => {
+      ev.preventDefault();
+      const erro = document.getElementById("login-erro");
+      const btn = document.getElementById("login-entrar");
+      erro.textContent = "";
+      btn.disabled = true;
+      const { error } = await sbAuth.auth.signInWithPassword({
+        email: document.getElementById("login-email").value.trim(),
+        password: document.getElementById("login-senha").value,
+      });
+      btn.disabled = false;
+      if (error) { erro.textContent = "E-mail ou senha inválidos."; return; }
+      document.getElementById("modal-login").classList.remove("aberto");
+      if (pendente) { const p = pendente; pendente = null; await silenciar(p.id, p.horas); }
+    });
+
+    // ---------- Abas ----------
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+        btn.classList.add("active");
+        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
+      });
+    });
+
+    // ---------- Notificações push (mesma lógica de antes) ----------
 
     // Este app foi instalado com escopo "/", entao capturava o site inteiro,
     // inclusive /funil. Remove o registro antigo de escopo raiz uma unica vez.
@@ -236,231 +578,93 @@
       return Uint8Array.from([...rawData].map((c) => c.charCodeAt(0)));
     }
 
-    const NIVEL_LABEL = { ok: "OK", atencao: "Atencao", critico: "Critico" };
-
-    async function loadContas() {
-      const { data, error } = await sb
-        .from("conta_saude")
-        .select("slug, status_texto, nivel, checked_at, clientes_meta_contas(nome)")
-        .order("nivel", { ascending: true });
-
-      const list = document.getElementById("contas-list");
-      const updated = document.getElementById("updated-at");
-
-      if (error || !data) {
-        list.innerHTML = '<div class="status-msg">Nao foi possivel carregar o status das contas.</div>';
-        return;
-      }
-
-      const ordem = { critico: 0, atencao: 1, ok: 2 };
-      data.sort((a, b) => (ordem[a.nivel] ?? 3) - (ordem[b.nivel] ?? 3));
-
-      if (data.length === 0) {
-        list.innerHTML = '<div class="status-msg">Nenhuma checagem rodou ainda.</div>';
-        return;
-      }
-
-      list.innerHTML = data
-        .map((row) => {
-          const nome = row.clientes_meta_contas?.nome || row.slug;
-          return `
-            <div class="conta-row">
-              <div>
-                <div class="conta-nome">${nome}</div>
-                <div class="conta-motivo">${row.status_texto || ""}</div>
-              </div>
-              <span class="badge ${row.nivel}">${NIVEL_LABEL[row.nivel] || row.nivel}</span>
-            </div>
-          `;
-        })
-        .join("");
-
-      const ultima = data.reduce((max, r) => (r.checked_at > max ? r.checked_at : max), data[0].checked_at);
-      updated.textContent = "ultima checagem: " + new Date(ultima).toLocaleString("pt-BR");
+    async function salvarInscricao(sub) {
+      const raw = sub.toJSON();
+      // Escrita via funcao: o anon nao tem UPDATE/DELETE na tabela, senao
+      // qualquer visitante poderia apagar as inscricoes dos aparelhos.
+      const { error } = await sb.rpc("salvar_push_subscription", {
+        p_endpoint: raw.endpoint,
+        p_p256dh: raw.keys.p256dh,
+        p_auth: raw.keys.auth,
+        p_user_agent: navigator.userAgent,
+        p_endpoint_anterior: localStorage.getItem(CHAVE_ENDPOINT_LOCAL),
+      });
+      if (!error) localStorage.setItem(CHAVE_ENDPOINT_LOCAL, raw.endpoint);
+      return error;
     }
 
     async function subscribeToPush() {
       const statusEl = document.getElementById("subscribe-status");
       const btn = document.getElementById("btn-subscribe");
       btn.disabled = true;
-
       try {
         if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
-          statusEl.textContent = "Esse navegador nao suporta notificacoes push.";
+          statusEl.textContent = "Esse navegador não suporta notificações.";
           btn.disabled = false;
           return;
         }
-
         const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/alertas" });
         await navigator.serviceWorker.ready;
-
         const permission = await Notification.requestPermission();
         if (permission !== "granted") {
-          statusEl.textContent = "Permissao negada. Ative nas configuracoes do navegador pra receber alertas.";
+          statusEl.textContent = "Permissão negada. Ative nas configurações do navegador.";
           btn.disabled = false;
           return;
         }
-
         let sub = await reg.pushManager.getSubscription();
         if (!sub) {
-          sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-          });
+          sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
         }
-
-        const raw = sub.toJSON();
-        // Escrita via funcao: o anon nao tem UPDATE/DELETE na tabela, senao
-        // qualquer visitante poderia apagar as inscricoes dos aparelhos.
-        const { error } = await sb.rpc("salvar_push_subscription", {
-          p_endpoint: raw.endpoint,
-          p_p256dh: raw.keys.p256dh,
-          p_auth: raw.keys.auth,
-          p_user_agent: navigator.userAgent,
-          p_endpoint_anterior: localStorage.getItem(CHAVE_ENDPOINT_LOCAL),
-        });
-
+        const error = await salvarInscricao(sub);
         if (error) {
-          statusEl.textContent = "Erro ao salvar inscricao: " + error.message;
+          statusEl.textContent = "Erro ao salvar inscrição: " + error.message;
           btn.disabled = false;
           return;
         }
-
-        localStorage.setItem(CHAVE_ENDPOINT_LOCAL, raw.endpoint);
-        btn.textContent = "Notificacoes ativas";
-        statusEl.textContent = "Voce vai receber um alerta aqui assim que algo mudar.";
+        marcarPushAtivo();
+        statusEl.textContent = "";
       } catch (err) {
         statusEl.textContent = "Erro: " + err.message;
         btn.disabled = false;
       }
     }
-
     document.getElementById("btn-subscribe").addEventListener("click", subscribeToPush);
 
-    const NIVEL_LABEL_TRACKING = { ok: "OK", atencao: "Atencao", critico: "Falha" };
-
-    async function loadTracking() {
-      const list = document.getElementById("tracking-list");
-
-      const { data, error } = await sb
-        .from("tracking_saude")
-        .select("slug, nome, nivel, status_texto, execucoes_problema, execucoes_corrigidas, execucoes_pendentes, checked_at")
-        .order("nivel", { ascending: true });
-
-      if (error) {
-        list.innerHTML = '<div class="status-msg">Nao foi possivel carregar o status dos fluxos.</div>';
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        list.innerHTML = '<div class="status-msg">Nenhuma checagem de tracking rodou ainda.</div>';
-        return;
-      }
-
-      const ordem = { critico: 0, atencao: 1, ok: 2 };
-      data.sort((a, b) => (ordem[a.nivel] ?? 3) - (ordem[b.nivel] ?? 3));
-
-      list.innerHTML = data
-        .map((row) => {
-          const motivo = row.status_texto || (row.nivel === "ok" ? "Enviando eventos normalmente" : "");
-          return `
-            <div class="conta-row">
-              <div>
-                <div class="conta-nome">${row.nome}</div>
-                <div class="conta-motivo">${motivo}</div>
-              </div>
-              <span class="badge ${row.nivel}">${NIVEL_LABEL_TRACKING[row.nivel] || row.nivel}</span>
-            </div>
-          `;
-        })
-        .join("");
+    function marcarPushAtivo() {
+      document.getElementById("push-card").classList.add("hidden");
+      document.getElementById("rodape-push").innerHTML = 'Notificações ativas neste aparelho';
     }
-
-    async function loadLog() {
-      const list = document.getElementById("log-list");
-
-      const { data, error } = await sb
-        .from("alertas_enviados")
-        .select("slug, tipo, mensagem, nivel, enviado_em")
-        .order("enviado_em", { ascending: false })
-        .limit(20);
-
-      if (error) {
-        list.innerHTML = '<div class="status-msg">Nao foi possivel carregar o historico.</div>';
-        return;
-      }
-
-      if (!data || data.length === 0) {
-        list.innerHTML = '<div class="status-msg">Nenhum alerta registrado ainda.</div>';
-        return;
-      }
-
-      list.innerHTML = data
-        .map((row) => {
-          const quando = new Date(row.enviado_em).toLocaleString("pt-BR");
-          return `
-            <div class="log-item">
-              <div class="log-top">
-                <span class="log-cliente">${row.slug} &middot; ${row.tipo}</span>
-                <span class="log-quando">${quando}</span>
-              </div>
-              <div class="log-msg">${row.mensagem}</div>
-            </div>
-          `;
-        })
-        .join("");
-    }
-
-    document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
-      });
-    });
 
     // Reinscreve o aparelho a cada abertura e confirma no banco. Antes o app
     // dizia "ativas" so olhando o navegador, enquanto a tabela estava vazia.
     async function sincronizarPush() {
-      if (!("serviceWorker" in navigator) || Notification.permission !== "granted") return false;
+      if (!("serviceWorker" in navigator) || !("Notification" in window) || Notification.permission !== "granted") return false;
       try {
         const reg = await navigator.serviceWorker.register("/sw.js", { scope: "/alertas" });
         await navigator.serviceWorker.ready;
-
         let sub = await reg.pushManager.getSubscription();
         if (!sub) {
-          sub = await reg.pushManager.subscribe({
-            userVisibleOnly: true,
-            applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
-          });
+          sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) });
         }
-
-        const raw = sub.toJSON();
-        const { error } = await sb.rpc("salvar_push_subscription", {
-          p_endpoint: raw.endpoint,
-          p_p256dh: raw.keys.p256dh,
-          p_auth: raw.keys.auth,
-          p_user_agent: navigator.userAgent,
-          p_endpoint_anterior: localStorage.getItem(CHAVE_ENDPOINT_LOCAL),
-        });
-        if (error) return false;
-
-        localStorage.setItem(CHAVE_ENDPOINT_LOCAL, raw.endpoint);
-        return true;
+        return !(await salvarInscricao(sub));
       } catch (e) {
         return false;
       }
     }
 
+    async function carregarTudo() {
+      await carregarMonitorando();
+      await Promise.all([carregarAgora(), carregarHistorico()]);
+    }
+
     (async () => {
       await limparEscopoAntigo();
-      if (await sincronizarPush()) {
-        document.getElementById("btn-subscribe").textContent = "Notificacoes ativas";
-      }
-      loadContas();
-      loadTracking();
-      loadLog();
+      if (await sincronizarPush()) marcarPushAtivo();
+      else document.getElementById("push-card").classList.remove("hidden");
+      await carregarTudo();
+      // Atualiza sozinho enquanto o app estiver aberto na tela.
+      setInterval(() => { if (document.visibilityState === "visible") carregarTudo(); }, 60000);
+      document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") carregarTudo(); });
     })();
   </script>
 </body>
