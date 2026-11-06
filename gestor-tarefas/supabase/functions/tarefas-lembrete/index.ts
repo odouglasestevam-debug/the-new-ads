@@ -1,13 +1,15 @@
-// Lembrete de prazo do gestor de tarefas, por push no aparelho de cada responsável.
-// Duas entradas:
-//  - pg_cron todo dia às 8h (header x-cron-secret igual ao segredo tarefas_cron do Vault): manda o resumo do dia
+// Notificações do gestor de tarefas, por push no aparelho de cada responsável.
+// Entradas:
+//  - pg_cron com header x-cron-secret igual ao segredo tarefas_cron do Vault. O corpo escolhe o que enviar:
+//      {} resumo das 8h · {"tarefa":"urgentes"} de hora em hora · {"tarefa":"atribuicoes"} quando há fila
 //  - usuário logado com {"acao":"teste"}: manda uma notificação de teste só para os aparelhos dele
 import { createClient } from "npm:@supabase/supabase-js@2";
 import webpush from "npm:web-push@3.6.7";
 import { endpointPermitido } from "./push-seguro.ts";
+import { mensagemAtribuicao, mensagemUrgente, type Carga } from "./mensagens.ts";
 
 const ORIGENS = ["https://tarefas.thenewads.com.br", "http://localhost:8790"];
-const APP = "https://tarefas.thenewads.com.br/";
+const APP = "https://tarefas.thenewads.com.br/#/central";
 
 function cors(req: Request) {
   const origem = req.headers.get("Origin") || "";
@@ -45,7 +47,7 @@ Deno.serve(async (req) => {
   webpush.setVapidDetails("mailto:odouglasestevam@gmail.com", publica, privada);
 
   // urgency high: com "normal" o Android adia a exibição até o app abrir.
-  async function enviar(inscricoes: Inscricao[], carga: Record<string, string>) {
+  async function enviar(inscricoes: Inscricao[], carga: Carga) {
     let enviados = 0;
     const erros: string[] = [];
     for (const i of inscricoes) {
@@ -66,9 +68,35 @@ Deno.serve(async (req) => {
     return { enviados, erros };
   }
 
+  // Um aviso por pessoa. Só registra o que chegou em algum aparelho: o resto tenta na próxima rodada.
+  // deno-lint-ignore no-explicit-any
+  async function avisar(funcao: string, montar: (itens: any[]) => Carga, registrar: (p: any) => PromiseLike<{ error: { message: string } | null }>) {
+    const { data: pendentes, error } = await admin.rpc(funcao);
+    if (error) return resposta(req, 500, { erro: error.message });
+    const resultado = [];
+    for (const p of pendentes || []) {
+      const envio = await enviar(p.inscricoes || [], montar(p.itens));
+      if (envio.enviados > 0) {
+        const { error: erroRegistro } = await registrar(p);
+        if (erroRegistro) envio.erros.push(erroRegistro.message);
+      }
+      resultado.push({ user_id: p.user_id, itens: p.itens.length, ...envio });
+    }
+    return resposta(req, 200, { ok: true, usuarios: resultado.length, resultado });
+  }
+
   const cron = req.headers.get("x-cron-secret");
   if (cron) {
     if (cron !== (await segredo("cron"))) return resposta(req, 401, { erro: "Segredo inválido." });
+    const { tarefa } = await req.json().catch(() => ({}));
+    if (tarefa === "urgentes") {
+      return avisar("tarefas_urgentes_pendentes", mensagemUrgente, (p) =>
+        admin.rpc("tarefas_urgentes_registrar", { p_user: p.user_id, p_tarefas: p.itens.map((i: { tarefa_id: string }) => i.tarefa_id) }));
+    }
+    if (tarefa === "atribuicoes") {
+      return avisar("tarefas_atribuicoes_reservar", mensagemAtribuicao, (p) =>
+        admin.rpc("tarefas_atribuicoes_marcar", { p_ids: p.itens.map((i: { fila_id: number }) => i.fila_id) }));
+    }
     const { data: pendentes, error } = await admin.rpc("tarefas_lembretes_pendentes");
     if (error) return resposta(req, 500, { erro: error.message });
 
@@ -101,7 +129,7 @@ Deno.serve(async (req) => {
   if (!inscricoes?.length) return resposta(req, 400, { erro: "Nenhum aparelho com notificação ativada." });
   const envio = await enviar(inscricoes, {
     titulo: "Notificação ativada",
-    corpo: "Todo dia às 8h você recebe aqui o que está atrasado e o que vence.",
+    corpo: "Por aqui chegam o resumo das 8h, as tarefas urgentes e as que atribuírem a você.",
     url: APP,
   });
   return resposta(req, 200, { ok: true, ...envio });
