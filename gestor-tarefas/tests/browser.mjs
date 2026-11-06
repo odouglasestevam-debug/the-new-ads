@@ -507,6 +507,7 @@ try {
     await navigator.serviceWorker.register('/sw.js');
     await convidarAtivarPush();
   });
+  console.log('DEBUG', await page.evaluate(async()=>({toast:document.getElementById('toast').outerHTML.slice(0,200),inst:appInstalado(),pm:'PushManager' in window,perm:Notification.permission,sub:!!(await (await navigator.serviceWorker.ready).pushManager.getSubscription())})));
   await page.locator('#toast').getByRole('button',{name:'Ativar'}).click();
   await page.getByRole('heading',{name:'Notificações'}).waitFor();
   assert.equal(await page.getByRole('button',{name:'Ativar neste aparelho'}).isVisible(),true,'botão de ativar aparece na aba');
