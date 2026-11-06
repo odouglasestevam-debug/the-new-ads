@@ -350,6 +350,7 @@ async function entrar(sessao) {
   if (!location.hash || location.hash === "#") history.replaceState(null, "", "#/central");
   rotear();
   registrarServiceWorker();
+  convidarAtivarPush().catch(() => {});
   setInterval(atualizarEmSegundoPlano, 60000);
   document.addEventListener("visibilitychange", () => { if (!document.hidden) atualizarEmSegundoPlano(); });
 }
@@ -1512,7 +1513,7 @@ function abaConta() {
     ${typeof painelInstalar === "function" ? painelInstalar() : ""}
     <div class="painel">
       <h2>Sair</h2>
-      <p class="desc">Encerra a sessão neste aparelho. Os lembretes de prazo continuam chegando se a notificação estiver ativada.</p>
+      <p class="desc">Encerra a sessão neste aparelho. As notificações continuam chegando se estiverem ativadas.</p>
       <button class="btn btn-perigo" data-acao="sair">Sair da conta</button>
     </div>`;
   document.getElementById("form-senha").addEventListener("submit", async (e) => {
@@ -1613,6 +1614,27 @@ function registrarServiceWorker() {
   if ("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(() => {});
 }
 
+// Clique na notificação com o app já aberto. A tarefa pode ter nascido depois do último carregamento.
+navigator.serviceWorker?.addEventListener("message", async (e) => {
+  if (e.data?.tipo !== "abrir") return;
+  const hash = new URL(e.data.url).hash || "#/central";
+  const tarefa = new URLSearchParams(hash.split("?")[1] || "").get("t");
+  if (tarefa && !S.tarefas.some((t) => t.id === tarefa)) await carregar().catch(() => {});
+  irPara(hash);
+});
+
+// A opção fica em Ajustes, longe de quem acabou de instalar, e sem ela nenhum aviso chega.
+async function convidarAtivarPush() {
+  if (!appInstalado() || !("PushManager" in window) || Notification.permission === "denied") return;
+  const reg = await navigator.serviceWorker.ready;
+  if (await reg.pushManager.getSubscription()) return;
+  toast("Ative as notificações neste aparelho.", false, { rotulo: "Ativar", fn: () => {
+    S.abaAjustes = "notificacoes";
+    if (rotaAtual().tipo === "ajustes") renderAjustes();
+    else irPara("#/ajustes");
+  } });
+}
+
 function base64ParaBytes(b64) {
   const pad = "=".repeat((4 - (b64.length % 4)) % 4);
   const bruto = atob((b64 + pad).replace(/-/g, "+").replace(/_/g, "/"));
@@ -1641,8 +1663,13 @@ async function abaNotificacoes() {
   }
   alvo.innerHTML = `
     <div class="painel">
-      <h2>Lembrete de prazo</h2>
-      <p class="desc">Todo dia às 8h, cada pessoa recebe no aparelho quantas tarefas dela estão atrasadas, vencem hoje e vencem amanhã. Só chega se tiver alguma. Ative em cada aparelho que você usa (computador e celular).</p>
+      <h2>Notificações</h2>
+      <p class="desc">Ative em cada aparelho que você usa (computador e celular). Sem isso nada chega.</p>
+      <ul class="passos-instalar">
+        <li><b>Resumo das 8h:</b> quantas tarefas suas estão atrasadas, vencem hoje e vencem amanhã.</li>
+        <li><b>Urgente:</b> 1 aviso por dia até concluir, 2 no primeiro dia. Tarefa recorrente começa a avisar na data de entrega.</li>
+        <li><b>Atribuída a você:</b> aviso na hora, com quem criou e quem atribuiu.</li>
+      </ul>
       <p style="font-size:14px;margin-bottom:14px"><b>${esc(estado)}</b></p>
       <div class="chips">
         ${suporta && Notification.permission !== "denied" ? `<button class="btn" onclick="ativarPush()">${inscrito ? "Reativar neste aparelho" : "Ativar neste aparelho"}</button>` : ""}

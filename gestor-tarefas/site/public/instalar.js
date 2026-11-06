@@ -56,7 +56,7 @@ function painelInstalar() {
       <ol class="passos-instalar"><li>Abra tarefas.thenewads.com.br no <b>Safari</b></li>
       <li>Toque no botão <b>Compartilhar</b> (quadrado com seta para cima)</li>
       <li>Escolha <b>Adicionar à Tela de Início</b> e confirme</li></ol>
-      <p class="desc">No iPhone, a notificação de prazo só funciona com o app instalado.</p>`;
+      <p class="desc">No iPhone, as notificações só funcionam com o app instalado.</p>`;
   } else {
     corpo = `<p class="desc">No Android e no computador, abra o menu do navegador (⋮) e toque em <b>Instalar app</b> ou <b>Adicionar à tela inicial</b>. Se a opção não aparecer, recarregue a página uma vez.</p>`;
   }
