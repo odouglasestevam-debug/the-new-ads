@@ -2,6 +2,7 @@ import { PGlite } from '@electric-sql/pglite';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import vm from 'node:vm';
 import { mensagemAtribuicao, mensagemUrgente } from '../supabase/functions/tarefas-lembrete/mensagens.ts';
 const ler = file => readFile(new URL('../supabase/migrations/' + file, import.meta.url), 'utf8');
 
@@ -245,6 +246,44 @@ test('urgente 2x no primeiro dia e 1x depois, atribuição avisa quem criou e qu
     await db.exec('reset role');
     console.log('Notificações: início do aviso, 2x no primeiro dia, 1x depois, fila de atribuição, recorrência, acesso e permissões OK.');
   } finally { await db.close(); }
+});
+
+test('service worker mostra cada aviso separado e o clique abre a tarefa do aviso', async () => {
+  const codigo = await readFile(new URL('../site/public/sw.js', import.meta.url), 'utf8');
+  const h = {};
+  const mostradas = [];
+  const abertas = [];
+  const mensagens = [];
+  let janelas = [];
+  const self = {
+    addEventListener: (nome, fn) => { h[nome] = fn; },
+    location: { origin: 'https://tarefas.thenewads.com.br' },
+    skipWaiting() {},
+    clients: { claim() {}, matchAll: async () => janelas, openWindow: async (u) => abertas.push(u) },
+    registration: { showNotification: async (titulo, opcoes) => mostradas.push({ titulo, opcoes }) },
+  };
+  vm.runInNewContext(codigo, { self, URL, fetch, Response, caches: {} });
+  let espera;
+  const evento = (extra) => ({ ...extra, waitUntil: (p) => { espera = p; } });
+
+  h.push(evento({ data: { json: () => ({ titulo: 'Tarefa urgente', corpo: 'Nota', url: '/#/lista/l1?t=t1' }) } }));
+  await espera;
+  assert.equal(mostradas[0].titulo, 'Tarefa urgente');
+  assert.equal(mostradas[0].opcoes.tag, undefined, 'sem tag um aviso não apaga o outro');
+  assert.equal(mostradas[0].opcoes.data.url, '/#/lista/l1?t=t1');
+
+  const clique = () => evento({ notification: { close() {}, data: { url: '/#/lista/l1?t=t1' } } });
+  h.notificationclick(clique());
+  await espera;
+  assert.deepEqual(abertas, ['https://tarefas.thenewads.com.br/#/lista/l1?t=t1'], 'app fechado abre na tarefa');
+
+  let focou = false;
+  janelas = [{ focus: () => { focou = true; }, postMessage: (m) => mensagens.push(m) }];
+  h.notificationclick(clique());
+  await espera;
+  assert.equal(focou, true);
+  assert.equal(JSON.stringify(mensagens), JSON.stringify([{ tipo: 'abrir', url: 'https://tarefas.thenewads.com.br/#/lista/l1?t=t1' }]), 'app aberto recebe a rota');
+  assert.equal(abertas.length, 1, 'não abre uma segunda janela');
 });
 
 test('texto das notificações diz quem criou e quem atribuiu', () => {

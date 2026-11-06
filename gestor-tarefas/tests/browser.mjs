@@ -493,6 +493,28 @@ try {
     assert.deepEqual(await page.evaluate(t=>fixture.writes.filter(x=>x.table===t&&x.action==='update').at(-1).payload,tabela),{projeto_id:'p2',[campoPai]:null},tipo+' vai para a raiz do espaço');
   }
   await page.evaluate(()=>{document.getElementById('toast').className='toast';});
+  // Clique na notificação com o app aberto: o service worker manda a rota e a tarefa abre.
+  const alvoPush=await page.evaluate(()=>{const t=S.tarefas.find(x=>x.situacao!=='concluida');return {id:t.id,lista:t.lista_id};});
+  await page.evaluate(({id,lista})=>navigator.serviceWorker.dispatchEvent(new MessageEvent('message',{data:{tipo:'abrir',url:`${location.origin}/#/lista/${lista}?t=${id}`}})),alvoPush);
+  await page.waitForFunction(id=>rotaAtual().tarefa===id&&document.getElementById('app').classList.contains('gaveta-aberta'),alvoPush.id);
+  await page.evaluate(()=>{fecharTarefa();location.hash='#/central';});
+  await page.waitForFunction(()=>rotaAtual().tipo==='central');
+  // App instalado sem notificação ativa: o convite leva direto à aba certa.
+  await redimensionar(390,844);
+  await page.evaluate(async()=>{
+    window.appInstalado=()=>true;
+    Object.defineProperty(Notification,'permission',{configurable:true,get:()=>'default'});
+    await navigator.serviceWorker.register('/sw.js');
+    await convidarAtivarPush();
+  });
+  await page.locator('#toast').getByRole('button',{name:'Ativar'}).click();
+  await page.getByRole('heading',{name:'Notificações'}).waitFor();
+  assert.equal(await page.getByRole('button',{name:'Ativar neste aparelho'}).isVisible(),true,'botão de ativar aparece na aba');
+  assert.equal(await page.locator('#conteudo').evaluate(e=>e.scrollWidth<=e.clientWidth),true,'aba de notificações cabe na tela do iPhone');
+  await page.screenshot({path:'tests/artifacts/notificacoes-iphone.png'});
+  await redimensionar(1440,1000);
+  await page.evaluate(()=>{delete Notification.permission;location.hash='#/central';});
+  await page.waitForFunction(()=>rotaAtual().tipo==='central');
   await page.evaluate(()=>authEvent('SIGNED_OUT'));
   assert.equal(await page.locator('#conteudo').innerText(),'');
   assert.equal(await page.locator('#form-login').isVisible(),true);
