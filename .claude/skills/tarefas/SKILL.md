@@ -75,9 +75,13 @@ Status atuais (conferir com a consulta acima): 1º aberto = "Não Feito", depois
    ```
    - Título em sentence case: só a primeira letra maiúscula, nomes próprios mantêm.
    - Prioridade: `urgente`, `alta`, `normal` (é a "média") ou `baixa`. Só mudar de `normal`
-     se ele sinalizar urgência.
+     se ele sinalizar urgência. `urgente` gera push todo dia até concluir (2 no primeiro dia),
+     a partir de `data_inicio`; em recorrente sem início, a partir da entrega.
    - Responsável é obrigatório: padrão Douglas; outra pessoa só quando ele disser pra quem é.
      Se a pessoa não estiver em `tarefas.usuarios`, avisar em vez de criar sem responsável.
+     Atribuir a outra pessoa manda push pra ela em até 1 minuto, com `criado_por` como autor.
+   - Recorrente que cai em fim de semana: empurrar só a `data_entrega`, deixar `data_inicio`
+     nula e gravar `recorrencia_base` no dia da regra, senão a série desloca.
    - `data_inicio` e `data_entrega` obrigatórias: sem data dita, início = hoje e entrega =
      amanhã.
    - **Nunca agendar pra sábado ou domingo**: se cair em fim de semana, empurrar pra

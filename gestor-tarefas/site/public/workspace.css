@@ -381,7 +381,7 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 
 /* Botão dentro do aviso (ex.: Abrir lista depois de duplicar). */
 .toast-acao {background:transparent;border:1px solid currentColor;border-radius:7px;color:inherit;
-  font:inherit;font-weight:600;padding:2px 9px;margin-left:6px;cursor:pointer}
+  font:inherit;font-weight:600;padding:2px 9px;margin-left:6px;cursor:pointer;pointer-events:auto}
 .toast-acao:hover {background:rgba(255,255,255,.12)}
 
 /* Linha-guia da árvore: mostra de qual pasta cada item desce. */
