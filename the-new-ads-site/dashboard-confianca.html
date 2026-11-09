@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Grupo Confiança — Dashboard de Tráfego</title>
+<title>Grupo Confiança | Dashboard de Tráfego</title>
 <link rel="icon" href="https://thenewads.com.br/marca/logo-PNG/tna-favicon.png" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@600,700&display=swap" />
 <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=switzer@400,500,600,700&display=swap" />
@@ -268,7 +268,7 @@
         <rect x="9" y="20.6" width="12" height="3.4" rx="1.2" fill="var(--amber)"/>
       </svg>
       <div>
-        <h1>Grupo Confiança — Proteção Veicular</h1>
+        <h1>Grupo Confiança, Proteção Veicular</h1>
         <div class="sub">Performance de tráfego pago · Meta Ads</div>
       </div>
     </div>
@@ -285,7 +285,8 @@
       <button class="date-picker-option" data-preset="7">Últimos 7 dias</button>
       <button class="date-picker-option active" data-preset="30">Últimos 30 dias</button>
       <button class="date-picker-option" data-preset="90">Últimos 90 dias</button>
-      <button class="date-picker-option" data-preset="tudo">Tudo</button>
+      <button class="date-picker-option" data-preset="vendas">Desde 11/07 (lista de vendas)</button>
+      <button class="date-picker-option" data-preset="tudo">Tudo (desde 07/05/26)</button>
       <div class="date-picker-custom">
         <div class="date-picker-custom-label">Personalizado</div>
         <div class="date-picker-custom-row">
@@ -304,14 +305,14 @@
       <div class="kpis kpis-primary" id="kpis">
         <div class="kpi"><div class="label">Investimento</div><div class="value" id="kpi-investimento"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Impressões</div><div class="value" id="kpi-impressoes"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">CTR médio</div><div class="value amber" id="kpi-ctr"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CTR (link)</div><div class="value amber" id="kpi-ctr"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Leads</div><div class="value" id="kpi-leads"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">CPL</div><div class="value" id="kpi-cpl"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPL WhatsApp</div><div class="value" id="kpi-cpl"><div class="skel"></div></div></div>
       </div>
       <div class="kpis kpis-secondary">
         <div class="kpi"><div class="label">Alcance</div><div class="value" id="kpi-alcance"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">CPC médio</div><div class="value" id="kpi-cpc"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">CPM médio</div><div class="value" id="kpi-cpm"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPC (link)</div><div class="value" id="kpi-cpc"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPM</div><div class="value" id="kpi-cpm"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Frequência média</div><div class="value" id="kpi-freq"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Taxa de gancho</div><div class="value" id="kpi-gancho"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Resultados (Meta Ads)</div><div class="value amber" id="kpi-resultados-meta"><div class="skel"></div></div></div>
@@ -333,7 +334,7 @@
       <div class="card">
         <div class="funnel" id="funnel"><div class="loading">Carregando…</div></div>
       </div>
-      <div class="note">"Lead Ganho" usa as vendas reais da seção Comercial abaixo (não o campo do CRM, que subconta vendas fechadas fora do fluxo do bot).</div>
+      <div class="note">"Lead Ganho" usa as vendas reais da seção Comercial abaixo (não o campo do CRM, que subconta vendas fechadas fora do fluxo do bot). Desde 17/08/2026 parte dos qualificados não fica marcada no lead original, porque o WhatsApp passou a entregar alguns contatos sem o telefone. O número de qualificados é um piso e as taxas calculadas sobre ele ficam acima do real.</div>
     </section>
   </div>
 
@@ -355,6 +356,7 @@
         <div class="kpi"><div class="label">ROAS sobre LTV</div><div class="value amber" id="kpi-roas-ltv"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Receita futura esperada</div><div class="value amber" id="kpi-receita-futura"><div class="skel"></div></div></div>
       </div>
+      <div class="note">CAC, LTV : CAC e ROAS usam só a verba das campanhas de vendas (sem as de vaga), a partir de 11/07/2026, início da lista de vendas. As 11 vendas de 11/07 a 12/08 foram informadas em lote e estão na data 12/08: mês isolado ou período que pega só parte desse intervalo distorce o CAC. Para ler o acumulado, use "Desde 11/07".</div>
     </section>
   </div>
 
@@ -382,7 +384,7 @@
         <div class="kpi"><div class="label">Leads reais</div><div class="value" id="kpi-gap-leads"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Gap</div><div class="value amber" id="kpi-gap-pct"><div class="skel"></div></div></div>
       </div>
-      <div class="note">Leads reais = métrica "Leads" do próprio Meta Ads, somada só nas campanhas de mensagem (WhatsApp) — não inclui campanhas de formulário. Gap = mensagens iniciadas que não geraram lead reconhecido pelo Meta (número errado, sem resposta, fora do público certo etc).</div>
+      <div class="note">Leads reais = métrica "Leads" do próprio Meta Ads, somada só nas campanhas de mensagem (WhatsApp), sem incluir campanhas de formulário. Gap = mensagens iniciadas que não geraram lead reconhecido pelo Meta (número errado, sem resposta, fora do público certo etc).</div>
     </section>
 
     <section>
@@ -490,6 +492,23 @@ const fmtDate = (iso) => iso ? iso.slice(0, 10).split('-').reverse().join('/') :
 function toISODate(d) { return d.toISOString().slice(0, 10); }
 function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); }
 
+const INICIO_RASTREIO = '2026-05-07'; // primeiro lead em confianca_tracking
+const INICIO_VENDAS = '2026-07-11'; // primeiro dia coberto pela lista de vendas do cliente
+const ehVaga = (campanha) => /VAGA/i.test(campanha || ''); // campanhas de recrutamento nao entram em CAC/CPL
+const ehWhats = (campanha) => /^WHATS/i.test(campanha || '');
+
+// O Supabase devolve no maximo 1000 linhas por chamada: pagina ate trazer tudo.
+// montarQuery precisa ter ordenacao estavel, senao as paginas se sobrepoem.
+async function fetchAll(montarQuery) {
+  const linhas = [];
+  for (let de = 0; ; de += 1000) {
+    const { data, error } = await montarQuery().range(de, de + 999);
+    if (error) return { data: null, error };
+    linhas.push(...data);
+    if (data.length < 1000) return { data: linhas, error: null };
+  }
+}
+
 // --- modal de criativo ---
 const modalOverlay = document.getElementById('modal-overlay');
 const modalBody = document.getElementById('modal-body');
@@ -511,7 +530,8 @@ modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) c
 document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeCreativeModal(); });
 
 let currentRange = { since: daysAgo(30), until: toISODate(new Date()) };
-let lastInvestimento = 0;
+let lastInvestimentoWhats = 0;
+let lastLeadsWhats = 0;
 let lastLeadsTotal = 0;
 let lastLeadsQualificados = 0;
 
@@ -542,7 +562,7 @@ const datePickerTrigger = document.getElementById('date-picker-trigger');
 const datePickerPanel = document.getElementById('date-picker-panel');
 const datePickerLabel = document.getElementById('date-picker-label');
 
-const PRESET_LABELS = { hoje: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias', 90: 'Últimos 90 dias', tudo: 'Tudo' };
+const PRESET_LABELS = { hoje: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias', 90: 'Últimos 90 dias', vendas: 'Desde 11/07 (lista de vendas)', tudo: 'Tudo (desde 07/05/26)' };
 
 function openDatePicker() {
   datePickerPanel.hidden = false;
@@ -573,7 +593,8 @@ function applyPreset(preset) {
 
   const today = toISODate(new Date());
   currentRange = preset === 'hoje' ? { since: today, until: today }
-    : preset === 'tudo' ? { since: '2020-01-01', until: today }
+    : preset === 'tudo' ? { since: INICIO_RASTREIO, until: today }
+    : preset === 'vendas' ? { since: INICIO_VENDAS, until: today }
     : { since: daysAgo(Number(preset)), until: today };
 
   document.getElementById('date-from').value = currentRange.since;
@@ -600,11 +621,12 @@ document.getElementById('btn-custom').addEventListener('click', () => {
 let metaRowsCache = [];
 
 async function loadKpisAndAds() {
-  const { data, error } = await sb
+  const { data, error } = await fetchAll(() => sb
     .from('confianca_meta')
     .select('campanha,conjunto_anuncio,anuncio,investimento,impressoes,alcance,cliques_no_link,lead,resultados,ctr,cpc,cpm,frequencia,video_view,mensagens_iniciadas,post_engajament,reacoes,comentarios,compartilhamentos,salvamentos,data')
     .gte('data', currentRange.since)
-    .lte('data', currentRange.until);
+    .lte('data', currentRange.until)
+    .order('id_data'));
 
   if (error || !data) {
     document.getElementById('kpis').innerHTML = '<div class="kpi">Erro ao carregar dados.</div>';
@@ -613,13 +635,15 @@ async function loadKpisAndAds() {
 
   metaRowsCache = data;
 
-  let investimento = 0, impressoes = 0, alcance = 0, leads = 0, resultados = 0, videoView = 0;
+  let investimento = 0, investimentoWhats = 0, impressoes = 0, cliques = 0, alcance = 0, leads = 0, resultados = 0, videoView = 0;
   let engajamento = 0, reacoes = 0, comentarios = 0, compartilhamentos = 0, salvamentos = 0;
-  let ctrSum = 0, ctrN = 0, cpcSum = 0, cpcN = 0, cpmSum = 0, cpmN = 0, freqSum = 0, freqN = 0;
+  let freqSum = 0, freqN = 0;
 
   for (const row of data) {
     investimento += Number(row.investimento || 0);
+    if (ehWhats(row.campanha)) investimentoWhats += Number(row.investimento || 0);
     impressoes += Number(row.impressoes || 0);
+    cliques += Number(row.cliques_no_link || 0);
     alcance += Number(row.alcance || 0);
     leads += Number(row.lead || 0);
     resultados += Number(row.resultados || 0);
@@ -629,24 +653,21 @@ async function loadKpisAndAds() {
     comentarios += Number(row.comentarios || 0);
     compartilhamentos += Number(row.compartilhamentos || 0);
     salvamentos += Number(row.salvamentos || 0);
-    if (row.ctr != null) { ctrSum += Number(row.ctr); ctrN++; }
-    if (row.cpc != null) { cpcSum += Number(row.cpc); cpcN++; }
-    if (row.cpm != null) { cpmSum += Number(row.cpm); cpmN++; }
     if (row.frequencia != null) { freqSum += Number(row.frequencia); freqN++; }
   }
 
   document.getElementById('kpi-investimento').textContent = fmtMoney(investimento);
   document.getElementById('kpi-impressoes').textContent = fmtInt(impressoes);
   document.getElementById('kpi-alcance').textContent = fmtInt(alcance);
-  document.getElementById('kpi-ctr').textContent = ctrN ? fmtPct(ctrSum / ctrN) : '—';
-  document.getElementById('kpi-cpc').textContent = cpcN ? fmtMoney(cpcSum / cpcN) : '—';
-  document.getElementById('kpi-cpm').textContent = cpmN ? fmtMoney(cpmSum / cpmN) : '—';
+  document.getElementById('kpi-ctr').textContent = impressoes ? fmtPct((cliques / impressoes) * 100) : '—';
+  document.getElementById('kpi-cpc').textContent = cliques ? fmtMoney(investimento / cliques) : '—';
+  document.getElementById('kpi-cpm').textContent = impressoes ? fmtMoney((investimento / impressoes) * 1000) : '—';
   document.getElementById('kpi-freq').textContent = freqN ? (freqSum / freqN).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—';
   document.getElementById('kpi-gancho').textContent = impressoes ? fmtPct((videoView / impressoes) * 100) : '—';
   document.getElementById('kpi-resultados-meta').textContent = fmtInt(resultados);
   document.getElementById('kpi-leads-meta').textContent = fmtInt(leads);
   document.getElementById('kpi-cpl-meta').textContent = leads ? fmtMoney(investimento / leads) : '—';
-  lastInvestimento = investimento;
+  lastInvestimentoWhats = investimentoWhats;
 
   document.getElementById('kpi-engajamento-total').textContent = fmtInt(engajamento);
   document.getElementById('kpi-engajamento-taxa').textContent = impressoes ? fmtPct((engajamento / impressoes) * 100) : '—';
@@ -661,31 +682,47 @@ async function loadKpisAndAds() {
 let trackingRowsCache = [];
 
 async function loadLeads() {
-  const { data, error } = await sb
+  const { data: bruto, error } = await fetchAll(() => sb
     .from('confianca_tracking')
     .select('nome,email,origem,etapa,qualificacao,data,url_criativo,campaing_name,adset_name,ad_name,posicionamento')
     .eq('cliente', 'grupo-confianca')
     .gte('data', currentRange.since)
     .lte('data', currentRange.until)
-    .order('data', { ascending: false });
+    .order('data', { ascending: false })
+    .order('id'));
 
   const funnelEl = document.getElementById('funnel');
   const pieEl = document.getElementById('pie-origem');
 
-  if (error || !data) {
+  if (error || !bruto) {
     funnelEl.innerHTML = pieEl.innerHTML = '<div class="loading">Erro ao carregar.</div>';
     return;
   }
 
+  // TESTE TNA e o teste semanal do formulario do site, nao e lead
+  const data = bruto.filter((l) => !/^teste tna/i.test(l.nome || ''));
   trackingRowsCache = data;
+
+  // Qualificacao de contato sem telefone cria linha sem data e sem lead correspondente.
+  // Entra so na contagem de qualificados, pela data de criacao, sem somar em leads.
+  const { data: qualifSemData } = await fetchAll(() => sb
+    .from('confianca_tracking')
+    .select('id')
+    .eq('cliente', 'grupo-confianca')
+    .is('data', null)
+    .eq('qualificacao', 'Qualificado')
+    .gte('criado_em', currentRange.since + 'T00:00:00-03:00')
+    .lte('criado_em', currentRange.until + 'T23:59:59-03:00')
+    .order('id'));
 
   // --- funil ---
   // "Lead Ganho" não usa o campo etapa do tracking (subconta vendas reais — mesmo gap já visto em outros clientes).
   // O valor real vem de confianca_vendas (renderFunil, chamado depois de loadVendas carregar).
   const total = data.length;
-  const qualificados = data.filter((l) => l.qualificacao === 'Qualificado').length;
+  const qualificados = data.filter((l) => l.qualificacao === 'Qualificado').length + (qualifSemData ? qualifSemData.length : 0);
   document.getElementById('kpi-leads').textContent = fmtInt(total);
   lastLeadsTotal = total;
+  lastLeadsWhats = data.filter((l) => l.origem === 'mensagem_direto').length;
   lastLeadsQualificados = qualificados;
 
   document.getElementById('kpi-taxa-qualificacao').textContent = total ? fmtPct((qualificados / total) * 100) : '—';
@@ -841,10 +878,12 @@ function renderBars(container, rows, labelFn) {
 }
 
 async function loadBreakdowns() {
-  const { data, error } = await sb
+  const { data, error } = await fetchAll(() => sb
     .from('meta_breakdowns')
     .select('idade,genero,plataforma,posicionamento,impressoes')
-    .eq('cliente', 'grupo-confianca');
+    .eq('cliente', 'grupo-confianca')
+    .order('data')
+    .order('id'));
 
   const demoEl = document.getElementById('bars-demo');
   const placeEl = document.getElementById('bars-placement');
@@ -894,16 +933,13 @@ function buildMetricasPorChave(chave) {
     if (!nome) continue;
     const acc = agg.get(nome) || {
       nome, investimento: 0, impressoes: 0, cliques: 0, resultados: 0, msgs: 0,
-      ctrSum: 0, ctrN: 0, cpcSum: 0, cpcN: 0, cpmSum: 0, cpmN: 0, freqSum: 0, freqN: 0, leads: 0,
+      freqSum: 0, freqN: 0, leads: 0,
     };
     acc.investimento += Number(row.investimento || 0);
     acc.impressoes += Number(row.impressoes || 0);
     acc.cliques += Number(row.cliques_no_link || 0);
     acc.resultados += Number(row.resultados || 0);
     acc.msgs += Number(row.mensagens_iniciadas || 0);
-    if (row.ctr != null) { acc.ctrSum += Number(row.ctr); acc.ctrN++; }
-    if (row.cpc != null) { acc.cpcSum += Number(row.cpc); acc.cpcN++; }
-    if (row.cpm != null) { acc.cpmSum += Number(row.cpm); acc.cpmN++; }
     if (row.frequencia != null) { acc.freqSum += Number(row.frequencia); acc.freqN++; }
     agg.set(nome, acc);
   }
@@ -926,9 +962,9 @@ function buildMetricasPorChave(chave) {
         investimento: r.investimento,
         impressoes: r.impressoes,
         cliques: r.cliques,
-        ctr: r.ctrN ? r.ctrSum / r.ctrN : null,
-        cpc: r.cpcN ? r.cpcSum / r.cpcN : null,
-        cpm: r.cpmN ? r.cpmSum / r.cpmN : null,
+        ctr: r.impressoes ? (r.cliques / r.impressoes) * 100 : null,
+        cpc: r.cliques ? r.investimento / r.cliques : null,
+        cpm: r.impressoes ? (r.investimento / r.impressoes) * 1000 : null,
         freq: r.freqN ? r.freqSum / r.freqN : null,
         msgs: r.msgs,
         leadsReais,
@@ -1032,13 +1068,18 @@ async function loadVendas() {
     return;
   }
 
+  // Verba comparavel com as vendas: so campanhas de vendas, e so a partir do inicio da lista de vendas
+  const investimentoVendas = metaRowsCache
+    .filter((r) => r.data >= INICIO_VENDAS && !ehVaga(r.campanha))
+    .reduce((a, r) => a + Number(r.investimento || 0), 0);
+
   const vendas = data.length;
   const mrr = data.reduce((a, v) => a + Number(v.mensalidade || 0), 0);
   const adesaoTotal = data.reduce((a, v) => a + Number(v.adesao || 0), 0);
   const receitaTotal = mrr + adesaoTotal;
-  const cac = vendas ? lastInvestimento / vendas : null;
+  const cac = vendas ? investimentoVendas / vendas : null;
   const ltvCac = cac ? LTV_MEDIANO / cac : null;
-  const roasLtv = lastInvestimento ? (vendas * LTV_MEDIANO) / lastInvestimento : null;
+  const roasLtv = investimentoVendas ? (vendas * LTV_MEDIANO) / investimentoVendas : null;
   const taxaConversao = lastLeadsQualificados ? (vendas / lastLeadsQualificados) * 100 : null;
   const receitaFutura = vendas * LTV_MEDIANO;
 
@@ -1061,7 +1102,7 @@ async function loadAll() {
   document.getElementById('date-from').value = currentRange.since;
   document.getElementById('date-to').value = currentRange.until;
   await Promise.all([loadKpisAndAds(), loadLeads(), loadFollowers()]);
-  document.getElementById('kpi-cpl').textContent = lastLeadsTotal ? fmtMoney(lastInvestimento / lastLeadsTotal) : '—';
+  document.getElementById('kpi-cpl').textContent = lastLeadsWhats ? fmtMoney(lastInvestimentoWhats / lastLeadsWhats) : '—';
   // depende dos caches (metaRowsCache/trackingRowsCache) preenchidos pelas duas chamadas acima
   loadGapGeral();
   renderTopCriativos();
