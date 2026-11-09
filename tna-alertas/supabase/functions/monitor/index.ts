@@ -1,9 +1,9 @@
 // Monitor do TNA Alertas. Tres rotinas, escolhidas por ?tarefa=:
 //   sites  (pg_cron a cada 10 min): pagina no ar, formulario e GTM presentes,
 //          e decide o alerta do tracking do n8n a partir de tracking_saude.
-//   leads  (pg_cron de hora em hora): gasto sem lead e queda de lead por campanha.
-//          As 8h (ou com ?diario=1) tambem roda a queda do dia anterior e
-//          atualiza a lista de paginas que sao destino de anuncio ativo.
+//   leads  (pg_cron de hora em hora): campanha 2 dias sem lead e campanha que
+//          parou de veicular. As 8h (ou com ?diario=1) tambem atualiza a lista
+//          de paginas que sao destino de anuncio ativo.
 // ?dry=1 calcula tudo sem gravar e sem notificar, pra testar.
 //
 // Regra de notificacao fica no banco (alerta_abrir / alerta_resolver): um
@@ -27,17 +27,17 @@ const OPCOES_ENVIO = { urgency: "high", TTL: 86400 } as const;
 const APP_URL = "https://thenewads.com.br/alertas";
 const UA = "Mozilla/5.0 (compatible; TNA-Monitor/1.0; +https://thenewads.com.br)";
 
-// Gasto sem lead: alerta quando o gasto desde o ultimo lead passa de
-// MULT_CPL vezes o custo por lead medio (com piso), ou seja, pela media ja
-// deveriam ter chegado MULT_CPL leads e nao chegou nenhum.
-const MULT_CPL = 5;
-const PISO_GASTO = 15;
+// Sem lead: 2 dias inteiros gastando e sem nenhum lead, em qualquer campanha.
+// Resultado oscila (fim de semana costuma ser mais caro), entao custo por lead
+// e queda de volume nao alertam. A base minima evita avisar campanha que
+// normalmente ja leva dias pra gerar um lead.
 const DIAS_BASE = 14;
 const MIN_LEADS_BASE = 10;
-// Queda: dia fechado com menos de 40% da media de leads e gasto normal.
-const QUEDA_FATOR = 0.4;
-const QUEDA_GASTO_MIN = 0.6;
-const QUEDA_MEDIA_MIN = 3;
+// Campanha parada: anuncio barrado pela Meta. Pausa feita por nos nao conta.
+const ANUNCIO_BARRADO = ["DISAPPROVED", "WITH_ISSUES", "PENDING_BILLING_INFO"];
+// Alerta de campanha nao toca de madrugada.
+const HORA_INICIO_AVISO = 8;
+const HORA_FIM_AVISO = 22;
 
 const LEAD_RE = /lead|messaging_conversation_started|contact|complete_registration|submit_application|schedule/i;
 const URL_FORA_RE = /wa\.me|whatsapp|facebook\.com|instagram\.com|fb\.me|m\.me|fb\.com/i;
@@ -324,6 +324,26 @@ interface Dia {
   leads: number;
 }
 
+// Caminha de hoje pra tras ate o ultimo dia com lead. Dia sem linha na Meta
+// (sem veiculacao) nao entra na sequencia.
+function sequenciaSemLead(dias: Map<string, Dia>, hoje: string) {
+  const zerados = new Set<string>([hoje]);
+  let gasto = dias.get(hoje)?.gasto ?? 0;
+  let ultimoLead = "há mais de 30 dias";
+  for (let i = 1; i <= 30; i++) {
+    const d = addDias(hoje, -i);
+    const dia = dias.get(d);
+    if (!dia) continue;
+    if (dia.leads > 0) {
+      ultimoLead = ddmm(d);
+      break;
+    }
+    gasto += dia.gasto;
+    zerados.add(d);
+  }
+  return { gasto, zerados, ultimoLead };
+}
+
 async function rodarLeads(ctx: Ctx, diario: boolean) {
   const { data: clientes, error } = await supabase
     .from("clientes_meta_contas")
@@ -333,13 +353,17 @@ async function rodarLeads(ctx: Ctx, diario: boolean) {
 
   const hoje = dataBRT();
   const ontem = addDias(hoje, -1);
+  const anteontem = addDias(hoje, -2);
+  const inicioGastoRecente = addDias(hoje, -8);
+  const hora = horaBRT();
+  const podeAvisar = ctx.dry || (hora >= HORA_INICIO_AVISO && hora < HORA_FIM_AVISO);
   const resumo: unknown[] = [];
   const campanhasAvaliadas = new Set<string>();
 
   for (const cli of clientes ?? []) {
     try {
-      const [campanhas, linhas] = await Promise.all([
-        graphTodas(`${cli.conta_anuncio}/campaigns`, { fields: "id,name,effective_status", limit: "200" }),
+      const [campanhas, linhas, anuncios] = await Promise.all([
+        graphTodas(`${cli.conta_anuncio}/campaigns`, { fields: "id,name,status,effective_status", limit: "200" }),
         graphTodas(`${cli.conta_anuncio}/insights`, {
           level: "campaign",
           time_increment: "1",
@@ -347,8 +371,21 @@ async function rodarLeads(ctx: Ctx, diario: boolean) {
           fields: "campaign_id,campaign_name,spend,results,actions",
           limit: "500",
         }),
+        graphTodas(`${cli.conta_anuncio}/ads`, {
+          effective_status: JSON.stringify(["ACTIVE", ...ANUNCIO_BARRADO]),
+          fields: "campaign_id,effective_status,configured_status",
+          limit: "500",
+        }),
       ]);
-      const status = new Map(campanhas.map((c: any) => [c.id, c.effective_status]));
+      const campanhaPorId = new Map(campanhas.map((c: any) => [c.id, c]));
+      const anunciosPorCampanha = new Map<string, any[]>();
+      for (const a of anuncios) {
+        const lista = anunciosPorCampanha.get(a.campaign_id) ?? [];
+        lista.push(a);
+        anunciosPorCampanha.set(a.campaign_id, lista);
+      }
+      // Saldo ou conta com problema ja tem alerta proprio e explica a campanha parada.
+      const contaComProblema = ctx.abertos.has(`saldo:${cli.slug}`) || ctx.abertos.has(`conta:${cli.slug}`);
 
       const porCampanha = new Map<string, { nome: string; dias: Map<string, Dia>; temLead: boolean; temOutro: boolean }>();
       for (const l of linhas) {
@@ -362,119 +399,89 @@ async function rodarLeads(ctx: Ctx, diario: boolean) {
 
       for (const [id, c] of porCampanha) {
         if (!c.temLead || c.temOutro) continue;
-        const chave = `sem_lead:${id}`;
-        const ativa = status.get(id) === "ACTIVE";
-        const hojeDia = c.dias.get(hoje) ?? { gasto: 0, leads: 0 };
+        const chaveSemLead = `sem_lead:${id}`;
+        const chaveParada = `parada:${id}`;
+        const campanha: any = campanhaPorId.get(id);
 
-        if (!ativa) {
-          await resolver(ctx, chave, false, "");
+        // Pausada por nos: nada a acompanhar.
+        if (campanha?.status !== "ACTIVE") {
+          await resolver(ctx, chaveSemLead, false, "");
+          await resolver(ctx, chaveParada, false, "");
           continue;
         }
-        if (hojeDia.gasto <= 0 && !ctx.abertos.has(chave)) continue;
         campanhasAvaliadas.add(id);
 
-        if (!ctx.dry) {
-          await supabase.from("monitor_leads_snap").insert({
-            slug: cli.slug, campanha_id: id, campanha: c.nome, data: hoje, gasto: hojeDia.gasto, leads: hojeDia.leads,
-          });
-        }
-        const { data: snaps } = await supabase
-          .from("monitor_leads_snap")
-          .select("data, gasto, leads, capturado_em")
-          .eq("campanha_id", id)
-          .gte("data", addDias(hoje, -3))
-          .order("capturado_em");
-        const snapsDe = (d: string) => (snaps ?? []).filter((s) => s.data === d);
-        // gasto acumulado no momento em que o dia chegou ao total de leads final
-        const gastoNoUltimoLead = (d: string, leadsFinal: number) =>
-          snapsDe(d).find((s) => Number(s.leads) >= leadsFinal)?.gasto;
-
-        // gasto desde o ultimo lead
-        let gastoDesde = 0;
-        let ultimoLead = "";
-        const diasSemLead = new Set<string>();
-        if (hojeDia.leads > 0) {
-          const g = gastoNoUltimoLead(hoje, hojeDia.leads);
-          gastoDesde = g == null ? 0 : Math.max(0, hojeDia.gasto - Number(g));
-          ultimoLead = "hoje";
-        } else {
-          gastoDesde = hojeDia.gasto;
-          diasSemLead.add(hoje);
-          for (let i = 1; i <= 30; i++) {
-            const d = addDias(hoje, -i);
-            const dia = c.dias.get(d);
-            if (!dia) continue;
-            if (dia.leads === 0) {
-              gastoDesde += dia.gasto;
-              diasSemLead.add(d);
-              continue;
-            }
-            const g = gastoNoUltimoLead(d, dia.leads);
-            if (g != null) gastoDesde += Math.max(0, dia.gasto - Number(g));
-            ultimoLead = ddmm(d);
-            break;
-          }
-          if (!ultimoLead) ultimoLead = "há mais de 30 dias";
-        }
-
-        // base: ultimos 14 dias com gasto, fora hoje e fora a sequencia sem lead
-        const base = [...c.dias.entries()]
-          .filter(([d, v]) => d < hoje && !diasSemLead.has(d) && v.gasto > 0)
-          .sort((a, b) => (a[0] < b[0] ? 1 : -1))
-          .slice(0, DIAS_BASE);
-        const somaG = base.reduce((s, [, v]) => s + v.gasto, 0);
-        const somaL = base.reduce((s, [, v]) => s + v.leads, 0);
-        const baseOk = somaL >= MIN_LEADS_BASE;
-        const cpl = baseOk ? somaG / somaL : null;
-        const mediaDia = base.length ? somaL / base.length : 0;
-        const limite = cpl ? Math.max(MULT_CPL * cpl, PISO_GASTO) : null;
-
-        const info = {
-          cliente: cli.slug, campanha: c.nome, gasto_hoje: hojeDia.gasto, leads_hoje: hojeDia.leads,
-          gasto_desde_ultimo_lead: Math.round(gastoDesde * 100) / 100, ultimo_lead: ultimoLead,
-          cpl: cpl ? Math.round(cpl * 100) / 100 : null, media_dia: Math.round(mediaDia * 10) / 10, limite,
-        };
-        resumo.push(info);
-
-        const mensagem = `${c.nome}: ${reais(gastoDesde)} gastos sem nenhum lead. Último lead: ${ultimoLead}.` +
-          (cpl ? ` A média é ${mediaDia.toFixed(0)} leads por dia, 1 a cada ${reais(cpl)}.` : "");
-
+        const semDados: Dia = { gasto: 0, leads: 0 };
+        const diaHoje = c.dias.get(hoje) ?? semDados;
+        const diaOntem = c.dias.get(ontem) ?? semDados;
+        const diaAnteontem = c.dias.get(anteontem) ?? semDados;
         const url = linkGerenciador(cli.conta_anuncio);
-        if (limite != null && gastoDesde >= limite) {
-          await abrir(ctx, {
-            chave, slug: cli.slug, tipo: "sem_lead", nivel: "critico",
-            titulo: `${cli.nome}: gastando sem lead`, mensagem, url, lembrete: 24, dados: info,
-          });
-        } else if (limite == null && ctx.abertos.has(chave) && hojeDia.leads === 0) {
-          // base estragada pela propria sequencia sem lead: mantem aberto
-          await abrir(ctx, {
-            chave, slug: cli.slug, tipo: "sem_lead", nivel: "critico",
-            titulo: `${cli.nome}: gastando sem lead`, mensagem, url, lembrete: 24, dados: info,
-          });
-        } else {
-          await resolver(ctx, chave, true, `${c.nome} voltou a gerar lead.`);
+
+        // ---- campanha parada ----
+        const ads = anunciosPorCampanha.get(id) ?? [];
+        const rodando = ads.filter((a) => a.effective_status === "ACTIVE").length;
+        const barrados = ads.filter((a) => ANUNCIO_BARRADO.includes(a.effective_status) && a.configured_status === "ACTIVE").length;
+        const gastouAntes = [...c.dias.entries()].some(([d, v]) => d >= inicioGastoRecente && d < ontem && v.gasto > 0);
+        const gastouRecente = gastouAntes || diaOntem.gasto > 0 || diaHoje.gasto > 0;
+
+        let parada: string | null = null;
+        if (gastouRecente && campanha.effective_status === "WITH_ISSUES") {
+          parada = "a Meta marcou a campanha com problema de veiculação";
+        } else if (gastouRecente && rodando === 0 && barrados > 0) {
+          parada = `nenhum anúncio veiculando, ${barrados} reprovado(s) ou com problema`;
+        } else if (gastouAntes && rodando > 0 && diaOntem.gasto <= 0 && diaHoje.gasto <= 0) {
+          parada = "está ativa, mas não gastou nada ontem nem hoje";
         }
 
-        // queda do dia anterior, uma vez por dia
-        if (diario) {
-          const y = c.dias.get(ontem);
-          const baseQ = [...c.dias.entries()]
-            .filter(([d, v]) => d < ontem && v.gasto > 0)
+        if (!parada) {
+          await resolver(ctx, chaveParada, true, `${c.nome} voltou a veicular.`);
+        } else if (podeAvisar && !contaComProblema) {
+          await abrir(ctx, {
+            chave: chaveParada, slug: cli.slug, tipo: "veiculacao", nivel: "critico",
+            titulo: `${cli.nome}: campanha parada`, mensagem: `${c.nome}: ${parada}.`, url, lembrete: 24,
+            dados: { rodando, barrados, effective_status: campanha.effective_status },
+          });
+        }
+
+        // ---- 2 dias sem lead ----
+        const doisDiasZerados = diaHoje.leads === 0 &&
+          diaOntem.gasto > 0 && diaOntem.leads === 0 &&
+          diaAnteontem.gasto > 0 && diaAnteontem.leads === 0;
+
+        let baseOk = false;
+        let mediaDia = 0;
+        let mensagem = "";
+        if (doisDiasZerados) {
+          const seq = sequenciaSemLead(c.dias, hoje);
+          // base: ultimos 14 dias com gasto, fora hoje e fora a sequencia sem lead
+          const base = [...c.dias.entries()]
+            .filter(([d, v]) => d < hoje && !seq.zerados.has(d) && v.gasto > 0)
             .sort((a, b) => (a[0] < b[0] ? 1 : -1))
             .slice(0, DIAS_BASE);
-          if (y && baseQ.length >= 5) {
-            const mL = baseQ.reduce((s, [, v]) => s + v.leads, 0) / baseQ.length;
-            const mG = baseQ.reduce((s, [, v]) => s + v.gasto, 0) / baseQ.length;
-            if (mL >= QUEDA_MEDIA_MIN && y.gasto >= QUEDA_GASTO_MIN * mG && y.leads > 0 && y.leads < QUEDA_FATOR * mL) {
-              await abrir(ctx, {
-                chave: `queda:${id}:${ontem}`, slug: cli.slug, tipo: "queda_lead", nivel: "atencao",
-                titulo: `${cli.nome}: leads caíram`,
-                mensagem: `${c.nome}: ontem (${ddmm(ontem)}) foram ${y.leads} leads com ${reais(y.gasto)} gastos. A média é ${mL.toFixed(0)} leads por dia.`,
-                url: linkGerenciador(cli.conta_anuncio),
-                dados: { leads_ontem: y.leads, media: mL },
-              });
-            }
+          const somaL = base.reduce((s, [, v]) => s + v.leads, 0);
+          baseOk = somaL >= MIN_LEADS_BASE;
+          mediaDia = base.length ? somaL / base.length : 0;
+          mensagem = `${c.nome}: ${seq.zerados.size - 1} dias gastando sem nenhum lead (${reais(seq.gasto)}). Último lead: ${seq.ultimoLead}.` +
+            (baseOk ? ` A média é ${mediaDia.toFixed(0)} leads por dia.` : "");
+        }
+
+        resumo.push({
+          cliente: cli.slug, campanha: c.nome,
+          hoje: diaHoje, ontem: diaOntem, anteontem: diaAnteontem,
+          dois_dias_zerados: doisDiasZerados, base_ok: baseOk, media_dia: Math.round(mediaDia * 10) / 10,
+          parada, anuncios_rodando: rodando, anuncios_barrados: barrados,
+        });
+
+        if (doisDiasZerados && (baseOk || ctx.abertos.has(chaveSemLead))) {
+          if (podeAvisar) {
+            await abrir(ctx, {
+              chave: chaveSemLead, slug: cli.slug, tipo: "sem_lead", nivel: "critico",
+              titulo: `${cli.nome}: gastando sem lead`, mensagem, url, lembrete: 24,
+            });
           }
+        } else if (!doisDiasZerados) {
+          const voltou = diaHoje.leads > 0 || diaOntem.leads > 0;
+          await resolver(ctx, chaveSemLead, voltou, `${c.nome} voltou a gerar lead.`);
         }
       }
 
@@ -484,22 +491,14 @@ async function rodarLeads(ctx: Ctx, diario: boolean) {
     }
   }
 
-  // problema aberto de campanha que nem apareceu mais (conta desligada etc.).
+  // Problema aberto de campanha que nem apareceu mais (conta desligada etc.).
   // Se alguma conta deu erro na leitura, nao da pra saber: deixa como esta.
   const algumaContaFalhou = resumo.some((r: any) => r?.erro);
   if (!algumaContaFalhou) {
     for (const [chave] of ctx.abertos) {
-      if (chave.startsWith("sem_lead:") && !campanhasAvaliadas.has(chave.slice(9))) {
-        await resolver(ctx, chave, false, "");
-      }
+      const m = chave.match(/^(?:sem_lead|parada):(.+)$/);
+      if (m && !campanhasAvaliadas.has(m[1])) await resolver(ctx, chave, false, "");
     }
-  }
-
-  if (diario) {
-    for (const [chave, p] of ctx.abertos) {
-      if (chave.startsWith("queda:") && horasDesde(p.aberto_em) > 20) await resolver(ctx, chave, false, "");
-    }
-    if (!ctx.dry) await supabase.from("monitor_leads_snap").delete().lt("data", addDias(hoje, -10));
   }
   return resumo;
 }
