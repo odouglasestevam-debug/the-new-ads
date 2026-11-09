@@ -356,7 +356,7 @@
         <div class="kpi"><div class="label">ROAS sobre LTV</div><div class="value amber" id="kpi-roas-ltv"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Receita futura esperada</div><div class="value amber" id="kpi-receita-futura"><div class="skel"></div></div></div>
       </div>
-      <div class="note">CAC, LTV : CAC e ROAS usam só a verba das campanhas de vendas (sem as de vaga), a partir de 11/07/2026, início da lista de vendas. As 11 vendas de 11/07 a 12/08 foram informadas em lote e estão na data 12/08: mês isolado ou período que pega só parte desse intervalo distorce o CAC. Para ler o acumulado, use "Desde 11/07".</div>
+      <div class="note">CAC, LTV : CAC e ROAS usam só a verba das campanhas de vendas (sem as de vaga), a partir de 11/07/2026, início da lista de vendas. As 11 vendas de 11/07 a 12/08 foram informadas em lote e estão na data 12/08: mês isolado ou período que pega só parte desse intervalo distorce o CAC. Para ler o acumulado, use "Desde 11/07". Antes de 11/07 não há lista de vendas: a contagem de vendas usa os registros de Lead Ganho do rastreamento, sem valores e abaixo do real.</div>
     </section>
   </div>
 
@@ -1073,15 +1073,21 @@ async function loadVendas() {
     .filter((r) => r.data >= INICIO_VENDAS && !ehVaga(r.campanha))
     .reduce((a, r) => a + Number(r.investimento || 0), 0);
 
-  const vendas = data.length;
+  // Antes de 11/07 nao ha lista de vendas: conta o Lead Ganho do rastreamento, que e piso e nao traz valores.
+  // pauloteixeiras ja esta na lista como Paulo Teixeira Bortolasse e nao pode contar duas vezes.
+  const vendasRastreio = trackingRowsCache.filter((l) => l.data < INICIO_VENDAS
+    && (l.etapa === 'Lead Ganho' || l.qualificacao === 'Lead Ganho')
+    && !/^pauloteixeiras/i.test(l.nome || '')).length;
+  const vendasLista = data.length;
+  const vendas = vendasLista + vendasRastreio;
   const mrr = data.reduce((a, v) => a + Number(v.mensalidade || 0), 0);
   const adesaoTotal = data.reduce((a, v) => a + Number(v.adesao || 0), 0);
   const receitaTotal = mrr + adesaoTotal;
-  const cac = vendas ? investimentoVendas / vendas : null;
+  const cac = vendasLista ? investimentoVendas / vendasLista : null;
   const ltvCac = cac ? LTV_MEDIANO / cac : null;
-  const roasLtv = investimentoVendas ? (vendas * LTV_MEDIANO) / investimentoVendas : null;
+  const roasLtv = vendasLista && investimentoVendas ? (vendasLista * LTV_MEDIANO) / investimentoVendas : null;
   const taxaConversao = lastLeadsQualificados ? (vendas / lastLeadsQualificados) * 100 : null;
-  const receitaFutura = vendas * LTV_MEDIANO;
+  const receitaFutura = vendasLista * LTV_MEDIANO;
 
   document.getElementById('kpi-vendas-aprovadas').textContent = fmtInt(vendas);
   document.getElementById('kpi-receita-total').textContent = fmtMoney(receitaTotal);
