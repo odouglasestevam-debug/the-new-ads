@@ -306,14 +306,15 @@
         <div class="kpi"><div class="label">Impressões</div><div class="value" id="kpi-impressoes"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CTR (link)</div><div class="value amber" id="kpi-ctr"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Leads</div><div class="value" id="kpi-leads"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">CPL WhatsApp</div><div class="value" id="kpi-cpl"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Custo por lead</div><div class="value" id="kpi-cpl-geral"><div class="skel"></div></div></div>
       </div>
       <div class="kpis kpis-secondary">
         <div class="kpi"><div class="label">Alcance</div><div class="value" id="kpi-alcance"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CPC (link)</div><div class="value" id="kpi-cpc"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CPM</div><div class="value" id="kpi-cpm"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Frequência média</div><div class="value" id="kpi-freq"><div class="skel"></div></div></div>
-        <div class="kpi"><div class="label">Taxa de gancho</div><div class="value" id="kpi-gancho"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">CPL WhatsApp</div><div class="value" id="kpi-cpl"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Taxa de gancho (25% do vídeo)</div><div class="value" id="kpi-gancho"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Resultados (Meta Ads)</div><div class="value amber" id="kpi-resultados-meta"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Leads (Meta Ads)</div><div class="value amber" id="kpi-leads-meta"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CPL (Meta Ads)</div><div class="value amber" id="kpi-cpl-meta"><div class="skel"></div></div></div>
@@ -378,13 +379,13 @@
     <div class="macro-title">Rastreamento <span class="macro-sub">o que o Meta reporta vs quem realmente virou lead, por campanha/conjunto/anúncio</span></div>
 
     <section>
-      <div class="section-title">Gap geral <span class="hint">mensagens iniciadas vs leads reportados pelo Meta · campanha de mensagem</span></div>
+      <div class="section-title">Gap geral <span class="hint">mensagens iniciadas (Meta) vs leads de WhatsApp registrados no rastreamento</span></div>
       <div class="kpis" style="margin-bottom:0;">
         <div class="kpi"><div class="label">Mensagens iniciadas</div><div class="value" id="kpi-gap-msgs"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Leads reais</div><div class="value" id="kpi-gap-leads"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Gap</div><div class="value amber" id="kpi-gap-pct"><div class="skel"></div></div></div>
       </div>
-      <div class="note">Leads reais = métrica "Leads" do próprio Meta Ads, somada só nas campanhas de mensagem (WhatsApp), sem incluir campanhas de formulário. Gap = mensagens iniciadas que não geraram lead reconhecido pelo Meta (número errado, sem resposta, fora do público certo etc).</div>
+      <div class="note">Leads reais = contatos de WhatsApp vindos de anúncio registrados no rastreamento (o mesmo número do CPL WhatsApp). Gap = mensagens que a Meta conta como iniciadas e que não viraram contato registrado (a mesma pessoa clicando mais de uma vez, conversa que não começou de fato, contato sem telefone etc).</div>
     </section>
 
     <section>
@@ -636,7 +637,7 @@ let metaRowsCache = [];
 async function loadKpisAndAds() {
   const { data, error } = await fetchAll(() => sb
     .from('confianca_meta')
-    .select('campanha,conjunto_anuncio,anuncio,investimento,impressoes,alcance,cliques_no_link,lead,resultados,ctr,cpc,cpm,frequencia,video_view,mensagens_iniciadas,post_engajament,reacoes,comentarios,compartilhamentos,salvamentos,data')
+    .select('campanha,conjunto_anuncio,anuncio,investimento,impressoes,alcance,cliques_no_link,lead,resultados,ctr,cpc,cpm,frequencia,numero_vis_25_videoview,mensagens_iniciadas,post_engajament,reacoes,comentarios,compartilhamentos,salvamentos,data')
     .gte('data', currentRange.since)
     .lte('data', currentRange.until)
     .order('id_data'));
@@ -663,7 +664,8 @@ async function loadKpisAndAds() {
     alcance += Number(row.alcance || 0);
     leads += Number(row.lead || 0);
     resultados += Number(row.resultados || 0);
-    videoView += Number(row.video_view || 0);
+    // video_view mudou de definicao na Meta em ago/2026 (passou de ~5% para ~90% das impressoes); 25% do video e estavel
+    videoView += Number(row.numero_vis_25_videoview || 0);
     engajamento += Number(row.post_engajament || 0);
     reacoes += Number(row.reacoes || 0);
     comentarios += Number(row.comentarios || 0);
@@ -1048,11 +1050,9 @@ function loadGapGeral() {
   for (const row of metaRowsCache) {
     if (!ehCentral(row.campanha)) continue;
     msgs += Number(row.mensagens_iniciadas || 0);
-    // campanhas de formulário (prefixo FORM_) não são mensagem — só conta lead de campanha de mensagem (WhatsApp)
-    if (!row.campanha || !row.campanha.toUpperCase().startsWith('FORM')) {
-      leadsReais += Number(row.lead || 0);
-    }
   }
+  // leads reais = leads de WhatsApp do rastreamento (antes usava a coluna lead da Meta, que e o numero da propria Meta)
+  leadsReais = lastLeadsWhats;
 
   const leadsByPlacement = new Map();
   for (const row of trackingRowsCache) {
@@ -1130,6 +1130,9 @@ async function loadAll() {
   document.getElementById('date-to').value = currentRange.until;
   await Promise.all([loadKpisAndAds(), loadLeads(), loadFollowers()]);
   document.getElementById('kpi-cpl').textContent = lastLeadsWhats ? fmtMoney(lastInvestimentoWhats / lastLeadsWhats) : '—';
+  // custo por lead geral: verba da central sobre todos os leads (WhatsApp, site, link da bio e outros)
+  const verbaCentral = metaRowsCache.filter((r) => ehCentral(r.campanha)).reduce((a, r) => a + Number(r.investimento || 0), 0);
+  document.getElementById('kpi-cpl-geral').textContent = lastLeadsTotal ? fmtMoney(verbaCentral / lastLeadsTotal) : '—';
   // depende dos caches (metaRowsCache/trackingRowsCache) preenchidos pelas duas chamadas acima
   loadGapGeral();
   renderTopCriativos();

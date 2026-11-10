@@ -204,7 +204,7 @@
     <div class="pilha">
       <div><span class="rot">Verba da campanha de vendas</span><span class="v" id="h-verba"></span></div>
       <div><span class="rot">CAC</span><span class="v" id="h-cac"></span><span class="pe" id="h-cac-pe"></span></div>
-      <div><span class="rot">CPL WhatsApp</span><span class="v" id="h-cpl"></span><span class="pe" id="h-cpl-pe"></span></div>
+      <div><span class="rot">Custo por lead</span><span class="v" id="h-cpl"></span><span class="pe" id="h-cpl-pe"></span></div>
     </div>
   </div>
 
@@ -222,7 +222,7 @@
     <section>
       <div class="tit"><h2>Origem dos leads</h2></div>
       <div class="barras" id="origem"></div>
-      <p class="nota">Os leads de site e link da bio não vêm de campanha paga nos meses recentes, por isso ficam fora do CPL WhatsApp.</p>
+      <p class="nota">Os leads de site e link da bio entram no custo por lead geral e ficam fora do CPL WhatsApp.</p>
     </section>
   </div>
 
@@ -233,19 +233,19 @@
     <div class="graf-grid">
       <div class="graf"><h3>Verba da campanha de vendas</h3><div class="graf-corpo" id="g1"></div></div>
       <div class="graf"><h3>Leads</h3><div class="graf-corpo" id="g2"></div></div>
-      <div class="graf"><h3>CPL WhatsApp</h3><div class="graf-corpo" id="g3"></div></div>
+      <div class="graf"><h3>Custo por lead</h3><div class="graf-corpo" id="g3"></div></div>
     </div>
     <p class="nota" id="g-nota"></p>
   </section>
 
   <section>
     <div class="tit"><h2>Mês a mês <span class="selo">série completa</span></h2><p>Só a campanha de vendas da central. Não muda com o seletor de período.</p></div>
-    <div class="rola"><table id="hist"><thead><tr><th>Período</th><th>Verba</th><th>Leads</th><th>CPL WhatsApp</th><th>Qualificados</th><th>Vendas</th><th>CAC</th><th>Mensalidades</th><th>Adesões</th></tr></thead><tbody></tbody></table></div>
+    <div class="rola"><table id="hist"><thead><tr><th>Período</th><th>Verba</th><th>Leads</th><th>Custo por lead</th><th>CPL WhatsApp</th><th>Qualificados</th><th>Vendas</th><th>CAC</th><th>Mensalidades</th><th>Adesões</th></tr></thead><tbody></tbody></table></div>
     <p class="nota">Vendas de maio conforme o relatório de maio, de junho e julho conforme as listas enviadas pela associação, e de agosto em diante pela lista de vendas. Em maio o total de mensalidades foi informado sem o valor de cada venda. A última lista foi recebida em 06/11, então novembro ainda pode receber vendas.</p>
   </section>
 
   <section>
-    <div class="tit"><h2>Criativos com mais leads</h2><p>Os cinco anúncios com mais leads de WhatsApp no período.</p></div>
+    <div class="tit"><h2>Criativos com mais leads</h2><p>Os cinco anúncios com mais leads de WhatsApp no período. O CPL de cada um é o investimento no anúncio dividido pelos leads que vieram dele.</p></div>
     <div class="cria" id="cria"></div>
   </section>
 
@@ -266,7 +266,7 @@
     <div class="tit"><h2>Como ler os números</h2></div>
     <ul class="notas">
       <li><b>Performance</b> considera só a campanha de vendas da central, incluindo os testes de criativo. As demais frentes estão na prestação de contas.</li>
-      <li><b>Leads</b> são contatos únicos registrados pelo rastreamento das conversas e do site. O CPL WhatsApp divide a verba de WhatsApp da central pelos leads de WhatsApp.</li>
+      <li><b>Leads</b> são contatos únicos registrados pelo rastreamento das conversas e do site. O custo por lead divide a verba da central por todos os leads. O CPL WhatsApp divide só a verba de WhatsApp pelos leads de WhatsApp.</li>
       <li><b>CAC</b> divide a verba da central pelas vendas do período. Até 12/08 as vendas foram informadas por mês, sem o dia do fechamento, por isso a leitura certa é por mês inteiro.</li>
       <li><b>Retorno no fechamento</b> divide mensalidades e adesões pela verba da central. O LTV de R$ 1.100,00 por associado é o valor informado pela associação.</li>
       <li><b>Vendas</b> são contadas por veículo e incluem 2 vendas negadas depois do fechamento (julho e agosto) e 1 de consultor de Tubarão ainda a confirmar.</li>
@@ -356,8 +356,8 @@ function render() {
   $('h-verba').textContent = brl(verba);
   $('h-cac').innerHTML = cac != null ? brl(cac) : ND;
   $('h-cac-pe').textContent = cac != null ? '' : (verba ? 'Sem venda lançada no período' : 'Sem mídia no período');
-  $('h-cpl').innerHTML = t[6] ? brl(t[0] / t[6]) : ND;
-  $('h-cpl-pe').textContent = t[6] ? '' : 'Sem lead de WhatsApp no período';
+  $('h-cpl').innerHTML = leads && verba ? brl(verba / leads) : ND;
+  $('h-cpl-pe').textContent = !leads ? 'Sem lead no período' : t[6] ? 'Só WhatsApp: ' + brl(t[0] / t[6]) : '';
 
   // comercial
   const comVenda = vendas > 0;
@@ -498,7 +498,7 @@ function renderGraficos() {
   const bs = baldes(P.a, P.b, g);
   desenha($('g1'), bs, (b) => verbaDe(b.t), brl, eixoBrl, 'bar', g, 'Verba em campanhas de vendas por período');
   desenha($('g2'), bs, (b) => leadsDe(b.t), int, (v) => int(v), 'bar', g, 'Leads por período');
-  desenha($('g3'), bs, (b) => b.t[6] ? b.t[0] / b.t[6] : null, brl, eixoBrl, 'lin', g, 'Custo por lead de WhatsApp por período');
+  desenha($('g3'), bs, (b) => leadsDe(b.t) ? verbaDe(b.t) / leadsDe(b.t) : null, brl, eixoBrl, 'lin', g, 'Custo por lead por período');
   const partes = [];
   if (bs.some((b) => b.parcial)) partes.push('* período incompleto.');
   if (g === 'dia') partes.push('Faixa de fundo marca fim de semana. Linha tracejada marca início de semana.');
@@ -515,14 +515,14 @@ function renderHistorico() {
     ['Outubro', '2026-10-01', '2026-10-31'],
     ['Novembro (até 08/11)', '2026-11-01', FIM],
   ];
-  const linha = (rot, t, cls) => { const v = verbaDe(t); return `<tr${cls ? ' class="dest"' : ''}><td>${rot}</td><td>${brl(v)}</td><td>${int(leadsDe(t))}</td><td>${t[6] ? brl(t[0] / t[6]) : ND}</td><td>${int(t[10])}</td><td>${t[11] ? int(t[11]) : ND}</td><td>${t[11] && v ? brl(v / t[11]) : ND}</td><td>${t[11] ? brl(t[12]) : ND}</td><td>${t[11] ? brl(t[13]) : ND}</td></tr>`; };
+  const linha = (rot, t, cls) => { const v = verbaDe(t); return `<tr${cls ? ' class="dest"' : ''}><td>${rot}</td><td>${brl(v)}</td><td>${int(leadsDe(t))}</td><td>${leadsDe(t) ? brl(v / leadsDe(t)) : ND}</td><td>${t[6] ? brl(t[0] / t[6]) : ND}</td><td>${int(t[10])}</td><td>${t[11] ? int(t[11]) : ND}</td><td>${t[11] && v ? brl(v / t[11]) : ND}</td><td>${t[11] ? brl(t[12]) : ND}</td><td>${t[11] ? brl(t[13]) : ND}</td></tr>`; };
   document.querySelector('#hist tbody').innerHTML = J.map(([r, x, y]) => linha(r, soma(ix(x), ix(y)))).join('')
     + linha('<b>Total desde 01/05</b>', soma(0, ix(FIM)), true);
 }
 
 function renderContas(t) {
   const F = [
-    ['Campanha de vendas da central', 'Performance mostrada acima', verbaDe(t), t[6], 'leads de WhatsApp'],
+    ['Campanha de vendas da central', 'Performance mostrada acima', verbaDe(t), leadsDe(t), 'leads'],
     ['Aquisição de candidaturas', 'Vagas de consultor em Osório, Tramandaí, Torres, Joinville e Cascavel', t[2], t[17], 'inscrições'],
     ['Londrina e Ibiporã', 'Campanha regional de vendas', t[15], t[18], 'mensagens iniciadas'],
     ['Google Ads', 'Campanha de busca, encerrada em 15/07', t[16], null, ''],
