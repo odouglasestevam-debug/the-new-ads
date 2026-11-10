@@ -11,7 +11,7 @@ for(const header of ['content-security-policy','x-content-type-options','x-frame
 const script=await (await fetch(origin+'/app.js?v=9')).text();
 const api=script.match(/const SUPABASE_URL = "([^"]+)"/)[1];
 const key=script.match(/const SUPABASE_ANON_KEY = "([^"]+)"/)[1];
-for(const table of ['tarefas_tarefas','tarefas_usuarios']) {
+for(const table of ['tarefas_tarefas','tarefas_usuarios','tarefas_filtros_salvos']) {
   const r=await fetch(api+'/rest/v1/'+table+'?select=*&limit=1',{headers:{apikey:key}});
   assert.ok([401,403].includes(r.status),'Anônimo deve ser bloqueado: '+table);
   console.log(table+': acesso anônimo bloqueado ('+r.status+')');
