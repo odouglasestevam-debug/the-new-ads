@@ -1,0 +1,65 @@
+{
+  "name": "Financeiro: envia cobrança pelo WhatsApp",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "financeiro-cobranca-whatsapp",
+        "authentication": "headerAuth",
+        "responseMode": "lastNode",
+        "responseData": "firstEntryJson",
+        "options": {}
+      },
+      "name": "Recebe Mensagem de Cobranca",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [0, 0],
+      "credentials": {
+        "httpHeaderAuth": { "id": "PREENCHER", "name": "Financeiro: token do webhook (x-financeiro-token)" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Payload final num node só. Erro aqui derruba o fluxo e o app registra a falha: nada vira sucesso calado.\nconst corpo = $json.body || {};\nconst numero = String(corpo.numero || '');\nconst texto = String(corpo.texto || '');\nif (!/^55\\d{10,11}$/.test(numero)) throw new Error('Número inválido: ' + numero);\nif (!texto.trim() || texto.length > 4000) throw new Error('Texto vazio ou longo demais');\nreturn [{ json: { numero, texto } }];"
+      },
+      "name": "Monta Mensagem",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [240, 0]
+    },
+    {
+      "parameters": {
+        "number": "={{ $json.numero }}",
+        "text": "={{ $json.texto }}"
+      },
+      "name": "Envia WhatsApp Cobranca",
+      "type": "n8n-nodes-neogo.neoGo",
+      "typeVersion": 1,
+      "position": [480, 0],
+      "credentials": {
+        "neoGoApi": { "id": "PREENCHER", "name": "PREENCHER: credencial do número de cobrança (perguntar ao Douglas)" }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            { "id": "ok", "name": "ok", "value": true, "type": "boolean" },
+            { "id": "numero", "name": "numero", "value": "={{ $('Monta Mensagem').item.json.numero }}", "type": "string" }
+          ]
+        },
+        "options": {}
+      },
+      "name": "Responde Enviado",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [720, 0]
+    }
+  ],
+  "connections": {
+    "Recebe Mensagem de Cobranca": { "main": [[{ "node": "Monta Mensagem", "type": "main", "index": 0 }]] },
+    "Monta Mensagem": { "main": [[{ "node": "Envia WhatsApp Cobranca", "type": "main", "index": 0 }]] },
+    "Envia WhatsApp Cobranca": { "main": [[{ "node": "Responde Enviado", "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

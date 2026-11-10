@@ -19,7 +19,7 @@ export function configurarVapid(publica: string, privada: string) {
 
 // urgency high: com "normal" o Android segura a notificação até o app abrir.
 // Aparelho que o serviço de push devolve 404/410 não existe mais e é apagado.
-export async function enviarPush(inscricoes: Inscricao[], carga: Carga, apagar: (endpoint: string) => Promise<unknown>) {
+export async function enviarPush(inscricoes: Inscricao[], carga: Carga, apagar: (endpoint: string) => PromiseLike<unknown>) {
   let enviados = 0;
   const erros: string[] = [];
   for (const i of inscricoes) {

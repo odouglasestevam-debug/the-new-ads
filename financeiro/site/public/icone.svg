@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#0A0A0A"/>
+  <!-- três colunas subindo, a última em destaque: recebido do mês -->
+  <rect x="112" y="276" width="68" height="124" rx="16" fill="#FAFAFA" opacity=".55"/>
+  <rect x="222" y="206" width="68" height="194" rx="16" fill="#FAFAFA"/>
+  <rect x="332" y="112" width="68" height="288" rx="16" fill="#FF6A00"/>
+</svg>

@@ -17,6 +17,7 @@ export class Asaas {
       signal: AbortSignal.timeout(20000),
     });
     const texto = await resposta.text();
+    // deno-lint-ignore no-explicit-any -- JSON do Asaas, sem tipo publicado
     let corpo: any = null;
     try { corpo = JSON.parse(texto); } catch { /* corpo não é JSON */ }
     if (!resposta.ok) {
@@ -27,6 +28,7 @@ export class Asaas {
   }
 
   // Lista paginada (100 por página, o máximo do Asaas).
+  // deno-lint-ignore no-explicit-any -- JSON do Asaas, sem tipo publicado
   async *paginas(caminho: string): AsyncGenerator<any[]> {
     let offset = 0;
     const sep = caminho.includes("?") ? "&" : "?";

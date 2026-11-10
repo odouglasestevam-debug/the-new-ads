@@ -1,0 +1,16 @@
+{
+  "name": "Financeiro | The New Ads",
+  "short_name": "Financeiro",
+  "description": "Recebimentos, cobranças e métricas da The New Ads",
+  "start_url": "/#/mes",
+  "scope": "/",
+  "id": "/",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#ffffff",
+  "icons": [
+    { "src": "/icons/icone-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icone-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "/icons/icone-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ]
+}

@@ -27,3 +27,10 @@ test('telefone, valor e data', () => {
   assert.equal(formatarData('2026-11-05'), '05/11/2026');
   assert.equal(formatarData('2026-11-05T10:00:00Z', true), '05/11');
 });
+
+test('a função usa a mesma mensagem da tela', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const tela = await readFile(new URL('../site/public/mensagem.js', import.meta.url), 'utf8');
+  const funcao = await readFile(new URL('../supabase/functions/financeiro/mensagem.js', import.meta.url), 'utf8');
+  assert.equal(funcao, tela, 'rode node scripts/preparar-funcao.mjs');
+});

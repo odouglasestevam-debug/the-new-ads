@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Financeiro | The New Ads</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#ffffff">
+<script src="/tema.js?v=1"></script>
+<link rel="icon" type="image/svg+xml" href="/icone.svg">
+<link rel="manifest" href="/manifest.json">
+<link rel="apple-touch-icon" href="/icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Financeiro">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="stylesheet" href="/estilo.css?v=1">
+</head>
+<body>
+<!-- THESIS: uma central de recebimentos que responde em segundos quem pagou, quem não pagou e quanto entra no mês.
+OWN-WORLD: mesma família do gestor de tarefas (superfícies claras, destaque violeta, fontes nativas), para unir os dois no futuro.
+FIRST VIEWPORT: recebido do mês em destaque, barra recebido/a receber/em atraso e a lista de clientes logo abaixo. -->
+
+<div class="login" id="tela-login">
+  <div class="caixa">
+    <div class="marca"><img src="/icone.svg" alt=""> Financeiro</div>
+    <label class="seletor-tema">Tema <select data-tema aria-label="Tema"><option value="claro">Claro</option><option value="escuro">Escuro</option><option value="sistema">Sistema</option></select></label>
+
+    <form id="form-login">
+      <h1>Entrar</h1>
+      <p class="sub">Financeiro da The New Ads. Mesma conta do gestor de tarefas.</p>
+      <div class="campo"><label for="email">E-mail</label><input type="email" id="email" autocomplete="username" required></div>
+      <div class="campo"><label for="senha">Senha</label><input type="password" id="senha" autocomplete="current-password" required></div>
+      <button class="btn btn-largo" id="btn-entrar">Entrar</button>
+      <p class="aviso" id="aviso-login"></p>
+    </form>
+
+    <form id="form-codigo" hidden>
+      <h1>Código de acesso</h1>
+      <p class="sub">Digite o código de 6 dígitos do seu aplicativo autenticador.</p>
+      <div class="campo"><label for="codigo-2fa">Código</label><input type="text" id="codigo-2fa" inputmode="numeric" autocomplete="one-time-code" maxlength="6" required></div>
+      <button class="btn btn-largo" id="btn-verificar">Verificar</button>
+      <p class="aviso" id="aviso-codigo"></p>
+    </form>
+
+    <div id="sem-acesso" hidden>
+      <h1>Sem acesso</h1>
+      <p class="sub">Sua conta existe, mas não tem acesso ao financeiro.</p>
+      <button class="btn btn-fantasma btn-largo" data-acao="sair">Sair</button>
+    </div>
+  </div>
+</div>
+
+<div class="app" id="app" hidden>
+  <header class="topo">
+    <div class="topo-in">
+      <a class="marca" href="#/mes"><img src="/icone.svg" alt=""><span>Financeiro</span></a>
+      <nav class="abas" aria-label="Seções">
+        <a href="#/mes" data-aba="mes">Mês</a>
+        <a href="#/clientes" data-aba="clientes">Clientes</a>
+        <a href="#/metricas" data-aba="metricas">Métricas</a>
+        <a href="#/cobrancas" data-aba="cobrancas">Cobrança</a>
+      </nav>
+      <div class="topo-acoes">
+        <button class="icone-btn" data-acao="recarregar" aria-label="Atualizar dados" title="Atualizar dados">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 0 0-14.6-4.5L4 8"/><path d="M4 3v5h5"/><path d="M4 13a8 8 0 0 0 14.6 4.5L20 16"/><path d="M20 21v-5h-5"/></svg>
+        </button>
+        <a class="icone-btn" href="#/ajustes" data-aba="ajustes" aria-label="Ajustes" title="Ajustes">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <main id="conteudo" class="conteudo" tabindex="-1"></main>
+
+  <nav class="abas-baixo" aria-label="Seções">
+    <a href="#/mes" data-aba="mes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg>
+      <span>Mês</span>
+    </a>
+    <a href="#/clientes" data-aba="clientes">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0"/><path d="M16 4.6a3.5 3.5 0 0 1 0 6.8M18 20a6.5 6.5 0 0 0-2.4-5"/></svg>
+      <span>Clientes</span>
+    </a>
+    <a href="#/metricas" data-aba="metricas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V11M10 20V5M16 20v-6M22 20H2"/></svg>
+      <span>Métricas</span>
+    </a>
+    <a href="#/cobrancas" data-aba="cobrancas">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8.5 8.5 0 0 1-12.4 7.6L3 21l1.4-5.4A8.5 8.5 0 1 1 21 12z"/><path d="M9 12h6M12 9v6"/></svg>
+      <span>Cobrança</span>
+    </a>
+  </nav>
+</div>
+
+<dialog id="dialogo" class="dialogo"></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+<script src="/vendor/supabase.js?v=1"></script>
+<script src="/instalar.js?v=1"></script>
+<script type="module" src="/app.js?v=1"></script>
+</body>
+</html>
