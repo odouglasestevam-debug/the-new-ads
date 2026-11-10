@@ -28,7 +28,7 @@ const RECORRENCIAS = { diaria: ["dia", "dias"], semanal: ["semana", "semanas"], 
 
 const S = {
   user: null, eu: null,
-  usuarios: [], status: [], projetos: [], pastas: [], listas: [], tarefas: [],
+  usuarios: [], status: [], projetos: [], pastas: [], listas: [], tarefas: [], filtrosSalvos: [],
   comentarios: [], aberta: null, abaAjustes: "conta", add: null, grupos: [], ultimo: null,
 };
 const expandidos = new Set(lerLocal("tf_expandidos", []));
@@ -130,6 +130,7 @@ function erroBanco(error, padrao) {
   if (m.includes("violates foreign key") && m.includes("status")) return "Esse status está em uso por alguma tarefa.";
   if (m.includes("pelo menos um admin")) return "O gestor precisa de pelo menos um admin ativo.";
   if (m.includes("dentro dela mesma")) return "Uma pasta não pode ficar dentro dela mesma.";
+  if (m.includes("filtros_salvos_nome")) return "Já existe um filtro salvo com esse nome.";
   return (padrao || "Não deu certo") + (m ? `: ${m}` : ".");
 }
 
@@ -369,16 +370,18 @@ async function buscarTodas(tabela, ordem) {
 }
 
 async function carregar() {
-  const [usuarios, status, projetos, pastas, listas, tarefas] = await Promise.all([
+  const [usuarios, status, projetos, pastas, listas, tarefas, filtrosSalvos] = await Promise.all([
     buscarTodas("usuarios", "nome"), buscarTodas("status", "ordem"), buscarTodas("projetos", "nome"),
     buscarTodas("pastas", "nome"), buscarTodas("listas", "nome"), buscarTodas("tarefas_visao", "id"),
+    // Filtro salvo é acessório: se falhar, as tarefas carregam do mesmo jeito e fica a lista anterior.
+    buscarTodas("filtros_salvos", "nome").catch(() => S.filtrosSalvos),
   ]);
   const eu = usuarios.find(u => u.user_id === S.user?.id && u.ativo);
   if (!eu) {
     bloquearInterface();
     throw new Error("Seu acesso não está disponível. Entre novamente.");
   }
-  Object.assign(S, { eu, usuarios, status, projetos: projetos.sort(porNome), pastas: pastas.sort(porNome), listas: listas.sort(porNome), tarefas });
+  Object.assign(S, { eu, usuarios, status, projetos: projetos.sort(porNome), pastas: pastas.sort(porNome), listas: listas.sort(porNome), tarefas, filtrosSalvos: [...filtrosSalvos].sort(porNome) });
   if (S.aberta && !tarefas.some(t => t.id === S.aberta)) {
     fecharTarefa();
     S.comentarios = [];

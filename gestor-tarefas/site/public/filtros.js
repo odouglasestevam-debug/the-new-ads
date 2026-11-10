@@ -86,13 +86,14 @@ function camposAtivos(f) {
 }
 function contarFiltros(r,f) { return camposAtivos(f).length; }
 function barraFiltros(r,f) {
-  const n = contarFiltros(r,f), eu = modoEuAtivo();
+  const n = contarFiltros(r,f), eu = modoEuAtivo(), salvo = filtroSalvoAtivo(f);
+  const rotulo = salvo ? salvo.nome : n ? `${n} ${n===1?'filtro':'filtros'}` : 'Filtros';
   return `<div class="barra-tarefas">
     ${caixaTodas()}
     <label class="agrupar-compacto">${ICONES_BARRA.grupo}<select aria-label="Agrupar tarefas" onchange="mudarFiltro('agrupar',this.value)" ${f.visao==='quadro'?'disabled title="O quadro é organizado por status"':''}>
       ${[{v:'pasta',t:'Pasta e lista'},{v:'status',t:'Status'},{v:'situacao',t:'Prazo'},{v:'projeto',t:'Lista'},{v:'responsavel',t:'Responsável'},{v:'',t:'Sem grupos'}].map(o=>`<option value="${o.v}"${(f.visao==='quadro'?'status':f.agrupar)===o.v?' selected':''}>${o.t}</option>`).join('')}</select></label>
     <div class="ferramentas-tarefas">
-      <div class="filtros-badge${n?' ligado':''}"><button id="btn-mais-filtros" class="controle-barra" data-menu aria-haspopup="dialog" onclick="abrirMaisFiltros(this)">${ICONES_BARRA.filtro}<span>${n ? `${n} ${n===1?'filtro':'filtros'}` : 'Filtros'}</span></button>
+      <div class="filtros-badge${n||salvo?' ligado':''}"><button id="btn-mais-filtros" class="controle-barra" data-menu aria-haspopup="dialog" onclick="abrirMaisFiltros(this)"${salvo?` title="Filtro salvo: ${esc(salvo.nome)}"`:''}>${ICONES_BARRA.filtro}<span>${esc(rotulo)}</span></button>
       ${n ? `<button class="remover-filtros" aria-label="Limpar filtros" onclick="limparFiltros()">${ICONES.fechar}</button>` : ''}</div>
       <button class="controle-barra modo-eu${eu?' ligado':''}" aria-pressed="${eu}" ${r.tipo==='minhas'?'disabled':''} onclick="alternarModoEu()" title="${r.tipo==='minhas'?'Esta visualização já mostra suas tarefas':'Mostrar somente tarefas atribuídas a você'}">${ICONES.pessoa}<span>Modo eu</span></button>
       <button class="controle-barra controle-icone${f.concluidas?' ligado':''}" aria-label="Mostrar concluídas" aria-pressed="${f.concluidas}" title="Mostrar concluídas" onclick="mudarFiltro('concluidas',${!f.concluidas})">${ICONES.check}</button>
@@ -131,13 +132,17 @@ function abrirMaisFiltros(ancora) {
     } else valor=select(c,d.opcoes,f[c]);
     return `<div class="condicao-filtro"><span class="campo-filtro">${d.nome}</span><span class="operador-filtro">${c==='periodo'?'entre':d.multi?'é um de':'é'}</span><div class="valor-filtro">${valor}</div><button class="excluir-condicao" data-excluir="${c}" aria-label="Remover filtro ${d.nome}">${ICONES.fechar}</button></div>`;
   }).join('');
+  const ativo = filtroSalvoAtivo(f), temCondicao = camposAtivos(f).length || f.concluidas;
+  const salvos = S.filtrosSalvos.length ? `<div class="filtros-salvos"><span class="rotulo-salvos">Salvos</span><div class="chips-salvos">${S.filtrosSalvos.map(s=>`<span class="chip-salvo${ativo?.id===s.id?' ativo':''}"><button class="aplicar-salvo" data-aplicar="${esc(s.id)}" aria-pressed="${ativo?.id===s.id}" title="${esc(s.nome)}">${esc(s.nome)}</button><button class="apagar-salvo" data-apagar="${esc(s.id)}" aria-label="Excluir filtro salvo ${esc(s.nome)}">${ICONES.fechar}</button></span>`).join('')}</div></div>` : '';
+  const salvar = `<button class="salvar-filtro" id="salvar-filtro"${ativo||!temCondicao?' disabled':''} title="${ativo?`Já salvo como ${esc(ativo.nome)}`:temCondicao?'Guardar estes filtros com um nome':'Adicione um filtro para poder salvar'}">Salvar filtro</button>`;
   abrirPainel(ancora,`<section class="filtros-popover" role="dialog" aria-label="Filtros de tarefas">
     <div class="filtros-cabeca"><h2>Filtros</h2><button class="fechar-filtros" aria-label="Fechar filtros" onclick="fecharMenu();document.getElementById('btn-mais-filtros')?.focus()">${ICONES.fechar}</button></div>
+    ${salvos}
     <div class="combinar-filtros"><span>Mostrar tarefas que correspondam a</span><select data-valor="combinacao" aria-label="Combinar filtros"><option value="e" ${f.combinacao!=='ou'?'selected':''}>Todos os filtros (E)</option><option value="ou" ${f.combinacao==='ou'?'selected':''}>Qualquer filtro (OU)</option></select></div>
     ${modoEuAtivo()?'<p class="nota-modo-eu">Modo eu ativo: os resultados continuam limitados às suas tarefas.</p>':''}
     <div class="condicoes-filtros">${linhas || '<p class="nenhum-filtro">Nenhum filtro adicionado.</p>'}</div>
     ${f.de && f.ate && f.de>f.ate?'<p class="aviso erro" role="alert">A data final precisa ser igual ou posterior à inicial.</p>':''}
-    <div class="filtros-rodape"><select id="adicionar-filtro" aria-label="Adicionar filtro"><option value="">+ Adicionar filtro</option>${Object.entries(defs).filter(([c])=>!campos.includes(c) && !(c==='responsavel'&&modoEuAtivo())).map(([c,d])=>`<option value="${c}">${d.nome}</option>`).join('')}</select><button class="limpar" id="limpar-painel">Limpar tudo</button><span id="contagem-filtros" aria-live="polite">${filtrar(f,S.ultimo?.escopo).length} tarefas</span></div>
+    <div class="filtros-rodape"><select id="adicionar-filtro" aria-label="Adicionar filtro"><option value="">+ Adicionar filtro</option>${Object.entries(defs).filter(([c])=>!campos.includes(c) && !(c==='responsavel'&&modoEuAtivo())).map(([c,d])=>`<option value="${c}">${d.nome}</option>`).join('')}</select><button class="limpar" id="limpar-painel">Limpar tudo</button>${salvar}<span id="contagem-filtros" aria-live="polite">${filtrar(f,S.ultimo?.escopo).length} tarefas</span></div>
     </section>`);
   const menu=document.getElementById('menu-flutuante');
   // O painel de filtros tem largura própria sem afetar calendários e outros menus.
@@ -160,6 +165,116 @@ function abrirMaisFiltros(ancora) {
     if(!event.target.value)return;f.campos=[...campos,event.target.value];atualizarPainelFiltros();
   });
   document.getElementById('limpar-painel').addEventListener('click',()=>{limparFiltros();abrirMaisFiltros(document.getElementById('btn-mais-filtros'));});
+  document.getElementById('salvar-filtro').addEventListener('click',salvarFiltroAtual);
+  painel.querySelectorAll('[data-aplicar]').forEach(el=>el.addEventListener('click',()=>aplicarFiltroSalvo(el.dataset.aplicar)));
+  painel.querySelectorAll('[data-apagar]').forEach(el=>el.addEventListener('click',()=>excluirFiltroSalvo(el.dataset.apagar)));
+}
+
+/* ---------------- filtros salvos ---------------- */
+// Guarda só as condições do painel e o "Mostrar concluídas". Visão, agrupar, ordenar e busca continuam da tela.
+const CAMPOS_FILTRO_SALVO = ['status','responsavel','prioridade','prazo','dias','local','de','ate','combinacao','concluidas'];
+function normalizarFiltro(f) {
+  const base = novoFiltro(), o = {};
+  for (const c of CAMPOS_FILTRO_SALVO) {
+    const v = f?.[c] ?? base[c];
+    if (Array.isArray(base[c])) o[c] = (Array.isArray(v) ? v : v ? [v] : []).map(String).sort();
+    else if (c === 'concluidas') o[c] = v === true;
+    else if (c === 'combinacao') o[c] = v === 'ou' ? 'ou' : 'e';
+    else o[c] = String(v ?? '');
+  }
+  return o;
+}
+// Com Modo eu ligado o responsável fica escondido e não vale, então não entra no salvo nem na comparação.
+function instantaneoFiltro(f) {
+  const o = normalizarFiltro(f);
+  if (modoEuAtivo()) o.responsavel = '';
+  return o;
+}
+function filtroSalvoAtivo(f) {
+  const atual = JSON.stringify(instantaneoFiltro(f));
+  const iguais = (S.filtrosSalvos || []).filter(s => JSON.stringify(instantaneoFiltro(s.filtro)) === atual);
+  return iguais.find(s => s.id === f._salvo) || iguais[0] || null;
+}
+function filtroSalvoPorNome(nome) {
+  const chave = String(nome || '').trim().toLocaleLowerCase('pt-BR');
+  return chave ? S.filtrosSalvos.find(s => s.nome.trim().toLocaleLowerCase('pt-BR') === chave) : null;
+}
+// Lista, status ou pessoa que saiu do gestor depois que o filtro foi salvo é descartado ao aplicar.
+function filtroSalvoValido(salvo) {
+  const f = normalizarFiltro(salvo);
+  let ignorados = 0;
+  const manter = (campo, ok) => { const antes = f[campo].length; f[campo] = f[campo].filter(ok); ignorados += antes - f[campo].length; };
+  manter('status', id => !!statusPorId(id));
+  manter('prazo', p => SITUACOES.some(s => s.id === p));
+  manter('local', ref => { const [tipo, id] = ref.split(':'); return !!(TABELA[tipo] && objeto(tipo, id)); });
+  if (f.responsavel && !['eu','ninguem'].includes(f.responsavel) && !S.usuarios.some(u => u.user_id === f.responsavel && u.ativo)) { f.responsavel = ''; ignorados++; }
+  if (f.prioridade && !(f.prioridade in PESO_PRIO)) { f.prioridade = ''; ignorados++; }
+  return { filtro: f, ignorados };
+}
+function painelFiltrosAberto() {
+  return menuAberto() && !!document.querySelector('#menu-flutuante .filtros-popover');
+}
+
+function aplicarFiltroSalvo(id) {
+  const salvo = S.filtrosSalvos.find(s => s.id === id);
+  if (!salvo) return;
+  const r = rotaAtual(), f = filtroDaRota(r), { filtro, ignorados } = filtroSalvoValido(salvo.filtro);
+  Object.assign(f, filtro, { campos: [], _salvo: id });
+  if (r.tipo === 'minhas' && !f.responsavel) f.responsavel = 'eu';
+  atualizarPainelFiltros();
+  if (ignorados) toast(`Parte do filtro “${salvo.nome}” não existe mais e ficou de fora.`);
+}
+
+async function salvarFiltroAtual() {
+  const f = filtroDaRota(rotaAtual()), origem = S.filtrosSalvos.find(s => s.id === f._salvo);
+  fecharMenu();
+  const nome = await abrirModal(`<form id="form-modal">
+      <h2>Salvar filtro</h2>
+      <div class="campo" style="margin-top:14px"><label for="nome-filtro">Nome</label>
+        <input type="text" id="nome-filtro" value="${esc(origem?.nome || '')}" placeholder="Ex.: Urgentes da semana" required maxlength="60" autocomplete="off"></div>
+      <p class="aviso" id="aviso-nome-filtro" aria-live="polite"></p>
+      <div class="acoes"><button type="button" class="btn btn-fantasma" onclick="fecharModal(null)">Cancelar</button>
+        <button class="btn" id="btn-salvar-filtro">Salvar</button></div>
+    </form>`, (m) => {
+    const input = m.querySelector('#nome-filtro'), aviso = m.querySelector('#aviso-nome-filtro'), botao = m.querySelector('#btn-salvar-filtro');
+    const conferir = () => {
+      const existente = filtroSalvoPorNome(input.value);
+      aviso.textContent = existente ? `Já existe “${existente.nome}”. Salvar troca o que ele filtra por estes filtros.` : '';
+      botao.textContent = existente ? 'Substituir' : 'Salvar';
+    };
+    input.addEventListener('input', conferir);
+    conferir(); input.focus(); input.select();
+    m.querySelector('#form-modal').addEventListener('submit', (e) => {
+      e.preventDefault();
+      const texto = input.value.trim();
+      if (texto) fecharModal(texto);
+    });
+  });
+  if (!nome) return;
+  const filtro = instantaneoFiltro(f), existente = filtroSalvoPorNome(nome);
+  const tabela = db().from('filtros_salvos');
+  const { data, error } = await (existente ? tabela.update({ nome, filtro }).eq('id', existente.id) : tabela.insert({ nome, filtro })).select().single();
+  if (error || !data) return toast(erroBanco(error, 'Não deu pra salvar o filtro'), true);
+  S.filtrosSalvos = [...S.filtrosSalvos.filter(s => s.id !== data.id), data].sort(porNome);
+  f._salvo = data.id;
+  renderVisao(rotaAtual());
+  toast(existente ? `Filtro “${data.nome}” atualizado.` : `Filtro “${data.nome}” salvo. Ele fica no botão Filtros.`);
+}
+
+// Sem confirmação: o aviso traz Desfazer, que regrava o mesmo filtro.
+async function excluirFiltroSalvo(id) {
+  const salvo = S.filtrosSalvos.find(s => s.id === id);
+  if (!salvo) return;
+  const { error } = await db().from('filtros_salvos').delete().eq('id', id);
+  if (error) return toast(erroBanco(error, 'Não deu pra excluir o filtro'), true);
+  S.filtrosSalvos = S.filtrosSalvos.filter(s => s.id !== id);
+  painelFiltrosAberto() ? atualizarPainelFiltros() : renderVisao(rotaAtual());
+  toast(`Filtro “${salvo.nome}” excluído.`, false, { rotulo: 'Desfazer', fn: async () => {
+    const { data, error: erro } = await db().from('filtros_salvos').insert({ id: salvo.id, nome: salvo.nome, filtro: salvo.filtro }).select().single();
+    if (erro || !data) return toast(erroBanco(erro, 'Não deu pra recuperar o filtro'), true);
+    S.filtrosSalvos = [...S.filtrosSalvos, data].sort(porNome);
+    painelFiltrosAberto() ? atualizarPainelFiltros() : renderVisao(rotaAtual());
+  } });
 }
 function atualizarPainelFiltros() {
   renderVisao(rotaAtual());

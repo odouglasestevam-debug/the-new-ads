@@ -62,6 +62,18 @@ main:has(.cabecalho-tarefas) {padding-top:12px}
 .filtros-popover .limpar {font-size:12px;padding:4px}
 #contagem-filtros {margin-left:auto;font-size:11px;color:var(--nevoa)}
 .nenhum-filtro,.nota-modo-eu {font-size:12px;color:var(--nevoa);margin:10px 0}
+.filtros-badge .controle-barra span {max-width:170px;overflow:hidden;text-overflow:ellipsis}
+.filtros-salvos {display:flex;align-items:flex-start;gap:10px;margin-bottom:14px;padding-bottom:12px;border-bottom:1px solid var(--linha)}
+.rotulo-salvos {flex:none;padding-top:6px;font-size:12px;color:var(--nevoa)}
+.chips-salvos {display:flex;flex-wrap:wrap;gap:6px;min-width:0}
+.chip-salvo {display:inline-flex;align-items:center;max-width:100%;border:1px solid var(--linha);border-radius:5px;background:var(--grafite)}
+.chip-salvo.ativo {background:var(--barra-fundo);border-color:var(--barra-ativo)}
+.filtros-popover .aplicar-salvo {display:block;max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding:5px 4px 5px 9px;font-size:12px;color:var(--branco);border-radius:4px 0 0 4px}
+.chip-salvo.ativo .aplicar-salvo {color:var(--barra-ativo);font-weight:600}
+.filtros-popover .apagar-salvo {align-items:center;justify-content:center;padding:5px 7px;border-radius:0 4px 4px 0}
+.filtros-popover .apagar-salvo svg {width:11px;height:11px}
+.filtros-popover .salvar-filtro {font-size:12px;padding:4px;color:var(--barra-ativo)}
+.filtros-popover .salvar-filtro:disabled {color:var(--nevoa);opacity:.55;cursor:default;background:none}
 @media(max-width:1100px) {.barra-tarefas #busca {width:105px}.barra-tarefas .ordenar-compacto {width:78px}}
 @media(max-width:860px) {
   main:has(.cabecalho-tarefas) {padding-top:8px}
@@ -78,6 +90,9 @@ main:has(.cabecalho-tarefas) {padding-top:12px}
   .excluir-condicao {grid-column:3;grid-row:1}
   .condicao-filtro {padding-bottom:10px;border-bottom:1px solid var(--linha)}
   .filtros-rodape {gap:8px}
+  .filtros-popover .aplicar-salvo,.filtros-popover .apagar-salvo {padding-top:9px;padding-bottom:9px}
+  .filtros-popover .aplicar-salvo {max-width:calc(100vw - 130px)}
+  .filtros-badge .controle-barra span {max-width:130px}
   .caminho-compacto {max-width:40%;font-size:11px}
   .titulo-compacto h1 {font-size:15px}
 }
