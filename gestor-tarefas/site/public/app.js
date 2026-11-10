@@ -709,6 +709,7 @@ function menuDe(tipo, id, ancora) {
   if (tipo === "lista") {
     itens.push({ t: "Renomear", acao: () => renomear(tipo, id) }, { t: "Mover", acao: () => mover(tipo, id) });
   }
+  itens.push({ t: "Duplicar", acao: () => duplicarEstrutura(tipo, id) });
   itens.push("-", { t: "Excluir", perigo: true, acao: () => excluir(tipo, id) });
   abrirMenu(ancora, itens);
 }

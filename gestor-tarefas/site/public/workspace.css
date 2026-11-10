@@ -243,6 +243,14 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 .previa-status {margin:-2px 0 4px}
 .previa-status .status-pill {cursor:default}
 .form-novo-status .aviso:empty {min-height:0;margin:0}
+/* Duplicar espaço, pasta ou lista */
+.opcoes-duplicar {display:flex;flex-direction:column;gap:9px;margin-top:2px}
+.opcoes-duplicar .caixa-check {font-size:13.5px}
+.opcoes-duplicar .caixa-check:has(input:disabled) {opacity:.5}
+.dica-duplicar {font-size:12px;color:var(--nevoa);margin:12px 0 0;line-height:1.45}
+.resumo-duplicar {font-size:13px;font-weight:600;margin:8px 0 0}
+.form-duplicar .aviso:empty {min-height:0;margin:0}
+@media (max-width:860px) {.opcoes-duplicar .caixa-check {min-height:32px}}
 @media (max-width:860px) {.campo .paleta-status label.amostra-cor {width:36px;height:36px}}
 .menu-flutuante button.atual {font-weight:600}
 

@@ -160,6 +160,144 @@ async function duplicarTarefas(ids) {
   toast(problemas.length ? `${base}, mas ${problemas.join("; ")}.` : `${base}.`, problemas.length > 0, ir);
 }
 
+/* ---------------- duplicar espaço, pasta ou lista (menu ⋯) ---------------- */
+// A cópia acontece inteira no banco (tarefas_duplicar, migração 0016): ou sai completa, ou nada fica.
+// Padrão igual ao da skill de onboarding: tarefas voltam para o primeiro status aberto e sem data,
+// recorrente nasce na próxima data da regra. É o caso de abrir cliente novo a partir do modelo.
+
+// Para onde a cópia pode ir: raiz de cada espaço ou dentro de uma pasta. Pasta não vai para dentro dela mesma.
+function destinosEstrutura(tipo, id) {
+  const bloqueadas = tipo === "pasta" ? pastasDescendentes(id) : new Set();
+  const opcoes = [];
+  for (const p of S.projetos) {
+    opcoes.push({ v: `${p.id}|`, t: `${p.nome} (raiz do espaço)` });
+    S.pastas.filter((pa) => pa.projeto_id === p.id && !bloqueadas.has(pa.id))
+      .map((pa) => ({ v: `${p.id}|${pa.id}`, t: [p.nome, ...caminhoPasta(pa.id)].join(" › ") }))
+      .sort((a, b) => a.t.localeCompare(b.t, "pt-BR", { numeric: true }))
+      .forEach((o) => opcoes.push(o));
+  }
+  return opcoes;
+}
+
+// O que a cópia vai criar, contado com os dados da tela (admin enxerga tudo).
+function resumoDuplicacao(tipo, id, op) {
+  let pastas = [], listas = [];
+  if (tipo === "projeto") {
+    pastas = S.pastas.filter((p) => p.projeto_id === id);
+    listas = S.listas.filter((l) => l.projeto_id === id);
+  } else if (tipo === "pasta") {
+    const ids = pastasDescendentes(id);
+    pastas = S.pastas.filter((p) => ids.has(p.id));
+    listas = S.listas.filter((l) => l.pasta_id && ids.has(l.pasta_id));
+  } else listas = S.listas.filter((l) => l.id === id);
+  const idsListas = new Set(listas.map((l) => l.id));
+  const entra = (t) => idsListas.has(t.lista_id) && (op.concluidas || t.situacao !== "concluida");
+  const maes = new Set(op.tarefas ? S.tarefas.filter((t) => !t.tarefa_pai_id && entra(t)).map((t) => t.id) : []);
+  const subs = op.tarefas ? S.tarefas.filter((t) => t.tarefa_pai_id && maes.has(t.tarefa_pai_id) && entra(t)).length : 0;
+  return { pastas: pastas.length, listas: listas.length, tarefas: maes.size + subs };
+}
+
+function textoQuantidades({ pastas = 0, listas = 0, tarefas = 0 }) {
+  const partes = [
+    pastas ? `${pastas} ${pastas === 1 ? "pasta" : "pastas"}` : "",
+    `${listas} ${listas === 1 ? "lista" : "listas"}`,
+    `${tarefas} ${tarefas === 1 ? "tarefa" : "tarefas"}`,
+  ].filter(Boolean);
+  return partes.length > 1 ? `${partes.slice(0, -1).join(", ")} e ${partes.at(-1)}` : partes[0];
+}
+
+function nomeEmUsoNoDestino(tipo, nome, projetoId, pastaId) {
+  const chave = String(nome || "").trim().toLocaleLowerCase("pt-BR");
+  if (!chave) return false;
+  const igual = (x) => x.nome.trim().toLocaleLowerCase("pt-BR") === chave;
+  if (tipo === "projeto") return S.projetos.some(igual);
+  if (tipo === "pasta") return S.pastas.some((p) => p.projeto_id === projetoId && (p.pasta_pai_id || "") === (pastaId || "") && igual(p));
+  return S.listas.some((l) => l.projeto_id === projetoId && (l.pasta_id || "") === (pastaId || "") && igual(l));
+}
+
+let duplicandoEstrutura = false;
+async function duplicarEstrutura(tipo, id) {
+  if (duplicandoEstrutura || !S.eu?.admin) return;
+  const obj = objeto(tipo, id);
+  if (!obj) return;
+  const oque = { projeto: "espaço", pasta: "pasta", lista: "lista" }[tipo];
+  const paiAtual = tipo === "pasta" ? obj.pasta_pai_id : tipo === "lista" ? obj.pasta_id : null;
+  const destinoAtual = tipo === "projeto" ? "" : `${obj.projeto_id}|${paiAtual || ""}`;
+  const aberto = primeiroStatus("aberto");
+  const r = await abrirModal(`
+    <form id="form-modal" class="form-duplicar">
+      <h2>Duplicar ${oque} “${esc(obj.nome)}”</h2>
+      <div class="campo" style="margin-top:14px"><label for="dup-estrutura-nome">Nome da cópia</label>
+        <input type="text" id="dup-estrutura-nome" value="${esc(obj.nome)} (cópia)" required maxlength="200" autocomplete="off"></div>
+      ${tipo === "projeto" ? "" : `<div class="campo"><label for="dup-destino">Para onde</label>
+        <select id="dup-destino">${destinosEstrutura(tipo, id).map((o) => `<option value="${esc(o.v)}"${o.v === destinoAtual ? " selected" : ""}>${esc(o.t)}</option>`).join("")}</select></div>`}
+      <div class="opcoes-duplicar">
+        <label class="caixa-check"><input type="checkbox" data-op="tarefas" checked> Copiar tarefas e subtarefas</label>
+        <label class="caixa-check"><input type="checkbox" data-op="resp" checked> Manter responsáveis</label>
+        <label class="caixa-check"><input type="checkbox" data-op="manter"> Manter status e datas</label>
+        <label class="caixa-check"><input type="checkbox" data-op="concluidas"> Incluir tarefas concluídas</label>
+      </div>
+      <p class="dica-duplicar" id="dica-duplicar"></p>
+      <p class="resumo-duplicar" id="resumo-duplicar" aria-live="polite"></p>
+      <p class="aviso erro" id="aviso-duplicar" role="alert"></p>
+      <div class="acoes"><button type="button" class="btn btn-fantasma" onclick="fecharModal(null)">Cancelar</button>
+        <button class="btn" id="btn-duplicar-estrutura">Duplicar</button></div>
+    </form>`, (m) => {
+    const nome = m.querySelector("#dup-estrutura-nome"), destino = m.querySelector("#dup-destino");
+    const caixa = (k) => m.querySelector(`[data-op="${k}"]`);
+    const ler = () => {
+      const [projeto, pasta] = destino ? destino.value.split("|") : [null, ""];
+      return { nome: nome.value.trim(), projeto: projeto || null, pasta: pasta || null,
+        tarefas: caixa("tarefas").checked, resp: caixa("resp").checked, manter: caixa("manter").checked, concluidas: caixa("concluidas").checked };
+    };
+    const atualizar = () => {
+      const op = ler();
+      for (const k of ["resp", "manter", "concluidas"]) caixa(k).disabled = !op.tarefas;
+      m.querySelector("#dica-duplicar").textContent = !op.tarefas ? "Só a estrutura: pastas e listas vazias."
+        : op.manter ? "As tarefas vêm com o status e as datas de agora."
+        : `As tarefas voltam para “${aberto?.nome || "o primeiro status"}” e ficam sem data. As recorrentes começam na próxima data da regra.`;
+      m.querySelector("#resumo-duplicar").textContent = `Vai criar ${tipo === "projeto" ? "1 espaço, " : ""}${textoQuantidades(resumoDuplicacao(tipo, id, op))}.`;
+      const repetido = nomeEmUsoNoDestino(tipo, op.nome, op.projeto, op.pasta);
+      m.querySelector("#aviso-duplicar").textContent = !repetido ? "" : {
+        projeto: "Já existe um espaço com esse nome.",
+        pasta: "Já existe uma pasta com esse nome nesse lugar.",
+        lista: "Já existe uma lista com esse nome nesse lugar.",
+      }[tipo];
+      m.querySelector("#btn-duplicar-estrutura").disabled = repetido || !op.nome;
+    };
+    m.querySelectorAll("input, select").forEach((el) => el.addEventListener(el.tagName === "SELECT" || el.type === "checkbox" ? "change" : "input", atualizar));
+    atualizar();
+    nome.focus();
+    nome.select();
+    m.querySelector("#form-modal").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const op = ler();
+      if (op.nome && !nomeEmUsoNoDestino(tipo, op.nome, op.projeto, op.pasta)) fecharModal(op);
+    });
+  });
+  if (!r) return;
+  duplicandoEstrutura = true;
+  toast("Duplicando…");
+  let resposta;
+  try {
+    resposta = await sb.rpc("tarefas_duplicar", {
+      p_tipo: tipo, p_id: id, p_nome: r.nome, p_projeto: r.projeto, p_pasta: r.pasta,
+      p_tarefas: r.tarefas, p_responsaveis: r.resp, p_manter_estado: r.manter, p_concluidas: r.concluidas,
+    });
+  } catch (e) {
+    resposta = { error: e };
+  } finally {
+    duplicandoEstrutura = false;
+  }
+  const { data, error } = resposta || {};
+  if (error || !data?.id) return toast(erroBanco(error, "Não deu pra duplicar"), true);
+  await recarregarERender();
+  if (tipo === "projeto") { expandidos.add("projeto:" + data.id); gravarLocal("tf_expandidos", [...expandidos]); }
+  else expandirAte(tipo, data.id);
+  irPara(`#/${tipo}/${data.id}`);
+  toast(`Cópia criada: ${textoQuantidades(data)}.`);
+}
+
 async function copiarLinksTarefas(ids) {
   const tarefas = S.tarefas.filter((t) => ids.includes(t.id));
   const texto = tarefas.map((t) => `${t.titulo}: ${location.origin}/#/lista/${t.lista_id}?t=${t.id}`).join("\n");

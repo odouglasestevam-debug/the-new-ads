@@ -282,6 +282,54 @@ try {
     await carregar();renderTudo();
   },alvoStatus);
   assert.equal(await page.locator('.quadro-coluna').count(),4);
+  // Duplicar pelo menu ⋯: nome, destino, opções, trava de nome repetido e a chamada única ao banco.
+  await page.evaluate(()=>{
+    window.__rpcOriginal=sb.rpc;window.__dup=null;
+    sb.rpc=async(nome,args)=>{
+      if(nome!=='tarefas_duplicar')return window.__rpcOriginal(nome,args);
+      window.__dup=args;
+      fixture.tables.tarefas_pastas.push({id:'pa-novo',projeto_id:args.p_projeto,pasta_pai_id:args.p_pasta,nome:args.p_nome});
+      fixture.tables.tarefas_listas.push({id:'l-novo-1',projeto_id:args.p_projeto,pasta_id:'pa-novo',nome:'Gestão de Tráfego'},{id:'l-novo-2',projeto_id:args.p_projeto,pasta_id:'pa-novo',nome:'Contrato'});
+      return {data:{id:'pa-novo',tipo:'pasta',pastas:1,listas:2,tarefas:0},error:null};
+    };
+    menuDe('pasta','pa1',document.querySelector('.barra-tarefas')||document.body);
+  });
+  await page.locator('#menu-flutuante button',{hasText:'Duplicar'}).click();
+  assert.equal(await page.locator('#dup-estrutura-nome').inputValue(),'Cliente fictício (cópia)');
+  assert.equal(await page.locator('#dup-destino').inputValue(),'p1|','padrão é o mesmo lugar');
+  assert.equal(await page.locator('#dup-destino option[value="p1|pa1"]').count(),0,'pasta não vai para dentro dela mesma');
+  assert.equal(await page.locator('#resumo-duplicar').innerText(),'Vai criar 1 pasta, 2 listas e 0 tarefas.');
+  assert.match(await page.locator('#dica-duplicar').innerText(),/voltam para “A fazer” e ficam sem data/);
+  await page.locator('#dup-estrutura-nome').fill('cliente fictício');
+  assert.equal(await page.locator('#btn-duplicar-estrutura').isDisabled(),true,'mesmo nome no mesmo lugar trava');
+  assert.match(await page.locator('#aviso-duplicar').innerText(),/Já existe uma pasta/);
+  await page.locator('#dup-destino').selectOption('p2|');
+  assert.equal(await page.locator('#btn-duplicar-estrutura').isDisabled(),false,'em outro espaço o nome está livre');
+  await page.locator('#dup-estrutura-nome').fill('Cliente Novo');
+  await page.locator('[data-op="tarefas"]').uncheck();
+  assert.equal(await page.locator('[data-op="manter"]').isDisabled(),true,'sem tarefas as outras opções não valem');
+  assert.match(await page.locator('#dica-duplicar').innerText(),/Só a estrutura/);
+  await page.locator('[data-op="tarefas"]').check();
+  await page.screenshot({path:'tests/artifacts/duplicar-desktop.png'});
+  await redimensionar(390,844);
+  assert.equal(await page.evaluate(()=>document.getElementById('modal').getBoundingClientRect().right<=innerWidth&&document.documentElement.scrollWidth<=innerWidth),true,'janela cabe no celular');
+  await page.screenshot({path:'tests/artifacts/duplicar-mobile.png'});
+  await redimensionar(1440,1000);
+  await page.locator('#btn-duplicar-estrutura').click();
+  await page.waitForFunction(()=>location.hash==='#/pasta/pa-novo');
+  assert.deepEqual(await page.evaluate(()=>window.__dup),{p_tipo:'pasta',p_id:'pa1',p_nome:'Cliente Novo',p_projeto:'p2',p_pasta:null,p_tarefas:true,p_responsaveis:true,p_manter_estado:false,p_concluidas:false});
+  assert.match(await page.locator('#toast').innerText(),/Cópia criada: 1 pasta, 2 listas e 0 tarefas/);
+  assert.equal(await page.locator('.cartao-local').count(),2,'abre a pasta nova com as listas');
+  await page.evaluate(()=>{duplicarEstrutura('lista','l1');});
+  assert.equal(await page.locator('#resumo-duplicar').innerText(),'Vai criar 1 lista e 7 tarefas.','conta as tarefas da lista');
+  await page.getByRole('button',{name:'Cancelar',exact:true}).click();
+  await page.evaluate(async()=>{
+    sb.rpc=window.__rpcOriginal;
+    fixture.tables.tarefas_pastas.splice(fixture.tables.tarefas_pastas.findIndex(p=>p.id==='pa-novo'),1);
+    for(const id of ['l-novo-1','l-novo-2'])fixture.tables.tarefas_listas.splice(fixture.tables.tarefas_listas.findIndex(l=>l.id===id),1);
+    await carregar();history.replaceState(null,'','#/central');renderTudo();
+  });
+  assert.equal(await page.locator('.quadro-coluna').count(),4);
   await page.getByRole('button',{name:'Lista',exact:true}).click();
   await page.getByRole('button',{name:'Revisar campanha de captação',exact:true}).click();
   await page.waitForTimeout(100);
