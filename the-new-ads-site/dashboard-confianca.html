@@ -285,8 +285,7 @@
       <button class="date-picker-option" data-preset="7">Últimos 7 dias</button>
       <button class="date-picker-option active" data-preset="30">Últimos 30 dias</button>
       <button class="date-picker-option" data-preset="90">Últimos 90 dias</button>
-      <button class="date-picker-option" data-preset="vendas">Desde 11/07 (lista de vendas)</button>
-      <button class="date-picker-option" data-preset="tudo">Tudo (desde 07/05/26)</button>
+      <button class="date-picker-option" data-preset="tudo">Tudo (desde 01/05/26)</button>
       <div class="date-picker-custom">
         <div class="date-picker-custom-label">Personalizado</div>
         <div class="date-picker-custom-row">
@@ -357,7 +356,7 @@
         <div class="kpi"><div class="label">ROAS sobre LTV</div><div class="value amber" id="kpi-roas-ltv"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Receita futura esperada</div><div class="value amber" id="kpi-receita-futura"><div class="skel"></div></div></div>
       </div>
-      <div class="note">CAC, LTV : CAC, ROAS e retorno usam só a verba da campanha de vendas da central, sem candidaturas e sem Londrina, a partir de 11/07/2026, início da lista de vendas. Retorno no fechamento é mensalidades mais adesões sobre essa verba. As 11 vendas de 11/07 a 12/08 foram informadas em lote e estão na data 12/08: mês isolado ou período que pega só parte desse intervalo distorce o CAC. Para ler o acumulado, use "Desde 11/07". Antes de 11/07 não há lista de vendas: a contagem de vendas usa os registros de Lead Ganho do rastreamento, sem valores e abaixo do real.</div>
+      <div class="note">CAC, LTV : CAC, ROAS e retorno usam só a verba da campanha de vendas da central, sem candidaturas e sem Londrina, no período. Retorno no fechamento é mensalidades mais adesões sobre essa verba. Vendas de maio conforme o relatório de maio, de junho e julho conforme as listas enviadas pela associação, e de agosto em diante pela lista de vendas. Até 12/08 as vendas foram informadas por mês, sem o dia do fechamento: leia por mês inteiro.</div>
     </section>
   </div>
 
@@ -506,8 +505,7 @@ const fmtDate = (iso) => iso ? iso.slice(0, 10).split('-').reverse().join('/') :
 function toISODate(d) { return d.toISOString().slice(0, 10); }
 function daysAgo(n) { const d = new Date(); d.setDate(d.getDate() - n); return toISODate(d); }
 
-const INICIO_RASTREIO = '2026-05-07'; // primeiro lead em confianca_tracking
-const INICIO_VENDAS = '2026-07-11'; // primeiro dia coberto pela lista de vendas do cliente
+const INICIO_RASTREIO = '2026-05-01'; // maio inteiro, igual ao relatorio de maio (primeiro lead em confianca_tracking e 07/05)
 const ehVaga = (campanha) => /VAGA/i.test(campanha || ''); // campanhas de recrutamento nao entram em CAC/CPL
 const ehWhats = (campanha) => /^WHATS/i.test(campanha || '');
 const ehLondrina = (campanha) => /LONDRINA/i.test(campanha || '');
@@ -578,7 +576,7 @@ const datePickerTrigger = document.getElementById('date-picker-trigger');
 const datePickerPanel = document.getElementById('date-picker-panel');
 const datePickerLabel = document.getElementById('date-picker-label');
 
-const PRESET_LABELS = { hoje: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias', 90: 'Últimos 90 dias', vendas: 'Desde 11/07 (lista de vendas)', tudo: 'Tudo (desde 07/05/26)' };
+const PRESET_LABELS = { hoje: 'Hoje', 7: 'Últimos 7 dias', 30: 'Últimos 30 dias', 90: 'Últimos 90 dias', tudo: 'Tudo (desde 01/05/26)' };
 
 function openDatePicker() {
   datePickerPanel.hidden = false;
@@ -610,7 +608,6 @@ function applyPreset(preset) {
   const today = toISODate(new Date());
   currentRange = preset === 'hoje' ? { since: today, until: today }
     : preset === 'tudo' ? { since: INICIO_RASTREIO, until: today }
-    : preset === 'vendas' ? { since: INICIO_VENDAS, until: today }
     : { since: daysAgo(Number(preset)), until: today };
 
   document.getElementById('date-from').value = currentRange.since;
@@ -1093,18 +1090,15 @@ async function loadVendas() {
     return;
   }
 
-  // Verba comparavel com as vendas: so a campanha de vendas da central, e so a partir do inicio da lista
+  // Verba comparavel com as vendas: so a campanha de vendas da central, no periodo
   const investimentoVendas = metaRowsCache
-    .filter((r) => r.data >= INICIO_VENDAS && ehCentral(r.campanha))
+    .filter((r) => ehCentral(r.campanha))
     .reduce((a, r) => a + Number(r.investimento || 0), 0);
 
-  // Antes de 11/07 nao ha lista de vendas: conta o Lead Ganho do rastreamento, que e piso e nao traz valores.
-  // pauloteixeiras ja esta na lista como Paulo Teixeira Bortolasse e nao pode contar duas vezes.
-  const vendasRastreio = trackingRowsCache.filter((l) => l.data < INICIO_VENDAS
-    && (l.etapa === 'Lead Ganho' || l.qualificacao === 'Lead Ganho')
-    && !/^pauloteixeiras/i.test(l.nome || '')).length;
+  // Desde 10/11/2026 todo mes tem lista (maio pelo relatorio de maio, junho e julho pelos prints do cliente),
+  // entao a venda vem so de confianca_vendas. Lead Ganho do rastreamento nao entra mais na contagem.
   const vendasLista = data.length;
-  const vendas = vendasLista + vendasRastreio;
+  const vendas = vendasLista;
   const mrr = data.reduce((a, v) => a + Number(v.mensalidade || 0), 0);
   const adesaoTotal = data.reduce((a, v) => a + Number(v.adesao || 0), 0);
   const receitaTotal = mrr + adesaoTotal;
