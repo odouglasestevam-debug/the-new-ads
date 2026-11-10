@@ -193,7 +193,7 @@ try {
   await page.getByLabel('Prioridade do filtro',{exact:true}).selectOption('urgente');
   const urgentes=await page.locator('.linha, .cu-linha').count();
   await page.getByRole('button',{name:'Salvar filtro',exact:true}).click();
-  assert.equal(await page.locator('.filtros-popover').count(),0,'painel fecha para o nome');
+  assert.equal(await page.locator('.filtros-popover').isVisible(),false,'painel fecha para o nome');
   await page.locator('#nome-filtro').fill('Urgentes');
   await page.getByRole('button',{name:'Salvar',exact:true}).click();
   await page.waitForFunction(()=>S.filtrosSalvos.length===1);

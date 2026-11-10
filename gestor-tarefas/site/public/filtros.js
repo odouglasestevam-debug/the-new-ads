@@ -230,7 +230,7 @@ async function salvarFiltroAtual() {
   fecharMenu();
   const nome = await abrirModal(`<form id="form-modal">
       <h2>Salvar filtro</h2>
-      <div class="campo" style="margin-top:14px"><label for="nome-filtro">Nome</label>
+      <div class="campo" style="margin-top:14px"><label for="nome-filtro">Nome do filtro</label>
         <input type="text" id="nome-filtro" value="${esc(origem?.nome || '')}" placeholder="Ex.: Urgentes da semana" required maxlength="60" autocomplete="off"></div>
       <p class="aviso" id="aviso-nome-filtro" aria-live="polite"></p>
       <div class="acoes"><button type="button" class="btn btn-fantasma" onclick="fecharModal(null)">Cancelar</button>
