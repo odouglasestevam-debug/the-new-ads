@@ -299,11 +299,11 @@
   </div>
 
   <div class="macro">
-    <div class="macro-title">Performance <span class="macro-sub">investimento e eficiência de entrega no período</span></div>
+    <div class="macro-title">Performance <span class="macro-sub">só a campanha de vendas da central; as demais frentes estão em Prestação de contas</span></div>
 
     <section>
       <div class="kpis kpis-primary" id="kpis">
-        <div class="kpi"><div class="label">Investimento</div><div class="value" id="kpi-investimento"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Verba campanha de vendas</div><div class="value" id="kpi-investimento"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Impressões</div><div class="value" id="kpi-impressoes"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">CTR (link)</div><div class="value amber" id="kpi-ctr"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Leads</div><div class="value" id="kpi-leads"><div class="skel"></div></div></div>
@@ -353,10 +353,11 @@
         <div class="kpi"><div class="label">CAC</div><div class="value" id="kpi-cac"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">LTV</div><div class="value" id="kpi-ltv"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">LTV : CAC</div><div class="value amber" id="kpi-ltv-cac"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Retorno no fechamento</div><div class="value amber" id="kpi-retorno-fechamento"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">ROAS sobre LTV</div><div class="value amber" id="kpi-roas-ltv"><div class="skel"></div></div></div>
         <div class="kpi"><div class="label">Receita futura esperada</div><div class="value amber" id="kpi-receita-futura"><div class="skel"></div></div></div>
       </div>
-      <div class="note">CAC, LTV : CAC e ROAS usam só a verba das campanhas de vendas (sem as de vaga), a partir de 11/07/2026, início da lista de vendas. As 11 vendas de 11/07 a 12/08 foram informadas em lote e estão na data 12/08: mês isolado ou período que pega só parte desse intervalo distorce o CAC. Para ler o acumulado, use "Desde 11/07". Antes de 11/07 não há lista de vendas: a contagem de vendas usa os registros de Lead Ganho do rastreamento, sem valores e abaixo do real.</div>
+      <div class="note">CAC, LTV : CAC, ROAS e retorno usam só a verba da campanha de vendas da central, sem candidaturas e sem Londrina, a partir de 11/07/2026, início da lista de vendas. Retorno no fechamento é mensalidades mais adesões sobre essa verba. As 11 vendas de 11/07 a 12/08 foram informadas em lote e estão na data 12/08: mês isolado ou período que pega só parte desse intervalo distorce o CAC. Para ler o acumulado, use "Desde 11/07". Antes de 11/07 não há lista de vendas: a contagem de vendas usa os registros de Lead Ganho do rastreamento, sem valores e abaixo do real.</div>
     </section>
   </div>
 
@@ -457,6 +458,19 @@
     </section>
   </div>
 
+  <div class="macro">
+    <div class="macro-title">Prestação de contas <span class="macro-sub">tudo o que foi investido em Meta Ads no período, por frente</span></div>
+    <section>
+      <div class="kpis" style="margin-bottom:0;">
+        <div class="kpi"><div class="label">Campanha de vendas da central</div><div class="value amber" id="kpi-verba-central"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Aquisição de candidaturas</div><div class="value" id="kpi-verba-vaga"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Londrina</div><div class="value" id="kpi-verba-londrina"><div class="skel"></div></div></div>
+        <div class="kpi"><div class="label">Total investido</div><div class="value" id="kpi-verba-total"><div class="skel"></div></div></div>
+      </div>
+      <div class="note">Só a campanha de vendas da central entra na performance, no CAC e no retorno.</div>
+    </section>
+  </div>
+
   <footer>
     <span>The New Ads · thenewads.com.br</span>
     <span>Dashboard gerado automaticamente a partir do Meta Ads</span>
@@ -496,6 +510,8 @@ const INICIO_RASTREIO = '2026-05-07'; // primeiro lead em confianca_tracking
 const INICIO_VENDAS = '2026-07-11'; // primeiro dia coberto pela lista de vendas do cliente
 const ehVaga = (campanha) => /VAGA/i.test(campanha || ''); // campanhas de recrutamento nao entram em CAC/CPL
 const ehWhats = (campanha) => /^WHATS/i.test(campanha || '');
+const ehLondrina = (campanha) => /LONDRINA/i.test(campanha || '');
+const ehCentral = (campanha) => !ehVaga(campanha) && !ehLondrina(campanha); // base de CAC, retorno e entrega
 
 // O Supabase devolve no maximo 1000 linhas por chamada: pagina ate trazer tudo.
 // montarQuery precisa ter ordenacao estavel, senao as paginas se sobrepoem.
@@ -637,9 +653,12 @@ async function loadKpisAndAds() {
 
   let investimento = 0, investimentoWhats = 0, impressoes = 0, cliques = 0, alcance = 0, leads = 0, resultados = 0, videoView = 0;
   let engajamento = 0, reacoes = 0, comentarios = 0, compartilhamentos = 0, salvamentos = 0;
-  let freqSum = 0, freqN = 0;
+  let freqSum = 0, freqN = 0, verbaVaga = 0, verbaLondrina = 0;
 
   for (const row of data) {
+    if (ehVaga(row.campanha)) verbaVaga += Number(row.investimento || 0);
+    else if (ehLondrina(row.campanha)) verbaLondrina += Number(row.investimento || 0);
+    if (!ehCentral(row.campanha)) continue;
     investimento += Number(row.investimento || 0);
     if (ehWhats(row.campanha)) investimentoWhats += Number(row.investimento || 0);
     impressoes += Number(row.impressoes || 0);
@@ -657,6 +676,10 @@ async function loadKpisAndAds() {
   }
 
   document.getElementById('kpi-investimento').textContent = fmtMoney(investimento);
+  document.getElementById('kpi-verba-central').textContent = fmtMoney(investimento);
+  document.getElementById('kpi-verba-vaga').textContent = fmtMoney(verbaVaga);
+  document.getElementById('kpi-verba-londrina').textContent = fmtMoney(verbaLondrina);
+  document.getElementById('kpi-verba-total').textContent = fmtMoney(investimento + verbaVaga + verbaLondrina);
   document.getElementById('kpi-impressoes').textContent = fmtInt(impressoes);
   document.getElementById('kpi-alcance').textContent = fmtInt(alcance);
   document.getElementById('kpi-ctr').textContent = impressoes ? fmtPct((cliques / impressoes) * 100) : '—';
@@ -929,6 +952,7 @@ function buildMetricasPorChave(chave) {
   const agg = new Map();
 
   for (const row of metaRowsCache) {
+    if (!ehCentral(row.campanha)) continue;
     const nome = row[metaKey];
     if (!nome) continue;
     const acc = agg.get(nome) || {
@@ -1025,6 +1049,7 @@ function loadGapGeral() {
   let msgs = 0;
   let leadsReais = 0;
   for (const row of metaRowsCache) {
+    if (!ehCentral(row.campanha)) continue;
     msgs += Number(row.mensagens_iniciadas || 0);
     // campanhas de formulário (prefixo FORM_) não são mensagem — só conta lead de campanha de mensagem (WhatsApp)
     if (!row.campanha || !row.campanha.toUpperCase().startsWith('FORM')) {
@@ -1068,9 +1093,9 @@ async function loadVendas() {
     return;
   }
 
-  // Verba comparavel com as vendas: so campanhas de vendas, e so a partir do inicio da lista de vendas
+  // Verba comparavel com as vendas: so a campanha de vendas da central, e so a partir do inicio da lista
   const investimentoVendas = metaRowsCache
-    .filter((r) => r.data >= INICIO_VENDAS && !ehVaga(r.campanha))
+    .filter((r) => r.data >= INICIO_VENDAS && ehCentral(r.campanha))
     .reduce((a, r) => a + Number(r.investimento || 0), 0);
 
   // Antes de 11/07 nao ha lista de vendas: conta o Lead Ganho do rastreamento, que e piso e nao traz valores.
@@ -1088,6 +1113,8 @@ async function loadVendas() {
   const roasLtv = vendasLista && investimentoVendas ? (vendasLista * LTV_MEDIANO) / investimentoVendas : null;
   const taxaConversao = lastLeadsQualificados ? (vendas / lastLeadsQualificados) * 100 : null;
   const receitaFutura = vendasLista * LTV_MEDIANO;
+  const retornoFechamento = vendasLista && investimentoVendas ? receitaTotal / investimentoVendas : null;
+  document.getElementById('kpi-retorno-fechamento').textContent = retornoFechamento != null ? retornoFechamento.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + 'x' : '—';
 
   document.getElementById('kpi-vendas-aprovadas').textContent = fmtInt(vendas);
   document.getElementById('kpi-receita-total').textContent = fmtMoney(receitaTotal);
