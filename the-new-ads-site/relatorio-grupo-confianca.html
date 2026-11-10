@@ -404,7 +404,7 @@ function agrega(lista, a, b) {
 
 function renderCriativos() {
   const { a, b } = P;
-  const top = Object.entries(D.A).map(([n, l]) => ({ n, s: agrega(l, a, b) })).filter((x) => x.s[4] > 0).sort((x, y) => (y.s[4] - x.s[4]) || (y.s[0] - x.s[0])).slice(0, 5);
+  const top = Object.entries(D.A).map(([n, l]) => ({ n, s: agrega(l, a, b) })).filter((x) => x.s[4] > 0 && x.s[0] > 0).sort((x, y) => (y.s[4] - x.s[4]) || (y.s[0] - x.s[0])).slice(0, 5);
   $('cria').innerHTML = top.map(({ n, s }, i) => {
     const th = D.thumbs[n];
     const img = th ? `<img class="c-img" src="${th.img}" alt="Miniatura do anúncio ${esc(n)}" loading="lazy">` : '<div class="c-ph">sem prévia</div>';

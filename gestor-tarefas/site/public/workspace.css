@@ -230,6 +230,20 @@ select.status-sel {font-size:11px;border-radius:5px;color:var(--branco)!importan
 .check.feito[style*="--st"] {background:var(--st);border-color:var(--st);color:#fff}
 .menu-flutuante .bolinha-menu {width:9px;height:9px;border-radius:50%;flex:none}
 .menu-flutuante .marcado-menu {margin-left:auto;color:var(--ambar);font-weight:700}
+.menu-flutuante button.acao-menu {color:var(--barra-ativo,var(--nevoa));font-size:12.5px}
+/* Novo status: paleta, outra cor e prévia */
+.legenda-cor {display:block;font-size:12px;color:var(--nevoa);margin-bottom:7px}
+.paleta-status {display:flex;flex-wrap:wrap;gap:9px}
+.campo .paleta-status label.amostra-cor {position:relative;display:inline-flex;width:28px;height:28px;margin:0;cursor:pointer;flex:none}
+.amostra-cor input {position:absolute;inset:0;width:100%;height:100%;margin:0;padding:0;border:0;opacity:0;cursor:pointer}
+.amostra-cor span {width:100%;height:100%;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 1px rgba(0,0,0,.14);pointer-events:none}
+.amostra-cor.outra span {background:conic-gradient(#EF4444,#FACC15,#4ADE80,#60A5FA,#A78BFA,#F472B6,#EF4444)}
+.amostra-cor input:checked + span,.amostra-cor.outra.escolhida span {outline:2px solid var(--branco);outline-offset:2px}
+.amostra-cor input:focus-visible + span {outline:2px solid var(--ambar);outline-offset:2px}
+.previa-status {margin:-2px 0 4px}
+.previa-status .status-pill {cursor:default}
+.form-novo-status .aviso:empty {min-height:0;margin:0}
+@media (max-width:860px) {.campo .paleta-status label.amostra-cor {width:36px;height:36px}}
 .menu-flutuante button.atual {font-weight:600}
 
 /* Menu ⋯ na linha e no quadro */

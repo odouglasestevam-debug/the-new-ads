@@ -10,10 +10,74 @@ function botaoStatus(t, grande) {
 
 function menuStatus(ancora, id) {
   const t = S.tarefas.find((x) => x.id === id);
-  abrirMenu(ancora, [...S.status].sort((a, b) => a.ordem - b.ordem).map((s) => ({
-    t: s.nome, cor: s.cor, atual: s.id === t.status_id,
-    acao: () => { if (s.id !== t.status_id) salvarTarefa(id, { status_id: s.id }, { silencioso: true }); },
-  })));
+  abrirMenu(ancora, [
+    ...[...S.status].sort((a, b) => a.ordem - b.ordem).map((s) => ({
+      t: s.nome, cor: s.cor, atual: s.id === t.status_id,
+      acao: () => { if (s.id !== t.status_id) salvarTarefa(id, { status_id: s.id }, { silencioso: true }); },
+    })),
+    ...itemNovoStatus(id),
+  ]);
+}
+
+// Status vale para todas as listas e o banco só deixa admin criar, então membro não vê a opção.
+function itemNovoStatus(id) {
+  return S.eu?.admin ? ["-", { t: "+ Novo status", classe: "acao-menu", acao: () => novoStatusDaTarefa(id) }] : [];
+}
+
+async function novoStatusDaTarefa(id) {
+  const r = await pedirNovoStatus();
+  if (!r) return;
+  const novo = await criarStatus(r);
+  if (!novo) return recarregarERender();
+  toast(`Status “${novo.nome}” criado.`);
+  // Quem abriu o seletor queria trocar o status desta tarefa: o novo já vai para ela.
+  if (id && S.tarefas.some((t) => t.id === id)) salvarTarefa(id, { status_id: novo.id }, { silencioso: true });
+  else recarregarERender();
+}
+
+function pedirNovoStatus() {
+  const sugerida = corLivreStatus();
+  return abrirModal(`
+    <form id="form-modal" class="form-novo-status">
+      <h2>Novo status</h2>
+      <div class="campo" style="margin-top:14px"><label for="status-nome">Nome do status</label>
+        <input type="text" id="status-nome" required maxlength="40" autocomplete="off" placeholder="Ex.: Aguardando cliente"></div>
+      <div class="campo"><span class="legenda-cor" id="legenda-cor">Cor</span>
+        <div class="paleta-status" role="radiogroup" aria-labelledby="legenda-cor">
+          ${CORES_STATUS.map((c) => `<label class="amostra-cor" style="--c:${c}" title="${c}"><input type="radio" name="cor-status" value="${c}"${c === sugerida ? " checked" : ""} aria-label="Cor ${c}"><span></span></label>`).join("")}
+          <label class="amostra-cor outra" title="Outra cor"><input type="color" id="cor-livre" value="${sugerida}" aria-label="Escolher outra cor"><span></span></label>
+        </div></div>
+      <div class="previa-status" aria-hidden="true"><span class="status-pill" style="--st:${sugerida}"><span class="bolinha"></span><span class="nome">Prévia</span></span></div>
+      <p class="aviso erro" id="aviso-status" role="alert"></p>
+      <div class="acoes"><button type="button" class="btn btn-fantasma" onclick="fecharModal(null)">Cancelar</button>
+        <button class="btn" id="btn-criar-status">Criar</button></div>
+    </form>`, (m) => {
+    const nome = m.querySelector("#status-nome"), livre = m.querySelector("#cor-livre"), aviso = m.querySelector("#aviso-status");
+    const pill = m.querySelector(".previa-status .status-pill"), botao = m.querySelector("#btn-criar-status");
+    let cor = sugerida;
+    const atualizar = () => {
+      pill.style.setProperty("--st", cor);
+      pill.querySelector(".nome").textContent = nome.value.trim() || "Prévia";
+      const repetido = nomeStatusEmUso(nome.value);
+      aviso.textContent = repetido ? `Já existe o status “${repetido.nome}”.` : "";
+      botao.disabled = !!repetido;
+      m.querySelector(".amostra-cor.outra").classList.toggle("escolhida", !CORES_STATUS.includes(cor));
+    };
+    m.querySelectorAll('input[name="cor-status"]').forEach((el) => el.addEventListener("change", () => { cor = el.value; atualizar(); }));
+    livre.addEventListener("input", () => {
+      cor = livre.value.toUpperCase();
+      m.querySelectorAll('input[name="cor-status"]').forEach((el) => { el.checked = el.value === cor; });
+      atualizar();
+    });
+    nome.addEventListener("input", atualizar);
+    atualizar();
+    nome.focus();
+    m.querySelector("#form-modal").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const texto = nome.value.trim();
+      if (texto && !nomeStatusEmUso(texto)) fecharModal({ nome: texto, cor });
+    });
+  });
 }
 
 // O quadradinho colorido abre os status, com concluir/reabrir em cima para seguir num clique só.
@@ -28,6 +92,7 @@ function menuStatusDoQuadrado(ancora, id) {
       t: s.nome, cor: s.cor, atual: s.id === t.status_id,
       acao: () => { if (s.id !== t.status_id) salvarTarefa(id, { status_id: s.id }, { silencioso: true }); },
     })),
+    ...itemNovoStatus(id),
   ]);
 }
 

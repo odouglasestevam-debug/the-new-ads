@@ -131,6 +131,7 @@ function erroBanco(error, padrao) {
   if (m.includes("pelo menos um admin")) return "O gestor precisa de pelo menos um admin ativo.";
   if (m.includes("dentro dela mesma")) return "Uma pasta não pode ficar dentro dela mesma.";
   if (m.includes("filtros_salvos_nome")) return "Já existe um filtro salvo com esse nome.";
+  if (m.includes("status_nome_key")) return "Já existe um status com esse nome.";
   return (padrao || "Não deu certo") + (m ? `: ${m}` : ".");
 }
 
@@ -197,7 +198,7 @@ function escolher({ titulo, rotulo, opcoes, valor, botao = "Mover" }) {
 function abrirMenu(ancora, itens) {
   const menu = document.getElementById("menu-flutuante");
   menu.innerHTML = itens.map((it, i) => it === "-" ? "<hr>" :
-    `<button data-i="${i}" class="${it.perigo ? "perigo" : ""}${it.atual ? " atual" : ""}">${it.cor ? `<span class="bolinha-menu" style="background:${esc(it.cor)}"></span>` : ""}${esc(it.t)}${it.atual ? '<span class="marcado-menu">✓</span>' : ""}</button>`).join("");
+    `<button data-i="${i}" class="${it.perigo ? "perigo" : ""}${it.atual ? " atual" : ""}${it.classe ? " " + it.classe : ""}">${it.cor ? `<span class="bolinha-menu" style="background:${esc(it.cor)}"></span>` : ""}${esc(it.t)}${it.atual ? '<span class="marcado-menu">✓</span>' : ""}</button>`).join("");
   menu.classList.add("ativo");
   ancoraMenu = ancora;
   const r = ancora.getBoundingClientRect();
@@ -1566,16 +1567,32 @@ function abaStatus() {
   document.getElementById("form-status")?.addEventListener("submit", async (e) => {
     e.preventDefault();
     const nome = document.getElementById("novo-status").value.trim();
-    const concluido = primeiroStatus("concluido");
-    const ordem = concluido ? concluido.ordem : Math.max(0, ...S.status.map((s) => s.ordem)) + 1;
-    if (concluido) {
-      for (const s of S.status.filter((x) => x.ordem >= ordem)) await db().from("status").update({ ordem: s.ordem + 1 }).eq("id", s.id);
-    }
-    const { error } = await db().from("status").insert({ nome, ordem, cor: "#A78BFA" });
-    if (error) toast(erroBanco(error, "Não deu pra criar"), true);
+    if (nomeStatusEmUso(nome)) return toast("Já existe um status com esse nome.", true);
+    await criarStatus({ nome, cor: corLivreStatus() });
     await carregar();
     renderAjustes();
   });
+}
+
+// Status novo nasce aberto, logo antes do primeiro concluído (quem quiser outro tipo troca em Ajustes > Status).
+async function criarStatus({ nome, cor }) {
+  const concluido = primeiroStatus("concluido");
+  const ordem = concluido ? concluido.ordem : Math.max(0, ...S.status.map((s) => s.ordem)) + 1;
+  if (concluido) {
+    for (const s of S.status.filter((x) => x.ordem >= ordem)) await db().from("status").update({ ordem: s.ordem + 1 }).eq("id", s.id);
+  }
+  const { data, error } = await db().from("status").insert({ nome, ordem, cor: cor.toUpperCase() }).select().single();
+  if (error || !data) { toast(erroBanco(error, "Não deu pra criar o status"), true); return null; }
+  return data;
+}
+function nomeStatusEmUso(nome) {
+  const chave = String(nome || "").trim().toLocaleLowerCase("pt-BR");
+  return S.status.find((s) => s.nome.trim().toLocaleLowerCase("pt-BR") === chave) || null;
+}
+const CORES_STATUS = ["#8A8A8A", "#60A5FA", "#A78BFA", "#F472B6", "#FACC15", "#FF6A00", "#EF4444", "#4ADE80"];
+function corLivreStatus() {
+  const usadas = new Set(S.status.map((s) => s.cor.toUpperCase()));
+  return CORES_STATUS.find((c) => !usadas.has(c)) || CORES_STATUS[2];
 }
 
 async function salvarStatus(id, patch) {

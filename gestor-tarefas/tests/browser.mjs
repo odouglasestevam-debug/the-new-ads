@@ -250,6 +250,38 @@ try {
   assert.equal(await page.locator('#menu-flutuante .bolinha-menu').count(),4,'Menu de status mostra cor de cada status');
   await page.locator('#menu-flutuante button',{hasText:'Em revisão'}).click();
   await page.waitForFunction(()=>!gravacoesPendentes.size);
+  // Novo status direto do seletor: só admin, nome repetido bloqueia, entra antes do concluído e já vai para a tarefa.
+  const alvoStatus=await page.evaluate(()=>{const t=S.grupos.find(g=>g.itens.length).itens[0];return {id:t.id,status:t.status_id};});
+  await page.locator('.quadro-cartao').first().locator('.status-pill').click();
+  await page.locator('#menu-flutuante').screenshot({path:'tests/artifacts/menu-status.png'});
+  await page.getByRole('button',{name:'+ Novo status',exact:true}).click();
+  await page.locator('#status-nome').fill('em revisão');
+  assert.equal(await page.locator('#btn-criar-status').isDisabled(),true,'nome repetido não cria');
+  assert.match(await page.locator('#aviso-status').innerText(),/Já existe o status “Em revisão”/);
+  await page.locator('#status-nome').fill('Aguardando cliente');
+  await page.getByLabel('Cor #F472B6',{exact:true}).check();
+  assert.equal(await page.locator('.previa-status .nome').innerText(),'Aguardando cliente');
+  assert.equal(await page.locator('.previa-status .status-pill').evaluate(el=>el.style.getPropertyValue('--st')),'#F472B6');
+  await page.screenshot({path:'tests/artifacts/novo-status.png'});
+  await page.getByRole('button',{name:'Criar',exact:true}).click();
+  await page.waitForFunction(id=>!gravacoesPendentes.size&&S.tarefas.find(t=>t.id===id)?.status_nome==='Aguardando cliente',alvoStatus.id);
+  const criadoStatus=await page.evaluate(()=>{const s=[...S.status].sort((a,b)=>a.ordem-b.ordem);return {nomes:s.map(x=>x.nome),novo:s.find(x=>x.nome==='Aguardando cliente')};});
+  assert.deepEqual(criadoStatus.nomes,['A fazer','Em andamento','Em revisão','Aguardando cliente','Concluído'],'novo status entra antes do concluído');
+  assert.equal(criadoStatus.novo.cor,'#F472B6');
+  assert.equal(await page.locator('.quadro-coluna').count(),5,'quadro ganha a coluna nova');
+  await page.evaluate(()=>{S.eu.admin=false;});
+  await page.locator('.quadro-cartao').first().locator('.status-pill').click();
+  assert.equal(await page.locator('#menu-flutuante button',{hasText:'Novo status'}).count(),0,'membro não vê criar status');
+  await page.keyboard.press('Escape');
+  await page.evaluate(async alvo=>{
+    S.eu.admin=true;
+    const novo=fixture.tables.tarefas_status.find(s=>s.nome==='Aguardando cliente'), volta=fixture.tables.tarefas_status.find(s=>s.id===alvo.status);
+    for(const nome of ['tarefas_visao','tarefas_tarefas'])for(const t of fixture.tables[nome].filter(t=>t.status_id===novo.id))Object.assign(t,{status_id:volta.id,status_nome:volta.nome,status_cor:volta.cor,status_tipo:volta.tipo});
+    fixture.tables.tarefas_status.splice(fixture.tables.tarefas_status.indexOf(novo),1);
+    fixture.tables.tarefas_status.find(s=>s.id==='s4').ordem=4;
+    await carregar();renderTudo();
+  },alvoStatus);
+  assert.equal(await page.locator('.quadro-coluna').count(),4);
   await page.getByRole('button',{name:'Lista',exact:true}).click();
   await page.getByRole('button',{name:'Revisar campanha de captação',exact:true}).click();
   await page.waitForTimeout(100);
