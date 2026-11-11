@@ -195,6 +195,13 @@ Tela de Integrações é construída ao longo das fases 2 e 3. Formulário nativ
 - Trocar de aba com o editor de formulário aberto pede confirmação, como já fazia o menu principal
 - Testado no navegador: 16 verificações, incluindo a preferência sobrevivendo ao recarregar, sem erro de JS e sem rolagem lateral no celular
 
+**11/11/2026, número de WhatsApp por vendedora (Agari), decidido em conversa depois da reunião com a equipe:**
+- Motivo: a equipe quer follow-up livre (áudio, figurinha, vídeo) sem template da API oficial. Cada vendedora atende no WhatsApp Business do celular comercial, conectado à NeoGo, e o CRM só escuta e mede
+- Decisões do Douglas: chip é da Agari; todo contato do número comercial é lead (sem caixa "a classificar"); Pâmela (dona) vê métricas e conversas; piloto com Caroline Piccolli (`carol.adm`, não confundir com Carol Teixeira `operacoes`)
+- Achados no banco que a migration precisa resolver: `integracoes` tem `unique (empresa_id, tipo)` (só 1 NeoGo por empresa); conversa é única por lead e **tipo** de canal, não por número; lead novo vindo do WhatsApp nasce sem responsável e cai na fila (Agari está em modo fila com 6 pessoas), então cliente da Carol iria para outra vendedora; `neogo-webhook` descarta mensagem de contato só com LID (só `console.warn`)
+- Proposta `0030_numero_por_vendedora` apresentada, **aguardando aprovação**: vários NeoGo por empresa com `dono_id`, conversa por `integracao_id`, lead novo nasce no nome da dona do número, LID aprendido e mensagem guardada até achar o telefone, sem repasse por prazo quando a conversa está no número da própria responsável, origem `whatsapp_direto`
+- Painel de desempenho da Pâmela vem depois do piloto, com as mesmas regras de cálculo do monitor `atendimento-whatsapp/` (Sapataria, criado em 11/11 por outra sessão; não mexer nele)
+
 **Próximos passos (em ordem):**
 1. Agari: URL da NeoGo, ID e token da instância, quais slots de webhook já estão em uso; token Meta com ads_read na conta da Agari
 2. Ligar, mandar mensagem real de teste, conferir chegada, resposta e nomes do anúncio
