@@ -39,8 +39,9 @@ Metas iniciais (ajustáveis na tela): 1ª resposta até 15 min, 95% respondidas 
 
 ## Estado em 11/11/2026
 
-- Aplicado: `0001_estrutura.sql`, as 3 Edge Functions e a tela.
-- **Pendente:** `0002` a `0004`. O `apply_migration` foi recusado automaticamente nessa sessão (a parte 1, sem UPDATE/DELETE, passou). Arquivo único pronto pra colar no SQL Editor: `supabase/aplicar-partes-2-a-4.sql`.
+- Tudo aplicado: `0001` pelo `apply_migration`; `0002` a `0004` pelo Douglas no SQL Editor (`supabase/aplicar-partes-2-a-4.sql`), porque o `apply_migration`/`execute_sql` com UPDATE ou DELETE é recusado automaticamente nesse ambiente. Mudança de banco que apaga ou altera dado: preparar o SQL e pedir pro Douglas rodar no SQL Editor.
+- Testado em produção com eventos no formato da NeoGo pelo webhook publicado (sem `instanceId`, pra não prender a conta): mensagem de entrada e saída, read-self, LID ligado ao telefone, LID sozinho, mensagem temporária, áudio PTT, grupo ignorado, miniatura removida, 1ª resposta 8 min. Transcrição sem chave avisa; IA recusa sem segredo; texto do lote conferido.
+- Corrigido no teste (webhook v2): campo nulo ia como `null` JSON e o banco contava como "tem anúncio". A Edge Function agora não manda campo vazio.
 - Tarefas do Douglas na pasta SDF - Nações: criar a chave da OpenAI e conectar a instância da NeoGo.
 - Depois de conectar: conferir com uma mensagem real se a NeoGo manda `Receipt` com `read-self` e se `audioMessage` traz `mediaKey`/`directPath` (o mapeamento foi feito pelo protobuf do whatsmeow, sem amostra real de áudio).
 - Reconectar o número religa o fluxo n8n "Trackeamento de Mensagem Nações Shopping", que ainda grava planilha e Supabase em paralelo.

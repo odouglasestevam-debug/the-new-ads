@@ -116,12 +116,13 @@ Deno.serve(async (req) => {
     auth: { persistSession: false },
   });
   const registrar = async (evento: Record<string, unknown>) => {
-    const { data, error } = await admin.rpc("atendimento_registrar", {
-      p_slug: slug, p_token: token,
-      p_evento: { instance_id: payload.instanceId ? String(payload.instanceId) : null,
-        instance_nome: payload.instanceName ? String(payload.instanceName) : null,
-        tipo_evento: String(payload.event || ""), ...evento },
-    });
+    // Campo vazio não vai: um null do JSON viraria "tem anúncio" / "tem mídia" no banco
+    const p_evento = Object.fromEntries(Object.entries({
+      instance_id: payload.instanceId ? String(payload.instanceId) : null,
+      instance_nome: payload.instanceName ? String(payload.instanceName) : null,
+      tipo_evento: String(payload.event || ""), ...evento,
+    }).filter(([, v]) => v !== null && v !== undefined));
+    const { data, error } = await admin.rpc("atendimento_registrar", { p_slug: slug, p_token: token, p_evento });
     if (error) { console.error("atendimento_registrar", error.message); return resposta(500, "erro ao gravar"); }
     if (data === "nao_autorizado") return resposta(401, "não autorizado");
     return resposta(200, String(data));
