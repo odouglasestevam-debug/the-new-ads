@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="112" fill="#0A0A0A"/>
+  <!-- balão de conversa com um relógio: tempo de resposta -->
+  <path d="M256 104c-92 0-160 62-160 138 0 37 16 70 43 95l-15 71 74-35c18 6 37 9 58 9 92 0 160-62 160-140S348 104 256 104z" fill="none" stroke="#FAFAFA" stroke-width="28" stroke-linejoin="round"/>
+  <path d="M256 170v76l50 30" fill="none" stroke="#FF6A00" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

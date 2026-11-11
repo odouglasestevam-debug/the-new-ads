@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Monitor de atendimento</title>
+<link rel="icon" type="image/svg+xml" href="/icone.svg">
+<link rel="stylesheet" href="/estilo.css?v=1">
+</head>
+<body>
+
+<section id="tela-entrar" class="entrar" hidden>
+  <form id="form-entrar" class="cartao-entrar" autocomplete="on">
+    <img src="/icone.svg" alt="" width="44" height="44">
+    <h1>Monitor de atendimento</h1>
+    <p class="suave">The New Ads · acesso restrito</p>
+    <label>E-mail<input type="email" id="email" autocomplete="username" required></label>
+    <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
+    <label id="campo-codigo" hidden>Código do autenticador<input type="text" id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+    <button class="btn" type="submit" id="btn-entrar">Entrar</button>
+    <p id="erro-entrar" class="erro" role="alert"></p>
+  </form>
+</section>
+
+<div id="app" hidden>
+  <header class="topo">
+    <div class="marca">
+      <img src="/icone.svg" alt="" width="28" height="28">
+      <div>
+        <strong id="nome-conta">Atendimento</strong>
+        <span id="status-conexao" class="status"></span>
+      </div>
+    </div>
+    <nav class="abas" aria-label="Seções">
+      <a href="#geral" data-aba="geral">Visão geral</a>
+      <a href="#agora" data-aba="agora">Agora</a>
+      <a href="#historico" data-aba="historico">Histórico</a>
+      <a href="#config" data-aba="config">Configuração</a>
+    </nav>
+    <div class="topo-dir">
+      <select id="sel-conta" aria-label="Loja" hidden></select>
+      <button class="btn-fantasma" id="btn-sair" type="button">Sair</button>
+    </div>
+  </header>
+
+  <main>
+    <section id="aba-geral" class="aba" hidden>
+      <div class="barra-periodo">
+        <div class="chips" id="chips-periodo" role="group" aria-label="Período">
+          <button type="button" data-p="7">7 dias</button>
+          <button type="button" data-p="30">30 dias</button>
+          <button type="button" data-p="semana">Esta semana</button>
+          <button type="button" data-p="mes">Este mês</button>
+          <button type="button" data-p="mes-passado">Mês passado</button>
+        </div>
+        <div class="datas">
+          <input type="date" id="de" aria-label="De">
+          <span>até</span>
+          <input type="date" id="ate" aria-label="Até">
+        </div>
+      </div>
+      <div id="aviso-geral" class="aviso" hidden></div>
+      <div id="kpis" class="kpis"></div>
+      <div id="blocos" class="blocos"></div>
+      <section class="painel">
+        <header class="painel-topo">
+          <h2>Quando o cliente espera</h2>
+          <p class="suave">Mediana da espera pela loja, por dia e hora em que o cliente escreveu com a loja aberta (minutos dentro do horário). Clique numa célula pra ver os atendimentos daquele dia.</p>
+        </header>
+        <div id="calor" class="calor"></div>
+      </section>
+    </section>
+
+    <section id="aba-agora" class="aba" hidden>
+      <div id="filas" class="filas"></div>
+    </section>
+
+    <section id="aba-historico" class="aba" hidden>
+      <section class="painel">
+        <header class="painel-topo">
+          <h2>Evolução semana a semana</h2>
+          <p class="suave">Cada semana é fechada na terça às 8h e fica congelada. A linha "Semana atual" é calculada agora e muda até o fechamento.</p>
+        </header>
+        <div id="historico" class="tabela-rolagem"></div>
+      </section>
+    </section>
+
+    <section id="aba-config" class="aba" hidden>
+      <div id="config"></div>
+    </section>
+  </main>
+</div>
+
+<aside id="gaveta" class="gaveta" hidden aria-modal="true" role="dialog" aria-labelledby="gaveta-titulo">
+  <div class="gaveta-fundo" data-fechar></div>
+  <div class="gaveta-corpo">
+    <header class="gaveta-topo">
+      <button type="button" class="btn-fantasma" id="gaveta-voltar" hidden>← Voltar</button>
+      <h2 id="gaveta-titulo"></h2>
+      <button type="button" class="btn-fantasma" data-fechar aria-label="Fechar">✕</button>
+    </header>
+    <div id="gaveta-conteudo" class="gaveta-conteudo"></div>
+  </div>
+</aside>
+
+<div id="toast" class="toast" role="status" hidden></div>
+
+<script src="/vendor/supabase.js"></script>
+<script src="/app.js?v=1"></script>
+</body>
+</html>
