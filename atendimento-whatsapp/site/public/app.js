@@ -445,7 +445,7 @@ async function abrirConversa(contato, inicio, fim, resumoTxt) {
       if (partes.length) topo = `<div class="resumo-atend">${partes.join("")}</div>`;
     } catch { /* resumo opcional */ }
   }
-  let html = "", diaAtual = "", esperaDesde = null, alvo = "";
+  let html = "", diaAtual = "", esperaDesde = null, marcado = false;
   const ini = inicio ? new Date(inicio).getTime() : null, fimT = fim ? new Date(fim).getTime() : null;
   for (const x of msgs) {
     if (x.tipo === "reacao") continue;
@@ -460,7 +460,8 @@ async function abrirConversa(contato, inicio, fim, resumoTxt) {
       esperaDesde = null;
     }
     const fora = ini && (t < ini || t > fimT) ? ' style="opacity:.45"' : "";
-    if (ini && !alvo && t >= ini) alvo = ` id="inicio-atend"`;
+    let ancora = "";
+    if (ini && !marcado && t >= ini) { ancora = ' id="inicio-atend"'; marcado = true; }
     let corpo = "";
     if (x.tipo === "texto") corpo = esc(x.texto);
     else if (x.tipo === "audio") {
@@ -471,7 +472,7 @@ async function abrirConversa(contato, inicio, fim, resumoTxt) {
     } else corpo = `<span class="midia">(${esc(x.tipo)})</span>${x.texto ? "\n" + esc(x.texto) : ""}`;
     if (x.anuncio) corpo = `<span class="midia">veio do anúncio${x.anuncio.titulo ? ": " + esc(x.anuncio.titulo) : ""}</span>\n` + corpo;
     const lida = !x.de_loja && x.lida_em ? ` · vista ${esc(fmtHora(x.lida_em))}` : "";
-    html += `<div class="msg ${x.de_loja ? "loja" : ""}"${fora}${alvo === ` id="inicio-atend"` && !html.includes('id="inicio-atend"') ? alvo : ""}>${corpo}<span class="hora">${x.de_loja ? "Loja" : "Cliente"} · ${esc(fmtHora(x.enviada_em))}${lida}</span></div>`;
+    html += `<div class="msg ${x.de_loja ? "loja" : ""}"${fora}${ancora}>${corpo}<span class="hora">${x.de_loja ? "Loja" : "Cliente"} · ${esc(fmtHora(x.enviada_em))}${lida}</span></div>`;
   }
   if (esperaDesde !== null) html += `<div class="espera ruim">cliente esperando há ${esc(fmtMin((Date.now() - esperaDesde) / 60000))}</div>`;
   $("#gaveta-conteudo").innerHTML = topo + `<div class="conversa">${html || '<p class="vazio-msg">Sem mensagens.</p>'}</div>`;
@@ -575,9 +576,9 @@ function desenharConfig() {
     <section class="painel"><header class="painel-topo"><h2>OpenAI (áudios e leitura da IA)</h2>
       <p class="suave">Transcrição com gpt-transcribe (~US$ 0,0045 por minuto). Leitura em lote com GPT-6.1 Terra, uma vez por dia.</p></header>
       <div class="linhas">
-        ${linha({ r: "Transcrição", v: "", s: "" }).replace('<span class="v "></span>', `<span class="v" style="font-weight:400;text-align:right">${aviso("transcricao")}</span>`)}
+        ${linha({ r: "Transcrição", v: aviso("transcricao") })}
         ${linha({ r: "Áudios aguardando / com falha", v: `${n(c.audios_pendentes)} / ${n(c.audios_erro)}` })}
-        ${linha({ r: "Leitura da IA", v: "", s: "" }).replace('<span class="v "></span>', `<span class="v" style="font-weight:400;text-align:right">${aviso("ia")}</span>`)}
+        ${linha({ r: "Leitura da IA", v: aviso("ia") })}
         ${linha({ r: "Último lote", v: lote ? esc(`${lote.status} (${lote.itens} itens)`) : "nenhum", s: lote ? esc(fmtDataHora(lote.criado_em)) : "" })}
       </div>
       <ol class="passos">
