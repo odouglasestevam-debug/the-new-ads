@@ -67,12 +67,25 @@ begin
   return case when v_id is null then 'duplicada' else 'ok' end;
 end $$;
 
--- Segredos: cron (Vault) e chave da OpenAI (Vault, gravada pelo painel)
-create or replace function public.atendimento_segredo(p_nome text)
-returns text language sql stable security definer set search_path = '' as $$
-  select decrypted_secret from vault.decrypted_secrets
-  where name = case p_nome when 'cron' then 'atendimento_cron' when 'openai' then 'atendimento_openai' end
-  limit 1;
+-- Confere o header x-cron-secret sem nunca devolver o segredo
+create or replace function public.atendimento_cron_ok(p_segredo text)
+returns boolean language sql stable security definer set search_path = '' as $$
+  select coalesce(p_segredo, '') <> '' and exists (
+    select 1 from vault.decrypted_secrets where name = 'atendimento_cron' and decrypted_secret = p_segredo);
+$$;
+
+-- Avisos das Edge Functions para a tela (ex.: chave da OpenAI ainda não cadastrada)
+create table if not exists atendimento.avisos (
+  chave text primary key,
+  valor text,
+  em timestamptz not null default now()
+);
+alter table atendimento.avisos enable row level security;
+
+create or replace function public.atendimento_aviso(p_chave text, p_valor text)
+returns void language sql security definer set search_path = '' as $$
+  insert into atendimento.avisos (chave, valor, em) values (left(p_chave, 60), left(p_valor, 500), now())
+  on conflict (chave) do update set valor = excluded.valor, em = excluded.em;
 $$;
 
 -- Áudios esperando transcrição
@@ -101,10 +114,12 @@ begin
 end $$;
 
 revoke all on function public.atendimento_registrar(text, text, jsonb) from public, anon, authenticated;
-revoke all on function public.atendimento_segredo(text) from public, anon, authenticated;
+revoke all on function public.atendimento_cron_ok(text) from public, anon, authenticated;
+revoke all on function public.atendimento_aviso(text, text) from public, anon, authenticated;
 revoke all on function public.atendimento_audios_pendentes(integer) from public, anon, authenticated;
 revoke all on function public.atendimento_salvar_transcricao(bigint, text, text) from public, anon, authenticated;
 grant execute on function public.atendimento_registrar(text, text, jsonb) to service_role;
-grant execute on function public.atendimento_segredo(text) to service_role;
+grant execute on function public.atendimento_cron_ok(text) to service_role;
+grant execute on function public.atendimento_aviso(text, text) to service_role;
 grant execute on function public.atendimento_audios_pendentes(integer) to service_role;
 grant execute on function public.atendimento_salvar_transcricao(bigint, text, text) to service_role;

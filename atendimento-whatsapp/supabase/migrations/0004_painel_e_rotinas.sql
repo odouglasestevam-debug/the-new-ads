@@ -15,7 +15,7 @@ language plpgsql security definer set search_path = '' as $$
 begin
   perform privado.atendimento_exigir();
   return jsonb_build_object(
-    'openai_configurada', exists (select 1 from vault.secrets where name = 'atendimento_openai'),
+    'avisos', coalesce((select jsonb_object_agg(a.chave, jsonb_build_object('valor', a.valor, 'em', a.em)) from atendimento.avisos a), '{}'),
     'contas', coalesce((select jsonb_agg(jsonb_build_object(
       'id', c.id, 'slug', c.slug, 'nome', c.nome, 'fuso', c.fuso, 'horario', c.horario, 'metas', c.metas,
       'instance_id', c.instance_id, 'instance_nome', c.instance_nome,
@@ -253,22 +253,6 @@ begin
   where id = p_conta;
 end $$;
 
-create or replace function public.atendimento_salvar_chave_openai(p_chave text) returns void
-language plpgsql security definer set search_path = '' as $$
-declare v_id uuid;
-begin
-  perform privado.atendimento_exigir();
-  if p_chave is null or p_chave !~ '^sk-[A-Za-z0-9_\-]{20,300}$' then
-    raise exception 'chave_invalida' using errcode = '22023';
-  end if;
-  select id into v_id from vault.secrets where name = 'atendimento_openai';
-  if v_id is null then
-    perform vault.create_secret(p_chave, 'atendimento_openai', 'Chave da OpenAI do monitor de atendimento');
-  else
-    perform vault.update_secret(v_id, p_chave);
-  end if;
-end $$;
-
 revoke all on function public.atendimento_contas() from public, anon;
 revoke all on function public.atendimento_painel(uuid, date, date) from public, anon;
 revoke all on function public.atendimento_lista(uuid, date, date, text) from public, anon;
@@ -276,7 +260,6 @@ revoke all on function public.atendimento_conversa(uuid, text) from public, anon
 revoke all on function public.atendimento_filas(uuid) from public, anon;
 revoke all on function public.atendimento_semanas(uuid) from public, anon;
 revoke all on function public.atendimento_salvar_config(uuid, jsonb, jsonb) from public, anon;
-revoke all on function public.atendimento_salvar_chave_openai(text) from public, anon;
 grant execute on function public.atendimento_contas() to authenticated;
 grant execute on function public.atendimento_painel(uuid, date, date) to authenticated;
 grant execute on function public.atendimento_lista(uuid, date, date, text) to authenticated;
@@ -284,7 +267,6 @@ grant execute on function public.atendimento_conversa(uuid, text) to authenticat
 grant execute on function public.atendimento_filas(uuid) to authenticated;
 grant execute on function public.atendimento_semanas(uuid) to authenticated;
 grant execute on function public.atendimento_salvar_config(uuid, jsonb, jsonb) to authenticated;
-grant execute on function public.atendimento_salvar_chave_openai(text) to authenticated;
 
 -- ===================== Análise por IA (service_role) =====================
 
