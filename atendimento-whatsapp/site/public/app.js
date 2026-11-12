@@ -453,7 +453,7 @@ async function abrirConversa(contato, inicio, fim, resumoTxt) {
     if (dia !== diaAtual) { html += `<div class="dia">${esc(dia)}</div>`; diaAtual = dia; }
     const t = new Date(x.enviada_em).getTime();
     if (!x.de_loja && esperaDesde === null) esperaDesde = t;
-    if (x.de_loja && esperaDesde !== null) {
+    if (x.de_loja && esperaDesde !== null && !x.automatica) {
       const min = (t - esperaDesde) / 60000;
       const cls = min <= m.primeira_resposta_min ? "bom" : min <= m.primeira_resposta_min * 4 ? "atencao" : "ruim";
       html += `<div class="espera ${cls}">loja respondeu em ${esc(fmtMin(min))} (corrido)</div>`;
@@ -471,6 +471,8 @@ async function abrirConversa(contato, inicio, fim, resumoTxt) {
       else if (x.transcricao_status === "erro") corpo += `\n<span class="midia">não foi possível transcrever</span>`;
     } else corpo = `<span class="midia">(${esc(x.tipo)})</span>${x.texto ? "\n" + esc(x.texto) : ""}`;
     if (x.anuncio) corpo = `<span class="midia">veio do anúncio${x.anuncio.titulo ? ": " + esc(x.anuncio.titulo) : ""}</span>\n` + corpo;
+    if (x.automatica) corpo = `<span class="midia">mensagem automática, não conta como resposta</span>\n` + corpo;
+    if (x.parcial) corpo += `\n<span class="midia">só a prévia da lista (conversa não aberta na coleta)</span>`;
     const lida = !x.de_loja && x.lida_em ? ` · vista ${esc(fmtHora(x.lida_em))}` : "";
     html += `<div class="msg ${x.de_loja ? "loja" : ""}"${fora}${ancora}>${corpo}<span class="hora">${x.de_loja ? "Loja" : "Cliente"} · ${esc(fmtHora(x.enviada_em))}${lida}</span></div>`;
   }
@@ -561,6 +563,7 @@ function desenharConfig() {
         ${linha({ r: "Situação", v: `<span class="status ${cls}">${esc(txt)}</span>` })}
         ${linha({ r: "Instância", v: c.instance_id ? esc(c.instance_nome || c.instance_id) : "nenhuma ainda" })}
         ${linha({ r: "Mensagens guardadas", v: n(c.mensagens), s: c.primeira_mensagem_em ? "desde " + esc(fmtDataHora(c.primeira_mensagem_em, true)) : "" })}
+        ${c.importadas ? linha({ r: "importadas do WhatsApp Web (coleta manual)", v: n(c.importadas), sub: true }) : ""}
         ${linha({ r: "Último evento recebido", v: esc(c.ultimo_evento_tipo || "–"), s: c.ultimo_evento_em ? esc(haQuanto(c.ultimo_evento_em)) : "" })}
       </div>
       <label class="campo">Endereço do webhook (funciona como senha, não compartilhe)
@@ -601,7 +604,9 @@ function desenharConfig() {
         ${metaCampo("dia_marcado_pct", "Quem recebe preço e fica com dia combinado (%)")}
         ${metaCampo("audio_max_pct", "Mensagens da loja em áudio, no máximo (%)")}
       </div>
-      <div><button class="btn" type="button" id="btn-salvar-config">Salvar horário e metas</button></div>
+      ${Array.isArray(c.textos_automaticos) ? `<label class="campo" style="margin-top:6px">Mensagens automáticas, uma por linha (saudação do anúncio, ausência). Ficam na conversa, mas não contam como resposta.
+        <textarea id="textos-auto" rows="3" style="background:var(--grafite);border:1px solid var(--linha);border-radius:8px;padding:8px 10px;resize:vertical">${esc(c.textos_automaticos.join("\n"))}</textarea></label>` : ""}
+      <div><button class="btn" type="button" id="btn-salvar-config">Salvar horário, metas e mensagens automáticas</button></div>
     </section>
     <section class="painel"><header class="painel-topo"><h2>Como contamos</h2></header>
       <div class="como">
@@ -634,7 +639,10 @@ async function salvarConfig() {
   $$("[data-meta]").forEach((i) => { metasNovas[i.dataset.meta] = Number(i.value); });
   const btn = $("#btn-salvar-config"); btn.disabled = true;
   try {
-    await rpc("atendimento_salvar_config", { p_conta: estado.conta.id, p_horario: horario, p_metas: metasNovas });
+    const args = { p_conta: estado.conta.id, p_horario: horario, p_metas: metasNovas };
+    const campoTextos = $("#textos-auto");
+    if (campoTextos) args.p_textos = campoTextos.value.split("\n").map((t) => t.trim()).filter(Boolean);
+    await rpc("atendimento_salvar_config", args);
     const r = await rpc("atendimento_contas", {});
     estado.contas = r.contas; estado.avisos = r.avisos || {};
     estado.conta = estado.contas.find((c) => c.id === estado.conta.id);

@@ -37,6 +37,19 @@ pg_cron terça 08:00       ─> atendimento.fechar_semanas(): congela a semana a
 
 Metas iniciais (ajustáveis na tela): 1ª resposta até 15 min, 95% respondidas em 24h, 80% de retorno de orçamento, 80% de quem recebe preço chamado pra loja, 50% com dia combinado, no máximo 30% das mensagens da loja em áudio. Horário inicial de shopping (seg a sáb 10h às 22h, dom 14h às 20h), a confirmar com a loja.
 
+## Histórico pelo WhatsApp Web (antes da NeoGo)
+
+A extensão do Claude no Chrome lê o WhatsApp Web da loja (sem abrir não lida, sem tocar áudio) e devolve lotes JSON Lines. Os lotes ficam em `clientes/sapataria-do-futuro-nacoes/whatsapp-web/lote-NN.jsonl` (fora do Git).
+
+- Importar: `node atendimento-whatsapp/ferramentas/importar-whatsapp-web.mjs clientes/sapataria-do-futuro-nacoes/whatsapp-web sapataria-nacoes > saida.sql` e rodar o SQL (só INSERT, passa pelo `execute_sql`). Sempre reimporta todos os lotes: o `wa_id` é fixo por mensagem, então nada duplica.
+- Vale a coleta completa mais recente de cada contato; linha "parcial" (prévia da lista de conversa não lida) só entra se não houver coleta completa ou se for mais nova; `hora_incerta` é descartada.
+- Marcadas com `bruto.origem = 'whatsapp_web'`. Não têm recibo de leitura nem conteúdo de áudio (duração só quando o áudio estava baixado).
+- Quando a NeoGo for conectada, importar só até o dia anterior à conexão.
+
+## Mensagem automática (0005)
+
+A saudação do anúncio da Meta ("Oi! Como podemos ajudar?") sai no mesmo minuto em que o cliente escreve. Ela fica guardada (`mensagens.automatica`, marcada por gatilho a partir de `contas.textos_automaticos`, editável na tela), mas não conta como resposta nem entra nas contas de mensagem e formato. Sem isso, todo lead de anúncio aparecia respondido em 0 min.
+
 ## Estado em 11/11/2026
 
 - Tudo aplicado: `0001` pelo `apply_migration`; `0002` a `0004` pelo Douglas no SQL Editor (`supabase/aplicar-partes-2-a-4.sql`), porque o `apply_migration`/`execute_sql` com UPDATE ou DELETE é recusado automaticamente nesse ambiente. Mudança de banco que apaga ou altera dado: preparar o SQL e pedir pro Douglas rodar no SQL Editor.
