@@ -1,7 +1,9 @@
 // Testa as migrações e as regras de cálculo num PostgreSQL isolado (PGlite), sem dado real.
 // Rodar da raiz do repositório: node --test atendimento-whatsapp/tests/banco.test.mjs
 // (usa o PGlite instalado em gestor-tarefas/node_modules)
-import { readFile } from "node:fs/promises";
+import { readFile, mkdtemp, writeFile } from "node:fs/promises";
+import { tmpdir } from "node:os";
+import { execFileSync } from "node:child_process";
 import { pathToFileURL, fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
 import test from "node:test";
@@ -36,7 +38,7 @@ test("monitor de atendimento: recebimento, cálculo, filas e acesso", async () =
       grant usage on schema auth, privado to authenticated, service_role;
       insert into auth.users(id, email) values ('${DOUGLAS}', 'odouglasestevam@gmail.com'), ('${OUTRO}', 'outra@pessoa.com');
     `);
-    for (const f of ["0001_estrutura.sql", "0002_servidor.sql", "0003_calculo.sql", "0004_painel_e_rotinas.sql"]) await db.exec(await ler(f));
+    for (const f of ["0001_estrutura.sql", "0002_servidor.sql", "0003_calculo.sql", "0004_painel_e_rotinas.sql", "0005_mensagem_automatica.sql"]) await db.exec(await ler(f));
     assert.equal((await um("select count(*)::int n from cron.job where jobname like 'atendimento-%'")).n, 5);
 
     const conta = await um("select id, url_token from atendimento.contas where slug = 'sapataria-nacoes'");
@@ -111,6 +113,9 @@ test("monitor de atendimento: recebimento, cálculo, filas e acesso", async () =
     // G: recibo chega antes da mensagem; reação não conta como resposta
     const G = "5548911110007";
     await ev({ evento: "leitura", ids: ["WG1"], em: T("07", "10:50") });
+    // saudação automática do anúncio sai antes da mensagem do cliente, no mesmo minuto: não pode virar resposta
+    await msg(G, true, T("07", "10:00"), "Oi! Como podemos ajudar?");
+    assert.equal((await um("select automatica from atendimento.mensagens where wa_id = $1", ["W" + seq])).automatica, true);
     await ev({ evento: "mensagem", wa_id: "WG1", chat: G + "@s.whatsapp.net", telefone: G, de_loja: false,
       enviada_em: T("07", "10:00"), tipo: "texto", texto: "Fazem pintura de bolsa?" });
     assert.ok((await um("select lida_em from atendimento.mensagens where wa_id = 'WG1'")).lida_em);
@@ -180,6 +185,9 @@ test("monitor de atendimento: recebimento, cálculo, filas e acesso", async () =
     assert.equal(cfg.horario["0"], null, "dia não enviado fica fechado");
     assert.equal(cfg.metas.primeira_resposta_min, 10);
     assert.equal(cfg.metas.retorno_pct, 80, "metas não enviadas ficam como estavam");
+    await comoUsuario(DOUGLAS, () => db.query(`select public.atendimento_salvar_config($1, '{"1":["09:00","18:00"]}', '{}', '["Oi! Como podemos ajudar?","Olá, estamos fechados agora"]')`, [conta.id]));
+    assert.equal((await um("select count(*)::int n from atendimento.mensagens where automatica")).n, 1);
+    await assert.rejects(comoUsuario(DOUGLAS, () => db.query(`select public.atendimento_salvar_config($1, '{}', '{}', '[1]')`, [conta.id])), /textos_invalidos/);
 
     // Acesso: outro usuário não entra; com 2FA cadastrado, só com sessão aal2; anon nem chama
     await assert.rejects(comoUsuario(OUTRO, () => db.query("select public.atendimento_contas()")), /sem_acesso/);
@@ -197,6 +205,35 @@ test("monitor de atendimento: recebimento, cálculo, filas e acesso", async () =
     await db.exec("reset role; set role anon");
     await assert.rejects(db.query("select public.atendimento_painel(gen_random_uuid(), current_date, current_date)"), /permission denied/);
     await db.exec("reset role");
+
+    // Importação do WhatsApp Web: parcial trocada pela conversa completa, hora incerta fora, sem duplicar
+    await db.exec("delete from auth.mfa_factors"); // volta o usuário de teste a sessão sem 2FA
+    const pasta = await mkdtemp(resolve(tmpdir(), "lotes-"));
+    const L = (o) => JSON.stringify(o);
+    await writeFile(resolve(pasta, "lote-01.jsonl"), [
+      L({ c: "554800000001", n: "", dt: "2026-11-11 14:21", de: "cliente", tipo: "texto", txt: "Oi! Como podemos ajudar?", parcial: true, nao_lidas: 1 }),
+      L({ c: "554800000002", n: "", dt: "2026-11-10 00:00", hora_incerta: true, de: "cliente", tipo: "foto", txt: "", parcial: true }),
+      L({ c: "554800000003", n: "", dt: "2026-11-12 10:16", de: "cliente", tipo: "texto", txt: "Teria alguma forma de arrumar?", parcial: true, nao_lidas: 6 }),
+    ].join("\n"));
+    await writeFile(resolve(pasta, "lote-02.jsonl"), [
+      L({ c: "554800000001", n: "", dt: "2026-11-11 14:21", de: "cliente", tipo: "texto", txt: "Vocês reformam jaqueta?", anuncio: true }),
+      L({ c: "554800000001", n: "", dt: "2026-11-11 14:21", de: "loja", tipo: "texto", txt: "Oi! Como podemos ajudar?" }),
+      L({ c: "554800000001", n: "", dt: "2026-11-11 19:20", de: "loja", tipo: "texto", txt: "Boa noite, reformamos sim. Fica R$ 150,00" }),
+      L({ c: "554800000001", n: "", dt: "2026-11-11 19:22", de: "cliente", tipo: "foto", txt: "" }),
+      L({ c: "554800000001", n: "", dt: "2026-11-11 19:22", de: "cliente", tipo: "foto", txt: "" }),
+      L({ c: "554800000001", n: "", dt: "2026-11-11 19:25", de: "cliente", tipo: "audio", txt: "", seg: null }),
+    ].join("\n"));
+    const sqlImport = execFileSync(process.execPath, [resolve(aqui, "../ferramentas/importar-whatsapp-web.mjs"), pasta, "sapataria-nacoes"], { encoding: "utf8" });
+    const imp1 = (await db.query(sqlImport.split("\n").filter((l) => !l.startsWith("--")).join("\n"))).rows[0];
+    assert.deepEqual([Number(imp1.inseridas), Number(imp1.no_arquivo)], [7, 7], "6 da conversa completa + 1 parcial sem coleta completa");
+    const imp2 = (await db.query(sqlImport.split("\n").filter((l) => !l.startsWith("--")).join("\n"))).rows[0];
+    assert.equal(Number(imp2.inseridas), 0, "rodar de novo não duplica");
+    const web = await q("select contato, de_loja, tipo, automatica, anuncio is not null anuncio, transcricao_status from atendimento.mensagens where bruto->>'origem' = 'whatsapp_web' and contato = '554800000001' order by enviada_em, id");
+    assert.deepEqual(web.map((x) => [x.de_loja, x.tipo, x.automatica]), [[false, "texto", false], [true, "texto", true], [true, "texto", false], [false, "imagem", false], [false, "imagem", false], [false, "audio", false]]);
+    assert.equal(web[0].anuncio, true);
+    assert.equal(web[5].transcricao_status, "sem_midia");
+    const dWeb = await comoUsuario(DOUGLAS, async () => (await um("select public.atendimento_painel($1, '2026-11-11', '2026-11-11') d", [conta.id])).d);
+    assert.equal(Number(dWeb.resposta.mediana_corrida_min), 299, "1ª resposta conta da mensagem do cliente até a resposta humana, não a saudação");
 
     // Fechamento semanal (semana anterior a hoje) fica congelado
     const n1 = (await um("select atendimento.fechar_semanas() n")).n;
