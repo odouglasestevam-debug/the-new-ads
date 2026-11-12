@@ -80,8 +80,14 @@ function conteudo(bruto: Record<string, any>): Conteudo {
   for (const [campo, tipo] of midias) {
     if (m[campo]) {
       const x = m[campo];
+      // foto: guarda o necessário pra baixar e a IA descrever (mesma cifra do áudio, outra chave HKDF)
+      const midia = tipo === "imagem" ? {
+        url: x.URL || x.url || null, direct_path: x.directPath || x.direct_path || null,
+        media_key: x.mediaKey || x.media_key || null, mimetype: x.mimetype || null,
+        tamanho: x.fileLength ?? x.file_length ?? null,
+      } : { mimetype: x.mimetype || null };
       return { ...base, tipo, texto: x.caption || x.fileName || x.title || null, citada: ctx(x),
-        midia: { mimetype: x.mimetype || null }, segundos: tipo === "video" && x.seconds ? Number(x.seconds) : null };
+        midia, segundos: tipo === "video" && x.seconds ? Number(x.seconds) : null };
     }
   }
   if (m.locationMessage || m.liveLocationMessage) {

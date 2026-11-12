@@ -13,7 +13,7 @@ html,body{background:var(--preto)}
 body{color:var(--branco);font-family:var(--texto);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
 h1,h2,h3{font-weight:600;letter-spacing:-.01em;line-height:1.2}
 h2{font-size:16px}
-button,input,select{font:inherit;color:inherit}
+button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer;background:none;border:0}
 a{color:inherit;text-decoration:none}
 [hidden]{display:none!important}
@@ -24,7 +24,8 @@ a{color:inherit;text-decoration:none}
 
 input[type=email],input[type=password],input[type=text],input[type=date],input[type=number],input[type=time],select{
   background:var(--grafite);border:1px solid var(--linha);border-radius:8px;padding:8px 10px;outline:none;min-width:0}
-input:focus,select:focus{border-color:var(--ambar)}
+textarea{background:var(--grafite);border:1px solid var(--linha);border-radius:8px;padding:8px 10px;outline:none;resize:vertical;min-width:0;width:100%}
+input:focus,select:focus,textarea:focus{border-color:var(--ambar)}
 .btn{background:var(--ambar);color:#0A0A0A;font-weight:600;border-radius:8px;padding:9px 16px}
 .btn:disabled{opacity:.5;cursor:wait}
 .btn-fantasma{border:1px solid var(--linha);border-radius:8px;padding:7px 12px;color:var(--nevoa-2)}
@@ -74,7 +75,7 @@ button.kpi:hover{border-color:var(--linha-2)}
 
 /* Blocos de métricas */
 .blocos{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:14px}
-.painel{background:var(--grafite);border:1px solid var(--linha);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0}
+.painel{background:var(--grafite);border:1px solid var(--linha);border-radius:12px;padding:16px;display:grid;gap:12px;min-width:0;align-content:start}
 .painel-topo{display:grid;gap:4px}
 .painel-topo p{font-size:12.5px}
 .linhas{display:grid}
@@ -175,4 +176,88 @@ table.hist tr.atual td{color:var(--nevoa-2);font-style:italic}
   .datas input{flex:1}
   .grade-horario{grid-template-columns:auto 1fr 1fr}
   .grade-horario .fechado-lbl{grid-column:1/-1}
+}
+
+/* Logo da rede no topo */
+.marca img.logo-rede{height:30px;width:auto;max-width:120px;object-fit:contain}
+.rodape{text-align:center;color:var(--nevoa);font-size:12px;padding:8px 16px 28px}
+
+/* Nota */
+strong.bom,.num.bom{color:var(--bom)} strong.atencao{color:var(--atencao)} strong.ruim,.num.ruim{color:var(--ruim)} strong.vazio{color:var(--nevoa)}
+.nota-painel{gap:16px}
+.nota-topo{display:flex;gap:16px;align-items:center}
+.nota-texto{display:grid;gap:4px;min-width:0}
+.nota-aviso{font-size:12.5px;color:var(--atencao)}
+.nota-num{flex:none;font-size:42px;font-weight:700;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1;width:88px;height:88px;
+  display:grid;place-items:center;border-radius:18px;background:var(--grafite-2);border:1px solid var(--linha);color:var(--nevoa)}
+.nota-num.bom{color:var(--bom);background:var(--bom-fundo);border-color:rgba(74,222,128,.3)}
+.nota-num.atencao{color:var(--atencao);background:var(--atencao-fundo);border-color:rgba(250,204,21,.3)}
+.nota-num.ruim{color:var(--ruim);background:var(--ruim-fundo);border-color:rgba(248,113,113,.3)}
+.nota-num.pequeno{font-size:24px;width:54px;height:54px;border-radius:12px;margin-left:auto}
+.pilares{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:12px}
+.pilar{background:var(--grafite-2);border-radius:10px;padding:12px;display:grid;gap:8px;align-content:start;min-width:0}
+.pilar-cab{display:flex;align-items:baseline;gap:8px}
+.pilar-cab span:first-child{font-weight:600}
+.pilar-cab strong{margin-left:auto;font-size:18px;font-variant-numeric:tabular-nums}
+.pilar-desc{font-size:12px}
+.pilar .linha{border-top-color:rgba(255,255,255,.06);padding:7px 4px}
+.pilar .linha .s{min-width:120px}
+.medidor{display:block;height:6px;border-radius:3px;background:var(--grafite-3);overflow:hidden;min-width:40px}
+.medidor span{display:block;height:100%;background:var(--info);border-radius:3px}
+.medidor span.bom{background:var(--bom)} .medidor span.atencao{background:var(--atencao)} .medidor span.ruim{background:var(--ruim)} .medidor span.vazio{background:transparent}
+.chip-nota{display:inline-block;min-width:36px;padding:1px 8px;border-radius:999px;font-weight:650;text-align:center;font-variant-numeric:tabular-nums;background:var(--grafite-3);color:var(--nevoa-2)}
+.chip-nota.bom{background:var(--bom-fundo);color:var(--bom)} .chip-nota.atencao{background:var(--atencao-fundo);color:var(--atencao)} .chip-nota.ruim{background:var(--ruim-fundo);color:var(--ruim)}
+
+/* Rede */
+.ranking{display:grid;grid-template-columns:repeat(auto-fit,minmax(270px,1fr));gap:12px}
+.unidade-card{background:var(--grafite);border:1px solid var(--linha);border-radius:12px;padding:16px;display:grid;gap:12px;text-align:left;align-content:start}
+.unidade-card:hover{border-color:var(--linha-2)}
+.uc-topo{display:flex;align-items:center;gap:10px}
+.uc-topo strong{font-size:16px}
+.uc-pos{color:var(--nevoa);font-size:13px;font-variant-numeric:tabular-nums}
+.uc-pilares{display:grid;gap:7px;font-size:12.5px;color:var(--nevoa-2)}
+.uc-pilar{display:grid;grid-template-columns:100px 1fr 28px;gap:8px;align-items:center}
+.uc-pilar .num{text-align:right}
+.uc-rodape{font-size:12px}
+table.comp td:first-child{white-space:normal;min-width:220px}
+table.hist td.atencao{color:var(--atencao)}
+
+/* Passos do atendimento */
+.passos-lista{display:grid}
+.passo{display:grid;grid-template-columns:minmax(0,1fr) 90px 44px 44px;gap:10px;align-items:center;padding:8px 6px;border-top:1px solid var(--linha);text-align:left;border-radius:6px}
+.passo:first-child{border-top:0}
+.passo:hover{background:var(--grafite-2)}
+.passo .r{color:var(--nevoa-2)}
+.passo.sub .r{padding-left:14px;font-size:13px}
+.passo .v{text-align:right;font-weight:600;font-variant-numeric:tabular-nums}
+.passo .s{text-align:right;font-size:12px;color:var(--nevoa)}
+.passo-check{display:grid;grid-template-columns:18px 1fr;gap:6px;align-items:start}
+.passo-check>span{font-weight:700}
+.passo-check.bom>span{color:var(--bom)} .passo-check.ruim>span{color:var(--ruim)}
+.passo-check q{display:block;color:var(--nevoa-2);font-style:italic;font-size:12.5px}
+.passo-check .explica{display:block;color:var(--nevoa);font-size:12.5px}
+.config>.painel.largo{grid-column:1/-1}
+
+/* Formulários */
+.form-grade{display:grid;gap:10px}
+.form-grade h3{font-size:14px;margin-top:6px}
+fieldset.campo{border:1px solid var(--linha);border-radius:8px;padding:8px 10px;display:flex;flex-wrap:wrap;gap:6px 14px}
+fieldset.campo legend{padding:0 4px}
+.check{display:flex;gap:6px;align-items:center;color:var(--branco)}
+.link{color:var(--ambar);font-size:12px;padding:0}
+.link.perigo{color:var(--ruim)}
+.usuarios .linha{grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) auto;align-items:start}
+.usuarios .linha .r,.usuarios .linha .v{min-width:0;overflow-wrap:anywhere}
+.usuarios .linha .v{font-weight:500;font-size:13px}
+.regras-tab td{white-space:normal;vertical-align:top}
+.regras-tab td:not(:first-child){text-align:left}
+.regras-tab th{text-align:left}
+
+@media (max-width:720px){
+  .nota-num{width:72px;height:72px;font-size:34px}
+  .pilares,.ranking{grid-template-columns:1fr}
+  .passo{grid-template-columns:minmax(0,1fr) 60px 36px 40px;gap:6px}
+  .usuarios .linha{grid-template-columns:1fr}
+  table.comp td:first-child{min-width:150px}
+  .usuarios .linha .v,.usuarios .linha .s{text-align:left}
 }

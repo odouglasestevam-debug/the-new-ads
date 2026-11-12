@@ -1,6 +1,7 @@
 // Análise em lote (Batch API da OpenAI, metade do preço, resultado em até 24h).
-// A IA responde só fatos sobre o que a LOJA fez em cada atendimento: chamou o cliente pra
-// trazer a peça, ficou dia combinado, a conversa é de vaga de emprego. Não dá nota.
+// A IA não dá nota nem opinião: responde o checklist de cada atendimento (sim ou não, com o trecho
+// da conversa que comprova). A nota da unidade é calculada no banco a partir dessas respostas.
+// Lê texto, áudio transcrito e foto descrita (atendimento-transcrever faz as duas coisas antes).
 //   {"acao":"enviar"}  pg_cron 04:00 de Brasília: monta e envia o lote do que mudou
 //   {"acao":"coletar"} pg_cron a cada 30 min enquanto houver lote aberto: busca e grava o resultado
 //   {"acao":"previa"}  devolve as 2 primeiras linhas do lote, sem enviar (para conferir)
@@ -13,30 +14,66 @@ const API = "https://api.openai.com/v1";
 const json = (status: number, corpo: unknown) =>
   new Response(JSON.stringify(corpo), { status, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
-const INSTRUCOES = `Você lê conversas de WhatsApp entre uma loja de consertos (sapataria, costura, bordado, reforma de bolsas e roupas) e um cliente. Responda apenas fatos sobre o que a LOJA fez. Não avalie a qualidade do atendimento.
+const INSTRUCOES = `Você lê conversas de WhatsApp entre uma loja de consertos (sapataria, costura, bordado, estamparia, relojoaria, lavanderia, bolsas e malas) e um cliente. Você não dá nota nem opinião: responde só o que aconteceu, com o trecho da conversa que comprova. A nota é calculada depois, a partir das suas respostas.
 
-chamou_para_loja: true se a LOJA convidou ou orientou o cliente a trazer a peça ou vir até a loja. Exemplos que contam: "pode trazer", "consegue passar aqui?", "traz pra gente avaliar", "a costureira está aqui até 17:30", "te espero amanhã", "a avaliação é gratuita, é só trazer". Não conta: a loja só informar endereço ou horário porque o cliente perguntou, sem convite; o cliente dizer por conta própria que vai passar.
-trecho_convite: a frase da loja que mostra o convite, copiada da conversa, com até 200 caracteres. Vazio se chamou_para_loja for false.
-marcou_dia: true se ficou combinado um dia ou horário concreto para o cliente ir à loja, proposto pela loja ou pelo cliente e confirmado pela loja. Exemplos: "sábado de manhã então", "amanhã às 15h te espero", cliente diz "vou na quinta" e a loja responde "combinado". Não conta: "quando puder", "qualquer dia", o cliente dizer o dia sem resposta da loja.
-trecho_dia: a frase que mostra o dia combinado, copiada da conversa, com até 200 caracteres. Vazio se marcou_dia for false.
-recrutamento: true se a conversa é sobre vaga de emprego, currículo ou entrevista, e não sobre serviço ou produto.
+Como ler a conversa:
+- "Loja (mensagem automática)" é saudação automática do WhatsApp: não conta como nada que a loja fez.
+- Áudio transcrito vale como texto. Em foto, "o que aparece" é a descrição da imagem. Quando aparece "sem transcrição", "sem descrição" ou "arquivo", você não sabe o conteúdo: não presuma.
+- "Diferenciais da loja" e "O que está incluso nos serviços", quando aparecem, foram escritos pela dona. Use pra reconhecer quando a loja falou disso.
+- Trechos: copie a frase da LOJA como está na conversa, com até 200 caracteres. Vazio quando a resposta for false.
 
-Mensagens marcadas como áudio transcrito valem como texto. Quando aparece "sem transcrição", "foto" ou "arquivo", você não sabe o conteúdo: não presuma.`;
+tipo:
+- "oportunidade": o cliente quer um serviço ou produto novo (pergunta se fazem, preço, prazo, manda foto da peça pra avaliar).
+- "acompanhamento": serviço que já está com a loja ou já foi feito (se está pronto, retirada, pagamento, reclamação de serviço feito).
+- "recrutamento": vaga de emprego, currículo, entrevista.
+- "outro": fornecedor, parceiro, engano, propaganda, conversa pessoal.
+Se a conversa tem oportunidade e acompanhamento, use "oportunidade".
 
+servico: a peça ou serviço principal: "calcados", "bolsas_malas", "roupas_costura", "bordado_estampa", "relogios", "lavanderia", "produtos" (palmilha, cuidado com couro, itens à venda), "outro" ou "nao_identificado".
+
+Os itens abaixo valem só para "oportunidade". Em outro tipo, responda false, trecho vazio, data vazia e relembrou "nao_se_aplica".
+
+passou_preco: a loja informou valor ou faixa de valor, em texto, áudio ou imagem.
+entendeu: a loja procurou entender o caso antes de passar preço ou encerrar: pediu foto, perguntou o problema, o tamanho, o material, a marca ou o uso. Não conta se o cliente explicou tudo sozinho e a loja só respondeu.
+incluso: a loja explicou o que está incluído no serviço ou o que vai ser feito, além do preço (ex.: "troca do salto com acabamento e limpeza", "o ajuste inclui a prova", "sai com garantia"). Só preço, ou só prazo, não conta.
+diferencial: a loja citou algum diferencial: os da lista da dona ou outro concreto (garantia, experiência, especialista em peças de grife, avaliação sem custo, rapidez, envio pelo correio). Simpatia e "fazemos sim" não contam.
+chamou_para_loja: a loja convidou ou orientou o cliente a trazer a peça ou vir até a loja. Exemplos: "pode trazer", "consegue passar aqui?", "traz pra gente avaliar", "te espero amanhã". Não conta: só informar endereço ou horário porque o cliente perguntou; o cliente dizer por conta própria que vai passar.
+marcou_dia: compromisso firmado: ficou combinado um dia ou horário concreto pro cliente vir, proposto por um lado e confirmado pelo outro. Exemplos: "sábado de manhã então", cliente diz "vou na quinta" e a loja responde "combinado, te espero". Não conta "quando puder", "qualquer dia", ou o cliente dizer o dia sem resposta da loja.
+trecho_dia: a frase que mostra o compromisso (pode ser do cliente, se a loja confirmou).
+data_compromisso: a data combinada no formato AAAA-MM-DD, calculada pela data das mensagens (ex.: "amanhã" numa mensagem de 03/11/2026 é 2026-11-04). Vazio se não houve compromisso ou se não dá pra saber a data.
+relembrou: só quando houve compromisso.
+- "sim": depois de combinar, a loja voltou a falar com o cliente pra lembrar ou confirmar a visita (na véspera, no dia, ou depois, se o cliente não veio).
+- "nao": a data combinada já passou (compare com a data de hoje) e a loja não lembrou nem confirmou.
+- "aguardando": a data ainda não passou e a loja ainda não lembrou.
+- "nao_se_aplica": não houve compromisso.
+cobrou_status: só para "acompanhamento": true se o cliente teve que perguntar pelo andamento (se está pronto, quando fica pronto) sem a loja ter avisado antes. Em outro tipo, false.
+recrutamento: true se tipo for "recrutamento".`;
+
+const texto = { type: "string" };
+const sim = { type: "boolean" };
 const ESQUEMA = {
   type: "object",
   properties: {
-    chamou_para_loja: { type: "boolean" },
-    trecho_convite: { type: "string" },
-    marcou_dia: { type: "boolean" },
-    trecho_dia: { type: "string" },
-    recrutamento: { type: "boolean" },
+    tipo: { type: "string", enum: ["oportunidade", "acompanhamento", "recrutamento", "outro"] },
+    servico: { type: "string", enum: ["calcados", "bolsas_malas", "roupas_costura", "bordado_estampa", "relogios", "lavanderia", "produtos", "outro", "nao_identificado"] },
+    passou_preco: sim,
+    entendeu: sim, trecho_entendeu: texto,
+    incluso: sim, trecho_incluso: texto,
+    diferencial: sim, trecho_diferencial: texto,
+    chamou_para_loja: sim, trecho_convite: texto,
+    marcou_dia: sim, trecho_dia: texto, data_compromisso: texto,
+    relembrou: { type: "string", enum: ["sim", "nao", "aguardando", "nao_se_aplica"] }, trecho_relembrou: texto,
+    cobrou_status: sim,
+    recrutamento: sim,
   },
-  required: ["chamou_para_loja", "trecho_convite", "marcou_dia", "trecho_dia", "recrutamento"],
+  required: ["tipo", "servico", "passou_preco", "entendeu", "trecho_entendeu", "incluso", "trecho_incluso", "diferencial",
+    "trecho_diferencial", "chamou_para_loja", "trecho_convite", "marcou_dia", "trecho_dia", "data_compromisso", "relembrou",
+    "trecho_relembrou", "cobrou_status", "recrutamento"],
   additionalProperties: false,
 };
+const CAMPOS = ESQUEMA.required;
 
-function linha(i: number, loja: string, conversa: string) {
+function linha(i: number, loja: string, contexto: string, conversa: string) {
   return JSON.stringify({
     custom_id: String(i),
     method: "POST",
@@ -44,12 +81,12 @@ function linha(i: number, loja: string, conversa: string) {
     body: {
       model: MODELO,
       reasoning: { effort: "low" },
-      max_output_tokens: 3000,
+      max_output_tokens: 4000,
       input: [
         { role: "system", content: INSTRUCOES },
-        { role: "user", content: `Loja: ${loja}\n\nConversa:\n${conversa}` },
+        { role: "user", content: `Loja: ${loja}\n\n${contexto}\n\nConversa:\n${conversa}` },
       ],
-      text: { format: { type: "json_schema", name: "atendimento", schema: ESQUEMA, strict: true } },
+      text: { format: { type: "json_schema", name: "checklist_atendimento", schema: ESQUEMA, strict: true } },
     },
   });
 }
@@ -91,7 +128,7 @@ Deno.serve(async (req) => {
       if (acao === "enviar") await admin.rpc("atendimento_aviso", { p_chave: "ia", p_valor: "Nada novo para analisar." });
       return json(200, { enviados: 0 });
     }
-    const linhas = itens.map((it: any, i: number) => linha(i, it.loja, it.conversa || ""));
+    const linhas = itens.map((it: any, i: number) => linha(i, it.loja, it.contexto || "", it.conversa || ""));
     if (acao === "previa") return json(200, { itens: itens.length, modelo: MODELO, exemplo: linhas.slice(0, 2).map((l: string) => JSON.parse(l)) });
 
     if (!chave) {
@@ -140,10 +177,10 @@ Deno.serve(async (req) => {
           resumo.push({ lote: l.openai_lote, status: lote.status, erro: msg });
           continue;
         }
-        const texto = await (await openai(chave, `/files/${encodeURIComponent(lote.output_file_id)}/content`)).text();
+        const saidaLote = await (await openai(chave, `/files/${encodeURIComponent(lote.output_file_id)}/content`)).text();
         const resultados: Record<string, unknown>[] = [];
         let falhas = 0;
-        for (const bruto of texto.split("\n")) {
+        for (const bruto of saidaLote.split("\n")) {
           if (!bruto.trim()) continue;
           try {
             const r = JSON.parse(bruto);
@@ -152,8 +189,10 @@ Deno.serve(async (req) => {
             const saida = textoDaResposta(body);
             if (!saida) { falhas++; continue; }
             const v = JSON.parse(saida);
-            resultados.push({ i: Number(r.custom_id), chamou_para_loja: !!v.chamou_para_loja, trecho_convite: String(v.trecho_convite || ""),
-              marcou_dia: !!v.marcou_dia, trecho_dia: String(v.trecho_dia || ""), recrutamento: !!v.recrutamento });
+            if (!v || typeof v.tipo !== "string") { falhas++; continue; }
+            const item: Record<string, unknown> = { i: Number(r.custom_id) };
+            for (const k of CAMPOS) item[k] = typeof v[k] === "boolean" ? v[k] : String(v[k] ?? "");
+            resultados.push(item);
           } catch { falhas++; }
         }
         const { data: gravados, error: e3 } = await admin.rpc("atendimento_salvar_classificacoes", { p_lote: l.id, p_itens: resultados });
