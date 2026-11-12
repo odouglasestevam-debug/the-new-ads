@@ -1,0 +1,580 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Atendimento WhatsApp · Sapataria do Futuro Nações</title>
+<meta name="description" content="Análise do atendimento no WhatsApp da Sapataria do Futuro Nações Shopping, de 01/10 a 10/11/2026." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400..700;1,400..700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root{
+  --navy:#132A56;
+  --navy2:#1C3A70;
+  --blue:#25498A;
+  --paper:#F5F3EE;
+  --card:#FDFCF9;
+  --line:#E2DED4;
+  --band:#E9E5DC;
+  --ink:#3D4555;
+  --muted:#6A6F7A;
+  --accent:#A64E22;
+  --accent-dark:#8A3F1B;
+  --accent-soft:#FBE7D9;
+  --orange-light:#E8935F;
+  --navy-muted:#B9C4DA;
+  --navy-text:#C9D2E4;
+
+  /* 1u = 1/1920 do slide: em 1920x1080 tudo bate com o tamanho do deck */
+  --u:min(1vw, 1.778vh);
+  --pad-y:max(28px, calc(var(--u) * 6.67));
+  --pad-x:max(16px, calc(var(--u) * 6.67));
+  --fs-small:max(13px, calc(var(--u) * 1.25));
+  --fs-body:max(17px, calc(var(--u) * 1.67));
+  --fs-h3:max(22px, calc(var(--u) * 2.3));
+  --fs-statement:max(26px, calc(var(--u) * 3.33));
+  --fs-title:max(30px, calc(var(--u) * 3.75));
+  --fs-num-md:max(40px, calc(var(--u) * 3.75));
+  --fs-num:max(56px, calc(var(--u) * 6.25));
+  --fs-cover:max(48px, calc(var(--u) * 6.25));
+  --gap:max(14px, calc(var(--u) * 1.67));
+  --radius:max(12px, calc(var(--u) * 0.83));
+  --card-pad:max(20px, calc(var(--u) * 2.5));
+}
+*{box-sizing:border-box;}
+html{scroll-snap-type:y proximity;scroll-behavior:smooth;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'DM Sans', Arial, sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,p{margin:0;}
+.serif{font-family:'Fraunces', Georgia, serif;}
+
+.slide{
+  position:relative;
+  min-height:100vh;
+  min-height:100svh;
+  scroll-snap-align:start;
+  padding:var(--pad-y) var(--pad-x) calc(var(--pad-y) + var(--fs-small) * 2.6);
+  display:flex;
+  flex-direction:column;
+  overflow:hidden;
+}
+.inner{
+  width:100%;
+  max-width:calc(var(--u) * 166.4);
+  margin:0 auto;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:calc(var(--gap) * 0.8);
+}
+.spacer{flex:1;min-height:var(--gap);}
+
+.light{background:var(--paper);color:var(--ink);}
+.navy{background:var(--navy);color:var(--paper);}
+.terra{background:var(--accent);color:var(--paper);}
+
+.eyebrow{
+  font-size:var(--fs-small);
+  font-weight:700;
+  letter-spacing:0.17em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+.navy .eyebrow{color:var(--orange-light);}
+.terra .eyebrow{color:var(--accent-soft);}
+
+.title{
+  font-family:'Fraunces', Georgia, serif;
+  font-size:var(--fs-title);
+  font-weight:600;
+  line-height:1.15;
+  color:var(--navy);
+  text-wrap:balance;
+}
+.navy .title,.terra .title{color:var(--paper);}
+.statement{
+  font-family:'Fraunces', Georgia, serif;
+  font-size:var(--fs-statement);
+  font-weight:600;
+  line-height:1.15;
+  color:var(--navy);
+}
+
+.body{font-size:var(--fs-body);line-height:1.4;}
+.small{font-size:var(--fs-small);}
+.label{font-size:var(--fs-small);font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:0.02em;}
+.note{font-size:var(--fs-body);line-height:1.4;font-weight:500;color:var(--accent);}
+.ink-strong{color:var(--navy);}
+
+.num{
+  font-family:'Fraunces', Georgia, serif;
+  font-size:var(--fs-num);
+  font-weight:600;
+  line-height:1.1;
+  color:var(--blue);
+}
+.num.md{font-size:var(--fs-num-md);}
+.quote-big{
+  font-family:'Fraunces', Georgia, serif;
+  font-size:var(--fs-h3);
+  font-style:italic;
+  line-height:1.3;
+  color:var(--navy);
+}
+h3.card-title{
+  font-family:'Fraunces', Georgia, serif;
+  font-size:var(--fs-h3);
+  font-weight:600;
+  line-height:1.2;
+  color:var(--navy);
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  padding:var(--card-pad);
+  display:flex;
+  flex-direction:column;
+  gap:calc(var(--gap) * 0.75);
+}
+.stat{display:flex;flex-direction:column;gap:calc(var(--gap) * 0.3);}
+.stats{display:flex;flex-direction:column;gap:calc(var(--gap) * 1.5);}
+
+.split{display:grid;grid-template-columns:calc(var(--u) * 29.2) 1fr;gap:calc(var(--gap) * 2);align-items:center;}
+.row3{display:grid;grid-template-columns:repeat(3, 1fr);gap:var(--gap);align-items:stretch;}
+.row2{display:grid;grid-template-columns:repeat(2, 1fr);gap:var(--gap);align-items:stretch;}
+
+/* capa */
+.cover .inner{justify-content:space-between;gap:var(--gap);}
+.cover-logo{width:max(180px, calc(var(--u) * 15.6));height:auto;display:block;}
+.cover-block{display:flex;flex-direction:column;gap:var(--gap);}
+.cover-title{
+  font-family:'Fraunces', Georgia, serif;
+  font-size:var(--fs-cover);
+  font-weight:600;
+  line-height:1.05;
+}
+.cover-sub{font-size:var(--fs-h3);line-height:1.3;}
+.muted-navy{color:var(--navy-muted);}
+
+/* anúncio */
+.convo{background:var(--accent-dark);border-radius:var(--radius);padding:var(--card-pad);display:flex;flex-direction:column;gap:calc(var(--gap) * 0.65);}
+.convo .end{font-size:var(--fs-small);font-weight:700;letter-spacing:0.17em;color:var(--accent-soft);}
+
+/* follow-up */
+.stat-inline{display:flex;gap:var(--gap);align-items:center;}
+.stat-inline .num{white-space:nowrap;}
+table.orc{width:100%;border-collapse:collapse;font-size:var(--fs-body);color:var(--ink);}
+table.orc th,table.orc td{text-align:left;padding:0.45em 0.6em;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.35;}
+table.orc thead tr{background:var(--band);}
+table.orc th{color:var(--navy);font-weight:700;}
+
+/* preço */
+.pills{display:flex;flex-wrap:wrap;gap:calc(var(--gap) * 0.6);align-items:center;}
+.pill{font-size:var(--fs-body);background:var(--band);color:var(--navy);padding:0.3em 0.9em;border-radius:999px;}
+
+/* próximos passos */
+.navy .card{background:var(--navy2);border-color:var(--navy2);}
+.navy .card h3.card-title{color:var(--paper);}
+.navy .card .body{color:var(--navy-text);}
+.step-num{font-family:'Fraunces', Georgia, serif;font-size:var(--fs-num-md);font-weight:600;line-height:1.1;color:var(--orange-light);}
+
+/* rodapé de cada slide */
+.foot{
+  position:absolute;
+  left:var(--pad-x);
+  right:var(--pad-x);
+  bottom:calc(var(--u) * 3.33 + 4px);
+  display:flex;
+  justify-content:space-between;
+  gap:16px;
+  font-size:var(--fs-small);
+  color:var(--muted);
+  max-width:calc(var(--u) * 166.4);
+  margin:0 auto;
+}
+.navy .foot{color:var(--navy-muted);}
+.terra .foot{color:var(--accent-soft);}
+
+/* navegação */
+.nav{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  background:rgba(19,42,86,0.88);
+  color:#F5F3EE;
+  border-radius:999px;
+  padding:6px;
+  font-size:14px;
+  z-index:10;
+  box-shadow:0 6px 24px rgba(19,42,86,0.25);
+}
+.nav button{
+  appearance:none;border:0;background:transparent;color:inherit;
+  width:36px;height:36px;border-radius:999px;cursor:pointer;
+  display:grid;place-items:center;font:inherit;font-size:18px;line-height:1;
+}
+.nav button:hover{background:rgba(255,255,255,0.12);}
+.nav button:focus-visible{outline:2px solid #E8935F;outline-offset:1px;}
+.nav .count{min-width:56px;text-align:center;font-variant-numeric:tabular-nums;}
+
+/* celular e tablet em pé: slides viram blocos empilhados */
+@media (max-width: 900px), (max-aspect-ratio: 1/1){
+  html{scroll-snap-type:none;}
+  .slide{min-height:auto;padding-top:48px;padding-bottom:40px;}
+  .cover{min-height:100svh;}
+  .spacer{display:none;}
+  .inner{gap:16px;}
+  .split,.row3,.row2{grid-template-columns:1fr;}
+  .split{gap:24px;}
+  .stat-inline{flex-direction:column;align-items:flex-start;gap:4px;}
+  .foot{position:static;margin-top:28px;}
+  table.orc thead{display:none;}
+  table.orc,table.orc tbody,table.orc tr,table.orc td{display:block;width:100%;}
+  table.orc tr{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+  table.orc td{border:0;padding:2px 0;}
+  table.orc td::before{content:attr(data-label) ": ";font-weight:700;color:var(--navy);}
+  .nav{right:12px;bottom:12px;}
+  .nav .fs{display:none;}
+}
+@media print{
+  .nav{display:none;}
+  .slide{break-after:page;}
+}
+</style>
+</head>
+<body>
+
+<!-- 1 · Capa -->
+<section class="slide navy cover" aria-label="Capa">
+  <div class="inner">
+    <img class="cover-logo" src="/logos/sapataria-do-futuro.png" alt="Sapataria do Futuro" width="600" height="242" />
+    <div class="cover-block">
+      <p class="eyebrow">Análise de atendimento</p>
+      <h1 class="cover-title">Atendimento<br>no WhatsApp</h1>
+      <p class="cover-sub">Sapataria do Futuro Nações Shopping</p>
+      <p class="body muted-navy">Conversas de 01/10 a 10/11/2026</p>
+    </div>
+    <p class="small muted-navy">Preparado por The New Ads</p>
+  </div>
+</section>
+
+<!-- 2 · Resumo -->
+<section class="slide light" aria-label="Resumo">
+  <div class="inner">
+    <p class="eyebrow">Resumo</p>
+    <h2 class="statement">A parte técnica é boa. O problema é que o WhatsApp funciona como balcão de informações, não como canal de vendas.</h2>
+    <div class="spacer"></div>
+    <div class="row3">
+      <div class="card"><p class="num">~10 h</p><p class="body">até a primeira resposta (tempo mediano)</p></div>
+      <div class="card"><p class="num">74%</p><p class="body">das conversas terminam com o cliente sumido, sem retorno da loja</p></div>
+      <div class="card"><p class="num">0</p><p class="body">convites para o cliente marcar dia de ir à loja</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>Base: 148 conversas comerciais, de 01/10 a 10/11/2026</span><span>2</span></div>
+</section>
+
+<!-- 3 · Resposta lenta -->
+<section class="slide light" aria-label="Problema 1: resposta lenta">
+  <div class="inner">
+    <p class="eyebrow">1 · Resposta lenta</p>
+    <h2 class="title">O cliente espera horas pela resposta</h2>
+    <div class="spacer"></div>
+    <div class="split">
+      <div class="stats">
+        <div class="stat"><p class="num">~10 h</p><p class="body">tempo mediano até a primeira resposta</p></div>
+        <div class="stat"><p class="num md">40 de 111</p><p class="body">conversas passaram de 24 horas sem resposta</p></div>
+      </div>
+      <div class="card">
+        <p class="label">Cliente · 22/10 às 20:39</p>
+        <p class="body ink-strong">“Vocês fazem reparo de chuteiras? Se sim qual seria o prazo. Sola descolou”</p>
+        <p class="label">Loja · 26/10 às 16:33</p>
+        <p class="body ink-strong">“Boa tarde. Olá, tudo bem? Aqui é Flávia da sapataria do futuro.”</p>
+        <p class="note small" style="font-weight:700">Quatro dias depois, e só com a saudação.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>3</span></div>
+</section>
+
+<!-- 4 · Saudação -->
+<section class="slide light" aria-label="Problema 2: saudação">
+  <div class="inner">
+    <p class="eyebrow">2 · Saudação</p>
+    <h2 class="title">A saudação não pergunta o que o cliente precisa</h2>
+    <div class="spacer"></div>
+    <div class="split">
+      <div class="stat"><p class="num">42</p><p class="body">conversas (28%) terminaram só com a saudação da loja</p></div>
+      <div class="card">
+        <p class="label">A mensagem padrão</p>
+        <p class="quote-big">“Boa tarde. Olá, tudo bem? Aqui é Flávia da sapataria do futuro.”</p>
+        <p class="body">E a conversa para aí. Em alguns casos, a mesma saudação foi repetida no dia seguinte para o mesmo cliente.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>4</span></div>
+</section>
+
+<!-- 5 · Leads de anúncio -->
+<section class="slide terra" aria-label="Problema 3: leads de anúncio">
+  <div class="inner">
+    <p class="eyebrow">3 · Leads de anúncio</p>
+    <h2 class="title">68 pessoas chegaram pelo anúncio. A maioria recebeu só a saudação, horas depois, e sumiu.</h2>
+    <div class="spacer"></div>
+    <div class="convo">
+      <p class="body"><b>Cliente, 01/11:</b> “Olá, vi seu anúncio e gostaria orçar um bordado!”</p>
+      <p class="body"><b>Loja, 03/11:</b> “Boa tarde. Olá, tudo bem? Aqui é Flávia da sapataria do futuro.”</p>
+      <p class="end">FIM DA CONVERSA</p>
+    </div>
+    <p class="body">Quem clica no anúncio já está interessado. É onde a loja mais perde clientes.</p>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>5</span></div>
+</section>
+
+<!-- 6 · Convite para a loja -->
+<section class="slide light" aria-label="Problema 4: convite para a loja">
+  <div class="inner">
+    <p class="eyebrow">4 · Convite para a loja</p>
+    <h2 class="title">Ninguém foi convidado a marcar dia para ir à loja</h2>
+    <div class="spacer"></div>
+    <div class="split">
+      <div class="stats">
+        <div class="stat"><p class="num">0</p><p class="body">conversas com convite para agendar visita ou data</p></div>
+        <div class="stat"><p class="num md">11</p><p class="body">clientes disseram que iam passar, sem dia nem horário anotado</p></div>
+      </div>
+      <div class="card">
+        <p class="label">O que os clientes disseram</p>
+        <p class="quote-big">“Vou aí”</p>
+        <p class="quote-big">“Sábado dou uma passada”</p>
+        <p class="quote-big">“Levarei as peças aí”</p>
+        <p class="body">Sem dia anotado, não dá para saber quantos viraram venda.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>6</span></div>
+</section>
+
+<!-- 7 · Follow-up -->
+<section class="slide light" aria-label="Problema 5: follow-up">
+  <div class="inner">
+    <p class="eyebrow">5 · Follow-up</p>
+    <h2 class="title">Orçamentos ficam sem retorno</h2>
+    <div class="spacer"></div>
+    <div class="stat-inline">
+      <p class="num md">74%</p>
+      <p class="body">das conversas (110) terminam com a última mensagem da loja e o cliente sumido. Ninguém volta a procurar.</p>
+    </div>
+    <table class="orc">
+      <thead><tr><th style="width:16%">Cliente</th><th style="width:34%">Serviço</th><th style="width:22%">Valor passado</th><th style="width:28%">O que aconteceu</th></tr></thead>
+      <tbody>
+        <tr><td data-label="Cliente">final 4411</td><td data-label="Serviço">Pintura de bolsa</td><td data-label="Valor">a partir de R$ 600</td><td data-label="Resultado">Ninguém retornou</td></tr>
+        <tr><td data-label="Cliente">final 1836</td><td data-label="Serviço">Higienização de jaqueta</td><td data-label="Valor">a partir de R$ 380</td><td data-label="Resultado">“Ok. Obrigado” e fim</td></tr>
+        <tr><td data-label="Cliente">final 7358</td><td data-label="Serviço">2 jaquetas, limpeza e revitalização</td><td data-label="Valor">a partir de R$ 350</td><td data-label="Resultado">Ninguém retornou</td></tr>
+        <tr><td data-label="Cliente">final 6394</td><td data-label="Serviço">Troca de solado de tênis</td><td data-label="Valor">a partir de R$ 207</td><td data-label="Resultado">“Ta bom” e fim</td></tr>
+        <tr><td data-label="Cliente">Scheila</td><td data-label="Serviço">Revestimento de salto</td><td data-label="Valor">em média R$ 140</td><td data-label="Resultado">Ninguém retornou</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>7</span></div>
+</section>
+
+<!-- 8 · Preço -->
+<section class="slide light" aria-label="Problema 6: preço">
+  <div class="inner">
+    <p class="eyebrow">6 · Preço</p>
+    <h2 class="title">O preço vai seco, sem próximo passo</h2>
+    <div class="spacer"></div>
+    <div class="row2">
+      <div class="card">
+        <p class="label">Jaqueta de couro · final 1836</p>
+        <p class="body"><b>Cliente:</b> “Queria ver o valor da limpeza e idratacao em 1 jaqueta de couro???”</p>
+        <p class="body ink-strong"><b>Loja:</b> “O valor para serviço de higienização e hidratação é a partir de 380,00”</p>
+        <p class="body"><b>Cliente:</b> “Ok. Obrigado”</p>
+      </div>
+      <div class="card">
+        <p class="label">Rasteiras vistas na vitrine</p>
+        <p class="body"><b>Cliente:</b> “Estive ontem no shopping e vi na entrada da loja umas rasteiras. Poderia me mandar fotos e valores?”</p>
+        <p class="body ink-strong"><b>Loja, 3 dias depois:</b> “288,00” “242,00”</p>
+      </div>
+    </div>
+    <div class="pills">
+      <p class="body ink-strong" style="font-weight:700">O que faltou:</p>
+      <p class="pill">o que está incluso</p>
+      <p class="pill">o prazo</p>
+      <p class="pill">um convite para a loja</p>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>8</span></div>
+</section>
+
+<!-- 9 · Perguntas sem resposta -->
+<section class="slide light" aria-label="Problema 7: perguntas sem resposta">
+  <div class="inner">
+    <p class="eyebrow">7 · Perguntas sem resposta</p>
+    <h2 class="title">O cliente pergunta e a resposta não vem</h2>
+    <div class="spacer"></div>
+    <div class="row3">
+      <div class="card">
+        <h3 class="card-title">Jucemar</h3>
+        <p class="body"><b>Cliente:</b> “Qual será o valor e o tempo que vai levar?”</p>
+        <p class="body"><b>Loja, no dia seguinte:</b> “Bom dia”</p>
+        <p class="note">Valor e prazo nunca vieram.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Bordado urgente</h3>
+        <p class="body"><b>Cliente:</b> “Qto tempo leva! Pois eu não sou de Criciúma e fico aqui até quinta”</p>
+        <p class="note">Prazo e valor nunca foram informados.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Sem resposta</h3>
+        <p class="body"><b>Final 7802:</b> tênis Air Force descascado após lavagem</p>
+        <p class="body"><b>Final 2964:</b> tênis Vans rasgado</p>
+        <p class="body"><b>Final 1935:</b> “Em quanto tempo? Ideia de valor?”</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>9</span></div>
+</section>
+
+<!-- 10 · Cliente desistindo -->
+<section class="slide light" aria-label="Problema 8: cliente desistindo">
+  <div class="inner">
+    <p class="eyebrow">8 · Cliente desistindo</p>
+    <h2 class="title">O cliente desiste e a loja deixa ir</h2>
+    <div class="spacer"></div>
+    <div class="row3">
+      <div class="card">
+        <h3 class="card-title">Rodinha de mala</h3>
+        <p class="body"><b>Cliente:</b> “esse valor é mais caro que paguei na mala, não compensa muito!”</p>
+        <p class="body"><b>Loja:</b> “Obrigada pelo contato.”</p>
+        <p class="note">Faltou oferecer avaliação grátis ou um serviço parcial.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Araranguá</h3>
+        <p class="body"><b>Cliente:</b> “que pena sou de Ararangua aí fica difícil pra mim”</p>
+        <p class="note">A loja já envia por correio para outros clientes, mas não ofereceu aqui.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Pedido alto</h3>
+        <p class="body"><b>Cliente:</b> “restauração nessa mochila trocar as partes de courino por couro de verdade e fazer uma higienização nela também”</p>
+        <p class="note">Serviço de valor alto que não foi explorado.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>10</span></div>
+</section>
+
+<!-- 11 · Operação -->
+<section class="slide light" aria-label="Problema 9: operação">
+  <div class="inner">
+    <p class="eyebrow">9 · Operação</p>
+    <h2 class="title">Problemas menores do dia a dia</h2>
+    <div class="spacer"></div>
+    <div class="row2">
+      <div class="card">
+        <h3 class="card-title">Endereço genérico</h3>
+        <p class="body">“Estamos no Nações Shopping”, em 25 conversas, sem link do Maps nem ponto de referência.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Vaga no mesmo número</h3>
+        <p class="body">58 conversas de candidatos à vaga disputaram atenção com os clientes.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Erros de digitação</h3>
+        <p class="body">“previso ver”, “avalarmos”, “Se, tiver interesse”.</p>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Falta de gente</h3>
+        <p class="body">A Flávia é gerente e atende balcão e WhatsApp ao mesmo tempo. Isso explica boa parte da demora.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>11</span></div>
+</section>
+
+<!-- 12 · Por onde começar -->
+<section class="slide navy" aria-label="Por onde começar">
+  <div class="inner">
+    <p class="eyebrow">Por onde começar</p>
+    <h2 class="title">Três ajustes simples para começar</h2>
+    <div class="spacer"></div>
+    <div class="row3">
+      <div class="card">
+        <p class="step-num">1</p>
+        <h3 class="card-title">Responder rápido e perguntando</h3>
+        <p class="body">Em até 15 minutos no horário comercial, já perguntando qual é a peça. Fora do horário, mensagem automática pedindo foto.</p>
+      </div>
+      <div class="card">
+        <p class="step-num">2</p>
+        <h3 class="card-title">Preço com convite</h3>
+        <p class="body">Junto com o valor, dizer o que está incluso e o prazo, e chamar para a avaliação grátis com dia marcado.</p>
+      </div>
+      <div class="card">
+        <p class="step-num">3</p>
+        <h3 class="card-title">Retorno em 1, 3 e 7 dias</h3>
+        <p class="body">Todo orçamento sem resposta recebe uma mensagem no dia seguinte, em três dias e em sete dias.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>Análise The New Ads · 01/10 a 10/11/2026</span><span>12</span></div>
+</section>
+
+<nav class="nav" aria-label="Navegação dos slides">
+  <button type="button" class="prev" aria-label="Slide anterior">&#8593;</button>
+  <span class="count" aria-live="polite">1 / 12</span>
+  <button type="button" class="next" aria-label="Próximo slide">&#8595;</button>
+  <button type="button" class="fs" aria-label="Tela cheia">&#9974;</button>
+</nav>
+
+<script>
+(function(){
+  var slides = Array.prototype.slice.call(document.querySelectorAll('.slide'));
+  var count = document.querySelector('.nav .count');
+  var cur = 0;
+  function upd(){ count.textContent = (cur + 1) + ' / ' + slides.length; }
+  function go(i){
+    cur = Math.max(0, Math.min(slides.length - 1, i));
+    slides[cur].scrollIntoView({behavior:'smooth', block:'start'});
+    upd();
+  }
+  if ('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if (e.isIntersecting){ cur = slides.indexOf(e.target); upd(); }
+      });
+    }, {rootMargin:'-50% 0px -50% 0px', threshold:0});
+    slides.forEach(function(s){ io.observe(s); });
+  }
+  document.addEventListener('keydown', function(e){
+    if (e.altKey || e.ctrlKey || e.metaKey) return;
+    var k = e.key;
+    if (k === 'ArrowDown' || k === 'ArrowRight' || k === 'PageDown' || k === ' '){ e.preventDefault(); go(cur + 1); }
+    else if (k === 'ArrowUp' || k === 'ArrowLeft' || k === 'PageUp'){ e.preventDefault(); go(cur - 1); }
+    else if (k === 'Home'){ e.preventDefault(); go(0); }
+    else if (k === 'End'){ e.preventDefault(); go(slides.length - 1); }
+  });
+  document.querySelector('.nav .prev').addEventListener('click', function(){ go(cur - 1); });
+  document.querySelector('.nav .next').addEventListener('click', function(){ go(cur + 1); });
+  document.querySelector('.nav .fs').addEventListener('click', function(){
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else document.documentElement.requestFullscreen();
+    } catch (err) {}
+  });
+  upd();
+})();
+</script>
+</body>
+</html>
