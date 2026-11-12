@@ -61,7 +61,7 @@ h1,h2,h3,p{margin:0;}
   min-height:100vh;
   min-height:100svh;
   scroll-snap-align:start;
-  padding:var(--pad-y) var(--pad-x) calc(var(--pad-y) + var(--fs-small) * 2.6);
+  padding:var(--pad-y) var(--pad-x) calc(var(--pad-y) + var(--fs-small) * 1.4);
   display:flex;
   flex-direction:column;
   overflow:hidden;
@@ -75,7 +75,7 @@ h1,h2,h3,p{margin:0;}
   flex-direction:column;
   gap:calc(var(--gap) * 0.8);
 }
-.spacer{flex:1;min-height:var(--gap);}
+.spacer{flex:1;min-height:0;}
 
 .light{background:var(--paper);color:var(--ink);}
 .navy{background:var(--navy);color:var(--paper);}
@@ -174,7 +174,7 @@ h3.card-title{
 .stat-inline{display:flex;gap:var(--gap);align-items:center;}
 .stat-inline .num{white-space:nowrap;}
 table.orc{width:100%;border-collapse:collapse;font-size:var(--fs-body);color:var(--ink);}
-table.orc th,table.orc td{text-align:left;padding:0.45em 0.6em;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.35;}
+table.orc th,table.orc td{text-align:left;padding:0.3em 0.6em;border-bottom:1px solid var(--line);vertical-align:top;line-height:1.35;}
 table.orc thead tr{background:var(--band);}
 table.orc th{color:var(--navy);font-weight:700;}
 
@@ -240,7 +240,7 @@ table.orc th{color:var(--navy);font-weight:700;}
   .split,.row3,.row2{grid-template-columns:1fr;}
   .split{gap:24px;}
   .stat-inline{flex-direction:column;align-items:flex-start;gap:4px;}
-  .foot{position:static;margin-top:28px;}
+  .foot{position:static;margin-top:28px;max-width:none;}
   table.orc thead{display:none;}
   table.orc,table.orc tbody,table.orc tr,table.orc td{display:block;width:100%;}
   table.orc tr{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:12px 14px;margin-bottom:10px;}
@@ -374,7 +374,7 @@ table.orc th{color:var(--navy);font-weight:700;}
     <div class="spacer"></div>
     <div class="stat-inline">
       <p class="num md">74%</p>
-      <p class="body">das conversas (110) terminam com a última mensagem da loja e o cliente sumido. Ninguém volta a procurar.</p>
+      <p class="body">das conversas (110) acabam com o cliente sumido e ninguém volta a procurar.</p>
     </div>
     <table class="orc">
       <thead><tr><th style="width:16%">Cliente</th><th style="width:34%">Serviço</th><th style="width:22%">Valor passado</th><th style="width:28%">O que aconteceu</th></tr></thead>
@@ -485,7 +485,7 @@ table.orc th{color:var(--navy);font-weight:700;}
     <div class="row2">
       <div class="card">
         <h3 class="card-title">Endereço genérico</h3>
-        <p class="body">“Estamos no Nações Shopping”, em 25 conversas, sem link do Maps nem ponto de referência.</p>
+        <p class="body">“Estamos no Nações Shopping” em 25 conversas, sem Maps e sem referência.</p>
       </div>
       <div class="card">
         <h3 class="card-title">Vaga no mesmo número</h3>
@@ -497,7 +497,7 @@ table.orc th{color:var(--navy);font-weight:700;}
       </div>
       <div class="card">
         <h3 class="card-title">Falta de gente</h3>
-        <p class="body">A Flávia é gerente e atende balcão e WhatsApp ao mesmo tempo. Isso explica boa parte da demora.</p>
+        <p class="body">A Flávia é gerente e atende balcão e WhatsApp juntos. Isso explica boa parte da demora.</p>
       </div>
     </div>
   </div>
