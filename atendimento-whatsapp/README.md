@@ -81,14 +81,13 @@ A saudação do anúncio da Meta ("Oi! Como podemos ajudar?") sai no mesmo minut
 - Não conta como resposta nem entra nas contas.
 - Sem isso, todo lead de anúncio aparecia respondido em 0 min.
 
-## Estado em 12/11/2026
+## Estado em 13/11/2026
 
 - **O que está no ar:**
-  - `0001` a `0004` aplicadas.
+  - `0001` a `0006` aplicadas (0005 e 0006 rodadas pelo Douglas no SQL Editor em 13/11, via `supabase/aplicar-0005-e-0006.sql`).
   - Edge Functions novas publicadas: webhook v3, transcrever v2, ia v2 e usuarios v1.
-  - Tela nova publicada. Enquanto o banco não tiver o 0006, ela mostra o aviso "banco ainda não recebeu a atualização".
+  - Tela nova publicada, com as 3 unidades. Só o Douglas tem acesso (admin).
 - **Pendente do Douglas:**
-  - Rodar `supabase/aplicar-0005-e-0006.sql` no SQL Editor (tem UPDATE, o `apply_migration` recusa).
   - Criar a chave da OpenAI.
   - Conectar as 3 unidades na NeoGo.
   - Validar com a Renita os diferenciais e o que está incluso (hoje é rascunho tirado dos briefings).
