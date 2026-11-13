@@ -4,32 +4,50 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#132a56">
 <title>Monitor de atendimento</title>
 <link rel="icon" type="image/svg+xml" href="/icone.svg">
-<link rel="stylesheet" href="/estilo.css?v=3">
+<link rel="preload" href="/fontes/archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/estilo.css?v=4">
 </head>
 <body>
+<!--
+THESIS: painel de KPIs da rede, lido de cima pra baixo como a própria nota é feita: a nota, as 10 metas que a formam, o detalhe de cada pilar e o contexto. Recusa a parede de linhas iguais da versão anterior.
+OWN-WORLD: identidade da Sapataria do Futuro. Faixa azul-marinho com o logo branco, superfície clara, Archivo em tudo. Cada pilar tem uma cor da marca (azul, terracota, framboesa, verde, dourado), validada pra daltonismo; situação (na meta, perto, longe) sempre com ícone e texto.
+STORY: a dona e a equipe veem a nota, sabem qual meta puxou pra baixo e abrem a conversa que tirou o ponto.
+FIRST VIEWPORT: período no topo; nota grande no bloco azul-marinho à esquerda; à direita, a barra de cada pilar.
+FORM: placar agrupado por pilar (balanced scorecard), estrutura pedida pelo cliente.
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md
+-->
 
 <section id="tela-entrar" class="entrar" hidden>
-  <form id="form-entrar" class="cartao-entrar" autocomplete="on">
-    <img src="/icone.svg" alt="" width="44" height="44">
-    <h1>Monitor de atendimento</h1>
-    <p class="suave">Acesso restrito</p>
-    <label>E-mail<input type="email" id="email" autocomplete="username" required></label>
-    <label>Senha<input type="password" id="senha" autocomplete="current-password" required></label>
-    <label id="campo-codigo" hidden>Código do autenticador<input type="text" id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
-    <button class="btn" type="submit" id="btn-entrar">Entrar</button>
-    <p id="erro-entrar" class="erro" role="alert"></p>
-  </form>
+  <div class="formas" aria-hidden="true"><i class="f1"></i><i class="f2"></i><i class="f3"></i><i class="f4"></i><i class="f5"></i><i class="f6"></i></div>
+  <div class="entrar-miolo">
+    <img class="entrar-logo" src="/logos/sapataria-do-futuro.png" alt="Sapataria do Futuro" width="210" height="85">
+    <form id="form-entrar" class="cartao-entrar" autocomplete="on">
+      <h1>Monitor de atendimento</h1>
+      <p class="suave">Entre com o e-mail e a senha liberados pra você.</p>
+      <label class="campo">E-mail<input type="email" id="email" autocomplete="username" required></label>
+      <label class="campo">Senha<input type="password" id="senha" autocomplete="current-password" required></label>
+      <label class="campo" id="campo-codigo" hidden>Código do autenticador<input type="text" id="codigo" inputmode="numeric" autocomplete="one-time-code" maxlength="6"></label>
+      <button class="btn" type="submit" id="btn-entrar">Entrar</button>
+      <p id="erro-entrar" class="erro" role="alert"></p>
+    </form>
+  </div>
 </section>
 
 <div id="app" hidden>
   <header class="topo">
-    <div class="marca">
-      <img id="logo-rede" src="/icone.svg" alt="" height="28">
-      <div>
+    <div class="topo-linha">
+      <img id="logo-rede" class="logo" src="/logos/sapataria-do-futuro.png" alt="Sapataria do Futuro" width="104" height="42">
+      <div class="topo-titulo">
         <strong id="nome-conta">Atendimento</strong>
         <span id="status-conexao" class="status"></span>
+      </div>
+      <div class="topo-dir">
+        <label class="sel-unidade" id="rot-conta" hidden><span class="sr">Unidade</span><select id="sel-conta"></select></label>
+        <button class="btn-topo" id="btn-senha" type="button">Senha</button>
+        <button class="btn-topo" id="btn-sair" type="button">Sair</button>
       </div>
     </div>
     <nav class="abas" aria-label="Seções">
@@ -40,16 +58,11 @@
       <a href="#regras" data-aba="regras">Como funciona</a>
       <a href="#config" data-aba="config" hidden>Configuração</a>
     </nav>
-    <div class="topo-dir">
-      <select id="sel-conta" aria-label="Unidade" hidden></select>
-      <button class="btn-fantasma" id="btn-senha" type="button">Senha</button>
-      <button class="btn-fantasma" id="btn-sair" type="button">Sair</button>
-    </div>
   </header>
 
   <main>
     <div id="barra-periodo" class="barra-periodo" hidden>
-      <div class="chips" id="chips-periodo" role="group" aria-label="Período">
+      <div class="segmentos" id="chips-periodo" role="group" aria-label="Período">
         <button type="button" data-p="7">7 dias</button>
         <button type="button" data-p="30">30 dias</button>
         <button type="button" data-p="semana">Esta semana</button>
@@ -64,77 +77,32 @@
       </div>
     </div>
 
-    <section id="aba-rede" class="aba" hidden>
-      <div id="rede-ranking" class="ranking"></div>
-      <section class="painel">
-        <header class="painel-topo">
-          <h2>Unidades lado a lado</h2>
-          <p class="suave">Mesmo período e mesmas metas pras três. Verde bate a meta, vermelho fica abaixo.</p>
-        </header>
-        <div id="rede-comparativo" class="tabela-rolagem"></div>
-      </section>
-      <section class="painel">
-        <header class="painel-topo">
-          <h2>Nota semana a semana</h2>
-          <p class="suave">Cada semana fecha na terça às 8h e fica congelada.</p>
-        </header>
-        <div id="rede-evolucao" class="tabela-rolagem"></div>
-      </section>
-    </section>
-
-    <section id="aba-geral" class="aba" hidden>
-      <div id="aviso-geral" class="aviso" hidden></div>
-      <div id="nota-unidade"></div>
-      <div id="blocos" class="blocos"></div>
-      <section class="painel">
-        <header class="painel-topo">
-          <h2>Quando o cliente espera</h2>
-          <p class="suave">Mediana da espera pela loja, por dia e hora em que o cliente escreveu com a loja aberta (minutos dentro do horário).</p>
-        </header>
-        <div id="calor" class="calor"></div>
-      </section>
-    </section>
-
-    <section id="aba-agora" class="aba" hidden>
-      <div id="filas" class="filas"></div>
-    </section>
-
-    <section id="aba-historico" class="aba" hidden>
-      <section class="painel">
-        <header class="painel-topo">
-          <h2>Evolução semana a semana</h2>
-          <p class="suave">Cada semana é fechada na terça às 8h e fica congelada. A linha "Semana atual" é calculada agora e muda até o fechamento.</p>
-        </header>
-        <div id="historico" class="tabela-rolagem"></div>
-      </section>
-    </section>
-
-    <section id="aba-regras" class="aba" hidden>
-      <div id="regras"></div>
-    </section>
-
-    <section id="aba-config" class="aba" hidden>
-      <div id="config"></div>
-    </section>
+    <section id="aba-rede" class="aba" hidden></section>
+    <section id="aba-geral" class="aba" hidden></section>
+    <section id="aba-agora" class="aba" hidden></section>
+    <section id="aba-historico" class="aba" hidden></section>
+    <section id="aba-regras" class="aba" hidden></section>
+    <section id="aba-config" class="aba" hidden></section>
   </main>
-  <footer class="rodape">Monitor de atendimento · The New Ads</footer>
+  <footer class="rodape">Monitor de atendimento · feito pela The New Ads</footer>
 </div>
 
 <aside id="gaveta" class="gaveta" hidden aria-modal="true" role="dialog" aria-labelledby="gaveta-titulo">
   <div class="gaveta-fundo" data-fechar></div>
   <div class="gaveta-corpo">
     <header class="gaveta-topo">
-      <button type="button" class="btn-fantasma" id="gaveta-voltar" hidden>← Voltar</button>
+      <button type="button" class="btn-icone" id="gaveta-voltar" aria-label="Voltar" hidden><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
       <h2 id="gaveta-titulo"></h2>
-      <button type="button" class="btn-fantasma" data-fechar aria-label="Fechar">✕</button>
+      <button type="button" class="btn-icone" data-fechar aria-label="Fechar"><svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </header>
     <div id="gaveta-conteudo" class="gaveta-conteudo"></div>
   </div>
 </aside>
 
+<div id="dica" class="dica" role="tooltip" hidden></div>
 <div id="toast" class="toast" role="status" hidden></div>
 
 <script src="/vendor/supabase.js"></script>
-<script src="/app.js?v=3"></script>
+<script src="/app.js?v=4"></script>
 </body>
 </html>

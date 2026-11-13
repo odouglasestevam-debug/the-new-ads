@@ -7,6 +7,7 @@ Primeiro cliente: rede Sapataria do Futuro, com 3 unidades (Nações, Tietê, An
 - Tela: https://atendimento.thenewads.com.br (login do Supabase do CRM e do gestor, com 2FA quando cadastrado)
 - Banco: Supabase do CRM e do gestor (`xrvjlhseyqfgyvwwlwwb`, conector `supabase-app`), schema próprio `atendimento`. Não mexe em nada do CRM nem do gestor.
 - Front: Cloudflare Worker `tna-atendimento` (`site/`). Deploy: `npx wrangler@4 deploy` dentro de `site/` com `CLOUDFLARE_API_TOKEN` e `CLOUDFLARE_ACCOUNT_ID` do `.env` da raiz.
+- Visual: identidade da Sapataria do Futuro, cor fixa por pilar e ordem nota, metas, detalhe por pilar e contexto. Regras em `site/DESIGN.md` (ler antes de mexer na tela).
 - Testes do banco (PGlite, sem dado real): `node --test atendimento-whatsapp/tests/banco.test.mjs` na raiz do repositório. Com `ATD_FIXTURES=arquivo.json` o teste também grava as respostas das funções, útil pra abrir a tela com backend simulado.
 
 ## Como funciona
@@ -87,6 +88,7 @@ A saudação do anúncio da Meta ("Oi! Como podemos ajudar?") sai no mesmo minut
   - `0001` a `0006` aplicadas (0005 e 0006 rodadas pelo Douglas no SQL Editor em 13/11, via `supabase/aplicar-0005-e-0006.sql`).
   - Edge Functions novas publicadas: webhook v3, transcrever v2, ia v2 e usuarios v1.
   - Tela nova publicada, com as 3 unidades. Só o Douglas tem acesso (admin).
+  - Visual refeito em 13/11, a pedido do Douglas: blocos na ordem nota, metas, detalhe por pilar e contexto, com mais cor e gráfico. Identidade da Sapataria, conferido no computador e no celular (`site/DESIGN.md`).
 - **Pendente do Douglas:**
   - Criar a chave da OpenAI.
   - Conectar as 3 unidades na NeoGo.
