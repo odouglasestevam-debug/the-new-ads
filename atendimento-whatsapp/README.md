@@ -91,7 +91,7 @@ A saudação do anúncio da Meta ("Oi! Como podemos ajudar?") sai no mesmo minut
   - Visual refeito em 13/11, a pedido do Douglas: blocos na ordem nota, metas, detalhe por pilar e contexto, com mais cor e gráfico. Identidade da Sapataria, conferido no computador e no celular (`site/DESIGN.md`).
 - **Pendente do Douglas:**
   - Criar a chave da OpenAI.
-  - Conectar as 3 unidades na NeoGo.
+  - Conectar Nações e Tietê na NeoGo. A Anália Franco foi conectada em 16/11/2026 às 10h42 (instância "SDF analia"). O áudio chegou com `mediaKey`/`directPath`, e a NeoGo também manda `Message.mediaUrl`, uma cópia já decifrada no Backblaze dela. Falta ver a primeira mensagem da loja e o `Receipt`.
   - Validar com a Renita os diferenciais e o que está incluso (hoje é rascunho tirado dos briefings).
   - Liberar os acessos (Renita e equipes) na tela.
 - **Histórico importado:** 136 mensagens da Nações vindas do WhatsApp Web, de 21/10 a 12/11. A coleta continua em lotes.
