@@ -26,6 +26,7 @@ const ICONES = {
   menos: '<path d="M6.5 12h11"/>',
   seta: '<path d="M9.5 5.5l6.5 6.5-6.5 6.5"/>',
   info: '<circle cx="12" cy="12" r="8.8"/><path d="M12 11v5.4M12 7.9v.2"/>',
+  ajuda: '<circle cx="12" cy="12" r="8.8"/><path d="M9.7 9.6a2.4 2.4 0 014.6.9c0 1.6-2.3 2.1-2.3 3.6M12 16.9v.2"/>',
   relogio: '<circle cx="12" cy="12" r="8.8"/><path d="M12 7.2V12l3.2 2"/>',
   mic: '<rect x="9" y="3" width="6" height="11.5" rx="3"/><path d="M5.5 11a6.5 6.5 0 0013 0M12 17.5V21"/>',
   camera: '<path d="M3.5 8h3.2l1.6-2.6h7.4L17.3 8h3.2v11.5h-17z"/><circle cx="12" cy="13.3" r="3.4"/>',
@@ -203,7 +204,7 @@ function toast(msg) {
 // ---------- dica (tooltip): enfeita, nunca é o único jeito de ler o número ----------
 const dicaEl = () => $("#dica");
 function preencherDica(d) {
-  const el = dicaEl(); el.replaceChildren();
+  const el = dicaEl(); el.replaceChildren(); el.classList.toggle("explica", !!d.a);
   if (d.v !== undefined && d.v !== null && d.v !== "") { const b = document.createElement("b"); b.textContent = d.v; el.append(b); }
   for (const k of ["t", "s"]) if (d[k]) { const sp = document.createElement("span"); sp.textContent = d[k]; el.append(sp); }
   for (const s of d.series || []) {
@@ -239,6 +240,22 @@ document.addEventListener("focusin", (e) => {
   try { mostrarDica(JSON.parse(a.dataset.dica), r.left + Math.min(r.width / 2, 120), r.bottom); } catch { /* dica inválida */ }
 });
 document.addEventListener("focusout", () => { alvoDica = null; esconderDica(); });
+// "?" ao lado do título: a explicação fica escondida e aparece ao passar o mouse, focar ou tocar
+const ajuda = (txt, titulo = "", extra = "", { interna = false } = {}) => {
+  if (!txt) return "";
+  const d = ` data-dica="${esc(JSON.stringify({ v: titulo || undefined, t: txt, s: extra || undefined, a: 1 }))}"`;
+  // dentro de uma linha que já é botão não cabe outro botão: vira só o ícone e o texto fica pro leitor de tela
+  if (interna) return `<span class="ajuda"${d} aria-hidden="true">${ic("ajuda")}</span><span class="sr">${esc([txt, extra].filter(Boolean).join(". "))}</span>`;
+  return `<button type="button" class="ajuda"${d} aria-label="${esc(`${titulo || "Explicação"}: ${txt}`)}">${ic("ajuda")}</button>`;
+};
+// toque (celular): o clique no "?" só mostra a explicação, não abre o que estiver por baixo
+document.addEventListener("click", (e) => {
+  const a = e.target.closest?.(".ajuda"); if (!a) return;
+  e.preventDefault(); e.stopPropagation();
+  const r = a.getBoundingClientRect(); alvoDica = a;
+  try { mostrarDica(JSON.parse(a.dataset.dica), r.left + r.width / 2, r.bottom); } catch { /* dica inválida */ }
+}, true);
+document.addEventListener("pointerdown", (e) => { if (alvoDica && !e.target.closest?.(".ajuda") && !e.target.closest?.("[data-dica]")) { alvoDica = null; esconderDica(); } });
 window.addEventListener("scroll", () => { if (alvoDica) { alvoDica = null; esconderDica(); } }, { passive: true });
 
 // ---------- acesso ----------
@@ -423,12 +440,12 @@ document.addEventListener("keydown", (e) => {
 
 // ---------- peças de gráfico ----------
 const medidor = (v, cls = "") => `<span class="medidor ${cls}"><i style="width:${v === null || v === undefined ? 0 : clamp(v)}%"></i></span>`;
-const cab = (titulo, sub = "") => `<div class="cartao-cab"><h3>${esc(titulo)}</h3>${sub ? `<p>${esc(sub)}</p>` : ""}</div>`;
+const cab = (titulo, sub = "") => `<div class="cartao-cab"><h3>${esc(titulo)}${ajuda(sub)}</h3></div>`;
 
-function numero(rot, valor, sub = "", { filtro, titulo, sit, acaoId } = {}) {
+function numero(rot, valor, sub = "", { filtro, titulo, sit, acaoId, explica } = {}) {
   const tag = filtro || acaoId ? "button" : "div";
   const attrs = filtro ? ` type="button" data-filtro="${esc(filtro)}" data-titulo="${esc(titulo || rot)}"` : acaoId ? ` type="button" data-acao="${acaoId}"` : "";
-  return `<${tag} class="numero"${attrs}><span>${esc(rot)}</span><b>${esc(valor)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}${sit ? chipSit(sit) : ""}</${tag}>`;
+  return `<${tag} class="numero"${attrs}><span>${esc(rot)}${ajuda(explica, rot, "", { interna: tag === "button" })}</span><b>${esc(valor)}</b>${sub ? `<small>${esc(sub)}</small>` : ""}${sit ? chipSit(sit) : ""}</${tag}>`;
 }
 
 // Barras horizontais alinhadas: ranking (uma cor) ou funil (cor do pilar de cada passo)
@@ -589,8 +606,7 @@ function blocoNota(d, quem) {
       <div class="nota-contexto"><span><b>${n(V.atendimentos)}</b> atendimentos</span><span><b>${n(Q.oportunidades)}</b> oportunidades lidas pela IA</span>${Q.aguardando_ia ? `<span><b>${n(Q.aguardando_ia)}</b> aguardando a IA</span>` : ""}</div>
     </div>
     <div class="nota-dir">
-      <h3>De onde vem a nota</h3>
-      <p>Cada pilar vale de 0 a 100 e entra na nota com o seu peso. Clique num pilar pra ver as metas dele.</p>
+      <h3>De onde vem a nota${ajuda("Cada pilar vale de 0 a 100 e entra na nota com o seu peso. Passe o mouse num pilar pra ver o que ele mede; clique pra ver as metas dele.")}</h3>
       ${PILARES.map((p) => linhaPilar(p, N.pilares?.[p.k], d, { rolar: "s-metas" })).join("")}
       ${avisos.length ? `<div class="aviso atencao" style="margin:12px 0 4px">${ic("info")}<div>${avisos.join("<br>")}</div></div>` : ""}
     </div>
@@ -602,12 +618,14 @@ function linhaKpi(k, K, d, m) {
   const sem = K.valor === null || K.valor === undefined;
   const Q = d.qualidade || {};
   let nota;
-  if (!sem) nota = `base: ${n(base)} ${rotBase}`;
-  else if (k.ia && !Q.analisados) nota = "aguardando a leitura da IA";
-  else nota = `sem amostra: ${n(base || 0)} ${rotBase} (mínimo ${k.minimo || 3})`;
+  if (!sem) nota = `Base: ${n(base)} ${rotBase}.`;
+  else if (k.ia && !Q.analisados) nota = "Aguardando a leitura da IA.";
+  else nota = `Sem amostra: ${n(base || 0)} ${rotBase} (mínimo ${k.minimo || 3}).`;
+  const det = k.detalhe ? k.detalhe[0].toUpperCase() + k.detalhe.slice(1) + "." : "";
   const metaTxt = fmtMeta(k, K.meta ?? m[META_DO_KPI[k.k]]);
+  // com valor, a linha fica só com o nome; sem valor, o motivo continua à vista porque explica o "–"
   return `<button type="button" class="placar-linha" data-filtro="${esc(k.filtro)}" data-titulo="${esc(k.titulo)}">
-    <span class="pl-nome"><strong>${esc(k.nome)}</strong><small>${esc(k.detalhe ? k.detalhe + " · " : "")}${esc(nota)}</small></span>
+    <span class="pl-nome"><strong>${esc(k.nome)}${ajuda(det || nota, k.nome, det ? nota : "", { interna: true })}</strong>${sem ? `<small>${esc(nota)}</small>` : ""}</span>
     <span class="pl-valor">${sem ? "–" : esc(fmtKpi(K.valor, k.un))}</span>
     <span class="pl-meta"><span class="so-cel">meta </span>${esc(metaTxt)}</span>
     <span class="pl-barra">${medidor(K.pontos)}<b>${K.pontos === null || K.pontos === undefined ? "–" : fmtNota(K.pontos)}</b></span>
@@ -620,13 +638,13 @@ function secaoMetas(d) {
   const grupos = PILARES.map((p) => {
     const P = N.pilares?.[p.k] || {};
     return `<div class="placar-grupo p-${p.c}">
-      <div class="placar-pilar"><span class="pino"></span><strong>${esc(p.nome)}</strong><span>${esc(p.desc)}</span>
+      <div class="placar-pilar"><span class="pino"></span><strong>${esc(p.nome)}</strong>${ajuda(p.desc, p.nome)}
         <span class="pp-pts">peso ${n(P.peso ?? pesos()[p.k])}% · <b>${P.pontos === null || P.pontos === undefined ? "sem dado" : fmtNota(P.pontos) + " pontos"}</b></span></div>
       ${p.kpis.map((k) => linhaKpi(k, P.kpis?.[k.k] || {}, d, m)).join("")}
     </div>`;
   }).join("");
   return `<section class="secao" id="s-metas">
-    <div class="secao-cab"><div><h2>Metas do período</h2><p>Os 10 indicadores que formam a nota, com a meta da rede. Barra cheia é meta batida. Clique num indicador pra ver as conversas que perderam ponto.</p></div></div>
+    <div class="secao-cab"><div><h2>Metas do período${ajuda(`Os 10 indicadores que formam a nota, com a meta da rede. Barra cheia é meta batida. Clique num indicador pra ver as conversas que perderam ponto.`)}</h2></div></div>
     <div class="cartao placar">
       <div class="placar-cab" aria-hidden="true"><span>Indicador</span><span>Resultado</span><span>Meta</span><span>Pontos (100 = meta)</span><span>Situação</span></div>
       ${grupos}
@@ -802,11 +820,11 @@ function desenharRede(lista, semanas) {
   }
 
   $("#aba-rede").innerHTML = `
-    <section class="secao"><div class="secao-cab"><div><h2>Ranking da rede</h2><p>Nota de cada unidade no período, com as mesmas metas pras três. Clique numa unidade pra abrir os números dela.</p></div></div>
+    <section class="secao"><div class="secao-cab"><div><h2>Ranking da rede${ajuda(`Nota de cada unidade no período, com as mesmas metas pras três. Clique numa unidade pra abrir os números dela.`)}</h2></div></div>
       <div class="unidades">${cartoes}</div></section>
-    <section class="secao"><div class="secao-cab"><div><h2>Metas lado a lado</h2><p>Mesmo período e mesmas metas. O ícone mostra a situação de cada unidade: na meta, perto ou longe.</p></div></div>
+    <section class="secao"><div class="secao-cab"><div><h2>Metas lado a lado${ajuda(`Mesmo período e mesmas metas. O ícone mostra a situação de cada unidade: na meta, perto ou longe.`)}</h2></div></div>
       <div class="cartao">${tabela}</div></section>
-    <section class="secao"><div class="secao-cab"><div><h2>Nota semana a semana</h2><p>Cada semana fecha na terça às 8h e fica congelada. Faixa verde: 85 ou mais; amarela: 70 a 84; vermelha: abaixo de 70.</p></div></div>
+    <section class="secao"><div class="secao-cab"><div><h2>Nota semana a semana${ajuda(`Cada semana fecha na terça às 8h e fica congelada. Faixa verde: 85 ou mais; amarela: 70 a 84; vermelha: abaixo de 70.`)}</h2></div></div>
       ${evolucao}</section>`;
   desenharGraficos();
 }
@@ -856,7 +874,7 @@ function desenharGeral(d, lista) {
 
   // Agilidade
   const agi = `<section class="secao p-agi" id="s-agi">
-    <div class="secao-cab">${pinos("agi")}<div><h2>Agilidade em detalhe</h2><p>Quanto o cliente espera pela loja. Os tempos contam só os minutos com a loja aberta: mensagem às 23h respondida às 10h05 vale 5 minutos.</p></div></div>
+    <div class="secao-cab">${pinos("agi")}<div><h2>Agilidade em detalhe${ajuda(`Quanto o cliente espera pela loja. Os tempos contam só os minutos com a loja aberta: mensagem às 23h respondida às 10h05 vale 5 minutos.`)}</h2></div></div>
     <div class="numeros p-agi">
       ${numero("1ª resposta, mediana", fmtMin(R.mediana_util_min), `meta até ${m.primeira_resposta_min} min · loja aberta`, { filtro: "acima_meta", titulo: "1ª resposta acima da meta", sit: situacao(kpi("agilidade", "primeira_resposta").pontos) })}
       ${numero("1ª resposta em tempo corrido", fmtMin(R.mediana_corrida_min), "como o cliente sente, com a loja fechada no meio")}
@@ -892,16 +910,15 @@ function desenharGeral(d, lista) {
       <div class="cartao c-7">${cab("Caminho da oportunidade", "Das conversas de serviço novo, quantas tiveram cada passo, pela leitura da IA. Clique num passo pra ver quem ficou sem ele.")}${funil}</div>
       <div class="c-5" style="display:grid;gap:16px;align-content:start">
         <div class="numeros p-con" style="grid-template-columns:repeat(2,minmax(0,1fr))">
-          ${numero("Modo balcão", n(Q.balcao), `${fmtPct(pct(Q.balcao, op))} das oportunidades: respondeu e não levou pra loja`, { filtro: "balcao", titulo: "Modo balcão: respondeu e não levou pra loja" })}
+          ${numero("Modo balcão", n(Q.balcao), `${fmtPct(pct(Q.balcao, op))} das oportunidades: respondeu e não levou pra loja`, { filtro: "balcao", titulo: "Modo balcão: respondeu e não levou pra loja", explica: "É quando a loja só informa: responde o preço, mas não chama o cliente pra trazer a peça nem combina um dia. É o que a nota de condução e compromisso tenta evitar." })}
           ${numero("Tempo até o preço", fmtMin(Q.tempo_ate_preco_mediana_min), "mediana, loja aberta")}
           ${numero("Compromissos por vir", n(Q.relembrou_aguardando), "data combinada ainda não chegou")}
           ${numero("Aguardando a IA", n(Q.aguardando_ia), "teve mensagem depois da última leitura", { filtro: "aguardando_ia", titulo: "Aguardando a leitura da IA" })}
         </div>
-        <div class="aviso">${ic("info")}<div><strong>Modo balcão</strong> é quando a loja só informa: responde o preço, mas não chama o cliente pra trazer a peça nem combina um dia. É o que a nota de condução e compromisso tenta evitar.</div></div>
       </div>
     </div>`;
   }
-  const con = `<section class="secao" id="s-con"><div class="secao-cab">${pinos("con", "com")}<div><h2>Condução e compromisso em detalhe</h2><p>O que a loja fez em cada oportunidade de serviço: entender, explicar, mostrar o diferencial, chamar pra loja, combinar o dia e lembrar.</p></div></div>${conducao}</section>`;
+  const con = `<section class="secao" id="s-con"><div class="secao-cab">${pinos("con", "com")}<div><h2>Condução e compromisso em detalhe${ajuda(`O que a loja fez em cada oportunidade de serviço: entender, explicar, mostrar o diferencial, chamar pra loja, combinar o dia e lembrar.`)}</h2></div></div>${conducao}</section>`;
 
   // Retorno
   let retorno;
@@ -926,7 +943,7 @@ function desenharGeral(d, lista) {
         ]) : `<p class="vazio">Nenhum cliente sumiu depois do orçamento no período.</p>`}
       </div></div>`;
   }
-  const ret = `<section class="secao p-ret" id="s-ret"><div class="secao-cab">${pinos("ret")}<div><h2>Retorno em detalhe</h2><p>Retorno é a loja voltar a chamar quem recebeu preço e não respondeu, 12h ou mais depois. D+1 até 36h, D+3 até 84h, D+7 até 180h.</p></div></div>${retorno}</section>`;
+  const ret = `<section class="secao p-ret" id="s-ret"><div class="secao-cab">${pinos("ret")}<div><h2>Retorno em detalhe${ajuda(`Retorno é a loja voltar a chamar quem recebeu preço e não respondeu, 12h ou mais depois. D+1 até 36h, D+3 até 84h, D+7 até 180h.`)}</h2></div></div>${retorno}</section>`;
 
   // Formato
   const aud = pct(F.audio, F.mensagens);
@@ -936,7 +953,7 @@ function desenharGeral(d, lista) {
     { nome: "Foto ou vídeo", v: F.imagem, extra: fmtPct(pct(F.imagem, F.mensagens)) },
     { nome: "Outros", v: F.outros, extra: fmtPct(pct(F.outros, F.mensagens)) },
   ].sort((a, b) => (b.v || 0) - (a.v || 0)), { cor: "var(--for)" }) : `<p class="vazio">A loja não mandou mensagem no período.</p>`;
-  const fmt = `<section class="secao p-for" id="s-for"><div class="secao-cab">${pinos("for")}<div><h2>Formato em detalhe</h2><p>Como a loja responde. Áudio é mais difícil de ler na hora: o cliente no trabalho costuma deixar pra depois.</p></div></div>
+  const fmt = `<section class="secao p-for" id="s-for"><div class="secao-cab">${pinos("for")}<div><h2>Formato em detalhe${ajuda(`Como a loja responde. Áudio é mais difícil de ler na hora: o cliente no trabalho costuma deixar pra depois.`)}</h2></div></div>
     <div class="detalhe">
       <div class="cartao c-7">${cab("Mensagens da loja por tipo", `${n(F.mensagens)} mensagens enviadas pela loja no período.`)}${formatoBarras}</div>
       <div class="numeros uma-coluna p-for c-5" style="align-content:start">
@@ -956,7 +973,7 @@ function desenharGeral(d, lista) {
     <div class="nota-rodape"><button type="button" class="link" data-filtro="cobrou_status" data-titulo="Cliente perguntou se a peça estava pronta">${n(Q.cobrou_status)} cliente(s) tiveram que perguntar se a peça estava pronta: sinal de que a loja não avisou antes.</button></div>`
     : `<p class="vazio">Aparece depois da leitura da IA.</p>`;
   const servHtml = serv.length ? barras(serv.map(([k, v]) => ({ nome: SERVICOS[k] || k, v, extra: fmtPct(pct(v, serv.reduce((s, [, x]) => s + x, 0))) }))) : `<p class="vazio">Aparece depois da leitura da IA.</p>`;
-  const ctx = `<section class="secao" id="s-ctx"><div class="secao-cab">${pinos("neu")}<div><h2>Contexto do período</h2><p>Volume e assunto das conversas. Não entram na nota, mas ajudam a ler os números de cima.</p></div></div>
+  const ctx = `<section class="secao" id="s-ctx"><div class="secao-cab">${pinos("neu")}<div><h2>Contexto do período${ajuda(`Volume e assunto das conversas. Não entram na nota, mas ajudam a ler os números de cima.`)}</h2></div></div>
     <div class="numeros p-neu">
       ${numero("Atendimentos", n(V.atendimentos), "que o cliente começou", { filtro: "atendimentos", titulo: "Atendimentos que o cliente começou" })}
       ${numero("Vindos de anúncio", n(V.de_anuncio), fmtPct(pct(V.de_anuncio, V.atendimentos)) + " dos atendimentos", { filtro: "anuncio", titulo: "Vindos de anúncio" })}
@@ -1136,8 +1153,8 @@ async function carregarAgora() {
     `<span class="selo ate">${esc(x.etapa)}</span><span class="selo">${x.retornos_feitos} retorno(s) feito(s)</span>`, x.preco ? "Preço: " + x.preco : ""));
   const conv = (f.sem_convite || []).map((x) => item(x.contato, x.nome, esc(fmtDataHora(x.fim)),
     x.de_anuncio ? `<span class="selo anuncio">${ic("anuncio")}anúncio</span>` : "", x.preco ? "Preço: " + x.preco : ""));
-  const fila = (cls, cont, urgente, titulo, desc, corpo) => `<div class="cartao ${cls}"><div class="fila-cab"><span class="contagem ${urgente && cont ? "urgente" : ""}">${cont}</span><div><h3>${esc(titulo)}</h3><p>${esc(desc)}</p></div></div>${corpo}</div>`;
-  $("#aba-agora").innerHTML = `<section class="secao"><div class="secao-cab"><div><h2>O que fazer agora</h2><p>Quem está esperando, quem combinou de vir e quem precisa de retorno. Atualiza sozinho a cada minuto. Clique num contato pra abrir a conversa.</p></div></div>
+  const fila = (cls, cont, urgente, titulo, desc, corpo) => `<div class="cartao ${cls}"><div class="fila-cab"><span class="contagem ${urgente && cont ? "urgente" : ""}">${cont}</span><div><h3>${esc(titulo)}${ajuda(desc)}</h3></div></div>${corpo}</div>`;
+  $("#aba-agora").innerHTML = `<section class="secao"><div class="secao-cab"><div><h2>O que fazer agora${ajuda(`Quem está esperando, quem combinou de vir e quem precisa de retorno. Atualiza sozinho a cada minuto. Clique num contato pra abrir a conversa.`)}</h2></div></div>
     <div class="filas">
       ${fila("p-neu", esp.length, true, "Esperando resposta", "O cliente falou por último e a loja ainda não respondeu (últimos 7 dias). Mais antigos primeiro.", lista(esp, "Ninguém esperando. Bom trabalho."))}
       ${fila("p-com", comp.length, false, "Compromissos pra lembrar", "Dia combinado pra trazer a peça. Hoje e amanhã: lembrar o cliente. Ontem: confirmar se veio e remarcar se não veio.", lista(comp, "Nenhum compromisso entre ontem e amanhã (ou a IA ainda não leu)."))}
@@ -1193,8 +1210,8 @@ async function carregarHistorico() {
   }
   tabela += `</tbody></table></div>`;
   const rodape = estado.conta.slug === "sapataria-nacoes" ? `<p class="nota-rodape">* A análise manual mediu tempo corrido, lido no WhatsApp Web, sem os áudios. Serve de referência do "antes", não é comparação exata.</p>` : "";
-  alvo.innerHTML = `<section class="secao"><div class="secao-cab"><div><h2>Evolução semana a semana</h2><p>Cada semana fecha na terça às 8h e fica congelada, mesmo se as metas mudarem depois. A semana atual é calculada agora e muda até o fechamento.</p></div></div>${graficos}</section>
-    <section class="secao"><div class="secao-cab"><div><h2>Semana a semana em números</h2><p>Nota, pontos de cada pilar e os principais indicadores. O ícone mostra se o indicador bateu a meta.</p></div></div>
+  alvo.innerHTML = `<section class="secao"><div class="secao-cab"><div><h2>Evolução semana a semana${ajuda(`Cada semana fecha na terça às 8h e fica congelada, mesmo se as metas mudarem depois. A semana atual é calculada agora e muda até o fechamento.`)}</h2></div></div>${graficos}</section>
+    <section class="secao"><div class="secao-cab"><div><h2>Semana a semana em números${ajuda(`Nota, pontos de cada pilar e os principais indicadores. O ícone mostra se o indicador bateu a meta.`)}</h2></div></div>
       <div class="cartao">${tabela}${rodape}</div></section>`;
   desenharGraficos();
 }
@@ -1214,7 +1231,7 @@ function desenharRegras() {
   }
   const def = (cl, titulo, txt) => `<div class="definicao p-${cl}"><span class="pino"></span><div><strong>${esc(titulo)}</strong>${esc(txt)}</div></div>`;
   $("#aba-regras").innerHTML = `
-    <section class="secao"><div class="secao-cab"><div><h2>Como a nota é feita</h2><p>A nota vai de 0 a 100 e é da unidade, não de uma pessoa. Ela junta cinco pilares, cada um com um peso.</p></div></div>
+    <section class="secao"><div class="secao-cab"><div><h2>Como a nota é feita${ajuda(`A nota vai de 0 a 100 e é da unidade, não de uma pessoa. Ela junta cinco pilares, cada um com um peso.`)}</h2></div></div>
       <div class="detalhe">
         <div class="cartao c-7">${cab("O peso de cada pilar", "Quanto cada parte conta na nota. A rede pode mudar os pesos na Configuração.")}${composicao}
           <div class="texto" style="margin-top:18px">
@@ -1230,9 +1247,9 @@ function desenharRegras() {
           </div>
           <div class="nota-rodape">Cada indicador também mostra a situação: ${chipSit(situacao(100))} com 100 pontos, ${chipSit(situacao(80))} de 70 a 99 e ${chipSit(situacao(10))} abaixo de 70.</div></div>
       </div></section>
-    <section class="secao"><div class="secao-cab"><div><h2>Indicadores, metas e pisos</h2><p>Meta vale 100 pontos; piso vale 0. As metas são da rede e valem igual pras três unidades.</p></div></div>
+    <section class="secao"><div class="secao-cab"><div><h2>Indicadores, metas e pisos${ajuda(`Meta vale 100 pontos; piso vale 0. As metas são da rede e valem igual pras três unidades.`)}</h2></div></div>
       <div class="cartao"><div class="tabela-rolagem"><table class="tab"><thead><tr><th class="esq">Indicador</th><th>Meta (100 pontos)</th><th>Piso (0 ponto)</th><th class="esq">Quem mede</th></tr></thead><tbody>${corpo}</tbody></table></div></div></section>
-    <section class="secao"><div class="secao-cab"><div><h2>O que a IA confere em cada conversa</h2><p>Uma vez por dia, de madrugada. A IA não dá opinião: responde sim ou não e copia o trecho da conversa que comprova. Lê texto, áudio transcrito e a descrição das fotos.</p></div></div>
+    <section class="secao"><div class="secao-cab"><div><h2>O que a IA confere em cada conversa${ajuda(`Uma vez por dia, de madrugada. A IA não dá opinião: responde sim ou não e copia o trecho da conversa que comprova. Lê texto, áudio transcrito e a descrição das fotos.`)}</h2></div></div>
       <div class="detalhe">
         <div class="cartao c-6"><div class="definicoes">
           ${def("neu", "Tipo da conversa", "Oportunidade de serviço novo, peça que já está na loja, vaga de emprego ou outro assunto. O checklist vale só pra oportunidade.")}
@@ -1288,7 +1305,7 @@ function desenharConfig() {
   const area = (id, valor, rows) => `<textarea id="${id}" rows="${rows}" maxlength="3000">${esc(valor || "")}</textarea>`;
   const ls = (rot, val) => `<div class="linha-simples"><span>${esc(rot)}</span><span>${val}</span></div>`;
 
-  const secaoRede = `<section class="secao"><div class="secao-cab"><div><h2>Metas e pesos da rede · ${esc(r.nome)}</h2><p>Valem pras ${contasDaRede().length} unidades, pra comparação ser justa. Semana já fechada não muda.</p></div></div>
+  const secaoRede = `<section class="secao"><div class="secao-cab"><div><h2>Metas e pesos da rede · ${esc(r.nome)}${ajuda(`Valem pras ${contasDaRede().length} unidades, pra comparação ser justa. Semana já fechada não muda.`)}</h2></div></div>
     <div class="config-grade">
       <div class="cartao">${cab("Metas", "O valor que vale 100 pontos em cada indicador.")}<div class="metas-form">${metasForm}</div></div>
       <div style="display:grid;gap:16px">
@@ -1303,7 +1320,7 @@ function desenharConfig() {
       </div>
     </div></section>`;
 
-  const secaoUnidade = `<section class="secao"><div class="secao-cab"><div><h2>Unidade ${esc(c.unidade || c.nome)}</h2><p>Horário e mensagens automáticas desta unidade. Troque a unidade no seletor do topo.</p></div></div>
+  const secaoUnidade = `<section class="secao"><div class="secao-cab"><div><h2>Unidade ${esc(c.unidade || c.nome)}${ajuda(`Horário e mensagens automáticas desta unidade. Troque a unidade no seletor do topo.`)}</h2></div></div>
     <div class="cartao">${cab("Horário e mensagens automáticas", "O horário conta o tempo de resposta só com a loja aberta e monta o mapa de calor.")}
       <div class="config-grade">
         <div class="grade-horario">${linhasHorario}</div>
@@ -1314,7 +1331,7 @@ function desenharConfig() {
         </div>
       </div></div></section>`;
 
-  const secaoAdmin = ehAdmin() ? `<section class="secao"><div class="secao-cab"><div><h2>Conexão e acessos</h2><p>Só a The New Ads vê esta parte.</p></div></div>
+  const secaoAdmin = ehAdmin() ? `<section class="secao"><div class="secao-cab"><div><h2>Conexão e acessos${ajuda(`Só a The New Ads vê esta parte.`)}</h2></div></div>
     <div class="config-grade">
       <div class="cartao">${cab(`Conexão com a NeoGo · ${c.unidade || c.nome}`, "O sistema só escuta. Não existe envio de mensagem por aqui.")}
         <div class="linhas-simples">

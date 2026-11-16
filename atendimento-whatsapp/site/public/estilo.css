@@ -145,6 +145,24 @@ main{max-width:1280px;margin:0 auto;padding:22px 24px 48px}
 .secao-cab .pino{width:14px;height:14px;border-radius:4px;background:var(--p,var(--navy));margin-top:6px;flex:none}
 .secao-cab h2{font-size:22px;font-weight:750;color:var(--navy)}
 .secao-cab p{color:var(--suave);font-size:14.5px;max-width:78ch;margin-top:3px}
+.secao-cab{margin-bottom:12px}
+/* "?" ao lado do título: a explicação só aparece ao passar o mouse, focar ou tocar */
+.ajuda{position:relative;display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;margin-left:5px;padding:0;border:0;border-radius:50%;background:none;color:#97a0b5;vertical-align:-3px;cursor:help;flex:none}
+.ajuda::after{content:"";position:absolute;inset:-9px}
+.ajuda .ico{width:17px;height:17px;stroke-width:1.9}
+.ajuda:hover,.ajuda:focus-visible{color:var(--navy);background:var(--cartao-3)}
+.ajuda:focus-visible{outline:2px solid var(--navy-3);outline-offset:1px}
+.secao-cab h2 .ajuda{width:24px;height:24px;vertical-align:-2px}
+.secao-cab h2 .ajuda .ico{width:19px;height:19px}
+.placar-pilar .ajuda{margin-left:-6px}
+.numero .ajuda{width:18px;height:18px;margin-left:3px;vertical-align:-4px}
+.numero .ajuda .ico{width:15px;height:15px}
+.pl-nome strong .ajuda{width:18px;height:18px;margin-left:4px;vertical-align:-3px}
+.pl-nome strong .ajuda .ico{width:15px;height:15px}
+.dica.explica{max-width:300px;font-size:13px;line-height:1.45}
+.dica.explica b{font-size:13.5px;margin-bottom:2px}
+.dica.explica span{color:#fff}
+.dica.explica span+span{color:var(--navy-claro);margin-top:4px}
 .secao-cab .acoes{margin-left:auto;flex:none}
 
 .cartao{background:var(--cartao);border:1px solid var(--linha);border-radius:var(--raio);box-shadow:var(--sombra);padding:20px 22px;min-width:0}

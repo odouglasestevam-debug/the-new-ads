@@ -37,6 +37,8 @@ A ordem é a mesma da nota:
    - Formato: mensagens por tipo.
 4. **Contexto:** volume, atendimentos por dia, tipos de conversa e serviços. Não entra na nota.
 
+Explicação nunca fica à vista (pedido do Douglas em 16/11, pra tela ficar limpa). O título leva um "?" ao lado (`ajuda()` no `app.js`), e o texto aparece ao passar o mouse, focar ou tocar. Dentro de uma linha clicável, o "?" é só ícone, e tocar nele não abre a lista. Continuam à vista só o motivo de um indicador sem dado e as linhas pequenas com a base do número.
+
 Todo número ou barra que tem conversa por trás é clicável e abre a lista na gaveta lateral, e da lista se abre a conversa.
 
 ## Gráficos
