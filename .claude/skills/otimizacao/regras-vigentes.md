@@ -28,8 +28,11 @@ Quando uma regra vencer ou for revogada, apagar daqui (o histórico guarda o pas
   de gasto nesses dias é programada. O QUARTA_DA_BARRA é campanha de **barra de calça**: criativo
   dele tem que comunicar essa oferta (25/11).
 - **Agari (Meta):** o formulário do site dispara Lead e Purchase juntos (contagens iguais todo
-  dia no pixel 1799355418166730). As campanhas SITE_..._PURCHASE e SITE_..._LEAD otimizam o mesmo
-  envio de formulário; comparar as duas como fontes do mesmo resultado (25/11).
+  dia no pixel 1799355418166730). O teste de objetivo acabou em 25/11: a SITE_..._LEAD foi
+  pausada e a SITE_..._PURCHASE ficou sozinha com R$ 60. Não propor religar a de cadastro só
+  para trocar criativo (mesmo sem a Festa especial ela saía 26% mais cara). A imagem "Festa
+  especial" foi a pior nas duas campanhas: não reaproveitar.
+- **Entretec (Google):** não negativar nomes de concorrentes (decisão do Douglas, 25/11).
 - **Entretec (Google):** existe lista de negativas da conta ligada a todas as campanhas
   ("account-level negative keywords list", sharedSet 11806268313). Termo fora do que a Entretec
   vende entra nela, não campanha por campanha (pedido do Douglas, 25/11).

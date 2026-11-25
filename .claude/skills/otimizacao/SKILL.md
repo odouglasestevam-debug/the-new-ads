@@ -258,8 +258,8 @@ de orçamento e performance"). Concluir a de todo cliente revisado, com entrega 
 ```sql
 select v.id, v.titulo, v.projeto_nome, v.lista_nome, v.data_entrega, v.dias_atraso
 from tarefas.tarefas_visao v
-where v.situacao <> 'concluida' and v.projeto_nome <> 'Modelos'
-  and v.lista_nome = 'Gestão de Tráfego'
+where v.situacao <> 'concluida' and v.projeto_nome not in ('Modelos', 'Churn')
+  and v.lista_nome in ('Gestão de Tráfego', 'Gestão')  -- a Agari só tem a lista "Gestão"
   and (v.titulo ilike '%revis%' or v.titulo ilike '%otimiza%')
   and v.data_entrega <= current_date
 order by v.projeto_nome, v.data_entrega;
