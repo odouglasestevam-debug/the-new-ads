@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Criativo Lash Lifting</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;1,500&family=Montserrat:wght@400;500;600&display=block" rel="stylesheet">
+<style>
+  /* Formato vem da URL: ?f=stories (1080x1920) ou ?f=feed (1080x1350) */
+  :root { --w: 1080px; --h: 1920px; --foto-top: 0px; }
+  html.feed { --h: 1350px; --foto-top: -200px; }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html, body { width: var(--w); height: var(--h); background: #000; overflow: hidden; }
+
+  .canvas { position: relative; width: var(--w); height: var(--h); overflow: hidden; }
+
+  /* Foto original, só redimensionada (9:16 exato = 1080x1920), sem filtro nem retoque */
+  .foto { position: absolute; left: 0; top: var(--foto-top); width: 1080px; height: 1920px; display: block; }
+
+  /* Sombras de borda: só topo e base, o rosto fica sem nenhuma camada */
+  .sombra-topo, .sombra-base { position: absolute; left: 0; right: 0; pointer-events: none; }
+  .sombra-topo { top: 0; height: 560px;
+    background: linear-gradient(to bottom, rgba(0,0,0,.55) 0%, rgba(0,0,0,.28) 45%, rgba(0,0,0,0) 100%); }
+  .sombra-base { bottom: 0; height: 640px;
+    background: linear-gradient(to top, rgba(0,0,0,.62) 0%, rgba(0,0,0,.34) 40%, rgba(0,0,0,0) 100%); }
+  html.feed .sombra-topo { height: 400px; }
+  html.feed .sombra-base { height: 420px; }
+
+  .texto { position: absolute; left: 84px; color: #fff; }
+
+  .topo { top: 262px; }
+  html.feed .topo { top: 58px; }
+
+  .kicker { font-family: 'Montserrat', sans-serif; font-weight: 500; font-size: 26px;
+    letter-spacing: .34em; text-transform: uppercase; display: flex; align-items: center; gap: 18px;
+    text-shadow: 0 2px 12px rgba(0,0,0,.6); }
+  .kicker::before { content: ''; width: 46px; height: 1.5px; background: #fff; opacity: .9;
+    box-shadow: 0 2px 8px rgba(0,0,0,.6); }
+
+  .titulo { font-family: 'Cormorant Garamond', serif; font-weight: 500; font-size: 92px;
+    line-height: .98; letter-spacing: -.005em; margin-top: 20px;
+    text-shadow: 0 6px 28px rgba(0,0,0,.6), 0 2px 4px rgba(0,0,0,.35); }
+  .titulo em { font-style: italic; }
+  html.feed .titulo { font-size: 82px; margin-top: 16px; }
+
+  .base { bottom: 420px; z-index: 1; }
+  html.feed .base { bottom: 64px; }
+  /* Sombra localizada atrás do bloco de baixo: apaga os reflexos do plástico atrás do texto */
+  .base::before { content: ''; position: absolute; z-index: -1; left: -260px; right: -80px; top: -150px; bottom: -110px;
+    background: radial-gradient(closest-side, rgba(0,0,0,.62), rgba(0,0,0,.35) 55%, rgba(0,0,0,0)); }
+
+  .sub { font-family: 'Montserrat', sans-serif; font-weight: 400; font-size: 29px; line-height: 1.4;
+    letter-spacing: .01em; opacity: .96; margin-bottom: 30px;
+    text-shadow: 0 2px 14px rgba(0,0,0,.7); }
+  html.feed .sub { font-size: 27px; margin-bottom: 26px; }
+
+  .cta { display: inline-flex; align-items: center; gap: 16px; background: #FBF8F4; color: #161616;
+    font-family: 'Montserrat', sans-serif; font-weight: 600; font-size: 29px; letter-spacing: .01em;
+    padding: 28px 46px 28px 38px; border-radius: 999px;
+    box-shadow: 0 30px 60px -14px rgba(0,0,0,.7), 0 10px 22px -6px rgba(0,0,0,.45), 0 1px 0 rgba(255,255,255,.6) inset; }
+  .cta svg { width: 36px; height: 36px; flex: none; }
+  html.feed .cta { font-size: 27px; padding: 25px 42px 25px 34px; }
+</style>
+<script>
+  if (new URLSearchParams(location.search).get('f') === 'feed') document.documentElement.classList.add('feed');
+</script>
+</head>
+<body>
+<div class="canvas">
+  <img class="foto" src="foto-original.jpg" alt="">
+  <div class="sombra-topo"></div>
+  <div class="sombra-base"></div>
+
+  <div class="texto topo">
+    <div class="kicker">Lash Lifting</div>
+    <h1 class="titulo">Acorde com o<br><em>olhar</em> pronto.</h1>
+  </div>
+
+  <div class="texto base">
+    <p class="sub">Curvatura natural, sem extensão<br>e sem rímel.</p>
+    <div class="cta">
+      <svg viewBox="0 0 32 32" aria-hidden="true"><path fill="#161616" d="M16.04 3C8.86 3 3.03 8.82 3.03 16c0 2.29.6 4.53 1.74 6.5L3 29l6.68-1.75A12.95 12.95 0 0 0 16.04 29C23.2 29 29.03 23.18 29.03 16S23.2 3 16.04 3Zm0 23.8c-1.95 0-3.86-.52-5.53-1.51l-.4-.24-3.96 1.04 1.06-3.86-.26-.4A10.76 10.76 0 0 1 5.26 16c0-5.95 4.84-10.8 10.78-10.8 5.95 0 10.78 4.85 10.78 10.8 0 5.95-4.83 10.8-10.78 10.8Zm5.91-8.08c-.32-.16-1.92-.95-2.22-1.06-.3-.11-.51-.16-.73.16-.21.32-.84 1.06-1.03 1.27-.19.22-.38.24-.7.08-.32-.16-1.37-.5-2.6-1.6-.96-.86-1.61-1.92-1.8-2.24-.19-.32-.02-.5.14-.66.15-.14.32-.38.49-.57.16-.19.21-.32.32-.54.1-.21.05-.4-.03-.56-.08-.16-.73-1.76-1-2.41-.26-.63-.53-.55-.73-.56h-.62c-.21 0-.56.08-.86.4-.29.32-1.12 1.1-1.12 2.68 0 1.58 1.15 3.11 1.31 3.32.16.22 2.26 3.45 5.47 4.84.77.33 1.36.53 1.83.68.77.24 1.47.21 2.02.13.62-.09 1.92-.78 2.19-1.54.27-.76.27-1.41.19-1.54-.08-.14-.29-.22-.62-.38Z"/></svg>
+      Agendar agora no WhatsApp
+    </div>
+  </div>
+</div>
+</body>
+</html>

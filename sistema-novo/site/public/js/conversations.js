@@ -12,10 +12,18 @@ const respostasSelecionadas = new Map();
 let mostrarContexto = false;
 let listaConversaIds = null, totalConversas = 0, totalNaoLidas = null, chaveListaConv = '', carregandoListaConv = false;
 let timerBuscaConv, sequenciaBuscaConv = 0;
+// Contagem por etapa das abas do topo. Fica null enquanto o banco não tiver a migration 0031:
+// sem ela a busca não filtra por etapa, então as abas nem aparecem (nada de filtro pela metade).
+let porEtapaConv = null, totalEtapasConv = 0;
 const chaveFiltroConv=()=>JSON.stringify(filtroConv);
-function parametrosConversas(offset=0,limite=50){return {p_empresa:empresaAtual.id,p_busca:filtroConv.busca,p_estado:filtroConv.estado,p_responsavel:filtroConv.responsavel,p_canal:filtroConv.canal,p_offset:offset,p_limite:limite};}
+function parametrosConversas(offset=0,limite=50){
+  const p={p_empresa:empresaAtual.id,p_busca:filtroConv.busca,p_estado:filtroConv.estado,p_responsavel:filtroConv.responsavel,p_canal:filtroConv.canal,p_offset:offset,p_limite:limite};
+  if(filtroConv.etapa)p.p_etapa=filtroConv.etapa;
+  return p;
+}
 function aceitarListaConversas(data,adicionar=false){
   if(!data)return;
+  if(data.por_etapa){porEtapaConv=data.por_etapa;totalEtapasConv=data.total_etapas??0;}
   const recebidas=(data.items||[]).map(item=>{const {lead,...conversa}=item;if(lead){const atual=leads.find(l=>l.id===lead.id);if(atual)Object.assign(atual,lead);else leads.push({...lead,lead_origens:[]});}return conversa;});
   const mapa=new Map(conversas.map(c=>[c.id,c]));for(const c of recebidas)mapa.set(c.id,c);conversas=[...mapa.values()];
   listaConversaIds=adicionar?[...new Set([...(listaConversaIds||[]),...recebidas.map(c=>c.id)])]:recebidas.map(c=>c.id);
@@ -91,6 +99,43 @@ function janelaAberta(c) {
   return !!c.ultima_entrada_em && Date.now() - new Date(c.ultima_entrada_em).getTime() < JANELA_WHATS_MS;
 }
 
+/* ícones no traço do WhatsApp Web (desenhos próprios) */
+const ICONE_NOVA_CONVERSA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12.5V19a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h6.5"/><path d="M17.6 3.4a2 2 0 0 1 2.9 2.9L12 14.8l-3.8.9.9-3.8Z"/></svg>';
+const ICONE_INFO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5v.01"/></svg>';
+const ICONE_VOLTAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12H5M11 6l-6 6 6 6"/></svg>';
+const ICONE_FECHAR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>';
+const ICONE_ENVIAR = '<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3.4 20.6 21 12 3.4 3.4l-.1 6.7L15 12l-11.7 1.9Z"/></svg>';
+const ICONE_ANEXO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m20 11.5-7.8 7.8a5 5 0 0 1-7.1-7.1l8.1-8.1a3.4 3.4 0 0 1 4.8 4.8l-8.1 8.1a1.7 1.7 0 0 1-2.4-2.4l7.4-7.4"/></svg>';
+const ICONE_MODELO = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8Z"/><path d="M14 3v5h5M9 13h6M9 17h4"/></svg>';
+const ICONE_CONVERSA_GRANDE = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/><path d="M8.5 10.5h7M8.5 13.5h4.5"/></svg>';
+const ICONE_STATUS = {
+  enviando: '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="8" cy="8" r="5.5"/><path d="M8 5v3.2l2 1.3"/></svg>',
+  enviada: '<svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m3 5.8 2.6 2.6L12 2"/></svg>',
+  dupla: '<svg viewBox="0 0 16 11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m1 5.8 2.6 2.6L10 2M7.2 8.2l.2.2L13.8 2"/></svg>',
+};
+// Ícone do envio sempre acompanhado do texto (lido por leitor de tela e no título); "Não enviada" aparece escrito.
+function statusMensagem(m) {
+  if (m.direcao !== "saida") return "";
+  const rotulo = ROTULO_STATUS[m.status] || "";
+  if (!rotulo) return "";
+  const icone = m.status === "enviando" ? ICONE_STATUS.enviando : m.status === "enviada" ? ICONE_STATUS.enviada
+    : ["entregue", "lida"].includes(m.status) ? ICONE_STATUS.dupla : "";
+  return `<span class="status-msg ${escapar(m.status)}" title="${rotulo}">${icone}<span${icone ? ' class="sr-only"' : ""}>${rotulo}</span></span>`;
+}
+
+// Avatar com iniciais em cor clara, sempre a mesma cor para o mesmo nome.
+const CORES_AVATAR = [["#fde2cf","#a6491a"],["#d7e9fb","#1d5fa8"],["#dcf5dc","#1f7a3a"],["#fbe3ef","#a8326b"],["#ece3fb","#6b3fb0"],["#fff1c2","#7f5a00"],["#d6f3f1","#0f766e"],["#e3e8eb","#54656f"]];
+function estiloAvatar(texto) {
+  let soma = 0;
+  for (const ch of String(texto || "")) soma = (soma * 31 + ch.codePointAt(0)) % 9973;
+  const [fundo, cor] = CORES_AVATAR[soma % CORES_AVATAR.length];
+  return `--ava-fundo:${fundo};--ava-texto:${cor}`;
+}
+function tagEtapa(etapa) {
+  const e = ETAPAS.find((x) => x.id === etapa);
+  return `<span class="tag-etapa" style="--cor-etapa:${e?.cor || "#8696a0"}">${escapar(e?.nome || etapa || "Sem etapa")}</span>`;
+}
+
 // Corpo do chat reaproveitado na vista Conversas e na ficha do lead.
 function htmlChat(c) {
   const l = leadDaConversa(c);
@@ -114,7 +159,7 @@ function htmlChat(c) {
         (c.canal==='whatsapp_oficial'&&m.wa_message_id&&l&&pode.editarLead(l)&&janelaAberta(c)?`<button class="responder-mensagem mini" type="button" data-responder-mensagem="${escapar(m.id)}">Responder</button>`:'')+
         (m.erro ? `<div class="bolha-erro">${escapar(m.erro)}</div>` : "") +
         (m.status === 'falhou' && m.tipo === 'texto' && !m.midia?.modelo && l && pode.editarLead(l) ? `<button class="mini" data-recuperar-texto="${escapar(m.id)}">Recuperar texto</button>` : '') +
-        `<div class="bolha-meta">${autor ? `<span>${escapar(autor)}</span>` : ""}<span>${new Date(m.criado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span><span>${ROTULO_STATUS[m.status] || ""}</span></div>` +
+        `<div class="bolha-meta">${autor ? `<span>${escapar(autor)} ·</span>` : ""}${m.midia?.agendada ? `<span class="marca-agendada" title="Mensagem agendada">${ICONE_RELOGIO}<span class="sr-only">Agendada</span></span>` : ""}<span>${new Date(m.criado_em).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}</span>${statusMensagem(m)}</div>` +
         `</div>`;
     }).join("");
 
@@ -131,8 +176,8 @@ function htmlChat(c) {
       : `<div class="chat-aviso">${oficial ? `WhatsApp oficial. Janela aberta até ${new Date(new Date(c.ultima_entrada_em).getTime() + JANELA_WHATS_MS).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}.` : "WhatsApp NeoGo. Respostas saem pelo número da empresa."}</div>
          ${respostaAtual?`<div class="chat-citacao"><p>Respondendo a: ${escapar((respostaAtual.texto||ROTULO_MIDIA[respostaAtual.tipo]||'Mensagem').slice(0,200))}</p><button class="mini" type="button" data-cancelar-resposta>Cancelar resposta</button></div>`:''}
          <form class="chat-form" data-chat-form="${c.id}">
-           <textarea class="chat-campo" aria-label="Mensagem" rows="1" placeholder="Escreva uma mensagem" maxlength="4096">${escapar(lerRascunho(c.id))}</textarea>
-           <button class="btn" type="submit" ${enviosPendentes.has(c.id) ? 'disabled' : ''}>${enviosPendentes.has(c.id) ? 'Enviando…' : 'Enviar'}</button>
+           <textarea class="chat-campo" aria-label="Mensagem" rows="1" placeholder="Digite uma mensagem" maxlength="4096">${escapar(lerRascunho(c.id))}</textarea>
+           ${botaoAgendarComposer()}<button class="btn-enviar" type="submit" aria-label="${enviosPendentes.has(c.id) ? 'Enviando…' : 'Enviar'}" title="Enviar" ${enviosPendentes.has(c.id) ? 'disabled' : ''}>${ICONE_ENVIAR}</button>
          </form>
          <div class="aviso" data-chat-aviso="${c.id}"></div>`;
 
@@ -140,8 +185,8 @@ function htmlChat(c) {
     <div class="chat" data-chat="${c.id}" data-janela="${aberta}" data-responder="${!!podeResponder}">
       <div class="chat-msgs" role="log" aria-label="Mensagens da conversa" aria-live="off">
       ${errosMensagens.has(c.id) ? `<button class="mini erro" data-recarregar-mensagens>${escapar(errosMensagens.get(c.id))}</button>` : ''}
-      ${msgs?.length && !historicoCompleto.has(c.id) ? '<button class="mini historico" data-carregar-anteriores>Carregar mensagens anteriores</button>' : ''}${bolhas}</div>
-      <div class="chat-rodape">${podeResponder && oficial ? `<div class="chat-recursos"><button class="mini" type="button" data-modelos>Modelos aprovados</button>${aberta ? '<label class="mini anexar">Anexar arquivo<input type="file" data-arquivo accept="image/jpeg,image/png,image/webp,video/mp4,audio/ogg,audio/mpeg,audio/mp4,application/pdf"></label>' : ''}</div><div class="chat-extra"></div>` : ''}${rodape}</div>
+      ${msgs?.length && !historicoCompleto.has(c.id) ? '<button class="mini historico" data-carregar-anteriores>Carregar mensagens anteriores</button>' : ''}${bolhas}${msgs ? bolhasAgendadas(c) : ''}</div>
+      <div class="chat-rodape">${podeResponder && oficial ? `<div class="chat-recursos"><button class="mini" type="button" data-modelos>${ICONE_MODELO}Modelos aprovados</button>${aberta ? `<label class="mini anexar">${ICONE_ANEXO}Anexar arquivo<input type="file" data-arquivo accept="image/jpeg,image/png,image/webp,video/mp4,audio/ogg,audio/mpeg,audio/mp4,application/pdf"></label>` : ''}</div><div class="chat-extra"></div>` : ''}${rodape}</div>
     </div>`;
 }
 
@@ -160,7 +205,23 @@ function seloCanalWa(canal) {
 }
 
 // Filtros da lista, no espírito do WhatsApp Web: busca, estado e responsável.
-const filtroConv = { busca: "", estado: "todas", responsavel: "", canal: "" };
+const filtroConv = { busca: "", estado: "todas", responsavel: "", canal: "", etapa: "" };
+
+// Abas de etapa da barra do topo, no lugar das etiquetas do WhatsApp Business.
+function abasEtapaConversas() {
+  if (!porEtapaConv) return "";
+  const numero = (n) => n > 999 ? "999+" : String(n || 0);
+  const aba = (id, nome, n, cor) => `<button type="button" class="aba-etapa" data-etapa-conv="${id}" aria-pressed="${filtroConv.etapa === id}">${cor ? `<span class="ponto-etapa" style="background:${cor}" aria-hidden="true"></span>` : ""}${escapar(nome)} <b>${numero(n)}</b></button>`;
+  return `<div class="abas-etapa" role="group" aria-label="Conversas por etapa do funil">${aba("", "Todas as etapas", totalEtapasConv)}${ETAPAS.map((e) => aba(e.id, e.nome, porEtapaConv[e.id], e.cor)).join("")}</div>`;
+}
+function ligarAbasEtapa() {
+  document.querySelectorAll("[data-etapa-conv]").forEach((b) => b.onclick = () => {
+    if (filtroConv.etapa === b.dataset.etapaConv) return;
+    filtroConv.etapa = b.dataset.etapaConv;
+    render();
+    buscarListaConversas();
+  });
+}
 const CHIPS_CONV = [["todas", "Todas"], ["nao_lidas", "Não lidas"], ["sem_resposta", "Sem resposta"], ["minhas", "Minhas"]];
 
 // A última mensagem foi do lead: ninguém respondeu ainda.
@@ -184,6 +245,7 @@ function conversasFiltradas() {
     if (filtroConv.estado === "nao_lidas" && !c.nao_lidas) return false;
     if (filtroConv.estado === "sem_resposta" && !semResposta(c)) return false;
     if (filtroConv.canal && c.canal !== filtroConv.canal) return false;
+    if (filtroConv.etapa && l?.etapa !== filtroConv.etapa) return false;
     if (filtroConv.responsavel) {
       const r = l?.responsavel_id || "";
       if (filtroConv.responsavel === "sem" ? !!r : r !== filtroConv.responsavel) return false;
@@ -215,7 +277,7 @@ function barraFiltrosConversas() {
     </select>` : "";
   return `
     <div class="inbox-topo">
-      <input type="search" id="busca-conv" aria-label="Buscar conversas" placeholder="Buscar nome, número ou mensagem" value="${escapar(filtroConv.busca)}" autocomplete="off">
+      <div class="busca-conv">${ICONE_BUSCA}<input type="search" id="busca-conv" aria-label="Buscar conversas" placeholder="Pesquisar nome, número ou mensagem" value="${escapar(filtroConv.busca)}" autocomplete="off"></div>
       <div class="chips">${chips}</div>
       ${numeros||responsaveis?`<details class="filtros-inbox"${filtroConv.responsavel||filtroConv.canal?' open':''}><summary>Responsável e canal${filtroConv.responsavel||filtroConv.canal?' · filtrado':''}</summary><div>${responsaveis}${numeros}</div></details>`:''}
     </div>`;
@@ -229,55 +291,56 @@ function vistaConversas() {
     const nome = l?.nome || telefoneLegivel(l?.telefone) || c.wa_id;
     const dono = nomeResponsavel(l?.responsavel_id);
     return `
-      <button class="conv-item${c.id === conversaAberta ? " ativa" : ""}" type="button" data-abrir-conversa="${c.id}">
-        <span class="conv-ava">${escapar(iniciais(l?.nome || nome))}</span>
+      <button class="conv-item${c.id === conversaAberta ? " ativa" : ""}${c.nao_lidas ? " tem-nao-lidas" : ""}" type="button" data-abrir-conversa="${c.id}">
+        <span class="conv-ava" style="${estiloAvatar(nome)}" aria-hidden="true">${escapar(iniciais(l?.nome || nome))}</span>
         <span class="conv-corpo">
           <span class="conv-topo"><span class="conv-nome">${escapar(nome)}</span><span class="conv-hora">${horaCurta(c.ultima_mensagem_em)}</span></span>
-          <span class="conv-previa"><span>${escapar(c.ultima_previa || "Conversa aberta pelo CRM")}</span>${c.nao_lidas ? `<span class="badge">${c.nao_lidas}</span>` : ""}</span>
-          <span class="conv-pe">${semResposta(c) ? '<span class="pino">sem resposta</span>' : ""}${doisNumeros() ? `<span class="pino numero">${escapar(NOME_CANAL_WA[c.canal] || c.canal)}</span>` : ""}${dono && pode.editarTodos() ? `<span class="conv-dono">${escapar(dono.split("@")[0])}</span>` : ""}</span>
+          <span class="conv-previa"><span>${escapar(c.ultima_previa || "Conversa aberta pelo CRM")}</span>${c.nao_lidas ? `<span class="badge" aria-label="${c.nao_lidas} não lidas">${c.nao_lidas}</span>` : ""}</span>
+          <span class="conv-pe">${l ? tagEtapa(l.etapa) : ""}${pinoLembrete(l)}${semResposta(c) ? '<span class="pino">sem resposta</span>' : ""}${doisNumeros() ? `<span class="pino numero">${escapar(NOME_CANAL_WA[c.canal] || c.canal)}</span>` : ""}${dono && pode.editarTodos() ? `<span class="conv-dono">${escapar(dono.split("@")[0])}</span>` : ""}</span>
         </span>
       </button>`;
-  }).join("") : '<div class="vazio-geral" style="padding:34px 18px">Nada com esse filtro.</div>';
+  }).join("") : `<div class="vazio-geral">${filtroConv.etapa && porEtapaConv ? `Nenhuma conversa em ${escapar(NOME_ETAPA[filtroConv.etapa] || filtroConv.etapa)} com esse filtro.` : "Nada com esse filtro."}</div>`;
 
   const l = ativa ? leadDaConversa(ativa) : null;
+  const nomeAtivo = l?.nome || telefoneLegivel(l?.telefone) || ativa?.wa_id || "Sem nome";
   const painel = ativa ? `
     <div class="chat-cabeca">
-      <div>
+      <button class="icone-btn" type="button" id="voltar-lista" aria-label="Voltar para as conversas">${ICONE_VOLTAR}</button>
+      <span class="conv-ava" style="${estiloAvatar(nomeAtivo)}" aria-hidden="true">${escapar(iniciais(l?.nome || nomeAtivo))}</span>
+      <div class="chat-cabeca-id">
         <div class="nome-cel">${escapar(l?.nome || "Sem nome")}</div>
         <div class="sub-cel">${escapar(telefoneLegivel(l?.telefone))} ${seloCanal(l ? ultimaOrigem(l) : null)}${doisNumeros() ? " " + seloCanalWa(ativa.canal) : ""}</div>
       </div>
-      <div style="display:flex;gap:8px">
-        <button class="mini" type="button" id="voltar-lista">Conversas</button>
-        ${l ? `<button class="mini" type="button" id="alternar-contexto" aria-expanded="${mostrarContexto}">Detalhes</button>` : ""}
+      <div class="chat-acoes">
+        ${l ? (pode.editarLead(l) ? seletorEtapa(l) : tagEtapa(l.etapa)) : ""}
+        ${botaoLembreteChat(l)}${l ? `<button class="icone-btn" type="button" id="alternar-contexto" aria-label="Detalhes" title="Dados do contato" aria-expanded="${mostrarContexto}">${ICONE_INFO}</button>` : ""}
       </div>
     </div>
     ${htmlChat(ativa)}`
-    : '<div class="vazio-geral chat-vazio"><div><h2>Seu atendimento, em um só lugar</h2><p>Escolha uma conversa para acompanhar o histórico e responder.</p><span>As mensagens saem pelo WhatsApp da empresa.</span></div></div>';
+    : `<div class="chat-vazio"><div>${ICONE_CONVERSA_GRANDE}<h2>Seu atendimento, em um só lugar</h2><p>Escolha uma conversa para ver o histórico e responder.</p><span>As mensagens saem pelo WhatsApp da empresa.</span></div></div>`;
 
   const botaoNova = pode.criarLead()
-    ? '<button class="btn" id="btn-nova-conversa" type="button">Nova conversa</button>' : "";
+    ? `<button class="icone-btn" id="btn-nova-conversa" type="button" aria-label="Nova conversa" title="Nova conversa">${ICONE_NOVA_CONVERSA}</button>` : "";
+  const semConversas = `<div class="vazio-geral">Nenhuma conversa ainda.${pode.administrar() ? " Ligue o WhatsApp em Ajustes, Integrações." : ""}${pode.criarLead() ? "<br>Para puxar assunto primeiro, use o lápis de Nova conversa." : ""}</div>`;
 
   return `
-    <div class="topo topo-conversas">
-      <div><h1>Conversas <span class="total-conversas">${totalConversas || conversas.length}</span></h1><div class="desc">${escapar(empresaAtual.nome)}</div></div>
-      <div class="ferramentas">${botaoNova}</div>
-    </div>
-    ${conversas.length ? `
-      <div class="inbox${ativa ? " com-chat" : ""}${ativa && mostrarContexto ? " com-contexto" : ""}">
-        <div class="inbox-lista">
-          ${barraFiltrosConversas()}
-          <div class="inbox-itens">${lista}${totalConversas>(listaConversaIds?.length||0)?'<button class="mini mais-conversas" type="button">Carregar mais conversas</button>':''}</div>
-        </div>
-        <div class="chat-painel">${painel}</div>
-        ${ativa && l && mostrarContexto ? painelContexto(l, ativa) : ''}
-      </div>`
-      : `<div class="tabela-caixa"><div class="vazio-geral">Nenhuma conversa ainda.${pode.administrar() ? " Ligue o WhatsApp em Ajustes, Integrações." : ""}<br>Para puxar assunto primeiro, use o botão Nova conversa.</div></div>`}`;
+    <div class="inbox${ativa ? " com-chat" : ""}${ativa && mostrarContexto ? " com-contexto" : ""}">
+      <div class="inbox-lista">
+        <div class="lista-cabeca"><h1>Conversas <span class="total-conversas">${totalConversas || conversas.length || ""}</span></h1>${botaoNova}</div>
+        ${faixaAvisoApp()}
+        ${conversas.length ? barraFiltrosConversas() : ""}
+        <div class="inbox-itens">${conversas.length ? lista : semConversas}${conversas.length && totalConversas>(listaConversaIds?.length||0)?'<button class="mini mais-conversas" type="button">Carregar mais conversas</button>':''}</div>
+      </div>
+      <div class="chat-painel">${painel}</div>
+      ${ativa && l && mostrarContexto ? painelContexto(l, ativa) : ''}
+    </div>`;
 }
 
 function painelContexto(l, c) {
+  const nome = l.nome || telefoneLegivel(l.telefone) || "Sem nome";
   return `<section class="contexto-lead" aria-label="Detalhes do contato">
-    <div class="contexto-topo"><h2>Contato</h2><button class="mini" id="fechar-contexto" aria-label="Fechar detalhes">Fechar</button></div>
-    <div class="contexto-identidade"><span class="conv-ava">${escapar(iniciais(l.nome || l.telefone))}</span><h3>${escapar(l.nome || 'Sem nome')}</h3><p>${escapar(telefoneLegivel(l.telefone))}</p></div>
+    <div class="contexto-topo"><button class="icone-btn" id="fechar-contexto" type="button" aria-label="Fechar detalhes">${ICONE_FECHAR}</button><h2>Dados do contato</h2></div>
+    <div class="contexto-identidade"><span class="conv-ava" style="${estiloAvatar(nome)}" aria-hidden="true">${escapar(iniciais(l.nome || l.telefone))}</span><h3>${escapar(l.nome || 'Sem nome')}</h3><p>${escapar(telefoneLegivel(l.telefone))}</p></div>
     <dl><dt>Etapa comercial</dt><dd>${escapar(NOME_ETAPA[l.etapa] || l.etapa)}</dd><dt>Responsável</dt><dd>${escapar(nomeResponsavel(l.responsavel_id) || 'Sem responsável')}</dd>
     <dt>E-mail</dt><dd>${escapar(l.email || 'Não informado')}</dd><dt>Número de atendimento</dt><dd>${escapar(rotuloCanal(c.canal))}</dd></dl>
     <button class="btn btn-fantasma btn-largo" data-ver-lead="${l.id}">Abrir ficha do lead</button>
@@ -365,6 +428,7 @@ function rolarChat(raiz) {
 
 // Atualiza só a lista e as mensagens. Composer, foco e controles em edição permanecem no DOM.
 function sincronizarInbox() {
+  atualizarBarraTopo();
   const estado=capturarEstadoChat();
   const template=document.createElement('template');template.innerHTML=vistaConversas();
   const lista=document.querySelector('.inbox-itens'),novaLista=template.content.querySelector('.inbox-itens');
@@ -394,7 +458,7 @@ function sincronizarInbox() {
 // Liga envio e rolagem de um chat já desenhado. `aoMudar` redesenha quem hospeda o chat.
 function ligarChat(raiz, conversa, aoMudar) {
   rolarChat(raiz);
-  ligarRecursosWhatsApp(raiz,conversa,aoMudar);
+  ligarRecursosWhatsApp(raiz,conversa,aoMudar);ligarAgendaNoChat(raiz,conversa,aoMudar);
   raiz.querySelectorAll('[data-responder-mensagem]').forEach(button=>button.onclick=()=>{
     const m=mensagensPorConversa[conversa.id]?.find(x=>x.id===button.dataset.responderMensagem);if(!m)return;
     respostasSelecionadas.set(conversa.id,m);aoMudar();document.querySelector(`[data-chat="${conversa.id}"] textarea`)?.focus();
@@ -504,7 +568,7 @@ async function marcarVistaComoLida(c) {
   const {error}=await sb.rpc('marcar_conversa_lida_ate',{p_conversa:c.id,p_mensagem:ultima.id});
   if(error)return;
   if(totalNaoLidas!==null)totalNaoLidas=Math.max(0,totalNaoLidas-c.nao_lidas);
-  c.nao_lidas=0;atualizarContadorConversas();
+  c.nao_lidas=0;atualizarContadorConversas();fecharNotificacoesDoLead(c.lead_id);
   const entrada=msgs.findLast(m=>m.direcao==='entrada' && m.wa_message_id);
   if(c.canal==='whatsapp_oficial' && entrada)recursoWhatsApp('whatsapp-lida',{conversa_id:c.id,mensagem_id:entrada.id}).catch(()=>{});
 }
@@ -512,6 +576,7 @@ async function marcarVistaComoLida(c) {
 async function abrirConversa(id) {
   conversaAberta = id;
   const c = conversas.find((x) => x.id === id);
+  fecharNotificacoesDoLead(c?.lead_id);
   render();
   await garantirMensagens(id);
   if(vistaAtual==='conversas'&&conversaAberta===id)await marcarVistaComoLida(c);
@@ -521,7 +586,7 @@ async function abrirConversa(id) {
 function ligarConversas() {
   document.querySelector('.mais-conversas')?.addEventListener('click',e=>{e.currentTarget.disabled=true;buscarListaConversas(true);});
   document.getElementById("alternar-contexto")?.addEventListener("click", () => { mostrarContexto = !mostrarContexto; render(); });
-  document.getElementById("fechar-contexto")?.addEventListener("click", () => { mostrarContexto = false; render(); });
+  document.getElementById("fechar-contexto")?.addEventListener("click", () => { mostrarContexto = false; render(); });document.getElementById("novo-lembrete")?.addEventListener("click", () => { const c = conversas.find((x) => x.id === conversaAberta), l = c && leadDaConversa(c); if (l) abrirLembrete(l, { aoSalvar: () => render() }); });
   document.querySelectorAll("[data-abrir-conversa]").forEach((b) => b.addEventListener("click", () => abrirConversa(b.dataset.abrirConversa)));
   const nova = document.getElementById("btn-nova-conversa");
   if (nova) nova.addEventListener("click", formularioNovaConversa);

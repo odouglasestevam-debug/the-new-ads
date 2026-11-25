@@ -138,6 +138,8 @@ async function entrarNoApp(sessao) {
   document.getElementById("tela-login").style.display = "none";
   document.getElementById("app").classList.add("ativo");
   document.getElementById("usuario-email").textContent = usuario.email;
+  const avatar = document.getElementById("usuario-avatar");
+  if (avatar) { avatar.textContent = (usuario.email || "?").trim().charAt(0); avatar.title = usuario.email || ""; }
   await carregarEmpresas();
 }
 
@@ -207,6 +209,9 @@ async function trocarEmpresa(id) {
   filtroConv.busca = "";
   filtroConv.responsavel = "";
   filtroConv.canal = "";
+  filtroConv.etapa = "";
+  porEtapaConv = null;
+  totalEtapasConv = 0;
   historicoCompleto.clear();
   listaConversaIds=null;totalNaoLidas=null;totalConversas=0;chaveListaConv='';
   clearTimeout(timerBuscaConv);sequenciaBuscaConv++;

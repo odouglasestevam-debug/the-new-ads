@@ -1,6 +1,7 @@
 /* ---------------- dados ---------------- */
 async function carregarTudo() {
   const empresaId = empresaAtual.id;
+  const agendaPronta = carregarAgenda().catch(() => {});
   const [resLeads, resNotas, resEquipe, resForms, resConversas, resCanais] = await Promise.all([
     sb.from("leads").select("*, lead_origens(*)").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
     sb.from("lead_notas").select("*").eq("empresa_id", empresaAtual.id).order("criado_em", { ascending: false }),
@@ -17,6 +18,8 @@ async function carregarTudo() {
   formularios = resForms.data || [];
   aceitarListaConversas(resConversas.data);
   canaisWhats = resCanais.data || [];
+  await agendaPronta;
+  if (empresaAtual?.id !== empresaId) return;
   document.getElementById("cont-leads").textContent = leadsComerciais().length || "";
   atualizarContadorConversas();
   render();
@@ -49,6 +52,7 @@ async function atualizarConversas() {
   const anteriores = new Map(conversas.map((c) => [c.id, c]));
   aceitarListaConversas(resultado);
   atualizarContadorConversas();
+  if (vistaAtual === "conversas") atualizarBarraTopo();
   if (novoLead) { await carregarTudo(); return; }
   for (const c of data) {
     const antes = anteriores.get(c.id);

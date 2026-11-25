@@ -108,7 +108,7 @@
   .btn-sec:hover { border-color: rgba(255,255,255,.22); }
   .btn-sec.amber { color: var(--amber); border-color: var(--amber); }
 
-  .tabs { display: flex; gap: 4px; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 4px; padding: 4px; }
+  .tabs { display: flex; gap: 4px; margin: 4px 0 16px; border: 1px solid var(--line); border-radius: 4px; padding: 4px; overflow-x: auto; scrollbar-width: none; }
   .tab-btn {
     flex: 1;
     background: transparent;
@@ -120,9 +120,37 @@
     border-radius: 3px;
     cursor: pointer;
     min-height: 40px;
+    white-space: nowrap;
   }
   .tab-btn.active { background: var(--surface2); color: var(--text); }
   .tab-btn .cont { font-family: var(--mono); font-size: 12px; color: var(--critico); margin-left: 4px; }
+  .tab-btn .cont.amber { color: var(--amber); }
+  /* Com a aba Ofertas sao quatro: aperta um pouco pra caber no celular. */
+  .tabs.quatro .tab-btn { font-size: 13px; padding: 10px 4px; }
+
+  /* Ofertas da Black Friday (aba temporaria, some sozinha em 08/12) */
+  .oferta {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--amber);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 10px;
+  }
+  .oferta.alvo { border-color: var(--amber); }
+  .oferta .meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 8px; font-family: var(--mono); font-size: 12px; color: var(--muted); }
+  .oferta .produto { text-transform: uppercase; letter-spacing: 0.05em; color: var(--amber-glow); }
+  .selo { background: var(--amber); color: #0A0A0A; font-weight: 600; padding: 1px 6px; border-radius: 3px; margin-left: 8px; letter-spacing: 0.04em; }
+  .selo.forte { background: var(--critico); color: #FAFAFA; }
+  .oferta.forte { border-color: var(--critico); }
+  .oferta .preco { font-family: var(--display); font-weight: 600; font-size: 28px; letter-spacing: -0.01em; margin: 8px 0 4px; }
+  .oferta .tit { color: #CFCFCF; font-size: 14px; line-height: 1.45; overflow-wrap: anywhere; }
+  .oferta .onde { color: var(--muted); font-size: 12px; font-family: var(--mono); margin-top: 6px; overflow-wrap: anywhere; }
+  .oferta .acoes { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 14px; }
+  .btn-cupom { font-family: var(--mono); font-size: 13px; border-style: dashed; color: var(--amber-glow); }
+  a.linha { text-decoration: none; }
+  .dot.oferta-dot { background: var(--amber); }
+  .nota { color: var(--muted); font-size: 12px; font-family: var(--mono); line-height: 1.6; margin-top: 12px; text-align: center; }
   .tab-panel { display: none; }
   .tab-panel.active { display: block; }
 
@@ -229,10 +257,11 @@
     </div>
     <div class="status-push" id="subscribe-status" style="color:var(--muted);font-size:12px;font-family:var(--mono);margin:-8px 0 12px"></div>
 
-    <div class="tabs" role="tablist">
+    <div class="tabs" role="tablist" id="abas">
       <button class="tab-btn active" data-tab="agora" role="tab">Agora<span class="cont" id="cont-agora"></span></button>
       <button class="tab-btn" data-tab="monitorando" role="tab">Monitorando</button>
       <button class="tab-btn" data-tab="historico" role="tab">Histórico</button>
+      <button class="tab-btn" data-tab="ofertas" role="tab" id="aba-ofertas" hidden>Ofertas<span class="cont amber" id="cont-ofertas"></span></button>
     </div>
 
     <section class="tab-panel active" id="tab-agora">
@@ -253,6 +282,14 @@
     <section class="tab-panel" id="tab-historico">
       <div class="section-title">Últimas notificações</div>
       <div id="lista-historico"><div class="skel"></div></div>
+    </section>
+
+    <section class="tab-panel" id="tab-ofertas">
+      <div class="section-title">Menor preço avisado</div>
+      <div id="ofertas-melhores"><div class="skel"></div></div>
+      <div class="section-title">Todas as ofertas avisadas</div>
+      <div id="lista-ofertas"><div class="skel"></div></div>
+      <p class="nota">Monitor da Black Friday até 30/11. Oferta antiga pode ter acabado: confira o preço na loja.</p>
     </section>
 
     <footer>
@@ -487,6 +524,99 @@
       }).join("");
     }
 
+    // ---------- Ofertas (Black Friday 2026, uso pessoal do Douglas) ----------
+    // A funcao "ofertas" avisa por push e tocar na notificacao abre a loja
+    // direto; depois de sair da loja nao tinha onde rever a oferta. Aqui fica
+    // tudo que virou aviso (funcao ofertas_avisadas no banco, so campos da
+    // oferta). A aba some sozinha uma semana depois do fim do monitor.
+    const OFERTAS_ATE = Date.parse("2026-12-08T03:00:00Z");
+    const MOSTRA_OFERTAS = Date.now() < OFERTAS_ATE;
+    const PRODUTO = {
+      dualsense: "DualSense",
+      ar_18k: "Ar 18.000 inverter",
+      ar_24k: "Ar 24.000 inverter",
+      depurador: "Depurador 430 m³/h",
+    };
+
+    function reais(v) {
+      const n = Number(v);
+      return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: n % 1 ? 2 : 0 });
+    }
+
+    // Alerta forte da funcao: Elgin Eco Inverter III de 24 mil ate R$ 3.300. O
+    // banco nao guarda a marcacao; o modelo vem no titulo (mesma regra da funcao).
+    function ehElginEco3(o) {
+      const t = String(o.titulo || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+      return o.produto === "ar_24k" && o.especial && /\belgin\b/.test(t) && /\beco (inverter )?(iii|3)\b/.test(t);
+    }
+
+    function cardOferta(o) {
+      const url = linkSeguro(o.link);
+      const forte = ehElginEco3(o);
+      const onde = [o.loja, o.fonte === "pelando" ? "Pelando" : "grupo de WhatsApp", dataHora(o.criado_em)]
+        .filter(Boolean).join(" · ");
+      const selo = forte ? '<span class="selo forte">ELGIN ECO III</span>' : o.especial ? '<span class="selo">PREÇO-ALVO</span>' : "";
+      return `
+        <article class="oferta ${forte ? "forte" : o.especial ? "alvo" : ""}">
+          <div class="meta">
+            <span><span class="produto">${esc(PRODUTO[o.produto] || o.produto)}</span>${selo}</span>
+            <span>${esc(ha(o.criado_em))}</span>
+          </div>
+          <div class="preco">${o.preco != null ? esc(reais(o.preco)) : "Preço no link"}</div>
+          ${o.titulo ? `<div class="tit">${esc(o.titulo)}</div>` : ""}
+          <div class="onde">${esc(onde)}</div>
+          <div class="acoes">
+            ${url ? `<a class="btn-sec amber" href="${esc(url)}" target="_blank" rel="noopener">Abrir oferta</a>` : '<span class="onde" style="margin:0">O link não veio na mensagem.</span>'}
+            ${o.cupom ? `<button class="btn-sec btn-cupom" data-cupom="${esc(o.cupom)}">Copiar cupom ${esc(o.cupom)}</button>` : ""}
+          </div>
+        </article>`;
+    }
+
+    async function carregarOfertas() {
+      if (!MOSTRA_OFERTAS) return;
+      const lista = document.getElementById("lista-ofertas");
+      const melhores = document.getElementById("ofertas-melhores");
+      const { data, error } = await sb.rpc("ofertas_avisadas");
+      if (error) {
+        lista.innerHTML = '<div class="vazio">Não foi possível carregar as ofertas. Puxe pra atualizar.</div>';
+        melhores.innerHTML = "";
+        return;
+      }
+      const ofertas = data || [];
+      const desde = Date.now() - 24 * 3600000;
+      const ultimas24h = ofertas.filter((o) => new Date(o.criado_em).getTime() >= desde).length;
+      document.getElementById("cont-ofertas").textContent = ultimas24h ? String(ultimas24h) : "";
+
+      melhores.innerHTML = Object.keys(PRODUTO).map((p) => {
+        const com = ofertas.filter((o) => o.produto === p && o.preco != null);
+        if (!com.length) {
+          return `<div class="linha"><span class="dot cinza"></span><div class="txt"><div class="nome">${esc(PRODUTO[p])}</div><div class="det">Nada dentro do seu preço ainda</div></div></div>`;
+        }
+        const m = com.reduce((a, b) => (Number(b.preco) < Number(a.preco) ? b : a));
+        const url = linkSeguro(m.link);
+        const det = [reais(m.preco), m.loja, m.especial ? "preço-alvo" : null].filter(Boolean).join(" · ");
+        const tag = url ? `a class="linha" href="${esc(url)}" target="_blank" rel="noopener"` : 'div class="linha"';
+        return `<${tag}><span class="dot oferta-dot"></span><div class="txt"><div class="nome">${esc(PRODUTO[p])}</div><div class="det">${esc(det)}</div></div><span class="quando">${ha(m.criado_em)}</span></${url ? "a" : "div"}>`;
+      }).join("");
+
+      lista.innerHTML = ofertas.length
+        ? ofertas.map(cardOferta).join("")
+        : '<div class="vazio">Nenhuma oferta avisada ainda.<br>Toda oferta que virar notificação fica guardada aqui, com o link e o cupom.</div>';
+    }
+
+    document.getElementById("tab-ofertas").addEventListener("click", async (ev) => {
+      const btn = ev.target.closest("button[data-cupom]");
+      if (!btn) return;
+      const codigo = btn.dataset.cupom;
+      try {
+        await navigator.clipboard.writeText(codigo);
+        btn.textContent = "Cupom copiado";
+      } catch (e) {
+        btn.textContent = codigo; // sem permissao de copiar: ao menos deixa o codigo a vista
+      }
+      setTimeout(() => { btn.textContent = "Copiar cupom " + codigo; }, 2000);
+    });
+
     // ---------- Silenciar ----------
 
     let pendente = null;
@@ -542,14 +672,26 @@
 
     // ---------- Abas ----------
 
+    function abrirAba(nome) {
+      const btn = document.querySelector(`.tab-btn[data-tab="${nome}"]`);
+      if (!btn || btn.hidden) return;
+      document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById("tab-" + nome).classList.add("active");
+    }
     document.querySelectorAll(".tab-btn").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
-        document.querySelectorAll(".tab-panel").forEach((p) => p.classList.remove("active"));
-        btn.classList.add("active");
-        document.getElementById("tab-" + btn.dataset.tab).classList.add("active");
-      });
+      btn.addEventListener("click", () => abrirAba(btn.dataset.tab));
     });
+
+    if (MOSTRA_OFERTAS) {
+      document.getElementById("aba-ofertas").hidden = false;
+      document.getElementById("abas").classList.add("quatro");
+    }
+    // /alertas#ofertas abre direto na aba (notificacao de oferta sem link).
+    function abaDoEndereco() { if (location.hash === "#ofertas") abrirAba("ofertas"); }
+    abaDoEndereco();
+    window.addEventListener("hashchange", abaDoEndereco);
 
     // ---------- Notificações push (mesma lógica de antes) ----------
 
@@ -655,7 +797,7 @@
 
     async function carregarTudo() {
       await carregarMonitorando();
-      await Promise.all([carregarAgora(), carregarHistorico()]);
+      await Promise.all([carregarAgora(), carregarHistorico(), carregarOfertas()]);
     }
 
     (async () => {

@@ -1,0 +1,10 @@
+Modo: image_gen integrado. Geracao apenas de tipografia com transparencia; composicao sobre fotografia original via System.Drawing.
+
+Use case: ads-marketing.
+Create ONLY a transparent typography overlay PNG for a luxury minimalist Brazilian lash lifting photo ad. Portrait canvas exactly 1080x1920, ratio 9:16. TRUE transparent alpha background. No photo, no person, no opaque background, no mockup. The overlay will be composited onto an unchanged photograph. Almost all canvas must remain completely transparent, especially y=420 to y=1500 where the face is.
+At the TOP, centered with generous 80px side margins, between y=150 and y=370:
+Large beautifully typeset ivory high contrast refined editorial serif headline on ONE line: "Lash Lifting"
+Below it, smaller elegant ivory sans serif text, on TWO centered lines: "Seu olhar," and "naturalmente marcante."
+Use subtle soft black drop shadows behind lettering for excellent readability over a dark photographic background. Top title should be around 96px, subtitle around 36px.
+At the BOTTOM, centered between y=1570 and y=1680, a single restrained warm ivory rectangular CTA button, very slightly rounded corners, width approximately 850px, height approximately 100px, with soft tasteful realistic black drop shadow around it. Inside in dark charcoal clear medium-weight sans serif 32px exact text on ONE line: "Agendar agora no WhatsApp" with a small thin right arrow after the text, ample padding.
+Everything else is absolutely transparent. No extra text, no logo, no decoration, no borders, no lines, no badges, no green WhatsApp logo. High-end beauty editorial typography. Check Portuguese spelling meticulously. Actual transparent pixels, not a checkerboard simulation.

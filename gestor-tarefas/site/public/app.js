@@ -967,11 +967,13 @@ function formAdicionar(escopo) {
     <div class="add-acoes">
       <button type="button" class="add-btn${destino ? "" : " precisa"}" id="add-lista" data-menu onclick="menuAddLista(this)"
         title="${destino ? "Lista da tarefa" : "Escolha a lista"}">${ICONES.lista}<span>${esc(caminho)}</span></button>
-      <button type="button" class="add-btn" data-menu id="add-data" onclick="abrirDataAdd(this)" title="Data de entrega" aria-label="Data de entrega">
+      <button type="button" class="add-btn${a.data_entrega ? "" : " precisa"}" data-menu id="add-data" onclick="abrirDataAdd(this)"
+        title="${a.data_entrega ? "Data de entrega" : "Escolha a data de entrega (obrigatória)"}" aria-label="Data de entrega">
         ${ICONES.calendario}${a.data_entrega ? `<span>${esc(rotuloData(a.data_entrega))}</span>` : ""}
       </button>
       ${a.recorrencia ? `<button type="button" class="add-btn ligado" data-menu onclick="abrirDataAdd(this)" title="Repete">${ICONES.repetir}</button>` : ""}
-      <button type="button" class="add-btn" data-menu onclick="menuAddResp(this)" title="Responsável" aria-label="Responsável">
+      <button type="button" class="add-btn${resp.length ? "" : " precisa"}" data-menu id="add-resp" onclick="menuAddResp(this)"
+        title="${resp.length ? "Responsável" : "Escolha o responsável (obrigatório)"}" aria-label="Responsável">
         ${resp.length ? resp.map((u) => `<span class="avatar" style="background:${corDoNome(u.nome)}">${esc(iniciais(u.nome))}</span>`).join("") : ICONES.pessoa}
       </button>
       <button type="button" class="add-btn" data-menu onclick="menuAddPrio(this)" title="Prioridade" aria-label="Prioridade">${prio}</button>
@@ -1143,6 +1145,15 @@ async function salvarAdicionar(e) {
   if (!a.lista_id) {
     toast("Escolha a lista: tarefa mora em lista, não em pasta.", true);
     return document.getElementById("add-lista")?.click();
+  }
+  // Demanda nova sempre nasce com dono e prazo: sem isso ela some da Central e ninguém é avisado.
+  if (!a.data_entrega) {
+    toast("Escolha a data de entrega: tarefa nova precisa de prazo.", true);
+    return document.getElementById("add-data")?.click();
+  }
+  if (!a.responsaveis.some((id) => usuario(id)?.ativo)) {
+    toast("Escolha o responsável: tarefa nova precisa de dono.", true);
+    return document.getElementById("add-resp")?.click();
   }
   const status = a.status_id || primeiroStatus("aberto")?.id;
   if (!status) return toast("Crie pelo menos um status aberto em Ajustes.", true);

@@ -10,7 +10,9 @@ test('distribuição: rodízio, demanda, presença, retomada e autorização no 
     create schema auth;create schema vault;create schema storage;
     create table auth.users(id uuid primary key,email text,aud text,role text,raw_user_meta_data jsonb default '{}'::jsonb);
     create table auth.mfa_factors(id uuid primary key default gen_random_uuid(),user_id uuid,status text);
-    create table vault.secrets(id uuid primary key,secret text);create table vault.decrypted_secrets(id uuid,decrypted_secret text);
+    create table vault.secrets(id uuid primary key,secret text);create table vault.decrypted_secrets(id uuid,name text,decrypted_secret text);
+    create schema cron;create function cron.schedule(text,text,text) returns bigint language sql as $$select 1::bigint$$;
+    create schema net;create function net.http_post(url text,headers jsonb default null,body jsonb default null,params jsonb default null,timeout_milliseconds integer default null) returns bigint language sql as $$select 1::bigint$$;
     create function vault.create_secret(text,text) returns uuid language sql as $$select gen_random_uuid()$$;
     create function vault.update_secret(uuid,text) returns void language sql as $$select$$;
     create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);

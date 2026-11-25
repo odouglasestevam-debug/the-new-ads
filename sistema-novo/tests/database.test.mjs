@@ -9,7 +9,9 @@ test('migrações, isolamento CRM, integridade da conversa e leitura com limite'
     create schema auth;create schema vault;create schema storage;
     create table auth.users(id uuid primary key,email text,aud text,role text,raw_user_meta_data jsonb default '{}'::jsonb);
     create table auth.mfa_factors(id uuid primary key default gen_random_uuid(),user_id uuid,status text);
-    create table vault.secrets(id uuid primary key,secret text);create table vault.decrypted_secrets(id uuid,decrypted_secret text);
+    create table vault.secrets(id uuid primary key,secret text);create table vault.decrypted_secrets(id uuid,name text,decrypted_secret text);
+    create schema cron;create function cron.schedule(text,text,text) returns bigint language sql as $$select 1::bigint$$;
+    create schema net;create function net.http_post(url text,headers jsonb default null,body jsonb default null,params jsonb default null,timeout_milliseconds integer default null) returns bigint language sql as $$select 1::bigint$$;
     create function vault.create_secret(text,text) returns uuid language sql as $$select gen_random_uuid()$$;
     create function vault.update_secret(uuid,text) returns void language sql as $$select$$;
     create table storage.buckets(id text primary key,name text,public boolean,file_size_limit bigint,allowed_mime_types text[]);
@@ -42,6 +44,12 @@ test('migrações, isolamento CRM, integridade da conversa e leitura com limite'
   assert.equal((await db.query('select count(*)::int n from mensagens')).rows[0].n,2);
   const search=(await db.query(`select buscar_conversas_crm($1) as result`,[a])).rows[0].result;
   assert.equal(search.total,1);assert.equal(search.items[0].id,conv);
+  // abas de etapa: contagem por etapa com os outros filtros, e o filtro só da etapa pedida
+  assert.deepEqual(search.por_etapa,{novo:1});assert.equal(search.total_etapas,1);assert.equal(search.items[0].etapa_lead,undefined);
+  const porEtapa=(await db.query(`select buscar_conversas_crm(p_empresa=>$1,p_etapa=>'proposta') as result`,[a])).rows[0].result;
+  assert.equal(porEtapa.total,0);assert.deepEqual(porEtapa.por_etapa,{novo:1},'contagem das abas ignora a etapa escolhida');
+  assert.equal((await db.query(`select buscar_conversas_crm(p_empresa=>$1,p_etapa=>'novo') as result`,[a])).rows[0].result.total,1);
+  assert.deepEqual((await db.query(`select buscar_conversas_crm($1) as result`,[b])).rows[0].result.por_etapa,{},'outra empresa não conta nada');
   await db.query(`select marcar_conversa_lida_ate($1,$2)`,[conv,first]);
   assert.equal((await db.query('select nao_lidas from conversas')).rows[0].nao_lidas,1);
   await assert.rejects(db.query(`insert into mensagens(empresa_id,conversa_id,direcao) values($1,$2,'saida')`,[a,conv]),/permission denied/);

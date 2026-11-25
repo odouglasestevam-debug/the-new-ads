@@ -1,4 +1,5 @@
-// Notificação no celular do atendente. Duas entradas:
+// Notificação no celular do atendente: lead atribuído (0025), cada mensagem recebida (0032), lembrete e
+// mensagem agendada que não saiu (0033). Duas entradas:
 //  - servidor (gatilho do banco ou pg_cron, com x-cron-secret): manda a fila de avisos pendentes
 //  - pessoa logada com {"acao":"teste"}: manda uma notificação de teste só para os aparelhos dela
 // As chaves VAPID e o segredo do cron ficam no Vault e nunca saem daqui.
@@ -46,7 +47,7 @@ Deno.serve(async (req) => {
   webpush.setVapidDetails("mailto:odouglasestevam@gmail.com", publica, privada);
 
   // urgency high: com "normal" o Android segura a notificação até o app abrir.
-  async function enviar(aparelhos: Aparelho[], carga: Record<string, string>) {
+  async function enviar(aparelhos: Aparelho[], carga: Record<string, string | number>) {
     let enviados = 0;
     const erros: string[] = [];
     for (const a of aparelhos) {
@@ -76,7 +77,10 @@ Deno.serve(async (req) => {
 
     let mandados = 0;
     for (const a of (avisos || []) as Array<Record<string, any>>) {
-      const envio = await enviar(a.aparelhos || [], { titulo: a.titulo, corpo: a.corpo, url: a.url || APP });
+      const envio = await enviar(a.aparelhos || [], {
+        tipo: a.tipo || "lead_atribuido", titulo: a.titulo, corpo: a.corpo, url: a.url || APP,
+        tag: a.tag || a.url || "crm", quantidade: a.quantidade || 1,
+      });
       // sem aparelho inscrito o aviso morre aqui: não adianta tentar de novo
       const semAparelho = !(a.aparelhos || []).length;
       await admin.rpc("crm_aviso_concluido", {
@@ -105,9 +109,11 @@ Deno.serve(async (req) => {
   const lista = (aparelhos || []) as Aparelho[];
   if (!lista.length) return resposta(req, 400, { erro: "Nenhum aparelho com notificação ligada." });
   const envio = await enviar(lista, {
+    tipo: "teste",
     titulo: "Notificação ligada",
-    corpo: "É assim que você vai receber cada lead atribuído a você.",
+    corpo: "É assim que chegam as mensagens dos seus leads, os leads atribuídos a você e os seus lembretes.",
     url: APP,
+    tag: "teste",
   });
   return resposta(req, 200, { ok: true, ...envio });
 });

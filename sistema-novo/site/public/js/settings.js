@@ -18,8 +18,9 @@ function paineisConfig() {
         <div class="campo"><label for="senha-confirma">Repetir a nova senha</label><input type="password" id="senha-confirma" autocomplete="new-password"></div>
         <button class="btn btn-largo" id="btn-trocar-senha" type="button">Salvar nova senha</button>
         <div class="aviso" id="aviso-senha"></div>
-      </div>
-      ${blocoNotificacoes()}`,
+      </div>`,
+
+    notificacoes: () => `${blocoInstalar()}${blocoNotificacoes()}`,
 
     equipe: () => `
       ${pode.administrar() ? `
@@ -96,7 +97,7 @@ function vistaConfig() {
   const painel = paineisConfig();
   // submenu vertical, agrupado: o que é da pessoa, o que é da empresa e o que é da agência
   const GRUPOS = [
-    ["Sua conta", [["seguranca", "Segurança"], ["disponibilidade", "Disponibilidade"]]],
+    ["Sua conta", [["notificacoes", "Notificações"], ["seguranca", "Segurança"], ["disponibilidade", "Disponibilidade"]]],
     ["Empresa", [["equipe", "Equipe"],
       ...(pode.administrar() ? [["distribuicao", "Distribuição"], ["atendimento", "Atendimento"],
         ["formularios", "Formulários"], ["integracoes", "Integrações"]] : [])]],
@@ -105,7 +106,7 @@ function vistaConfig() {
   ].filter(([, itens]) => itens.length);
 
   const valida = GRUPOS.some(([, itens]) => itens.some(([id]) => id === abaAjustes));
-  if (!valida) abaAjustes = "seguranca";
+  if (!valida) abaAjustes = "notificacoes";
 
   const menu = GRUPOS.map(([titulo, itens]) => `
     <div class="grupo-ajuste">
@@ -116,7 +117,7 @@ function vistaConfig() {
   // o editor de formulário tem layout próprio e não entra na grade de cartões
   const corpo = abaAjustes === "formularios"
     ? (formEditando ? vistaEditorFormulario() : vistaFormularios())
-    : `<div class="cartoes-config">${(painel[abaAjustes] || painel.seguranca)()}</div>`;
+    : `<div class="cartoes-config">${(painel[abaAjustes] || painel.notificacoes)()}</div>`;
 
   return `
     <div class="topo"><div><h1>Ajustes</h1><div class="desc">Conta, equipe e manutenção.</div></div></div>

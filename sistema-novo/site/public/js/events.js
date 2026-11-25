@@ -58,6 +58,7 @@ function ligarEventos() {
   ligarEquipe();
   ligarFormularios();
   ligarConversas();
+  ligarAgenda();
   ligarIntegracoes();
   ligarDistribuicao();
   ligarPush();
@@ -236,6 +237,8 @@ async function moverLead(id, etapa) {
   }
   lead.etapa = etapa;
   render();
+  // as abas de etapa das conversas contam pelo banco: busca de novo para o número mudar na hora
+  if (vistaAtual === "conversas") buscarListaConversas();
 }
 
 function ligarArrasto() {

@@ -23,7 +23,7 @@ async function load(name,options={}){
  const env={SUPABASE_URL:'https://fixture.invalid',SUPABASE_SERVICE_ROLE_KEY:'fixture',SUPABASE_ANON_KEY:'fixture',NEOGO_ALLOWED_HOSTS:'api.example.test'};
  const ctx=vm.createContext({Request,Response,URL,FormData,File,Headers,Uint8Array,TextEncoder,TextDecoder,crypto,atob,AbortSignal,console,Date,setTimeout,clearTimeout,
    createClient:()=>db.admin,fetch:options.fetch||(()=>{throw new Error('Rede real bloqueada em teste')}),Deno:{env:{get:key=>env[key]},serve:fn=>handler=fn}});
- for(const file of ['_shared/security.ts',...(['whatsapp-modelos','whatsapp-midia','whatsapp-webhook','whatsapp-lida'].includes(name)?['_shared/whatsapp.ts']:[]),...(name==='whatsapp-webhook'?['_shared/incoming-media.ts']:[]),`${name}/index.ts`]){
+ for(const file of ['_shared/security.ts',...(['whatsapp-modelos','whatsapp-midia','whatsapp-webhook','whatsapp-lida'].includes(name)?['_shared/whatsapp.ts']:[]),...(name==='whatsapp-webhook'?['_shared/incoming-media.ts']:[]),...(['whatsapp-enviar','crm-agenda'].includes(name)?['_shared/enviar-texto.ts']:[]),`${name}/index.ts`]){
    let code=await readFile(new URL(file,ROOT),'utf8');code=code.replace(/^import .*;\r?\n/gm,'').replace(/^export /gm,'');
    vm.runInContext(stripTypeScriptTypes(code),ctx,{filename:file});
  }
@@ -205,4 +205,45 @@ test('webhook copia mídia recebida para bucket privado sem devolver credencial'
  assert.equal((await x.handler(req)).status,200);
  assert.equal(x.state.uploads.length,1);assert.equal(x.state.uploads[0].path,`${eid}/${cid}/${mid}.png`);
  assert.equal(x.state.tables.mensagens[0].midia.storage_path,`${eid}/${cid}/${mid}.png`);
+});
+test('mensagem agendada sai pelo mesmo envio, confere permissão de novo e não duplica',async()=>{
+ let calls=0;const x=await load('crm-agenda',{fetch:async()=>{calls++;return Response.json({messages:[{id:'wamid.agendada'}]})}});
+ const fila=[],concluidas=[],rpc=x.admin.rpc;
+ x.admin.rpc=async(name,args)=>name==='crm_ler_segredo'?{data:'segredo-fixture'}:name==='crm_agendadas_reservar'?{data:fila.splice(0)}:name==='crm_agendada_concluida'?(concluidas.push(args),{data:null}):rpc(name,args);
+ const relogio=(segredo='segredo-fixture')=>new Request('https://fixture.invalid/',{method:'POST',headers:{'x-cron-secret':segredo}});
+ const item=(id=crypto.randomUUID())=>({id,conversa_id:cid,autor_id:uid,texto:'Bom dia! Segue a proposta.'});
+ // sem o segredo do relógio não lê a fila
+ fila.push(item(mid));
+ assert.equal((await x.handler(relogio('errado'))).status,401);assert.equal(fila.length,1);assert.equal(calls,0);
+ // sai com o nome de quem agendou e marcado como agendado
+ const r=await x.handler(relogio());assert.equal(r.status,200);assert.deepEqual(await r.json(),{ok:true,enviadas:1,falhas:0});
+ assert.equal(calls,1);assert.equal(x.state.tables.mensagens[0].id,mid);assert.equal(x.state.tables.mensagens[0].autor_id,uid);
+ assert.equal(x.state.tables.mensagens[0].midia.agendada,true);assert.equal(x.state.tables.mensagens[0].status,'enviada');
+ assert.equal(JSON.stringify(concluidas.at(-1)),JSON.stringify({p_id:mid,p_ok:true,p_erro:null,p_tentar:false}));
+ // o relógio tentou de novo o mesmo id (servidor caiu antes de concluir): não reenvia
+ fila.push(item(mid));await x.handler(relogio());
+ assert.equal(calls,1);assert.equal(x.state.tables.mensagens.length,1);assert.equal(concluidas.at(-1).p_ok,true);
+ // quem agendou perdeu o lead: não sai e o motivo volta para o aviso
+ x.state.tables.conversas[0].leads.responsavel_id='outro-vendedor';
+ fila.push(item());await x.handler(relogio());
+ assert.equal(calls,1);assert.equal(concluidas.at(-1).p_ok,false);assert.match(concluidas.at(-1).p_erro,/não responde mais/);
+ // janela de 24h fechada na API oficial: não chama a Meta e não tenta de novo
+ x.state.tables.conversas[0].leads.responsavel_id=uid;x.state.tables.conversas[0].ultima_entrada_em=new Date(Date.now()-25*3600e3).toISOString();
+ fila.push(item());await x.handler(relogio());
+ assert.equal(calls,1);assert.match(concluidas.at(-1).p_erro,/24h/);assert.equal(concluidas.at(-1).p_tentar,false);
+ // empresa desativada também não envia
+ x.state.tables.conversas[0].ultima_entrada_em=new Date().toISOString();x.state.tables.empresas[0].ativo=false;
+ fila.push(item());await x.handler(relogio());
+ assert.equal(calls,1);assert.match(concluidas.at(-1).p_erro,/inativa/);
+});
+test('envio agendado pela NeoGo e recusa do provedor viram aviso com o motivo',async()=>{
+ let calls=0;const x=await load('crm-agenda',{fetch:async(url,options)=>{calls++;assert.equal(new URL(url).hostname,'api.example.test');return new Response(JSON.stringify({message:'número inválido'}),{status:400})}});
+ x.state.tables.conversas[0].canal='whatsapp_nao_oficial';
+ x.state.tables.integracoes.push({id:'66666666-6666-4666-8666-666666666666',empresa_id:eid,tipo:'whatsapp_nao_oficial',status:'ativa',config:{base_url:'https://api.example.test/'}});
+ x.state.secrets.instance_token='token-neogo';
+ const concluidas=[],rpc=x.admin.rpc,fila=[{id:mid,conversa_id:cid,autor_id:uid,texto:'Oi!'}];
+ x.admin.rpc=async(name,args)=>name==='crm_ler_segredo'?{data:'s'}:name==='crm_agendadas_reservar'?{data:fila.splice(0)}:name==='crm_agendada_concluida'?(concluidas.push(args),{data:null}):rpc(name,args);
+ await x.handler(new Request('https://fixture.invalid/',{method:'POST',headers:{'x-cron-secret':'s'}}));
+ assert.equal(calls,1);assert.equal(concluidas[0].p_ok,false);assert.equal(concluidas[0].p_erro,'número inválido');assert.equal(concluidas[0].p_tentar,false);
+ assert.equal(x.state.tables.mensagens[0].status,'falhou');assert.equal(x.state.tables.mensagens[0].midia.agendada,true);
 });

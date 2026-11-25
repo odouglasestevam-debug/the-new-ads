@@ -1,181 +1,112 @@
 ---
 name: CRM The New Ads
-description: Atendimento operacional com identidade grafite e âmbar e conversas em verde.
+description: Atendimento no estilo do WhatsApp Web, tema claro, verde do WhatsApp nas ações.
 colors:
-  preto: "#0A0A0A"
-  grafite: "#141414"
-  grafite-2: "#1c1c1c"
-  nevoa: "#a3a3a3"
-  texto-suave: "#b5b5b5"
-  branco: "#FAFAFA"
+  fundo: "#f0f2f5"
+  painel: "#ffffff"
+  barra: "#f0f2f5"
+  linha: "#e9edef"
+  linha-forte: "#d1d7db"
+  texto-forte: "#111b21"
+  texto-medio: "#54656f"
+  texto-fraco: "#667781"
+  verde: "#00a884"
+  verde-escuro: "#008069"
+  verde-claro: "#d9fdd3"
+  verde-aviso: "#25d366"
+  azul-lido: "#53bdeb"
+  vermelho: "#d42a3c"
+  chat-fundo: "#efeae2"
+  trilho: "#1f2c34"
   ambar: "#FF6A00"
-  linha: "rgba(255,255,255,.09)"
-  verde: "#4ADE80"
-  vermelho: "#F87171"
-  whatsapp: "#25D366"
-  chat-fundo: "#111713"
-  chat-barra: "#1c211e"
 typography:
-  headline:
-    fontFamily: "Switzer, system-ui, sans-serif"
-    fontSize: "24px"
-    fontWeight: 600
-    lineHeight: 1.3
-    letterSpacing: "-.015em"
   body:
-    fontFamily: "Switzer, system-ui, sans-serif"
+    fontFamily: "Segoe UI, Helvetica Neue, system-ui, sans-serif"
     fontSize: "14px"
-    lineHeight: 1.5
-  label:
-    fontFamily: "Switzer, system-ui, sans-serif"
-    fontSize: "13px"
-    letterSpacing: "0"
-  technical:
-    fontFamily: "JetBrains Mono, monospace"
-    fontSize: "10.5px"
+    lineHeight: 1.45
+  titulo-tela:
+    fontSize: "22px"
+    fontWeight: 600
+  nome-conversa:
+    fontSize: "16px"
+  balao:
+    fontSize: "14.2px"
 rounded:
-  compact: "6px"
-  conversation: "8px"
-  control: "9px"
-  card: "10px"
-  container: "12px"
-  pill: "99px"
-spacing:
-  compact: "8px"
-  control: "10px"
-  regular: "12px"
-  row: "14px"
-  panel: "16px"
-  spacious: "20px"
-components:
-  button-primary:
-    backgroundColor: "{colors.ambar}"
-    textColor: "{colors.preto}"
-    rounded: "{rounded.conversation}"
-    padding: "10px 16px"
-  button-ghost:
-    backgroundColor: "#202020"
-    textColor: "#eee"
-    rounded: "{rounded.conversation}"
-    padding: "10px 16px"
-  button-send:
-    backgroundColor: "{colors.verde}"
-    textColor: "#072311"
-    rounded: "{rounded.conversation}"
-    padding: "10px 16px"
-  input:
-    backgroundColor: "#202020"
-    textColor: "{colors.branco}"
-    rounded: "{rounded.control}"
-    padding: "11px 12px"
-  navigation:
-    textColor: "{colors.nevoa}"
-    rounded: "{rounded.conversation}"
-    padding: "12px"
-  chip:
-    backgroundColor: "#222"
-    textColor: "#bcbcbc"
-    rounded: "{rounded.pill}"
-    padding: "5px 10px"
-  card:
-    backgroundColor: "#222"
-    textColor: "{colors.branco}"
-    rounded: "{rounded.card}"
-    padding: "14px"
-  message-outgoing:
-    backgroundColor: "#164437"
-    textColor: "#f2faf6"
-    rounded: "{rounded.conversation}"
-    padding: "8px 11px"
+  balao: "8px"
+  campo: "8px"
+  chip: "16px"
+  botao: "24px"
+  cartao: "10px"
 ---
 
 # Design System: CRM The New Ads
 
 ## Overview
 
-**Creative North Star: "Atendimento familiar ao WhatsApp Web"**
+**Norte: "Parece o WhatsApp Web que a equipe já usa"** (pedido do Douglas em 24/11/2026, com print do WhatsApp Business da Confiança como referência).
 
-O CRM em crm.thenewads.com.br é uma interface de trabalho escura e compacta. A identidade grafite, Switzer e âmbar orienta navegação e ações gerais; a conversa recebe o verde do canal. O refinamento estende a identidade existente: encontrar o lead, entender etapa e responsável, abrir a conversa e responder. Lista e quadro compartilham controles; gráficos não foram introduzidos.
-
-Este registro descreve o código construído em `sistema-novo`, com identidade herdada e sem novo mundo visual; seed e composição foram dispensados nesta rodada. A fonte é a cascata de `site/public/app.css` seguida de `site/public/workspace.css`, incluindo o bloco Refinamento operacional. O contrato está no primeiro comentário de `index.html`; comportamentos vêm dos módulos de leads, kanban, navegação, eventos, inicialização, conversas e integrações. Screenshots em `tests/artifacts/` de leads, kanban e conversas no desktop e celular, além de `lead-detalhe-desktop.png` e `diagnostico-mobile.png`, usam fixture fictícia: não comprovam conexão, entrega ou funcionamento de um provedor real.
-
-A validação informada desta rodada registra teste de navegador e sintaxe JavaScript passando. A revisão de UX por `crm_ux_finish` retornou `ship` em cinco seções. A checagem final de Mais filtros foi resolvida com alinhamento à direita; a captura `tests/artifacts/leads-filtros-desktop.png`, o teste geométrico e a aplicação/limpeza do filtro passaram. O verdict final registra `remaining: Clear` e `disposition: ship`, sem regressão nas recapturas. O detector foi executado uma vez, com saída longa truncada e avisos sobre paleta, escala tipográfica e raios; não há declaração de detector limpo. Os 17/17 testes registrados anteriormente pertencem à etapa funcional anterior, sem reexecução alegada nesta rodada. Testes reais das APIs continuam pendentes. Este documento não declara o plano inteiro concluído nem substitui auditoria completa de acessibilidade.
-
-A extensão de distribuição mantém o mesmo mundo operacional: configurar a entrega com clareza, passando por modo, participantes, regra, salvar e acompanhamento. O código local de `site/public/js/distribution.js` e o bloco final de `workspace.css` fundamentam estes controles. As capturas `tests/artifacts/distribuicao-desktop.png`, `distribuicao-mobile.png`, `disponibilidade-mobile.png` e `distribuicao-erro-mobile.png` usam fixtures. A revisão informada de `distribution_finish` resolveu o aviso de dados antigos, o retorno de foco ao descartar/atualizar e a sobreposição do link de salto, com `remaining: Clear` e `disposition: ship`. A validação final informada registra `npm test` com 28/28 testes e teste de navegador passando após as correções, sem erros. Publicado em 21/09/2026: Worker `6519bab1-5e53-45d3-ad58-2a8f51ebae9d`, migration `20260921174437`; smoke remoto aprovou 19 assets, headers, login e bloqueio anônimo, sem mensagens reais. Validação local: 28/28 testes e navegador aprovados. A automação permanece desligada até o administrador escolher modo e participantes. Registro em `DISTRIBUICAO-LEADS.md`.
+Tema claro único. A fonte das regras é `site/public/crm.css`, que substituiu `app.css` e `workspace.css`; toda cor sai de uma variável em `:root`. O âmbar da The New Ads fica só no símbolo do trilho e no login; ações, seleção e foco usam o verde do WhatsApp. Respostas rápidas acima do campo de mensagem foram pedidas para uma próxima rodada.
 
 **Key Characteristics:**
 
-- Grafite como superfície, âmbar para orientação e verde no atendimento.
-- Tipografia operacional compacta e números tabulares no histórico.
-- Busca, responsabilidade e etapa consistentes entre lista e quadro.
-- Lista, conversa e detalhes recolhíveis no desktop; uma região por vez no celular.
-- Estados de carregamento, restrição e falha descritos em texto.
+- Trilho escuro de ícones com rótulo embaixo (Conversas, Kanban, Leads, Ajustes); avatar e Sair no pé. No celular vira barra de baixo branca, com o item ativo numa pílula verde-clara.
+- Barra branca no topo: empresa e papel à esquerda, abas de etapa no meio (só em Conversas), Online/Ocupado à direita.
+- Conversas é a tela inicial: lista, chat e dados do contato como no WhatsApp Web.
+- Números de não lidas em verde; no trilho só aparece contador de não lidas.
 
 ## Colors
 
-### Primary
+**Superfícies.** `fundo` cinza-claro nas telas de trabalho, `painel` branco em lista, cartões, tabelas, gavetas e modais, `barra` no cabeçalho do chat e no composer. `linha` separa regiões; `linha-forte` contorna campos e botões secundários.
 
-O **âmbar** identifica a marca, ação principal fora do composer, seleção de navegação e foco de teclado. A navegação selecionada usa âmbar claro sobre marrom escuro. Segmentos de responsabilidade ficam em cinza; filtros ativos da conversa usam verde.
+**Verde.** `verde` para botão principal, enviar e seleção; `verde-escuro` para texto de link, aba ativa e foco de teclado; `verde-claro` para chip ativo, aba de etapa ativa e balão enviado; `verde-aviso` para contadores de não lidas.
 
-### Secondary
+**Conversa.** `chat-fundo` bege com textura própria em SVG (desenho original, não a do WhatsApp). Balão recebido branco, enviado `verde-claro`, ambos com sombra fina.
 
-O **verde** destaca o envio; o **verde WhatsApp** identifica contadores e estados do canal. Balões enviados usam verde profundo, com texto claro. O **vermelho** identifica erros, acompanhado de mensagem explicativa. Azul já existe nos selos de canal oficial e Meta; não representa entrega bem-sucedida.
+**Etapas.** Cada etapa tem uma cor em `ETAPAS` (`js/core.js`), escolhida para fundo claro. Vira ponto no quadro e nas abas e etiqueta tingida (`color-mix`) na lista de conversas.
 
-### Neutral
+**Estados.** `vermelho` só para erro e "Não enviada", sempre com texto. `azul-lido` só nos ✓✓ de mensagem lida.
 
-**Preto**, **grafite** e **grafite 2** estruturam o aplicativo. **Branco** é o texto principal; **névoa** e **texto suave** organizam informação secundária e rótulos. **Linha** separa regiões com baixa intensidade. O histórico tem um preto esverdeado; cabeçalho e composer compartilham a superfície de barra.
-
-**The Cor por Função Rule.** Use âmbar para orientação do CRM e verde para o atendimento; comunique pendência, falha e entrega por texto, além da cor.
+**The Cor por Função Rule.** Verde é ação e atendimento; âmbar é só marca. Pendência, falha e entrega são comunicadas por texto além da cor.
 
 ## Typography
 
-A cascata atual usa **Switzer** para corpo, controles e títulos. A definição anterior de Clash Display é substituída por `workspace.css`; não há uma escala de display editorial aplicada ao workspace. Os fallbacks de sistema são contingência de carregamento, não uma direção de display.
+Fonte do sistema operacional (Segoe UI no Windows, San Francisco no iPhone, Roboto no Android), como o WhatsApp Web; a Switzer saiu. Título de tela 22px peso 600; nome na lista de conversas 16px; prévia 14px; balão 14.2px; horário e metadados 11 a 12.5px com números tabulares. Monoespaçado só em UTM, código e chave.
 
-Títulos gerais usam o papel headline e passam a 22px no celular; Conversas usa 21px no desktop e 20px no celular. Nomes de leads usam 14px e peso 600; prévias, navegação desktop e botões usam 13px. Balões usam 14px e entrelinha 1.45. Rótulos de formulário usam 13px; filtros e cabeçalhos de tabela usam 12px. Switzer e caixa normal também passam a orientar selos, etapa, responsável, datas, dados da ficha e contadores, com números tabulares onde apropriado. Monoespaçado fica em conteúdo técnico residual, como códigos e UTMs, sem comandar a interface.
-
-**The Leitura Contínua Rule.** Reserve a ênfase para nomes e ações; mantenha mensagem em caixa normal e preserve quebras de linha do conteúdo.
+**The Leitura Contínua Rule.** Ênfase para nomes e ações; mensagem em caixa normal, preservando quebras de linha.
 
 ## Layout
 
-A navegação lateral mede 216px. Áreas gerais usam margens internas de 28px no desktop e 16px nas laterais do celular. Conversas ocupa a altura dinâmica do viewport, com cabeçalho de no mínimo 76px e rolagem independente na lista e no histórico. Sem detalhes, a lista mede 320px e o chat recebe o restante. Com detalhes e largura acima de 1200px, as colunas são 300px, espaço flexível e 260px. Entre 861px e 1200px, a lista mede 280px e detalhes aparecem sobrepostos à direita, com 290px.
+Trilho de 76px. Barra do topo com 60px de altura mínima, presa no alto ao rolar. Telas comuns com margem de 26px por 28px. Conversas ocupa a altura da janela: lista com `minmax(330px, 30%)`, chat com o resto; com dados do contato aberto, `minmax(300px, 27%)`, chat e 340px. Entre 861 e 1200px os dados do contato se sobrepõem à direita com 320px.
 
-Até 860px, a interface mostra lista ou chat; os detalhes cobrem a região de conteúdo quando abertos. A navegação inferior reserva 78px mais a área segura. A altura do workspace desconta essa reserva; o composer fica dentro do chat acima da navegação. O botão Conversas retorna à lista. O histórico flexível recebe a rolagem; cabeçalho e rodapé não encolhem. O código expressa esse contrato; o comportamento com teclado virtual em dispositivos reais não é comprovado pelas fixtures.
+Até 860px: uma região por vez (lista ou chat), trilho vira barra de baixo de 64px mais área segura, barra do topo some quando o chat está aberto e, na lista, mostra só as abas de etapa (empresa e disponibilidade ficam no seletor do conteúdo e em Ajustes). A área de Conversas desconta a barra de baixo e não cresce com o histórico (`flex:none` na coluna).
 
-O ritmo é compacto, com intervalos recorrentes de 8px a 20px e linhas de conversa com altura mínima de 84px. Mensagens ocupam no máximo `min(82%, 560px)`, com entrada à esquerda e saída à direita. Não há um container de marketing centralizado na tela de atendimento.
+Abas de etapa rolam dentro da própria faixa, com a borda direita esmaecida para indicar que há mais. Mensagens ocupam até `min(65%, 560px)` (85% no celular).
 
-Em Ajustes, a faixa de abas possui rolagem horizontal própria e itens que não encolhem. Na largura de 360px, as abas excedentes permanecem acessíveis dentro dessa faixa, sem exigir que a página inteira acompanhe sua largura. Guias de conexão e diagnóstico usam `details` recolhíveis para manter os formulários legíveis.
-
-Na lista de leads, a tabela vira cartões de duas colunas até 700px, com contato ocupando a largura total e rótulos visíveis por campo. O quadro usa colunas de 280px no desktop; até 860px, cada coluna ocupa `calc(100vw - 66px)`, limitada a 320px, com rolagem horizontal e aproximação por scroll snap. O seletor Ir para etapa aparece até 1100px e desloca o quadro sem mudar a etapa do lead. Mais filtros é uma sobreposição no desktop e conteúdo no fluxo no celular.
-
-Distribuição ocupa a largura disponível do painel de Ajustes e organiza opções e participantes em linhas separadas por divisórias. Até 700px, nome e papel do participante ficam acima de demanda e disponibilidade; histórico e cabeçalho passam a uma coluna, e as ações compartilham a largura disponível. A disponibilidade pessoal aparece no rodapé lateral do desktop e na aba Disponibilidade de Ajustes, também acessível no celular. A faixa de abas mantém a aba ativa visível dentro da própria rolagem.
-
-**The Uma Região no Celular Rule.** Mantenha lista, chat e detalhes como etapas visuais distintas no celular, preservando o composer acima da navegação.
+**The Uma Região no Celular Rule.** Lista, chat e detalhes são etapas distintas no celular, com o campo de mensagem sempre acima da barra de baixo.
 
 ## Elevation & Depth
 
-A profundidade vem principalmente de superfícies tonais e divisórias finas. Lista e chat são planos contínuos; a caixa geral de Conversas não tem borda externa nem arredondamento. Cards, campos e modais do restante do CRM mantêm contorno discreto.
-
-A sobreposição de detalhes em larguras intermediárias usa sombra lateral (`-12px 0 30px #0005`). Mais filtros usa sombra difusa (`0 8px 24px #0006`) apenas enquanto sobreposto no desktop. Modais usam fundo escuro translúcido e desfoque (4px). Esses efeitos identificam sobreposição, não acompanham cada bloco de conteúdo. O foco visível usa contorno âmbar de 2px, afastado 3px; o anexo usa foco no conjunto com afastamento 2px.
-
-**The Profundidade Funcional Rule.** Separe regiões por tom e linha; use sombra quando o painel se sobrepõe ao conteúdo.
+Profundidade por tom e linha. Sombra fina (`0 1px .5px`) só em balões, separador de data e cartões do quadro; sombra larga só no que se sobrepõe (gaveta, modal, menu de filtros, dados do contato em tela média). Foco de teclado: contorno de 2px `verde-escuro` afastado 2px.
 
 ## Shapes
 
-Controles são levemente arredondados: botões, segmentos, balões e composer usam conversation; campos gerais preservam control. Cards comerciais e a caixa da tabela usam card. Selos e contagens menores usam cantos discretos de 5px ou 6px; filtros do chat continuam cápsulas. Avatares com iniciais são círculos, sem fotografia obrigatória. Essas famílias expressam papéis diferentes; valores avulsos da base não viram novos tokens por causa dos avisos do detector.
-
-O raio final dos balões é uniforme na cascata atual: a regra posterior de `workspace.css` substitui os cantos assimétricos da base. Não restaure a aparência antiga ao reutilizar o componente.
+Balões com 8px e rabicho no primeiro balão de cada sequência. Campos com 8px. Chips, abas de etapa, filtros e botões secundários em pílula (16 a 18px). Botões principais em pílula de 24px. Cartões do quadro e blocos de ajustes com 10 a 12px. Avatares circulares com iniciais em cor clara fixa por nome.
 
 ## Components
 
-**Buttons.** Ação principal compacta em âmbar, texto escuro, peso 600 e altura mínima de 40px. Hover reduz opacidade para .9; desabilitado usa .5 e cursor indisponível. O botão fantasma tem fundo cinza elevado, contorno discreto e borda âmbar no hover. Enviar usa verde e altura mínima de 44px. Controles auxiliares usam texto secundário; os mínimos variam por contexto, portanto não há um tamanho de toque universal validado.
+**Buttons.** Ação principal em pílula verde, texto branco, altura mínima de 40px; hover escurece o verde; desabilitado usa .5. O botão fantasma é branco com contorno cinza e texto verde-escuro. Enviar é um círculo verde de 42px com ícone de avião de papel e nome acessível "Enviar". Controles auxiliares usam texto secundário; os mínimos variam por contexto, portanto não há um tamanho de toque universal validado.
 
 **Inputs / Fields.** Campos de formulário usam superfície elevada, borda fina, fonte 14px e espaçamento de 11px por 12px. A busca de leads tem ícone e altura de 42px; busca da lista de conversas mantém raio 7px e fonte 13px. O composer usa superfície mais clara, fonte 14px e altura mínima de 44px, crescendo até 160px. Foco de teclado permanece explícito mesmo nos campos sem borda. Placeholder não substitui nome acessível.
 
-**Navigation.** Navegação vertical no desktop e horizontal inferior no celular. Item ativo usa fundo marrom e âmbar claro, com `aria-current="page"`. Ícones da navegação são SVG inline, acompanhados de texto. A variante móvel distribui os itens igualmente, com fonte de 10px e altura mínima de 54px. O link Ir para o conteúdo aparece ao receber foco.
+**Navigation.** Trilho vertical escuro no desktop, com ícone e rótulo embaixo; item ativo com fundo levemente claro e ícone verde, `aria-current="page"`. No celular vira barra inferior branca, itens distribuídos igualmente e o ícone ativo numa pílula verde-clara. As regras valem só para `#nav`: o submenu de Ajustes também é um `<nav>` e não pode herdá-las. O link Ir para o conteúdo aparece ao receber foco.
 
-**Chips.** Filtros da conversa são cápsulas neutras quando inativas e verdes quando selecionadas, com `aria-pressed`. Responsável e canal ficam em `details` recolhível, aberto quando há filtro aplicado. Leads e quadro usam segmentos de responsabilidade com seleção cinza, preservando a distinção entre filtros comerciais e atendimento.
+**Chips.** Filtros da conversa são pílulas cinza quando inativas e verde-claras com texto verde-escuro quando selecionadas, com `aria-pressed`. As abas de etapa da barra do topo seguem o mesmo padrão, com contador em verde, e só aparecem quando a busca do banco devolve `por_etapa` (migration 0031). Responsável e canal ficam em `details` recolhível, aberto quando há filtro aplicado. Leads e quadro usam segmentos de responsabilidade com seleção cinza, preservando a distinção entre filtros comerciais e atendimento.
 
-**Cards / Containers.** Cards comerciais têm fundo cinza elevado, borda discreta, raio card e espaçamento interno de 14px. Hover clareia fundo e borda. Nome acionável, contato, origem, responsável e seletor de etapa organizam o conteúdo; selos de cadastro aparecem quando pertinentes. A conversa usa painéis contínuos; não herda a composição de cards do kanban.
+**Agenda.** Mensagem agendada é um balão de saída com borda pontilhada verde e fundo verde bem claro, sem a ponta do balão, no fim do chat, abaixo do separador "Agendadas"; o selo diz quando sai ("Sai amanhã às 09:00"). Não saiu: mesmo balão em vermelho-claro com o motivo. Lembrete usa âmbar (fundo `#fff1c2`, texto `#7f5a00`) para não competir com o verde das mensagens; passou do horário vira laranja. Escolha de horário sempre com atalhos em chip (Daqui a 1 hora, Hoje às 18:00, Amanhã às 09:00, Amanhã às 14:00, Segunda às 09:00) e os campos Dia e Hora embaixo, com a frase "Marcado para ..." confirmando.
+
+**Faixa de aviso.** No topo da lista de Conversas, como a do WhatsApp Web: fundo azul-claro, círculo `azul-lido` com sino, título, uma linha de explicação, ação em texto verde-escuro e um X "Agora não" que esconde por 7 dias no aparelho. Uma faixa por vez, nesta ordem: instalar (iPhone fora da tela de início), notificação bloqueada, ativar notificações, instalar (Chrome). Recado de confirmação em cápsula escura no rodapé, acima da barra de baixo no celular.
+
+**Cards / Containers.** Cards comerciais são brancos sobre a coluna cinza do quadro, com sombra fina que cresce no hover. Nome acionável, contato, origem, responsável e seletor de etapa organizam o conteúdo; selos de cadastro aparecem quando pertinentes. A conversa usa painéis contínuos; não herda a composição de cards do kanban.
 
 **Distribution controls.** Agência e dono configuram a automação em Ajustes → Distribuição. As três opções usam radios nativos com legenda, nome e explicação; participantes usam checkboxes nativos com nome, papel, demanda e estado textual. Contas de leitura não participam. O título do painel usa 20px; opções usam 14px e descrições e linhas da equipe usam 13px. Números de demanda são tabulares; Disponível, Pausado e Offline permanecem legíveis sem depender de cor. Fila rotativa entrega mesmo com o participante pausado ou offline; Menor demanda exige disponibilidade e conexão e exclui Cliente e Perdido da contagem. O bloco da regra acompanha a escolha e explica rodízio, empate e espera sem participante elegível.
 
@@ -191,7 +122,7 @@ O raio final dos balões é uniforme na cascata atual: a regra posterior de `wor
 
 **Conversation.** A lista combina avatar, nome, horário, prévia, quantidade não lida e estado sem resposta. A busca por nome, número ou conteúdo consulta o histórico completo armazenado e acessível ao usuário pela RPC `buscar_conversas_crm`, executada com as permissões do usuário e RLS. Resultados são paginados, com 50 conversas por solicitação no cliente; a pesquisa não se limita à última prévia nem às mensagens já carregadas na tela. O painel de contato é recolhível e apresenta etapa, responsável, e-mail e número de atendimento, com acesso à ficha.
 
-**Message and composer.** Metadados distinguem Enviando, Enviada, Entregue, Lida e Não enviada conforme os dados recebidos. O envio inclui imediatamente um balão local Enviando e reconcilia seu identificador com o retorno do servidor; sua presença não comprova entrega. Falha muda o balão, mostra explicação e permite recuperar o texto quando aplicável. Histórico possui carregamento, estado vazio, tentativa novamente e paginação de 50 mensagens. Rascunhos e identificadores de tentativa ficam em `sessionStorage`, separados por conta, empresa e conversa. No código, Enter envia em ponteiro preciso; Shift+Enter preserva quebra, e ponteiro de toque não envia por Enter.
+**Message and composer.** Metadados ficam dentro do balão, à direita: horário e, nas mensagens enviadas, relógio (Enviando), ✓ (Enviada), ✓✓ cinza (Entregue), ✓✓ azul (Lida) ou o texto "Não enviada" em vermelho. O ícone sempre leva o nome do estado em texto oculto e no título. O envio inclui imediatamente um balão local Enviando e reconcilia seu identificador com o retorno do servidor; sua presença não comprova entrega. Falha muda o balão, mostra explicação e permite recuperar o texto quando aplicável. Histórico possui carregamento, estado vazio, tentativa novamente e paginação de 50 mensagens. Rascunhos e identificadores de tentativa ficam em `sessionStorage`, separados por conta, empresa e conversa. No código, Enter envia em ponteiro preciso; Shift+Enter preserva quebra, e ponteiro de toque não envia por Enter.
 
 A atualização em tempo real substitui a lista e as mensagens, preservando o composer, o foco e controles em edição no DOM. O rodapé é reconstruído quando muda a permissão de resposta ou a janela de atendimento. A posição de leitura é guardada por conversa em memória durante a sessão da página; novas mensagens não deslocam quem está lendo acima e oferecem a ação Novas mensagens. Esse estado em memória não implica restauração da rolagem após recarregar a página.
 

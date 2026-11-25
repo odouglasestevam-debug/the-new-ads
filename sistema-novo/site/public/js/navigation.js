@@ -1,66 +1,31 @@
 /* ---------------- navegação ---------------- */
+/* Trilho de ícones à esquerda (barra de baixo no celular) e barra do topo com a empresa.
+   O meio da barra do topo muda com a tela: em Conversas mostra as abas de etapa. */
 
-/* Menu lateral: fixo (sempre visível) ou recolhido (só os três risquinhos, mais tela para o
-   trabalho). A escolha fica no aparelho, porque depende do tamanho da tela de quem usa. */
-const CHAVE_MENU = "tna_crm_menu";
-let menuFixo = true;
-try { menuFixo = localStorage.getItem(CHAVE_MENU) !== "recolhido"; } catch (err) {}
-
-function aplicarMenu() {
-  const app = document.getElementById("app");
-  app.classList.toggle("menu-recolhido", !menuFixo);
-  if (menuFixo) app.classList.remove("menu-aberto");
-  const recolher = document.getElementById("recolher-menu");
-  if (recolher) {
-    const rotulo = menuFixo ? "Recolher o menu" : "Fixar o menu aberto";
-    recolher.title = rotulo;
-    recolher.setAttribute("aria-label", rotulo);
-    recolher.classList.toggle("virado", !menuFixo);
-  }
-  document.getElementById("abrir-menu")?.setAttribute("aria-expanded", String(app.classList.contains("menu-aberto")));
-}
-
-function fecharMenuFlutuante() {
-  const app = document.getElementById("app");
-  if (!app.classList.contains("menu-aberto")) return;
-  app.classList.remove("menu-aberto");
-  document.getElementById("abrir-menu")?.setAttribute("aria-expanded", "false");
-}
-
-document.getElementById("recolher-menu")?.addEventListener("click", () => {
-  menuFixo = !menuFixo;
-  try { localStorage.setItem(CHAVE_MENU, menuFixo ? "fixo" : "recolhido"); } catch (err) {}
-  aplicarMenu();
-  if (!menuFixo) document.getElementById("abrir-menu")?.focus();
-});
-
-document.getElementById("abrir-menu")?.addEventListener("click", () => {
-  const app = document.getElementById("app");
-  const abrindo = !app.classList.contains("menu-aberto");
-  app.classList.toggle("menu-aberto", abrindo);
-  document.getElementById("abrir-menu").setAttribute("aria-expanded", String(abrindo));
-  if (abrindo) document.querySelector("#nav button")?.focus();
-});
-
-// clicar fora ou apertar Esc fecha o menu flutuante
-document.addEventListener("click", (e) => {
-  const app = document.getElementById("app");
-  if (!app.classList.contains("menu-aberto")) return;
-  if (e.target.closest("aside") || e.target.closest("#abrir-menu")) return;
-  fecharMenuFlutuante();
-});
-document.addEventListener("keydown", (e) => { if (e.key === "Escape") fecharMenuFlutuante(); });
-aplicarMenu();
+// o menu recolhível saiu em 24/11/2026; limpa a preferência que ficou guardada no aparelho
+try { localStorage.removeItem("tna_crm_menu"); } catch (err) {}
 
 document.querySelectorAll("#nav button").forEach((b) => {
   b.addEventListener("click", () => {
     if (formEditando && !confirm("Sair do editor sem salvar as mudanças?")) return;
     formEditando = null;
     vistaAtual = b.dataset.vista;
-    fecharMenuFlutuante();
     render();
   });
 });
+
+// Meio da barra do topo. Redesenha só quando o conteúdo muda, para não tirar o foco de quem usa o teclado.
+function atualizarBarraTopo() {
+  const meio = document.getElementById("barra-app-meio");
+  if (!meio) return;
+  const html = vistaAtual === "conversas" ? abasEtapaConversas() : "";
+  if (meio.dataset.html === html) return;
+  const foco = document.activeElement?.closest?.("[data-etapa-conv]")?.dataset.etapaConv;
+  meio.dataset.html = html;
+  meio.innerHTML = html;
+  ligarAbasEtapa();
+  if (foco !== undefined) meio.querySelector(`[data-etapa-conv="${foco}"]`)?.focus({ preventScroll: true });
+}
 
 function seletorMovel() {
   if (empresas.length < 2) return "";
@@ -77,9 +42,14 @@ function render() {
   const alvo = document.getElementById("conteudo");
   alvo.classList.toggle("vista-inbox", vistaAtual === "conversas");
   alvo.dataset.tela=vistaAtual;
+  const app = document.getElementById("app");
+  app.dataset.vista = vistaAtual;
+  app.classList.toggle("chat-aberto", vistaAtual === "conversas" && !!conversaAberta);
+  atualizarBarraTopo();
   let html = "";
   if (vistaAtual === "leads") html = vistaLeads();
   if (vistaAtual === "kanban") html = vistaKanban();
+  if (vistaAtual === "agenda") html = vistaAgenda();
   if (vistaAtual === "config") html = vistaConfig();
   if (vistaAtual === "conversas") html = vistaConversas();
   alvo.innerHTML = seletorMovel() + html;

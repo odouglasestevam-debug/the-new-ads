@@ -341,6 +341,19 @@ try {
   await page.getByRole('button',{name:'Fechar',exact:true}).click();
   await page.getByRole('button',{name:'+ Tarefa',exact:true}).click();
   await page.locator('#add-titulo').fill('Tarefa única de teste');
+  // Sem data ou sem responsável o Salvar não grava: a tarefa nova nasce com prazo e dono.
+  const insertsAntes=await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length);
+  await page.evaluate(()=>{S.add.responsaveis=['u1'];S.add.data_entrega=null;renderResultadoAtual();});
+  assert.ok(await page.locator('#add-data.precisa').count(),'sem data o botão de data fica marcado');
+  await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
+  assert.match(await page.locator('#toast').innerText(),/data de entrega/);
+  await page.evaluate(()=>{fecharMenu();S.add.data_entrega=hojeSP();S.add.responsaveis=[];renderResultadoAtual();});
+  assert.ok(await page.locator('#add-resp.precisa').count(),'sem responsável o botão fica marcado');
+  await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
+  assert.match(await page.locator('#toast').innerText(),/responsável/);
+  assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length),insertsAntes,'nada gravado sem data/responsável');
+  await page.evaluate(()=>{fecharMenu();document.getElementById('toast').className='toast';S.add.responsaveis=['u1'];renderResultadoAtual();});
+  assert.equal(await page.locator('#add-data.precisa, #add-resp.precisa').count(),0);
   await page.evaluate(()=>{const f=document.getElementById('form-add');salvarAdicionar({preventDefault(){},target:f});salvarAdicionar({preventDefault(){},target:f});});
   await page.waitForFunction(()=>!criandoTarefa);
   assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').length),1);
@@ -348,7 +361,7 @@ try {
   // Falha parcial de responsáveis abre a tarefa já criada em vez de perder o erro.
   await page.getByRole('button',{name:'+ Tarefa',exact:true}).click();
   await page.locator('#add-titulo').fill('Responsável com falha simulada');
-  await page.evaluate(()=>{S.add.responsaveis=['u2'];fixture.failResponsaveis=true;});
+  await page.evaluate(()=>{S.add.responsaveis=['u2'];S.add.data_entrega=hojeSP();fixture.failResponsaveis=true;});
   await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
   await page.waitForFunction(()=>!criandoTarefa);
   assert.match(await page.locator('#toast').innerText(),/responsáveis não foram salvos/);
@@ -578,6 +591,7 @@ try {
   await page.locator('.linha-add',{hasText:'Adicionar tarefa'}).first().click();
   assert.equal(await page.evaluate(()=>S.add.lista_id),'l7','dentro da lista o destino é ela mesma');
   await page.locator('#add-titulo').fill('Tarefa criada dentro da lista');
+  await page.evaluate(()=>{S.add.data_entrega=hojeSP();S.add.responsaveis=['u1'];});
   await page.locator('#form-add').getByRole('button',{name:'Salvar',exact:true}).click();
   await page.waitForFunction(()=>!criandoTarefa);
   assert.equal(await page.evaluate(()=>fixture.writes.filter(x=>x.table==='tarefas_tarefas'&&x.action==='insert').at(-1).payload.lista_id),'l7');

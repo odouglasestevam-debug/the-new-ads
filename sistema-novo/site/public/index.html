@@ -5,23 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>CRM | The New Ads</title>
 <meta name="robots" content="noindex, nofollow">
-<meta name="theme-color" content="#0A0A0A">
+<meta name="theme-color" content="#ffffff">
 <link rel="icon" type="image/svg+xml" href="/icone.svg">
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icones/icone-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="CRM">
-<link rel="stylesheet" href="/fonts/fonts.css">
-<link rel="stylesheet" href="/app.css">
-<link rel="stylesheet" href="/workspace.css">
+<link rel="stylesheet" href="/crm.css">
 </head>
 <body>
-<!-- THESIS: Atendimento diário com leitura rápida e controles consistentes.
-OWN-WORLD: Grafite, Switzer, âmbar na navegação e verde no chat; extensão da identidade existente.
-STORY: Encontrar o lead, entender etapa e responsável, abrir a conversa e responder.
-FIRST VIEWPORT: Navegação lateral, título e ação principal, busca e filtros, conteúdo de trabalho.
-FORM: Refinamento operacional das telas existentes; referência WhatsApp já definida pelo usuário.
-FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md -->
+<!-- Tema claro no estilo do WhatsApp Web (pedido do Douglas em 24/11/2026): trilho escuro de ícones,
+barra do topo com empresa e abas de etapa, lista e chat como no WhatsApp. Estilos em crm.css. -->
 <a class="pular-conteudo" href="#conteudo">Ir para o conteúdo</a>
 
 <svg width="0" height="0" style="position:absolute"><defs>
@@ -77,46 +71,54 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 
 <!-- ============ APP ============ -->
 <div class="app" id="app">
-  <button class="abrir-menu" id="abrir-menu" type="button" aria-label="Abrir menu" aria-expanded="false" aria-controls="nav">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
-  </button>
+  <!-- trilho de ícones: lateral escura no computador, barra de baixo no celular -->
   <aside>
-    <div class="topo-lateral">
-      <div class="marca"><svg viewBox="0 0 100 100"><use href="#tna-sym"/></svg><span>CRM</span></div>
-      <button class="alternar-menu" id="recolher-menu" type="button" aria-label="Recolher o menu" title="Recolher o menu">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m14 6-6 6 6 6"/></svg>
-      </button>
-    </div>
-    <div class="seletor-empresa">
-      <select id="empresa-sel" aria-label="Empresa"></select>
-      <div class="papel-atual" id="papel-atual"></div>
-    </div>
-    <nav id="nav">
-      <button data-vista="kanban">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg>
-        <span>Kanban</span>
-      </button>
-      <button data-vista="conversas">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>
+    <div class="marca" title="CRM The New Ads"><svg viewBox="0 0 100 100" aria-hidden="true"><use href="#tna-sym"/></svg><span class="sr-only">CRM The New Ads</span></div>
+    <nav id="nav" aria-label="Menu principal">
+      <button data-vista="conversas" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z"/></svg>
         <span>Conversas</span><span class="contador" id="cont-conversas"></span>
       </button>
-      <button data-vista="leads">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 6h16M4 12h16M4 18h10"/></svg>
+      <button data-vista="kanban" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="11" rx="1"/><rect x="17" y="4" width="4" height="7" rx="1"/></svg>
+        <span>Kanban</span>
+      </button>
+      <button data-vista="agenda" type="button" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="5" width="17" height="15.5" rx="2.2"/><path d="M3.5 10h17M8 3v4M16 3v4M8 14h3"/></svg>
+        <span>Agenda</span><span class="contador" id="cont-agenda"></span>
+      </button>
+      <button data-vista="leads" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20a6.5 6.5 0 0 1 13 0M16 4.6a3.5 3.5 0 0 1 0 6.8M18 14.2a6.5 6.5 0 0 1 3.5 5.8"/></svg>
         <span>Leads</span><span class="contador" id="cont-leads"></span>
       </button>
-      <button data-vista="config">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9L17 7M7 17l-2.1 2.1"/></svg>
+      <button data-vista="config" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg>
         <span>Ajustes</span>
       </button>
     </nav>
     <div class="rodape">
-      <button class="mini presenca-lateral" id="presenca-lateral" data-alternar-presenca hidden disabled>Ocupado · Ficar online</button>
-      <div class="usuario" id="usuario-email"></div>
-      <button class="sair" id="btn-sair">Sair</button>
+      <span class="avatar-usuario" id="usuario-avatar" aria-hidden="true"></span>
+      <span class="sr-only" id="usuario-email"></span>
+      <button class="sair" id="btn-sair" type="button">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3M10 16l-4-4 4-4M6 12h10"/></svg>
+        <span>Sair</span>
+      </button>
     </div>
   </aside>
 
-  <main id="conteudo" tabindex="-1"></main>
+  <div class="area">
+    <header class="barra-app" id="barra-app">
+      <div class="seletor-empresa">
+        <select id="empresa-sel" aria-label="Empresa"></select>
+        <span class="papel-atual" id="papel-atual"></span>
+      </div>
+      <div class="barra-app-meio" id="barra-app-meio"></div>
+      <div class="barra-app-fim">
+        <button class="presenca-lateral" id="presenca-lateral" type="button" data-alternar-presenca hidden disabled>Ocupado · Ficar online</button>
+      </div>
+    </header>
+    <main id="conteudo" tabindex="-1"></main>
+  </div>
 </div>
 
 <script src="/vendor/supabase.js"></script>
@@ -135,6 +137,7 @@ FINISH: unreviewed and undocumented is unfinished; this build ends with the fini
 <script defer src="/js/events.js"></script>
 <script defer src="/js/lead-editor.js"></script>
 <script defer src="/js/lead-detail.js"></script>
+<script defer src="/js/agenda.js"></script>
 <script defer src="/js/atendimento.js"></script>
 <script defer src="/js/push.js"></script>
 <script defer src="/js/boot.js"></script>

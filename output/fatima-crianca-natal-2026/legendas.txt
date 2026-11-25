@@ -1,0 +1,22 @@
+FÁTIMA CRIANÇA — NATAL 2026
+
+01 — PRESENTE DE NATAL
+Texto principal: O Natal está chegando! Surpreenda filhos e netos com brinquedos da Fátima Criança. Clique no botão abaixo e fale com nossos atendentes para escolher o presente.
+Título do anúncio: Brinquedos para presentear no Natal
+
+02 — COMPRA ANTECIPADA
+Texto principal: Já pensou nos brinquedos de Natal? Escolha os presentes das crianças com antecedência e evite a correria da última hora. Clique no botão abaixo e fale com nossos atendentes.
+Título do anúncio: Antecipe os presentes de Natal
+
+03 — ESTOQUE LIMITADO
+Texto principal: O presente de Natal começa com uma boa escolha! Os brinquedos têm estoque limitado. Fale com nossos atendentes para consultar os modelos disponíveis e escolher com antecedência. Clique no botão abaixo.
+Título do anúncio: Escolha enquanto há disponibilidade
+
+04 — AMPLA VARIEDADE
+Texto principal: Bonecas, carrinhos, personagens e brinquedos de montar: na Fátima Criança, você encontra uma ampla variedade para presentear filhos e netos neste Natal. Clique no botão abaixo e fale com nossos atendentes.
+Título do anúncio: Muitas opções para surpreender
+
+PRODUÇÃO
+Artes criadas com a ferramenta integrada image_gen, usando as fotos fornecidas e a identidade visual existente do cliente.
+Prompts completos e referências de cada arte: prompts.json.
+Arquivos PNG verticais: 01, 02 e 03 com 1122 x 1402 pixels; 04 com 1092 x 1440 pixels. São as dimensões nativas da geração; não são arquivos padronizados em 1080 x 1350.

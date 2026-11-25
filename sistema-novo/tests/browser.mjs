@@ -54,15 +54,23 @@ try{
      if(args.p_disponivel!==null)fixture.available=args.p_disponivel;
      return{data:{online:true,disponivel:!!fixture.available,participa:true,modo:fixture.distribution?.modo||'manual',distribuidos:0}};
    }
+   if(name==='crm_agendar_mensagem'){const c=fixture.tables.conversas.find(x=>x.id===args.p_conversa);const agora=new Date().toISOString();const row={id:crypto.randomUUID(),empresa_id:c.empresa_id,conversa_id:c.id,lead_id:c.lead_id,autor_id:fixture.session.user.id,texto:args.p_texto.trim(),enviar_em:args.p_enviar_em,cancelar_se_responder:args.p_cancelar_se_responder,status:'agendada',erro:null,tentativas:0,criado_em:agora,atualizado_em:agora};(fixture.tables.mensagens_agendadas||=[]).push(row);return{data:structuredClone(row),error:null};}
+   if(name==='crm_reagendar_mensagem'){const row=fixture.tables.mensagens_agendadas.find(x=>x.id===args.p_id);Object.assign(row,{texto:args.p_texto,enviar_em:args.p_enviar_em,cancelar_se_responder:args.p_cancelar_se_responder});return{data:structuredClone(row),error:null};}
+   if(name==='crm_cancelar_mensagem_agendada'){const row=fixture.tables.mensagens_agendadas.find(x=>x.id===args.p_id);row.status='cancelada';return{data:true,error:null};}
+   if(name==='crm_criar_lembrete'){const l=fixture.tables.leads.find(x=>x.id===args.p_lead);const row={id:crypto.randomUUID(),empresa_id:l.empresa_id,lead_id:l.id,user_id:args.p_para||fixture.session.user.id,criado_por:fixture.session.user.id,quando:args.p_quando,nota:args.p_nota,status:'pendente',criado_em:new Date().toISOString()};(fixture.tables.lembretes||=[]).push(row);return{data:structuredClone(row),error:null};}
+   if(name==='crm_atualizar_lembrete'){const row=fixture.tables.lembretes.find(x=>x.id===args.p_id);if(args.p_acao==='concluir')row.status='concluido';else if(args.p_acao==='cancelar')row.status='cancelado';else Object.assign(row,{quando:args.p_quando,nota:args.p_nota,status:'pendente'});return{data:structuredClone(row),error:null};}
    if(name==='buscar_conversas_crm'){
      const all=(fixture.tables.conversas||[]).filter(c=>c.empresa_id===args.p_empresa);
-     const rows=all.filter(c=>{const l=fixture.tables.leads.find(l=>l.id===c.lead_id);if(args.p_estado==='minhas'&&l.responsavel_id!=='u1')return false;if(args.p_estado==='nao_lidas'&&!c.nao_lidas)return false;if(args.p_responsavel&&l.responsavel_id!==args.p_responsavel)return false;if(args.p_canal&&c.canal!==args.p_canal)return false;return !args.p_busca||[l.nome,l.telefone,...fixture.tables.mensagens.filter(m=>m.conversa_id===c.id).map(m=>m.texto)].join(' ').toLowerCase().includes(args.p_busca.toLowerCase());});
-     return{data:{items:structuredClone(rows.slice(args.p_offset,args.p_offset+args.p_limite).map(c=>({...c,lead:fixture.tables.leads.find(l=>l.id===c.lead_id)}))),total:rows.length,nao_lidas:all.reduce((sum,c)=>sum+c.nao_lidas,0)},error:null};
+     if(args.p_etapa&&!fixture.etapas)return{data:null,error:{message:'function buscar_conversas_crm(p_etapa) does not exist'}};
+     const semEtapa=all.filter(c=>{const l=fixture.tables.leads.find(l=>l.id===c.lead_id);if(args.p_estado==='minhas'&&l.responsavel_id!=='u1')return false;if(args.p_estado==='nao_lidas'&&!c.nao_lidas)return false;if(args.p_responsavel&&l.responsavel_id!==args.p_responsavel)return false;if(args.p_canal&&c.canal!==args.p_canal)return false;return !args.p_busca||[l.nome,l.telefone,...fixture.tables.mensagens.filter(m=>m.conversa_id===c.id).map(m=>m.texto)].join(' ').toLowerCase().includes(args.p_busca.toLowerCase());});
+     const leadDe=c=>fixture.tables.leads.find(l=>l.id===c.lead_id);const rows=semEtapa.filter(c=>!args.p_etapa||leadDe(c).etapa===args.p_etapa);
+     const extra=fixture.etapas?{por_etapa:semEtapa.reduce((m,c)=>(m[leadDe(c).etapa]=(m[leadDe(c).etapa]||0)+1,m),{}),total_etapas:semEtapa.length}:{};
+     return{data:{items:structuredClone(rows.slice(args.p_offset,args.p_offset+args.p_limite).map(c=>({...c,lead:leadDe(c)}))),total:rows.length,nao_lidas:all.reduce((sum,c)=>sum+c.nao_lidas,0),...extra},error:null};
    }
    return{data:name==='membros_da_empresa'?fixture.team:name==='canais_whatsapp'?fixture.channels:null,error:null};
  },
  from:table=>{let filters=[],orders=[],limit=1000,one=false,patch=null;
- const q={select:()=>q,update:p=>{patch=p;return q},eq:(k,v)=>{filters.push(r=>r[k]===v);return q},order:(k,o)=>{orders.push([k,o]);return q},limit:n=>{limit=n;return q},or:s=>{const t=s.match(/criado_em.lt.([^,]+)/)[1];filters.push(r=>r.criado_em<t);return q},maybeSingle:()=>{one=true;return q},single:()=>{one=true;return q},then:(ok,no)=>Promise.resolve().then(()=>{fixture.requests.push({table});let rows=(fixture.tables[table]||[]).filter(r=>filters.every(f=>f(r)));if(patch)for(const r of rows)Object.assign(r,patch);for(const[k,o]of orders.reverse())rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o?.ascending===false?-1:1));rows=rows.slice(0,limit);return {data:one?rows[0]||null:structuredClone(rows),error:null}}).then(ok,no)};return q}
+ const q={select:()=>q,update:p=>{patch=p;return q},eq:(k,v)=>{filters.push(r=>r[k]===v);return q},order:(k,o)=>{orders.push([k,o]);return q},limit:n=>{limit=n;return q},in:(k,v)=>{filters.push(r=>v.includes(r[k]));return q},gte:(k,v)=>{filters.push(r=>String(r[k])>=v);return q},or:s=>{const t=s.match(/criado_em.lt.([^,]+)/)[1];filters.push(r=>r.criado_em<t);return q},maybeSingle:()=>{one=true;return q},single:()=>{one=true;return q},then:(ok,no)=>Promise.resolve().then(()=>{fixture.requests.push({table});if(fixture.semAgenda&&['lembretes','mensagens_agendadas'].includes(table))return{data:null,error:{code:'PGRST205',message:'Could not find the table'}};let rows=(fixture.tables[table]||[]).filter(r=>filters.every(f=>f(r)));if(patch)for(const r of rows)Object.assign(r,patch);for(const[k,o]of orders.reverse())rows.sort((a,b)=>String(a[k]).localeCompare(String(b[k]))*(o?.ascending===false?-1:1));rows=rows.slice(0,limit);return {data:one?rows[0]||null:structuredClone(rows),error:null}}).then(ok,no)};return q}
  })};` }));
  await page.goto(`http://127.0.0.1:${server.address().port}`);
  await page.waitForFunction(()=>typeof iniciar==='function');
@@ -213,6 +221,24 @@ try{
  assert.equal(await page.locator('[data-abrir-conversa]').count(),1);
  await page.getByLabel('Buscar conversas').fill('');
  await page.waitForFunction(()=>chaveListaConv===chaveFiltroConv()&&!carregandoListaConv);
+ // abas de etapa: escondidas enquanto o banco não tem a migration 0031, visíveis e filtrando depois dela
+ assert.equal(await page.locator('.aba-etapa').count(),0,'sem a migration 0031 as abas de etapa não aparecem');
+ await page.evaluate(async()=>{fixture.etapas=true;await buscarListaConversas();});
+ assert.equal(await page.locator('.aba-etapa').count(),7);
+ await page.getByRole('button',{name:'Proposta enviada 1',exact:true}).click();
+ await page.waitForFunction(()=>chaveListaConv===chaveFiltroConv()&&!carregandoListaConv);
+ assert.deepEqual(await page.locator('[data-abrir-conversa]').evaluateAll(els=>els.map(e=>e.dataset.abrirConversa)),['c1'],'aba filtra pela etapa do lead');
+ assert.equal(await page.getByRole('button',{name:'Proposta enviada 1',exact:true}).getAttribute('aria-pressed'),'true');
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/conversas-etapa-desktop.png'});
+ await page.getByRole('button',{name:'Todas as etapas 2',exact:true}).click();
+ await page.waitForFunction(()=>chaveListaConv===chaveFiltroConv()&&!carregandoListaConv);
+ assert.equal(await page.locator('[data-abrir-conversa]').count(),2);
+ // mudar a etapa pelo cabeçalho do chat grava no lead e atualiza a contagem das abas
+ await page.getByLabel('Etapa de Ana Oliveira',{exact:true}).selectOption('cliente');
+ await page.getByRole('button',{name:'Cliente 1',exact:true}).waitFor();
+ assert.equal(await page.evaluate(()=>fixture.tables.leads.find(l=>l.id==='l1').etapa),'cliente');
+ await page.getByLabel('Etapa de Ana Oliveira',{exact:true}).selectOption('proposta');
+ await page.getByRole('button',{name:'Proposta enviada 1',exact:true}).waitFor();
  await page.getByRole('button',{name:'Fechar detalhes'}).click();
  await page.getByRole('button',{name:'Modelos aprovados',exact:true}).click();
  await page.getByLabel('Mensagem · 1',{exact:true}).fill('Ana');
@@ -249,9 +275,12 @@ try{
  assert(composer.y+composer.height<nav.y,'Composer precisa ficar visível acima da navegação');
  await page.locator('#voltar-lista').click();
  assert(await page.locator('[data-abrir-conversa="c1"]').isVisible());
+ assert(await page.locator('.aba-etapa').first().isVisible(),'no celular as abas de etapa ficam no topo da lista');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true,'abas de etapa rolam dentro da faixa, sem empurrar a página');
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/conversas-lista-mobile.png'});
  await page.evaluate(()=>{papel='leitura';conversaAberta='c1';render()});
  assert.equal(await page.getByLabel('Mensagem',{exact:true}).count(),0);
- await page.evaluate(()=>{papel='agencia';vistaAtual='formularios';formEditando={nome:'Fixture',ativo:true,config:configPadrao()};render()});
+ await page.evaluate(()=>{papel='agencia';vistaAtual='config';abaAjustes='formularios';formEditando={nome:'Fixture',ativo:true,config:configPadrao()};render()});
  await page.waitForTimeout(250);
  assert.equal(await page.frameLocator('#previa-form').getByText('Fale com a nossa equipe',{exact:true}).count(),1);
  const stress=await page.evaluate(async()=>{
@@ -317,11 +346,11 @@ try{
  await page.getByRole('button',{name:'Disponibilidade',exact:true}).click();
  const presenceButton=page.locator('main [data-alternar-presenca]');
  await presenceButton.click();
- await page.getByText('Você está disponível para receber novos leads.',{exact:true}).waitFor();
+ await page.getByText('Você está online e tem preferência para receber novos leads.',{exact:true}).waitFor();
  await page.screenshot({animations:'disabled',path:'tests/artifacts/disponibilidade-mobile.png',fullPage:true});
  assert.equal(await page.evaluate(()=>fixture.available),true);
  await presenceButton.click();
- await page.getByText('Você está pausado para novas entregas por menor demanda.',{exact:true}).waitFor();
+ await page.getByText('Você está ocupado: recebe só quando for a sua vez e ninguém estiver online.',{exact:true}).waitFor();
  await page.evaluate(async()=>{fixture.presenceError=true;await pulsarPresenca()});
  await page.getByRole('button',{name:'Reconectar disponibilidade',exact:true}).last().waitFor();
  await page.evaluate(()=>{fixture.presenceError=false});await presenceButton.click();
@@ -352,6 +381,186 @@ try{
  assert.equal(await page.locator('.pular-conteudo').evaluate(el=>getComputedStyle(el).clipPath),'none');
  await page.getByRole('button',{name:'Atualizar situação',exact:true}).focus();
  assert.notEqual(await page.locator('.pular-conteudo').evaluate(el=>getComputedStyle(el).clipPath),'none');
+ // ---------- agenda: mensagem agendada e lembrete (24/11/2026) ----------
+ await page.setViewportSize({width:1440,height:960});
+ // banco sem a migration 0033: nada da agenda aparece, nem o menu
+ await page.evaluate(async()=>{fixture.semAgenda=true;await carregarAgenda();vistaAtual='conversas';filtroConv.etapa='';render();await abrirConversa('c1')});
+ assert.equal(await page.locator('#nav [data-vista="agenda"]').isVisible(),false,'sem a 0033 o menu Agenda fica escondido');
+ assert.equal(await page.locator('[data-agendar]').count(),0);assert.equal(await page.locator('#novo-lembrete').count(),0);
+ await page.evaluate(async()=>{fixture.semAgenda=false;await carregarAgenda();render();});
+ assert.equal(await page.locator('#nav [data-vista="agenda"]').isVisible(),true);
+ // agendar pelo relógio do campo de mensagem leva o texto já digitado
+ await page.getByLabel('Mensagem',{exact:true}).fill('Bom dia, Ana! Separei a proposta.');
+ await page.getByRole('button',{name:'Agendar envio',exact:true}).click();
+ const dialogoAgenda=page.getByRole('dialog');
+ await dialogoAgenda.getByRole('heading',{name:'Agendar mensagem'}).waitFor();
+ assert.equal(await dialogoAgenda.getByLabel('Mensagem',{exact:true}).inputValue(),'Bom dia, Ana! Separei a proposta.');
+ // depois de 24h da última mensagem do lead a Meta recusa texto livre: o formulário avisa e oferece lembrete
+ await dialogoAgenda.getByLabel('Dia').fill(await page.evaluate(()=>dataInput(emDias(3,9))));
+ await dialogoAgenda.getByText(/A janela de 24 horas desta conversa fecha/).waitFor();
+ await dialogoAgenda.getByRole('button',{name:'Daqui a 1 hora'}).click();
+ assert.equal(await dialogoAgenda.locator('#ag-janela').isHidden(),true,'dentro da janela não avisa');
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/agendar-mensagem-desktop.png'});
+ await dialogoAgenda.getByRole('button',{name:'Agendar',exact:true}).click();
+ await page.getByText(/^Mensagem agendada para (hoje|amanhã) às/).waitFor();
+ assert.equal(await page.getByLabel('Mensagem',{exact:true}).inputValue(),'','campo limpo depois de agendar');
+ const balaoAgendado=page.locator('.bolha.agendada');
+ await balaoAgendado.waitFor();
+ assert.match(await balaoAgendado.textContent(),/Sai (hoje|amanhã) às/);
+ assert.equal(await page.evaluate(()=>fixture.tables.mensagens_agendadas.length),1);
+ // editar troca o texto; cancelar tira do chat
+ await balaoAgendado.getByRole('button',{name:'Editar'}).click();
+ await page.getByRole('dialog').getByRole('heading',{name:'Editar mensagem agendada'}).waitFor();
+ await page.getByRole('dialog').getByLabel('Mensagem',{exact:true}).fill('Bom dia! Segue a proposta.');
+ await page.getByRole('dialog').getByRole('button',{name:'Salvar'}).click();
+ await page.locator('.bolha.agendada',{hasText:'Bom dia! Segue a proposta.'}).waitFor();
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/mensagem-agendada-chat.png'});
+ page.once('dialog',d=>d.accept());
+ await page.locator('.bolha.agendada').getByRole('button',{name:'Cancelar envio'}).click();
+ await page.locator('.bolha.agendada').waitFor({state:'detached'});
+ assert.equal(await page.evaluate(()=>fixture.tables.mensagens_agendadas[0].status),'cancelada');
+ // mensagem que saiu pela agenda leva o relógio no balão
+ await page.evaluate(async()=>{fixture.tables.mensagens.push({id:'enviada-pela-agenda',empresa_id:'e1',conversa_id:'c1',direcao:'saida',tipo:'texto',texto:'Saiu no horário marcado',status:'entregue',autor_id:'u1',midia:{agendada:true},criado_em:new Date().toISOString()});await carregarMensagens('c1');render();});
+ assert.equal(await page.locator('[data-mensagem="enviada-pela-agenda"] .marca-agendada').count(),1);
+ // lembrete pelo sino do topo da conversa
+ await page.getByRole('button',{name:'Criar lembrete',exact:true}).click();
+ const dialogoLembrete=page.getByRole('dialog');
+ await dialogoLembrete.getByRole('heading',{name:'Novo lembrete'}).waitFor();
+ await dialogoLembrete.getByLabel('O que fazer').fill('Ligar para apresentar a proposta');
+ await dialogoLembrete.getByRole('button',{name:'Amanhã às 09:00'}).click();
+ assert.match(await dialogoLembrete.locator('#lb-resumo').textContent(),/amanhã às 09:00/);
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/lembrete-desktop.png'});
+ await dialogoLembrete.getByRole('button',{name:'Criar lembrete'}).click();
+ await page.getByText(/^Lembrete marcado para amanhã às 09:00/).waitFor();
+ assert.equal(await page.evaluate(()=>fixture.tables.lembretes[0].nota),'Ligar para apresentar a proposta');
+ assert.equal(await page.locator('#novo-lembrete.com-lembrete').count(),1,'sino marca o lead que tem lembrete');
+ // lembrete vencido: aparece na lista de conversas e no contador do menu
+ await page.evaluate(async()=>{fixture.tables.lembretes.push({id:'lb-vencido',empresa_id:'e1',lead_id:'l1',user_id:'u1',criado_por:'u1',quando:new Date(Date.now()-3600e3).toISOString(),nota:'Retomar orçamento',status:'avisado',criado_em:new Date().toISOString()});await carregarAgenda();conversaAberta=null;render();});
+ assert.match(await page.locator('[data-abrir-conversa="c1"] .pino.lembrete').textContent(),/retomar agora/);
+ assert.equal(await page.locator('#cont-agenda').textContent(),'1');
+ // tela Agenda: passou do horário primeiro, depois os próximos dias
+ await page.locator('#nav [data-vista="agenda"]').click();
+ await page.getByRole('heading',{name:/Passou do horário/}).waitFor();
+ await page.getByRole('heading',{name:/^Amanhã/}).waitFor();
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/agenda-desktop.png'});
+ await page.locator('.item-agenda',{hasText:'Retomar orçamento'}).getByRole('button',{name:'Concluir'}).click();
+ await page.getByText('Lembrete concluído.').waitFor();
+ assert.equal(await page.evaluate(()=>fixture.tables.lembretes.find(x=>x.id==='lb-vencido').status),'concluido');
+ assert.equal(await page.locator('.item-agenda',{hasText:'Retomar orçamento'}).count(),0);
+ await page.locator('.item-agenda',{hasText:'Ligar para apresentar a proposta'}).getByRole('button',{name:'Adiar'}).click();
+ await page.getByRole('dialog').getByRole('heading',{name:'Adiar lembrete'}).waitFor();
+ await page.getByRole('dialog').getByRole('button',{name:'Daqui a 1 hora'}).click();
+ await page.getByRole('dialog').getByRole('button',{name:'Salvar'}).click();
+ await page.getByText(/^Lembrete marcado para/).waitFor();
+ assert.notEqual(await page.evaluate(()=>fixture.tables.lembretes[0].quando),await page.evaluate(()=>emDias(1,9).toISOString()),'adiar grava o horário novo');
+ // dono vê a agenda da equipe; a dele mostra só os próprios
+ await page.evaluate(async()=>{fixture.tables.lembretes.push({id:'lb-rafael',empresa_id:'e1',lead_id:'l2',user_id:'u2',criado_por:'u1',quando:new Date(Date.now()+2*86400e3).toISOString(),nota:'Mandar catálogo',status:'pendente',criado_em:new Date().toISOString()});await carregarAgenda();render();});
+ assert.equal(await page.locator('.item-agenda',{hasText:'Mandar catálogo'}).count(),0,'minha agenda mostra só os meus');
+ await page.getByRole('button',{name:'Equipe',exact:true}).click();
+ await page.locator('.item-agenda',{hasText:'Mandar catálogo'}).waitFor();
+ assert.match(await page.locator('.item-agenda',{hasText:'Mandar catálogo'}).textContent(),/para rafael/);
+ await page.setViewportSize({width:390,height:844});
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/agenda-mobile.png',fullPage:true});
+ await page.setViewportSize({width:1440,height:960});
+ await page.locator('.item-agenda',{hasText:'Mandar catálogo'}).getByRole('button',{name:'Abrir conversa'}).click();
+ assert.deepEqual(await page.evaluate(()=>[vistaAtual,conversaAberta]),['conversas','c2']);
+ // ficha do lead ganha a aba Agenda; o cartão do kanban mostra o próximo lembrete
+ await page.evaluate(()=>{filtroAgenda.escopo='minha';vistaAtual='kanban';conversaAberta=null;render();});
+ assert.equal(await page.locator('.cartao[data-id="l1"] .sinal.lembrete').count(),1);
+ await page.locator('.cartao[data-id="l1"] .nome-lead').click();
+ await page.getByRole('dialog').locator('[data-aba="agenda"]').click();
+ await page.getByRole('dialog').locator('.item-agenda',{hasText:'Ligar para apresentar a proposta'}).waitFor();
+ await page.getByRole('dialog').getByRole('button',{name:'Fechar',exact:true}).click();
+ // ---------- notificação, instalação e telas de todos os tamanhos (24/11/2026) ----------
+ await page.setViewportSize({width:1440,height:960});
+ await page.evaluate(()=>{try{localStorage.removeItem('crm:faixa-app-dispensada')}catch{};pushEstado.suporte=true;pushEstado.permissao='default';pushEstado.inscrito=false;vistaAtual='conversas';conversaAberta=null;filtroConv.etapa='';render()});
+ const faixa=page.getByRole('region',{name:'Receba notificações de mensagens novas'});
+ await faixa.waitFor();
+ await page.evaluate(()=>{
+   Notification.requestPermission=async()=>'granted';
+   PushManager.prototype.subscribe=async()=>({toJSON:()=>({endpoint:'https://fcm.googleapis.com/fcm/send/fixture',keys:{p256dh:'chave',auth:'segredo'}})});
+   const rpc=sb.rpc;sb.rpc=async(nome,args)=>{if(nome==='crm_salvar_push')fixture.push=args;return rpc(nome,args)};
+ });
+ await faixa.getByRole('button',{name:'Ativar notificações'}).click();
+ await page.getByText('Pronto. Este aparelho vai avisar a cada mensagem nova.',{exact:true}).waitFor();
+ assert.equal(await faixa.count(),0,'faixa some com a notificação ligada');
+ assert.equal(await page.evaluate(()=>fixture.push?.p_endpoint),'https://fcm.googleapis.com/fcm/send/fixture','inscrição gravada no banco');
+ // Ajustes: instalação e notificação na mesma aba, primeira de "Sua conta"
+ await page.locator('#nav [data-vista="config"]').click();
+ await page.getByRole('button',{name:'Notificações',exact:true}).click();
+ await page.getByRole('heading',{name:/Instalar no celular/}).waitFor();
+ await page.getByRole('heading',{name:/Notificações\s*ligadas/}).waitFor();
+ assert.equal(await page.locator('.menu-ajustes .aba').first().textContent(),'Notificações');
+ // "Agora não" esconde a faixa neste aparelho, mesmo depois de redesenhar
+ await page.evaluate(()=>{pushEstado.inscrito=false;vistaAtual='conversas';render()});
+ await faixa.getByRole('button',{name:'Agora não'}).click();
+ assert.equal(await faixa.count(),0);
+ await page.evaluate(()=>render());
+ assert.equal(await faixa.count(),0,'continua escondida');
+ await page.evaluate(()=>localStorage.removeItem('crm:faixa-app-dispensada'));
+ await page.setViewportSize({width:390,height:844});
+ await page.evaluate(()=>render());
+ await faixa.waitFor();
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/faixa-notificacoes-mobile.png'});
+ // iPhone fora da tela de início: a faixa ensina a instalar, porque sem isso a Apple não entrega notificação
+ await page.evaluate(()=>{Object.defineProperty(navigator,'userAgent',{value:'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/17.5 Mobile/15E148 Safari/604.1',configurable:true});render()});
+ const faixaIphone=page.getByRole('region',{name:'Receba as mensagens no iPhone'});
+ await faixaIphone.waitFor();
+ await faixaIphone.getByRole('button',{name:'Como instalar'}).click();
+ await page.getByText('Adicionar à Tela de Início',{exact:true}).waitFor();
+ assert.equal(await page.evaluate(()=>abaAjustes),'notificacoes');
+ assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ await page.screenshot({animations:'disabled',path:'tests/artifacts/instalar-iphone-mobile.png',fullPage:true});
+ await page.evaluate(()=>{delete navigator.userAgent;pushEstado.inscrito=true;render()});
+ // o service worker pergunta antes de avisar: conversa aberta na tela não toca, as outras tocam
+ const naTela=lead=>page.evaluate(lead=>new Promise(ok=>{const canal=new MessageChannel();canal.port1.onmessage=e=>ok(e.data);
+   navigator.serviceWorker.dispatchEvent(new MessageEvent('message',{data:{tipo:'conversa-aberta?',lead},ports:[canal.port2]}));}),lead);
+ await page.setViewportSize({width:1440,height:960});
+ await page.evaluate(()=>{vistaAtual='conversas';render();return abrirConversa('c1')});
+ assert.equal(await naTela('l1'),true,'conversa aberta e na tela: sem aviso');
+ assert.equal(await naTela('l2'),false,'mensagem de outra conversa: avisa');
+ await page.evaluate(()=>{vistaAtual='kanban';render()});
+ assert.equal(await naTela('l1'),false,'fora da tela de conversas: avisa');
+ // tocar na notificação abre a conversa, saindo de qualquer tela
+ // a conversa da mensagem que acabou de chegar ainda não está na lista carregada: o CRM busca e abre
+ await page.evaluate(()=>{const lead='0b0f6c1e-0000-4000-8000-000000000001',conversa='0b0f6c1e-0000-4000-8000-000000000002',agora=new Date().toISOString();
+   fixture.tables.leads.push({id:lead,empresa_id:'e1',nome:'Carla Notificação',telefone:'+5511999990077',etapa:'novo',responsavel_id:'u1',criado_em:agora,lead_origens:[]});
+   leads.push(structuredClone(fixture.tables.leads.at(-1)));
+   fixture.tables.conversas.push({id:conversa,empresa_id:'e1',lead_id:lead,canal:'whatsapp_oficial',wa_id:'5511999990077',ultima_mensagem_em:agora,ultima_entrada_em:agora,ultima_previa:'Chegou agora',nao_lidas:1});
+   conversaAberta=null;vistaAtual='kanban';filtroConv.busca='Bruno';render();
+   return abrirLeadDaUrl(location.origin+'/?lead='+lead+'&conversa='+conversa)});
+ assert.deepEqual(await page.evaluate(()=>[vistaAtual,conversaAberta,filtroConv.busca,location.search]),['conversas','0b0f6c1e-0000-4000-8000-000000000002','','']);
+ await page.locator('.chat-cabeca').getByText('Carla Notificação',{exact:true}).waitFor();
+ // responsivo: nenhuma tela rola para o lado, do celular pequeno ao monitor grande,
+ // e o campo de mensagem fica sempre acima da barra de baixo
+ const telas={
+   conversas:()=>{vistaAtual='conversas';conversaAberta=null;render()},
+   chat:()=>{vistaAtual='conversas';render();return abrirConversa('c1')},
+   kanban:()=>{vistaAtual='kanban';conversaAberta=null;render()},
+   leads:()=>{vistaAtual='leads';render()},
+   ajustes:()=>{vistaAtual='config';abaAjustes='notificacoes';render()},
+   agenda:()=>{vistaAtual='agenda';render()},
+ };
+ for(const largura of [320,360,390,414,768,1024,1280,1920]){
+   await page.setViewportSize({width:largura,height:largura<700?740:900});
+   for(const [nome,abrir] of Object.entries(telas)){
+     await page.evaluate(abrir);
+     const sobra=await page.evaluate(()=>Math.max(document.documentElement.scrollWidth,document.body.scrollWidth)-innerWidth);
+     assert.ok(sobra<=0,`${nome} em ${largura}px rola ${sobra}px para o lado`);
+     if(nome==='chat'){
+       const campo=await page.locator('.chat-painel textarea').boundingBox();
+       const limite=await page.evaluate(()=>{const topo=document.querySelector('aside').getBoundingClientRect().top;return topo>0?topo:innerHeight});
+       assert.ok(campo&&campo.y+campo.height<=limite,`campo de mensagem escondido em ${largura}px`);
+     }
+   }
+   if(largura===768){
+     await page.evaluate(telas.conversas);
+     await page.screenshot({animations:'disabled',path:'tests/artifacts/conversas-tablet.png'});
+   }
+ }
+ await page.setViewportSize({width:390,height:844});
  await page.evaluate(async()=>{fixture.mfa={error:{message:'offline'}};let blocked=false;try{await precisaSegundaEtapa()}catch{blocked=true}if(!blocked)throw new Error('MFA falhou aberto')});
  await page.addScriptTag({url:'/f.js'});
  const widget=await page.evaluate(()=>{
@@ -367,5 +576,5 @@ try{
  });
  assert.deepEqual(widget,{injected:0,executed:false,color:'rgb(18, 52, 86)',radius:'12px'});
  assert.deepEqual(errors,[]);
- console.log('OK: paginação, rascunhos, atualização, busca, filtro Minhas, permissões, MFA, desktop e celular.');
+ console.log('OK: paginação, rascunhos, atualização, busca, filtro Minhas, permissões, MFA, notificação, instalação, agenda, desktop, tablet e celular.');
 }finally{await browser.close();server.close();}

@@ -6,13 +6,14 @@ const TIPO_LINK = new URLSearchParams(location.hash.slice(1)).get("type");
 const ERRO_LINK = new URLSearchParams(location.hash.slice(1)).get("error_description");
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+// cores pensadas para o tema claro: viram ponto no quadro e etiqueta tingida nas conversas
 const ETAPAS = [
-  { id: "novo",        nome: "Novo lead",        cor: "#8A8A8A" },
-  { id: "contato",     nome: "Em contato",       cor: "#60A5FA" },
-  { id: "qualificado", nome: "Qualificado",      cor: "#22D3EE" },
-  { id: "proposta",    nome: "Proposta enviada", cor: "#FF6A00" },
-  { id: "cliente",     nome: "Cliente",          cor: "#4ADE80" },
-  { id: "perdido",     nome: "Perdido",          cor: "#F87171" },
+  { id: "novo",        nome: "Novo lead",        cor: "#8696A0" },
+  { id: "contato",     nome: "Em contato",       cor: "#2F7DE1" },
+  { id: "qualificado", nome: "Qualificado",      cor: "#0E9AA7" },
+  { id: "proposta",    nome: "Proposta enviada", cor: "#EA6A0A" },
+  { id: "cliente",     nome: "Cliente",          cor: "#1FA855" },
+  { id: "perdido",     nome: "Perdido",          cor: "#D42A3C" },
 ];
 const NOME_ETAPA = Object.fromEntries(ETAPAS.map((e) => [e.id, e.nome]));
 const NOME_PAPEL = { agencia: "Agência", dono: "Dono", gestor: "Gestor", vendedor: "Vendedor", leitura: "Leitura" };
@@ -43,8 +44,8 @@ let papel = null;        // agencia | dono | gestor | vendedor | leitura
 let equipe = [];
 let leads = [];
 let notas = [];
-let vistaAtual = "kanban";
-let abaAjustes = "seguranca";
+let vistaAtual = "conversas"; // tela principal desde o visual WhatsApp de 24/11/2026
+let abaAjustes = "notificacoes";
 let busca = "";
 let filtroCadastro = "todos";
 let formularios = [];

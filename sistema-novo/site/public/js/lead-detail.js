@@ -90,6 +90,7 @@ function abrirLead(id, abaInicial) {
   const ABAS = [
     ...(conversa ? [{ id: "conversa", nome: "Conversa", conta: () => conversa.nao_lidas || 0 }] : []),
     { id: "anotacoes", nome: "Anotações", conta: () => notas.filter((n) => n.lead_id === l.id).length },
+    ...(agendaDisponivel ? [{ id: "agenda", nome: "Agenda", conta: () => contaAgendaLead(l) }] : []),
     { id: "origem", nome: "Origem", conta: () => (l.lead_origens || []).length },
     { id: "dados", nome: "Dados", conta: () => 0 },
   ];
@@ -115,7 +116,7 @@ function abrirLead(id, abaInicial) {
       marcarVistaComoLida(conversa);
     }
     const corpo = abaAtual === "conversa" ? htmlChat(conversa)
-      : abaAtual === "anotacoes" ? abaAnotacoes() : abaAtual === "origem" ? abaOrigem() : abaDados();
+      : abaAtual === "anotacoes" ? abaAnotacoes() : abaAtual === "agenda" ? abaAgendaLead(l) : abaAtual === "origem" ? abaOrigem() : abaDados();
     div.innerHTML = `
       <div class="gaveta">
         <div class="cabeca">
@@ -141,6 +142,7 @@ function abrirLead(id, abaInicial) {
     div.querySelector(".fechar").addEventListener("click", fechar);
     div.querySelectorAll(".aba").forEach((b) => b.addEventListener("click", () => { abaAtual = b.dataset.aba; desenhar(); }));
     if (abaAtual === "dados") ligarTransferir(div, l, () => desenhar());
+    if (abaAtual === "agenda") ligarAbaAgendaLead(div, l, () => { desenhar(); if (["conversas", "agenda", "kanban"].includes(vistaAtual)) render(); });
     if (abaAtual === "conversa" && conversa) ligarChat(div, conversa, () => { desenhar(); if (vistaAtual === "conversas") render(); });
     div.querySelector('#conversa-canal-lead')?.addEventListener('change', e=>{conversa=conversasLead.find(c=>c.id===e.target.value);desenhar();});
     restaurarEstadoChat(estadoChat);
