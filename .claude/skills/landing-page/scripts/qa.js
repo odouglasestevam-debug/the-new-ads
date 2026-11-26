@@ -28,7 +28,9 @@ const url = /^https?:\/\//.test(arquivo) ? arquivo : require('url').pathToFileUR
 
 (async () => {
   const { chromium } = carregaPlaywright();
-  const browser = await chromium.launch();
+  // quando o Playwright atualiza, o navegador dele some até rodar "npx playwright install";
+  // o Chrome instalado serve (e toca H.264, que o Chromium do Playwright não toca)
+  const browser = await chromium.launch().catch(() => chromium.launch({ channel: 'chrome' }));
   const telas = [['desktop', 1440, 900, false, 1800], ['celular', 390, 844, true, 2200]];
   for (const [nome, w, h, mob, fatia] of telas) {
     const page = await browser.newPage({ viewport: { width: w, height: h }, isMobile: mob, hasTouch: mob });
