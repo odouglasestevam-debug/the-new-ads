@@ -1,7 +1,8 @@
 // Monitor de ofertas da Black Friday 2026 (pedido do Douglas em 23/11/2026).
 //
 // Produtos e regras de preco (decididas por ele):
-//   DualSense ................. avisa abaixo de R$ 330; preco-alvo abaixo de R$ 300
+//   DualSense ................. avisa so abaixo de R$ 300 (todo aviso e preco-alvo)
+//     Alerta forte: ate R$ 260 ("preco dos sonhos"), qualquer versao.
 //   Ar 18.000 BTUs inverter ... avisa ate R$ 2.500; preco-alvo ate R$ 2.374
 //   Ar 24.000 BTUs inverter ... avisa ate R$ 3.000; preco-alvo abaixo de R$ 2.800
 //     Alerta forte: Elgin Eco Inverter III de 24 mil (normal R$ 3.600 a 3.700)
@@ -23,7 +24,8 @@
 //   ?tarefa=saude (pg_cron a cada 10 min): confere se a NeoGo continua mandando
 //     mensagem. Se ela parar, ou se o Pelando falhar 3 vezes seguidas, abre
 //     alerta normal do TNA Alertas (alerta_abrir).
-//   ?tarefa=teste manda um push de oferta de exemplo (&especial=1 pro preco-alvo).
+//   ?tarefa=teste manda um push de oferta de exemplo (&especial=1 pro preco-alvo,
+//     &forte=1 pro Elgin, &forte=1&produto=dualsense pro DualSense de R$ 260).
 //   ?dry=1 calcula sem gravar e sem notificar.
 //
 // Aviso: push no TNA Alertas com tipo "oferta" (o sw.js mostra diferente dos
@@ -67,7 +69,8 @@ interface Regra {
   especial: (p: number) => boolean;
   semTeto?: boolean; // sem preco na mensagem ainda avisa (se tiver link de loja)
   // Modelo que ele quer muito: teto proprio e push repetido (ver REPETE_FORTE_S).
-  forte?: { nome: string; casa: (t: string) => boolean; ate: number; normal: string };
+  // linha: vai no corpo do push, embaixo da loja.
+  forte?: { nome: string; casa: (t: string) => boolean; ate: number; linha: string };
 }
 
 // Elgin Eco Inverter III (as vezes so "Elgin Eco III"); nao pega o Eco II.
@@ -97,7 +100,7 @@ const REGRAS: Record<Produto, Regra> = {
     piso: 2000,
     avisa: (p) => p <= 3000,
     especial: (p) => p < 2800,
-    forte: { nome: "ELGIN ECO III 24 mil", casa: elginEco3, ate: 3300, normal: "R$ 3.600 a R$ 3.700" },
+    forte: { nome: "ELGIN ECO III 24 mil", casa: elginEco3, ate: 3300, linha: "Preço normal: R$ 3.600 a R$ 3.700" },
   },
   depurador: {
     nome: "Depurador 430 m³/h",
@@ -118,8 +121,10 @@ const REGRAS: Record<Produto, Regra> = {
         .test(t),
     palavra: /dual ?sense|controle/,
     piso: 200,
-    avisa: (p) => p < 330,
+    avisa: (p) => p < 300, // 27/11: ele pediu so abaixo de R$ 300 (antes avisava abaixo de 330)
     especial: (p) => p < 300,
+    // 27/11: "preco dos sonhos" e R$ 260, qualquer cor ou versao.
+    forte: { nome: "DUALSENSE PREÇO DOS SONHOS", casa: () => true, ate: 260, linha: "Preço dos sonhos: até R$ 260" },
   },
 };
 
@@ -285,7 +290,7 @@ function payloadOferta(o: Oferta, especial: boolean, id: number | string, forte 
     title: forte && regra.forte
       ? `🚨 ${regra.forte.nome} · ${preco}`
       : `${especial ? "🔥 PREÇO-ALVO" : "🛒 Oferta"} · ${regra.nome} ${preco}`,
-    body: [o.titulo, onde, forte && regra.forte ? `Preço normal: ${regra.forte.normal}` : null].filter(Boolean).join("\n"),
+    body: [o.titulo, onde, forte && regra.forte ? regra.forte.linha : null].filter(Boolean).join("\n"),
     url: o.link ?? `${APP_URL}#ofertas`,
     image: o.imagem ?? null,
     tag: `oferta-${id}`,
@@ -500,7 +505,8 @@ Deno.serve(async (req) => {
     if (tarefa === "teste") {
       const especial = url.searchParams.get("especial") === "1";
       const forte = url.searchParams.get("forte") === "1";
-      const exemplo: Oferta = forte
+      const sonho = url.searchParams.get("produto") === "dualsense";
+      const exemplo: Oferta = forte && !sonho
         ? {
           chave: "teste", fonte: "whatsapp", produto: "ar_24k",
           titulo: "Teste: Ar Condicionado Split Elgin Eco Inverter III Wi-Fi 24.000 BTUs Frio 220V", preco: 3199,
@@ -509,7 +515,7 @@ Deno.serve(async (req) => {
         }
         : {
           chave: "teste", fonte: "pelando", produto: "dualsense", titulo: "Teste: Controle DualSense Branco PS5",
-          preco: 289.9, cupom: "TESTE10", loja: "Magalu", link: "https://www.pelando.com.br/busca/dualsense",
+          preco: sonho ? 259.9 : 289.9, cupom: "TESTE10", loja: "Magalu", link: "https://www.pelando.com.br/busca/dualsense",
           origem: null, texto: null,
         };
       const payload = payloadOferta(exemplo, especial, `teste-${Date.now()}`, forte);

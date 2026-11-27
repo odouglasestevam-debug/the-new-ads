@@ -543,19 +543,24 @@
       return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: n % 1 ? 2 : 0 });
     }
 
-    // Alerta forte da funcao: Elgin Eco Inverter III de 24 mil ate R$ 3.300. O
-    // banco nao guarda a marcacao; o modelo vem no titulo (mesma regra da funcao).
-    function ehElginEco3(o) {
+    // Alertas fortes da funcao: Elgin Eco Inverter III de 24 mil ate R$ 3.300 e
+    // DualSense ate R$ 260. O banco nao guarda a marcacao; sai do titulo e do
+    // preco (mesma regra da funcao). Devolve o texto do selo ou "".
+    function seloForte(o) {
+      if (!o.especial) return "";
       const t = String(o.titulo || "").normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
-      return o.produto === "ar_24k" && o.especial && /\belgin\b/.test(t) && /\beco (inverter )?(iii|3)\b/.test(t);
+      if (o.produto === "ar_24k" && /\belgin\b/.test(t) && /\beco (inverter )?(iii|3)\b/.test(t)) return "ELGIN ECO III";
+      if (o.produto === "dualsense" && o.preco != null && Number(o.preco) <= 260) return "PREÇO DOS SONHOS";
+      return "";
     }
 
     function cardOferta(o) {
       const url = linkSeguro(o.link);
-      const forte = ehElginEco3(o);
+      const textoForte = seloForte(o);
+      const forte = !!textoForte;
       const onde = [o.loja, o.fonte === "pelando" ? "Pelando" : "grupo de WhatsApp", dataHora(o.criado_em)]
         .filter(Boolean).join(" · ");
-      const selo = forte ? '<span class="selo forte">ELGIN ECO III</span>' : o.especial ? '<span class="selo">PREÇO-ALVO</span>' : "";
+      const selo = forte ? `<span class="selo forte">${textoForte}</span>` : o.especial ? '<span class="selo">PREÇO-ALVO</span>' : "";
       return `
         <article class="oferta ${forte ? "forte" : o.especial ? "alvo" : ""}">
           <div class="meta">
