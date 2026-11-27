@@ -15,18 +15,20 @@ Quando uma regra vencer ou for revogada, apagar daqui (o histórico guarda o pas
 
 ## Sazonalidade
 
-- **Black Friday em 27/11/2026.** O custo por mil impressões tende a subir de 30% a 50% até lá.
-  Piora de custo por resultado entre 20/11 e 30/11 não é motivo para cortar campanha sozinha.
-  Antes de culpar o leilão, conferir se o custo por mil realmente subiu: em 19/11 a campanha de
-  vendas do Grupo Confiança piorou com o custo por mil *caindo* (era criativo, não leilão).
-  Vence em 01/12/2026. **Origem:** premissa escrita pelo Claude na montagem da skill (25/11),
-  não é decisão do Douglas (em 27/11 ele não se lembrava dela). Nunca citar como "regra sua".
-
 - **SDF Anália:** a alta do custo por conversa na semana de 18/11 o Douglas atribui à Black
   Friday (área de shopping concorrida). O custo por mil caiu nessa semana; o que piorou foi a
   conversa por clique. Reavaliar depois de 01/12 antes de mexer.
 
+- **Nada de premissa genérica de sazonalidade aqui.** Em 27/11/2026 o Douglas mandou apagar a
+  premissa da Black (escrita pelo Claude, não por ele). Só entra neste arquivo o que ele decidiu.
+
 ## Contexto fixo por conta
+
+- **Vet&Pet (Google):** o telefone do hospital é (48) 99630-0202 (o mesmo do WhatsApp), usado na
+  extensão de chamada desde 27/11.
+- **Entretec (Google):** a Entretec trabalha com backdrop (não negativar). Animador de festa não:
+  "animador" e "animadores" estão na lista de negativas da conta desde 27/11.
+- **Fátima Esportes (Meta):** conta desligada pelo Douglas desde 23/11; segue assim até ele mandar.
 
 - **SDF Tietê (Meta):** regras automáticas pausam o conjunto SHOPPING_8KM na segunda 00h e
   reativam na quinta 00h, e alternam o orçamento do QUARTA_DA_BARRA entre R$ 6 e R$ 16. Queda

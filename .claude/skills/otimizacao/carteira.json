@@ -1,31 +1,93 @@
 {
   "_leia": "Clientes ativos. A coleta só chama a API destas contas. Meta: conferir no início de cada revisão contra clientes_meta_contas (projeto iklynyncffneuvutvgxa, ativo = true); se divergir, perguntar ao Douglas. Cliente que sai é removido daqui no mesmo dia.",
-  "atualizado_em": "2026-11-23",
+  "atualizado_em": "2026-11-27",
   "meta": [
-    {"cliente": "Agari Drinks", "conta": "act_719222232075091"},
-    {"cliente": "Aline Paixão (imoveis-paixao)", "conta": "act_176204195383555"},
-    {"cliente": "Arcan", "conta": "act_1713849396600716"},
-    {"cliente": "Entretec", "conta": "act_305551789201621"},
-    {"cliente": "Fabioli Ferreira", "conta": "act_855411879787654"},
-    {"cliente": "Fátima Criança", "conta": "act_2903943549967107"},
-    {"cliente": "Fátima Esportes", "conta": "act_2083054409305495"},
-    {"cliente": "Fisiolaser", "conta": "act_933729698300974"},
-    {"cliente": "Grupo Confiança", "conta": "act_4003742919872470"},
-    {"cliente": "Regularize", "conta": "act_1078463730829015"},
-    {"cliente": "SDF Anália Franco", "conta": "act_1346449900000818"},
-    {"cliente": "SDF Nações", "conta": "act_1394631512182975"},
-    {"cliente": "SDF Tietê", "conta": "act_724183793482154"},
-    {"cliente": "Suítes Meu Farol", "conta": "act_1554975615824168"},
-    {"cliente": "The New Ads (funil próprio)", "conta": "act_1294794972320882"},
-    {"cliente": "Vet&Pet", "conta": "act_869905500723511"}
+    {
+      "cliente": "Agari Drinks",
+      "conta": "act_719222232075091"
+    },
+    {
+      "cliente": "Aline Paixão (imoveis-paixao)",
+      "conta": "act_176204195383555"
+    },
+    {
+      "cliente": "Arcan",
+      "conta": "act_1713849396600716"
+    },
+    {
+      "cliente": "Entretec",
+      "conta": "act_305551789201621"
+    },
+    {
+      "cliente": "Fabioli Ferreira",
+      "conta": "act_855411879787654"
+    },
+    {
+      "cliente": "Fátima Criança",
+      "conta": "act_2903943549967107"
+    },
+    {
+      "cliente": "Fátima Esportes",
+      "conta": "act_2083054409305495"
+    },
+    {
+      "cliente": "Fisiolaser",
+      "conta": "act_933729698300974"
+    },
+    {
+      "cliente": "Grupo Confiança",
+      "conta": "act_4003742919872470"
+    },
+    {
+      "cliente": "Regularize",
+      "conta": "act_1078463730829015"
+    },
+    {
+      "cliente": "SDF Anália Franco",
+      "conta": "act_1346449900000818"
+    },
+    {
+      "cliente": "SDF Nações",
+      "conta": "act_1394631512182975"
+    },
+    {
+      "cliente": "SDF Tietê",
+      "conta": "act_724183793482154"
+    },
+    {
+      "cliente": "Suítes Meu Farol",
+      "conta": "act_1554975615824168"
+    },
+    {
+      "cliente": "The New Ads (funil próprio)",
+      "conta": "act_1294794972320882"
+    },
+    {
+      "cliente": "Vet&Pet",
+      "conta": "act_869905500723511"
+    }
   ],
-  "_google_fora": "Clientes ativos sem Google rodando, fora da coleta até subir campanha: Fabioli (5413476864, 0 campanhas), Grupo Confiança (7638181797, 0 campanhas), Regularize (7647187611, conta desativada no Google em 23/11/2026).",
+  "_google_fora": "Clientes ativos sem Google rodando, fora da coleta até subir campanha: Fabioli (5413476864, 0 campanhas), Grupo Confiança (7638181797, 0 campanhas), Regularize (7647187611, conta desativada no Google em 23/11/2026), SDF Nações (3551601782, única campanha era uma PMax reprovada e sem gasto em 2026, pausada em 27/11/2026).",
   "google": [
-    {"cliente": "Agari Drinks", "conta": "6972111242"},
-    {"cliente": "Entretec", "conta": "3529405554"},
-    {"cliente": "SDF Anália Franco", "conta": "9048359788"},
-    {"cliente": "SDF Nações", "conta": "3551601782"},
-    {"cliente": "SDF Tietê", "conta": "1895619490"},
-    {"cliente": "Vet&Pet", "conta": "4812854815"}
+    {
+      "cliente": "Agari Drinks",
+      "conta": "6972111242"
+    },
+    {
+      "cliente": "Entretec",
+      "conta": "3529405554"
+    },
+    {
+      "cliente": "SDF Anália Franco",
+      "conta": "9048359788"
+    },
+    {
+      "cliente": "SDF Tietê",
+      "conta": "1895619490"
+    },
+    {
+      "cliente": "Vet&Pet",
+      "conta": "4812854815"
+    }
   ]
 }
