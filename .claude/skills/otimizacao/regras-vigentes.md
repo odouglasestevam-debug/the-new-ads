@@ -8,6 +8,10 @@ Quando uma regra vencer ou for revogada, apagar daqui (o histórico guarda o pas
 - **Sem aumento de verba.** Não propor escala em nenhuma conta, nem quando o custo estiver
   estável e melhorando. Desde 19/11/2026: "Sem escala por enquanto, cliente não quer investir
   mais." A seção "Escalar" fica fora do relatório.
+- **Exceção, Grupo Confiança (27/11/2026, ordem do Douglas):** depois da Black, o orçamento é
+  calculado para o saldo pré-pago durar até 12/12. Aplicado: SIMPLES R$ 40, VALIDADOS R$ 20,
+  LONDRINA R$ 9 (R$ 69/dia, contra R$ 41,50 antes), valendo a partir de 28/11 00h. Se houver
+  recarga ou o saldo descolar do ritmo, recalcular (saldo ÷ dias até 12/12). Vence em 12/12/2026.
 
 ## Sazonalidade
 
@@ -15,7 +19,8 @@ Quando uma regra vencer ou for revogada, apagar daqui (o histórico guarda o pas
   Piora de custo por resultado entre 20/11 e 30/11 não é motivo para cortar campanha sozinha.
   Antes de culpar o leilão, conferir se o custo por mil realmente subiu: em 19/11 a campanha de
   vendas do Grupo Confiança piorou com o custo por mil *caindo* (era criativo, não leilão).
-  Vence em 01/12/2026.
+  Vence em 01/12/2026. **Origem:** premissa escrita pelo Claude na montagem da skill (25/11),
+  não é decisão do Douglas (em 27/11 ele não se lembrava dela). Nunca citar como "regra sua".
 
 - **SDF Anália:** a alta do custo por conversa na semana de 18/11 o Douglas atribui à Black
   Friday (área de shopping concorrida). O custo por mil caiu nessa semana; o que piorou foi a
